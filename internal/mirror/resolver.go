@@ -41,6 +41,7 @@ type Candidate struct {
 	MonitorID  int
 	BaseURL    string
 	SourceURL  string
+	Status     string
 	Heartbeats []Heartbeat
 }
 
@@ -105,6 +106,10 @@ func NormalizeBaseURL(raw string) string {
 }
 
 func ParseStatusPageHTML(html string) ([]Candidate, error) {
+	if directory := parseSLUMDirectory(html); len(directory) > 0 {
+		return directory, nil
+	}
+
 	normalized := strings.ReplaceAll(html, `\'`, `'`)
 
 	candidates, err := parseCandidatesFromAnnaGroup(normalized)
@@ -177,38 +182,24 @@ func (r *Resolver) Resolve(ctx context.Context, opts ResolveOptions) (string, er
 		return "", err
 	}
 
-	slug := extractStatusPageSlug(html)
-	heartbeatURL, err := buildHeartbeatURL(r.statusPageURL, slug)
-	if err != nil {
-		if fallbackBaseURL != "" {
-			return fallbackBaseURL, nil
-		}
-		return "", err
-	}
-
-	heartbeatJSON, err := r.fetch(ctx, heartbeatURL)
-	if err != nil {
-		l.Warn("Failed to fetch mirror heartbeat data, using fallback mirror if available",
-			zap.String("heartbeatURL", heartbeatURL),
-			zap.String("fallbackBaseURL", fallbackBaseURL),
-			zap.Error(err),
-		)
-		if fallbackBaseURL != "" {
-			return fallbackBaseURL, nil
-		}
-		return "", err
-	}
-
 	envelope := heartbeatEnvelope{}
-	if err := json.Unmarshal([]byte(heartbeatJSON), &envelope); err != nil {
-		l.Warn("Failed to decode mirror heartbeat data, using fallback mirror if available",
-			zap.String("fallbackBaseURL", fallbackBaseURL),
-			zap.Error(err),
-		)
-		if fallbackBaseURL != "" {
-			return fallbackBaseURL, nil
+	if !directoryStatuses(candidates) {
+		slug := extractStatusPageSlug(html)
+		heartbeatURL, heartbeatErr := buildHeartbeatURL(r.statusPageURL, slug)
+		if heartbeatErr != nil {
+			l.Warn("Failed to build mirror heartbeat URL, probing discovered mirrors",
+				zap.Error(heartbeatErr),
+			)
+		} else if heartbeatJSON, fetchErr := r.fetch(ctx, heartbeatURL); fetchErr != nil {
+			l.Warn("Failed to fetch mirror heartbeat data, probing discovered mirrors",
+				zap.String("heartbeatURL", heartbeatURL),
+				zap.Error(fetchErr),
+			)
+		} else if decodeErr := json.Unmarshal([]byte(heartbeatJSON), &envelope); decodeErr != nil {
+			l.Warn("Failed to decode mirror heartbeat data, probing discovered mirrors",
+				zap.Error(decodeErr),
+			)
 		}
-		return "", err
 	}
 
 	ranked := rankCandidates(applyHeartbeats(candidates, envelope.HeartbeatList))
@@ -286,7 +277,7 @@ func (r *Resolver) fetch(ctx context.Context, rawURL string) (string, error) {
 		return "", fmt.Errorf("unexpected status %d for %s", resp.StatusCode, rawURL)
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
 	if err != nil {
 		return "", err
 	}
@@ -386,9 +377,73 @@ func applyHeartbeats(candidates []Candidate, heartbeatList map[string][]Heartbea
 	return enriched
 }
 
+func directoryStatuses(candidates []Candidate) bool {
+	for _, candidate := range candidates {
+		if candidate.Status != "" {
+			return true
+		}
+	}
+	return false
+}
+
+func parseSLUMDirectory(html string) []Candidate {
+	marker := `class="site-card-title">annas<`
+	start := strings.Index(html, marker)
+	if start < 0 {
+		return nil
+	}
+	section := html[start:]
+	if end := strings.Index(section, `<div class="site-card">`); end > 0 {
+		section = section[:end]
+	}
+
+	hostPattern := regexp.MustCompile(`https://(annas-archive\.[a-z0-9-]+)`)
+	statusPattern := regexp.MustCompile(`status-badge compact ([a-z]+)`)
+	candidates := make([]Candidate, 0)
+	seen := make(map[string]struct{})
+	for _, item := range strings.Split(section, `class="domain-item-dense"`)[1:] {
+		host := hostPattern.FindStringSubmatch(item)
+		if len(host) < 2 {
+			continue
+		}
+		if _, exists := seen[host[1]]; exists {
+			continue
+		}
+		seen[host[1]] = struct{}{}
+		status := ""
+		if match := statusPattern.FindStringSubmatch(item); len(match) == 2 {
+			status = match[1]
+		}
+		candidates = append(candidates, Candidate{
+			BaseURL:   host[1],
+			SourceURL: "https://" + host[1] + "/",
+			Status:    status,
+		})
+	}
+	return candidates
+}
+
+func statusRank(status string) int {
+	switch status {
+	case "up":
+		return 0
+	case "protected":
+		return 1
+	case "degraded":
+		return 2
+	case "":
+		return 3
+	default:
+		return 4
+	}
+}
+
 func rankCandidates(candidates []Candidate) []Candidate {
 	filtered := make([]Candidate, 0, len(candidates))
 	for _, candidate := range candidates {
+		if candidate.Status == "down" {
+			continue
+		}
 		score := candidate.Score()
 		if score.LastStatus == 1 || score.SampleCount == 0 {
 			filtered = append(filtered, candidate)
@@ -396,6 +451,12 @@ func rankCandidates(candidates []Candidate) []Candidate {
 	}
 
 	sort.SliceStable(filtered, func(i, j int) bool {
+		leftRank := statusRank(filtered[i].Status)
+		rightRank := statusRank(filtered[j].Status)
+		if leftRank != rightRank {
+			return leftRank < rightRank
+		}
+
 		left := filtered[i].Score()
 		right := filtered[j].Score()
 

@@ -24,7 +24,7 @@ To run the MCP server, you need Node.js 18 or newer and an MCP client such as Cu
 
 ## Setup
 
-`npx` installs this repository from GitHub and downloads the binary for your system from the latest [release](https://github.com/SokolskyNikita/annas-mcp/releases). The binary is cached locally. A later launch downloads a new binary only when a newer release is published. With no extra arguments, the command starts the MCP server.
+`npx` installs this repository from GitHub and downloads the binary for your system from the latest [release](https://github.com/SokolskyNikita/annas-mcp/releases). The archive is checked against the release checksum before it is saved. If a binary is already cached, the server starts immediately. A newer release is downloaded in the background and used on the next launch. With no extra arguments, the command starts the MCP server.
 
 Cursor, Claude Desktop, and other clients that read MCP JSON:
 
@@ -95,19 +95,19 @@ The cookie expires. When search starts failing, open the site again and copy a n
 
 Anna's Archive publishes several mirrors, and their availability changes. With automatic discovery off, the tool uses `ANNAS_BASE_URL`, or `annas-archive.gl` when that variable is unset.
 
-With `ANNAS_AUTO_BASE_URL=true`, the tool reads the public SLUM status page, ranks Anna mirror candidates by recent health and latency, probes them locally, and uses the best reachable mirror. If discovery or probing fails, it falls back to `ANNAS_BASE_URL`, then to `annas-archive.gl`.
+With `ANNAS_AUTO_BASE_URL=true`, the tool reads the public [SLUM](https://open-slum.org/) page, prefers mirrors marked up, then protected, probes them locally, and uses the first one that answers. If discovery or probing fails, it falls back to `ANNAS_BASE_URL`, then to `annas-archive.gl`.
 
 ### Timeouts
 
-HTTP requests time out after one hour by default.
+Search times out after 60 seconds. Downloads time out after 30 minutes. A cancelled tool call stops the request.
 
-On the CLI, override the timeout with `--timeout`:
+On the CLI, override either timeout with `--timeout`:
 
 ```bash
 annas-mcp --timeout 1h book-download abc123def456 "my-book.pdf"
 ```
 
-MCP tools accept an optional `timeout_seconds` argument. Pass `3600` for one hour.
+Search also accepts `--page`, `--language`, and `--content`. MCP tools accept the same values, plus an optional `timeout_seconds` argument.
 
 ## Demo
 
@@ -123,7 +123,7 @@ MCP tools accept an optional `timeout_seconds` argument. Pass `3600` for one hou
 
 | Operation | MCP tool | CLI command | Example |
 | --- | --- | --- | --- |
-| Search books by title, author, or topic | `book_search` | `book-search` | `book-search "machine learning python"` |
+| Search books by title, author, or topic | `book_search` | `book-search` | `book-search --language en --page 1 "machine learning python"` |
 | Download a book by its MD5 hash | `book_download` | `book-download` | `book-download abc123def456 "my-book.pdf"` |
 | Search articles by DOI or keywords | `article_search` | `article-search` | `article-search "10.1038/nature12345"` |
 | Download an article by its DOI | `article_download` | `article-download` | `article-download "10.1038/nature12345"` |

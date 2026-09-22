@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/fang"
 	"github.com/iosifache/annas-mcp/internal/anna"
@@ -25,7 +26,10 @@ func StartCLI() {
 		l.Warn("Error loading .env file", zap.Error(err))
 	}
 
-	timeout := anna.DefaultHTTPTimeout
+	timeout := anna.DefaultDownloadTimeout
+	var searchPage int
+	var searchLanguage string
+	var searchContent string
 
 	rootCmd := &cobra.Command{
 		Use:   "annas-mcp",
@@ -46,7 +50,7 @@ func StartCLI() {
 		},
 	}
 	rootCmd.SetVersionTemplate("{{.Version}}\n")
-	rootCmd.PersistentFlags().DurationVar(&timeout, "timeout", anna.DefaultHTTPTimeout, "HTTP request timeout, e.g. 30s, 10m, 1h")
+	rootCmd.PersistentFlags().DurationVar(&timeout, "timeout", anna.DefaultDownloadTimeout, "HTTP timeout for this command, for example 30s, 10m, or 1h. Search defaults to 60s and downloads default to 30m when this flag is omitted")
 
 	bookSearchCmd := &cobra.Command{
 		Use:   "book-search [query]",
@@ -56,7 +60,11 @@ func StartCLI() {
 			query := args[0]
 			l.Info("Book search command called", zap.String("query", query))
 
-			books, err := anna.FindBook(query, timeout)
+			books, err := anna.FindBook(cmd.Context(), query, anna.SearchOptions{
+				Content:  searchContent,
+				Language: searchLanguage,
+				Page:     searchPage,
+			}, searchCommandTimeout(cmd, timeout))
 			if err != nil {
 				l.Error("Book search command failed",
 					zap.String("query", query),
@@ -121,7 +129,7 @@ func StartCLI() {
 				Format: format,
 			}
 
-			err = book.Download(env.SecretKey, env.DownloadPath, timeout)
+			result, err := book.Download(cmd.Context(), env.SecretKey, env.DownloadPath, timeout, nil)
 			if err != nil {
 				l.Error("Download command failed",
 					zap.String("bookHash", bookHash),
@@ -131,8 +139,7 @@ func StartCLI() {
 				return fmt.Errorf("failed to download book: %w", err)
 			}
 
-			fullPath := filepath.Join(env.DownloadPath, filename)
-			fmt.Printf("Book downloaded successfully to: %s\n", fullPath)
+			fmt.Printf("Book downloaded successfully to: %s\n", result.Path)
 
 			l.Info("Download command completed successfully",
 				zap.String("bookHash", bookHash),
@@ -158,7 +165,7 @@ func StartCLI() {
 				// DOI lookup
 				l.Info("Detected DOI format, performing DOI lookup", zap.String("doi", query))
 
-				paper, err := anna.LookupDOI(query, timeout)
+				paper, err := anna.LookupDOI(cmd.Context(), query, searchCommandTimeout(cmd, timeout))
 				if err != nil {
 					l.Error("DOI lookup failed",
 						zap.String("doi", query),
@@ -176,7 +183,11 @@ func StartCLI() {
 			// Article keyword search
 			l.Info("Performing article keyword search", zap.String("query", query))
 
-			papers, err := anna.FindArticle(query, timeout)
+			papers, err := anna.FindArticle(cmd.Context(), query, anna.SearchOptions{
+				Content:  searchContent,
+				Language: searchLanguage,
+				Page:     searchPage,
+			}, searchCommandTimeout(cmd, timeout))
 			if err != nil {
 				l.Error("Article search failed",
 					zap.String("query", query),
@@ -222,7 +233,7 @@ func StartCLI() {
 			}
 
 			// Lookup paper
-			paper, err := anna.LookupDOI(doi, timeout)
+			paper, err := anna.LookupDOI(cmd.Context(), doi, timeout)
 			if err != nil {
 				l.Error("DOI lookup failed for download",
 					zap.String("doi", doi),
@@ -234,26 +245,26 @@ func StartCLI() {
 			// Try fast download first if hash and secret key available
 			if paper.Hash != "" && env.SecretKey != "" {
 				book := &anna.Book{
-					Hash:   paper.Hash,
-					Title:  paper.Title,
-					Format: "pdf",
+					Hash:  paper.Hash,
+					Title: paper.Title,
 				}
-				if err := book.Download(env.SecretKey, env.DownloadPath, timeout); err == nil {
-					fmt.Printf("Article downloaded successfully to: %s\n", env.DownloadPath)
+				result, downloadErr := book.Download(cmd.Context(), env.SecretKey, env.DownloadPath, timeout, nil)
+				if downloadErr == nil {
+					fmt.Printf("Article downloaded successfully to: %s\n", result.Path)
 					l.Info("Article downloaded via fast download",
 						zap.String("doi", doi),
-						zap.String("path", env.DownloadPath),
+						zap.String("path", result.Path),
 					)
 					return nil
 				}
 				l.Warn("Fast download failed, trying SciDB download",
 					zap.String("doi", doi),
-					zap.Error(err),
+					zap.Error(downloadErr),
 				)
 			}
 
-			// Fall back to SciDB download
-			if err := paper.Download(env.DownloadPath, timeout); err != nil {
+			result, err := paper.Download(cmd.Context(), env.DownloadPath, timeout, nil)
+			if err != nil {
 				l.Error("SciDB download failed",
 					zap.String("doi", doi),
 					zap.Error(err),
@@ -261,7 +272,7 @@ func StartCLI() {
 				return fmt.Errorf("download failed: %w", err)
 			}
 
-			fmt.Printf("Article downloaded successfully to: %s\n", env.DownloadPath)
+			fmt.Printf("Article downloaded successfully to: %s\n", result.Path)
 			l.Info("Article downloaded via SciDB",
 				zap.String("doi", doi),
 				zap.String("path", env.DownloadPath),
@@ -277,11 +288,22 @@ func StartCLI() {
 		Long:  "Start the Model Context Protocol (MCP) server for integration with AI assistants.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Exit CLI mode and start MCP server
-			StartMCPServer(timeout)
+			searchDefault := anna.DefaultSearchTimeout
+			if cmd.Flags().Changed("timeout") {
+				searchDefault = timeout
+			}
+			StartMCPServer(searchDefault, timeout)
 			return nil
 		},
 	}
+
+	bindSearchFlags := func(cmd *cobra.Command) {
+		cmd.Flags().IntVar(&searchPage, "page", 1, "Result page, starting at 1")
+		cmd.Flags().StringVar(&searchLanguage, "language", "", "Language code, for example en")
+		cmd.Flags().StringVar(&searchContent, "content", "", "Content filter, for example book_fiction or journal")
+	}
+	bindSearchFlags(bookSearchCmd)
+	bindSearchFlags(articleSearchCmd)
 
 	rootCmd.AddCommand(bookSearchCmd)
 	rootCmd.AddCommand(bookDownloadCmd)
@@ -296,4 +318,11 @@ func StartCLI() {
 	); err != nil {
 		os.Exit(1)
 	}
+}
+
+func searchCommandTimeout(cmd *cobra.Command, explicit time.Duration) time.Duration {
+	if cmd.Flags().Changed("timeout") {
+		return explicit
+	}
+	return anna.DefaultSearchTimeout
 }

@@ -31,6 +31,22 @@ func (p *Paper) String() string {
 }
 
 type fastDownloadResponse struct {
-	DownloadURL string `json:"download_url"`
-	Error       string `json:"error"`
+	DownloadURL *string `json:"download_url"`
+	Error       string  `json:"error"`
 }
+
+// SearchOptions narrows one page of Anna's Archive results.
+type SearchOptions struct {
+	Content  string
+	Language string
+	Page     int
+}
+
+// DownloadResult is the file written by a successful download.
+type DownloadResult struct {
+	Path  string
+	Bytes int64
+}
+
+// ProgressFunc reports bytes written. total is 0 when the server omits Content-Length.
+type ProgressFunc func(done, total int64)

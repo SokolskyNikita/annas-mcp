@@ -1,11 +1,12 @@
+import { createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
-import { createReadStream } from "node:fs";
+import { createReadStream, readFileSync } from "node:fs";
 import { mkdtemp, mkdir, rm } from "node:fs/promises";
 import { createServer } from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { goreleaserTarget, selectAsset } from "../bin/annas-mcp.js";
+import { checksumFor, goreleaserTarget, selectAsset } from "../bin/annas-mcp.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -48,6 +49,11 @@ function testAssetSelection() {
     rejected = true;
   }
   assert(rejected, "missing linux/arm asset should fail");
+  const digest = "a".repeat(64);
+  assert(
+    checksumFor(`${digest}  annas-mcp_0.0.6_darwin_arm64.tar.xz\n`, "annas-mcp_0.0.6_darwin_arm64.tar.xz") === digest,
+    "checksum line was not parsed",
+  );
 }
 
 function buildBinary(destination) {
@@ -75,20 +81,31 @@ function createArchive(binaryPath, archivePath, directoryName) {
 
 function startReleaseServer(archivePath, assetName) {
   let archiveDownloads = 0;
+  const checksum = createHash("sha256").update(readFileSync(archivePath)).digest("hex");
+  const checksumBody = `${checksum}  ${assetName}\n`;
   const server = createServer((request, response) => {
     if (request.url === "/releases/latest") {
+      const origin = `http://127.0.0.1:${server.address().port}`;
       const payload = {
         tag_name: "v0.0.6",
         assets: [
           {
             name: assetName,
-            browser_download_url: `http://127.0.0.1:${server.address().port}/${assetName}`,
+            browser_download_url: `${origin}/${assetName}`,
           },
-          { name: "annas-mcp_0.0.6--checksums.txt", browser_download_url: "http://127.0.0.1/skip" },
+          {
+            name: "annas-mcp_0.0.6--checksums.txt",
+            browser_download_url: `${origin}/checksums`,
+          },
         ],
       };
       response.setHeader("Content-Type", "application/json");
       response.end(JSON.stringify(payload));
+      return;
+    }
+    if (request.url === "/checksums") {
+      response.setHeader("Content-Type", "text/plain");
+      response.end(checksumBody);
       return;
     }
     if (request.url === `/${assetName}`) {
@@ -272,6 +289,22 @@ async function main() {
     }
     await stopChild(viaNpx);
     release.server.close();
+
+    const offline = spawn(process.execPath, ["bin/annas-mcp.js"], {
+      cwd: root,
+      env: {
+        ...process.env,
+        ANNAS_MCP_RELEASE_API: release.api,
+        ANNAS_MCP_CACHE_DIR: cache,
+      },
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    try {
+      await handshake(offline);
+    } catch (error) {
+      throw new Error(`${error.message}\noffline start should use the cached binary`);
+    }
+    await stopChild(offline);
     console.log("npx launcher test passed");
   } finally {
     await rm(work, { recursive: true, force: true });

@@ -189,6 +189,89 @@ func stringResponse(req *http.Request, status int, body string) *http.Response {
 	}
 }
 
+func TestResolveProbesWhenHeartbeatEndpointIsMissing(t *testing.T) {
+	t.Parallel()
+
+	html := `<html><body><a href="https://annas-archive.fallback/">mirror</a></body></html>`
+	client := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch req.URL.String() {
+			case "https://status.example/":
+				return stringResponse(req, http.StatusOK, html), nil
+			case "https://status.example/api/status-page/heartbeat/slum":
+				return stringResponse(req, http.StatusNotFound, "missing"), nil
+			default:
+				return nil, errors.New("unexpected request: " + req.URL.String())
+			}
+		}),
+	}
+
+	resolver := NewResolver(client, "https://status.example/", func(ctx context.Context, baseURL string) error {
+		if baseURL != "annas-archive.fallback" {
+			return errors.New("unexpected probe: " + baseURL)
+		}
+		return nil
+	})
+
+	baseURL, err := resolver.Resolve(context.Background(), ResolveOptions{FallbackBaseURL: "configured.example"})
+	if err != nil {
+		t.Fatalf("Resolve returned error: %v", err)
+	}
+	if baseURL != "annas-archive.fallback" {
+		t.Fatalf("expected annas-archive.fallback, got %q", baseURL)
+	}
+}
+
+func TestResolvePrefersUpMirrorFromCurrentSLUMPage(t *testing.T) {
+	t.Parallel()
+
+	html := `
+<div class="site-card">
+  <a href="annas.html" class="site-card-title">annas</a>
+  <li class="domain-item-dense">
+    <a href="https://annas-archive.aaa">annas-archive.aaa</a>
+    <a class="status-badge compact protected">PROTECTED</a>
+  </li>
+  <li class="domain-item-dense">
+    <a href="https://annas-archive.zzz">annas-archive.zzz</a>
+    <a class="status-badge compact up">UP</a>
+  </li>
+  <li class="domain-item-dense">
+    <a href="https://software.annas-archive.gl">software</a>
+    <a class="status-badge compact up">UP</a>
+  </li>
+</div>
+<div class="site-card">
+  <a href="libgen.html" class="site-card-title">libgen</a>
+</div>`
+
+	client := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if req.URL.String() != "https://status.example/" {
+				return nil, errors.New("heartbeat should not be requested: " + req.URL.String())
+			}
+			return stringResponse(req, http.StatusOK, html), nil
+		}),
+	}
+
+	var probed []string
+	resolver := NewResolver(client, "https://status.example/", func(ctx context.Context, baseURL string) error {
+		probed = append(probed, baseURL)
+		return nil
+	})
+
+	baseURL, err := resolver.Resolve(context.Background(), ResolveOptions{FallbackBaseURL: "configured.example"})
+	if err != nil {
+		t.Fatalf("Resolve returned error: %v", err)
+	}
+	if baseURL != "annas-archive.zzz" {
+		t.Fatalf("expected annas-archive.zzz, got %q", baseURL)
+	}
+	if len(probed) != 1 || probed[0] != "annas-archive.zzz" {
+		t.Fatalf("expected only the up mirror to be probed first, got %v", probed)
+	}
+}
+
 func TestCandidateScoreUsesRecentHeartbeatQuality(t *testing.T) {
 	t.Parallel()
 

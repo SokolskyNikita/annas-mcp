@@ -3,6 +3,7 @@
 // npx downloads this repository, then this script downloads the matching
 // release binary and runs it. With no arguments it starts the MCP server.
 
+import { createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
 import { createWriteStream, realpathSync } from "node:fs";
 import {
@@ -53,6 +54,37 @@ export function goreleaserTarget(platform = process.platform, arch = process.arc
     extension: osName === "windows" ? "zip" : "tar.xz",
     binaryName: osName === "windows" ? "annas-mcp.exe" : "annas-mcp",
   };
+}
+
+export function selectChecksumAsset(assets) {
+  const matches = (assets || []).filter(
+    (asset) => typeof asset?.name === "string" && asset.name.endsWith("--checksums.txt"),
+  );
+  if (matches.length !== 1) {
+    const names = (assets || []).map((asset) => asset?.name).filter(Boolean);
+    throw new Error(
+      `Expected one checksums asset, found ${matches.length}. Assets: ${names.join(", ") || "(none)"}`,
+    );
+  }
+  if (!matches[0].browser_download_url) {
+    throw new Error(`Release asset ${matches[0].name} has no download URL`);
+  }
+  return matches[0];
+}
+
+export function checksumFor(text, filename) {
+  const base = path.basename(filename);
+  for (const line of text.split(/\r?\n/)) {
+    const match = line.trim().match(/^([a-fA-F0-9]{64})\s+\*?(.+)$/);
+    if (!match) {
+      continue;
+    }
+    const name = match[2].trim();
+    if (name === filename || name === base || path.basename(name) === base) {
+      return match[1].toLowerCase();
+    }
+  }
+  throw new Error(`Checksum file has no entry for ${filename}`);
 }
 
 export function selectAsset(assets, target) {
@@ -153,6 +185,24 @@ async function fetchLatestRelease() {
   return release;
 }
 
+async function downloadText(url) {
+  const response = await fetch(url, {
+    headers: { "User-Agent": "annas-mcp" },
+    signal: AbortSignal.timeout(30_000),
+    redirect: "follow",
+  });
+  if (!response.ok) {
+    throw new Error(`Download failed (${response.status}) for ${url}`);
+  }
+  return response.text();
+}
+
+async function sha256File(file) {
+  const hash = createHash("sha256");
+  hash.update(await readFile(file));
+  return hash.digest("hex");
+}
+
 async function downloadFile(url, destination) {
   const response = await fetch(url, {
     headers: { "User-Agent": "annas-mcp" },
@@ -213,7 +263,14 @@ async function installBinary(release, asset, target) {
   await mkdir(work, { recursive: true });
   const archivePath = path.join(work, asset.name);
   try {
+    const checksumAsset = selectChecksumAsset(release.assets);
+    const checksumText = await downloadText(checksumAsset.browser_download_url);
+    const expected = checksumFor(checksumText, asset.name);
     await downloadFile(asset.browser_download_url, archivePath);
+    const actual = await sha256File(archivePath);
+    if (actual !== expected) {
+      throw new Error(`Checksum mismatch for ${asset.name}`);
+    }
     const extracted = path.join(work, "extracted");
     await mkdir(extracted);
     extractArchive(archivePath, extracted, target.extension);
@@ -221,7 +278,7 @@ async function installBinary(release, asset, target) {
     if (!found) {
       throw new Error(`Archive ${asset.name} does not contain ${target.binaryName}`);
     }
-    const binaryDir = path.join(root, "bin");
+    const binaryDir = path.join(root, "versions", release.tag_name);
     await mkdir(binaryDir, { recursive: true });
     const binaryPath = path.join(binaryDir, target.binaryName);
     const temporary = `${binaryPath}.tmp`;
@@ -259,14 +316,31 @@ function runBinary(binary, args) {
   });
 }
 
-async function main() {
-  const target = goreleaserTarget();
+async function refreshRelease(current, target) {
   const release = await fetchLatestRelease();
   const asset = selectAsset(release.assets, target);
-  const existing = await cachedBinary(cacheDir(), release, asset);
-  const binary = existing || (await installBinary(release, asset, target));
+  if (current.tag === release.tag_name && current.asset === asset.name) {
+    return;
+  }
+  await installBinary(release, asset, target);
+}
+
+async function main() {
+  const target = goreleaserTarget();
   const args = process.argv.slice(2);
-  runBinary(binary, args.length === 0 ? ["mcp"] : args);
+  const commandArgs = args.length === 0 ? ["mcp"] : args;
+  const current = await readCacheMeta(cacheDir());
+  if (current?.binary && (await cachedBinary(cacheDir(), { tag_name: current.tag }, { name: current.asset }))) {
+    refreshRelease(current, target).catch((error) => {
+      console.error(`annas-mcp: update check failed, using the cached binary. ${error.message}`);
+    });
+    runBinary(current.binary, commandArgs);
+    return;
+  }
+  const release = await fetchLatestRelease();
+  const asset = selectAsset(release.assets, target);
+  const binary = await installBinary(release, asset, target);
+  runBinary(binary, commandArgs);
 }
 
 if (isDirectRun()) {
