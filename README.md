@@ -61,7 +61,7 @@ ANNAS_ACCOUNT_COOKIE = "your-aa-account-id2-value"
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `ANNAS_ACCOUNT_COOKIE` | Search | `aa_account_id2` value. See below. |
+| `ANNAS_ACCOUNT_COOKIE` | Search | `aa_account_id2` value. It expires about once a week. See below. |
 | `ANNAS_SECRET_KEY` | Downloads | API key from Lucky Librarian or a higher tier. Lower tiers cannot download. |
 | `ANNAS_DOWNLOAD_PATH` | Downloads | Absolute directory where files are saved. |
 | `ANNAS_BASE_URL` | | Mirror hostname used when automatic selection is off or fails. Default `annas-archive.gl`. |
@@ -71,12 +71,25 @@ ANNAS_ACCOUNT_COOKIE = "your-aa-account-id2-value"
 
 Anna's Archive rejects clients that are not a browser session. Search sends the `aa_account_id2` cookie.
 
-1. Open [annas-archive.gl](https://annas-archive.gl) and wait until the page loads.
-2. In Firefox, open **Storage → Cookies**. In Chrome, open **Application → Cookies**.
-3. Copy the value of `aa_account_id2`.
-4. Set `ANNAS_ACCOUNT_COOKIE` to that value, to `aa_account_id2=...`, or to a full `Cookie` header. Only `aa_account_id2` is sent.
+Set `ANNAS_ACCOUNT_COOKIE` to the raw value, to `aa_account_id2=...`, or to a full `Cookie` header. Only `aa_account_id2` is sent.
 
-A 403 on search means the cookie expired. Copy a new value.
+The cookie expires about once a week. This MCP stores the value you set and does not refresh it, so search starts returning 403 until you paste a new one and restart the server. That weekly refresh is a current limitation.
+
+Open [annas-archive.gl](https://annas-archive.gl) and wait until the page loads, then copy `aa_account_id2` with either method below.
+
+**Cookie store**
+
+1. Open developer tools.
+2. In Chrome, open **Application → Cookies** and select the site. In Firefox, open **Storage → Cookies**.
+3. Copy the value of `aa_account_id2`.
+
+**Network request**
+
+1. Open developer tools and switch to the **Network** tab.
+2. Reload the page and select a request to the archive.
+3. Copy `aa_account_id2` from the request's **Cookies** list, or from the `Cookie` request header.
+
+A 403 on search means the cookie has expired. Repeat either method, update `ANNAS_ACCOUNT_COOKIE`, and restart the MCP process so it reads the new value.
 
 ### Mirrors
 
