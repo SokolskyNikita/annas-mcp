@@ -1,7 +1,7 @@
 {
   "name": "annas-mcp",
   "version": "0.0.6",
-  "description": "Anna's Archive MCP server and CLI",
+  "description": "MCP server and CLI for searching and downloading books and articles from Anna's Archive",
   "type": "module",
   "bin": {
     "annas-mcp": "./bin/annas-mcp.js"
