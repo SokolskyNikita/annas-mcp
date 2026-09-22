@@ -147,7 +147,3 @@ Anna's search can return an empty later page, with the text "No files found", ev
 | `book_download` | `hash`, `title`. Optional `format` (`pdf`, `epub`); otherwise taken from the response. `timeout_seconds` | `book-download abc123def456 "my-book.epub"` |
 | `article_search` | `query`: a DOI (`10.…`) or keywords. Optional `content` (default `journal`), `language`, `page`, `timeout_seconds` | `article-search "10.1038/nature12373"` |
 | `article_download` | `doi`, optional `timeout_seconds` | `article-download "10.1038/nature12373"` |
-
-## License
-
-[MIT](LICENSE)
