@@ -20,30 +20,57 @@ Downloads require:
 - [A donation to Anna's Archive](https://annas-archive.gl/donate), which grants JSON API access
 - [An API key](https://annas-archive.gl/faq#api)
 
-To run the MCP server, you also need an MCP client such as [Claude Desktop](https://claude.ai/download).
+To run the MCP server, you need Node.js 18 or newer and an MCP client such as Cursor, Claude Code, or [Claude Desktop](https://claude.ai/download).
 
 ## Setup
 
-Download a binary from the original project's [GitHub releases](https://github.com/iosifache/annas-mcp/releases).
+`npx` installs this repository from GitHub and downloads the binary for your system from the latest [release](https://github.com/SokolskyNikita/annas-mcp/releases). The binary is cached locally. A later launch downloads a new binary only when a newer release is published. With no extra arguments, the command starts the MCP server.
 
-To use the MCP server, register the binary with your client. Claude Desktop example:
+Cursor, Claude Desktop, and other clients that read MCP JSON:
 
 ```json
-"anna-mcp": {
-    "command": "/path/to/annas-mcp",
-    "args": ["mcp"],
-    "env": {
+{
+  "mcpServers": {
+    "annas-mcp": {
+      "command": "npx",
+      "args": ["-y", "github:SokolskyNikita/annas-mcp"],
+      "env": {
         "ANNAS_SECRET_KEY": "your-api-key",
         "ANNAS_DOWNLOAD_PATH": "/path/to/downloads",
         "ANNAS_BASE_URL": "annas-archive.gl",
         "ANNAS_ACCOUNT_COOKIE": "your-aa-account-id2-value"
+      }
     }
+  }
 }
+```
+
+Claude Code:
+
+```bash
+claude mcp add annas-mcp \
+  --env ANNAS_SECRET_KEY=your-api-key \
+  --env ANNAS_DOWNLOAD_PATH=/path/to/downloads \
+  --env ANNAS_ACCOUNT_COOKIE=your-aa-account-id2-value \
+  -- npx -y github:SokolskyNikita/annas-mcp
+```
+
+Codex (`~/.codex/config.toml`):
+
+```toml
+[mcp_servers.annas-mcp]
+command = "npx"
+args = ["-y", "github:SokolskyNikita/annas-mcp"]
+
+[mcp_servers.annas-mcp.env]
+ANNAS_SECRET_KEY = "your-api-key"
+ANNAS_DOWNLOAD_PATH = "/path/to/downloads"
+ANNAS_ACCOUNT_COOKIE = "your-aa-account-id2-value"
 ```
 
 ## Configuration
 
-Set these as environment variables, or store them in an `.env` file in the same directory as the binary.
+Set these as environment variables in the client configuration above, or store them in a `.env` file in the working directory.
 
 | Variable | Required for | Description |
 | --- | --- | --- |

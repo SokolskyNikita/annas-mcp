@@ -1,0 +1,17 @@
+{
+  "name": "annas-mcp",
+  "version": "0.0.6",
+  "description": "Anna's Archive MCP server and CLI",
+  "type": "module",
+  "bin": {
+    "annas-mcp": "./bin/annas-mcp.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SokolskyNikita/annas-mcp.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}
