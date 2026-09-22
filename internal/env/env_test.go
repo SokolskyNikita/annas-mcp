@@ -5,7 +5,9 @@ import (
 	"testing"
 )
 
-func TestGetAnnasBaseURLDefaultsWithoutResolver(t *testing.T) {
+func TestGetAnnasBaseURLDefaultsToAutomaticSelection(t *testing.T) {
+	t.Setenv("ANNAS_AUTO_BASE_URL", "")
+	t.Setenv("ANNAS_BASE_URL", "")
 	resetResolvedEnvForTests()
 
 	resolverCalls := int32(0)
@@ -18,17 +20,18 @@ func TestGetAnnasBaseURLDefaultsWithoutResolver(t *testing.T) {
 		resetResolvedEnvForTests()
 	})
 
-	baseURL := GetAnnasBaseURL()
-	if baseURL != DefaultAnnasBaseURL {
-		t.Fatalf("expected %q, got %q", DefaultAnnasBaseURL, baseURL)
+	first := GetAnnasBaseURL()
+	second := GetAnnasBaseURL()
+	if first != "dynamic.example" || second != "dynamic.example" {
+		t.Fatalf("expected cached dynamic.example, got %q and %q", first, second)
 	}
-
-	if atomic.LoadInt32(&resolverCalls) != 0 {
-		t.Fatalf("expected resolver not to be called by default, got %d calls", resolverCalls)
+	if atomic.LoadInt32(&resolverCalls) != 1 {
+		t.Fatalf("expected resolver to be called once by default, got %d calls", resolverCalls)
 	}
 }
 
 func TestGetAnnasBaseURLUsesConfiguredBaseURLWithoutResolver(t *testing.T) {
+	t.Setenv("ANNAS_AUTO_BASE_URL", "false")
 	t.Setenv("ANNAS_BASE_URL", "fallback.example")
 	resetResolvedEnvForTests()
 
@@ -103,6 +106,7 @@ func TestGetAnnasBaseURLFallsBackWhenAutoResolverFails(t *testing.T) {
 func TestGetEnvUsesSelectedBaseURL(t *testing.T) {
 	t.Setenv("ANNAS_SECRET_KEY", "secret")
 	t.Setenv("ANNAS_DOWNLOAD_PATH", t.TempDir())
+	t.Setenv("ANNAS_AUTO_BASE_URL", "false")
 	t.Setenv("ANNAS_BASE_URL", "configured.example")
 
 	resetResolvedEnvForTests()

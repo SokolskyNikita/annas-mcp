@@ -101,9 +101,17 @@ func defaultResolveAnnasBaseURL() (string, error) {
 	return resolver.Resolve(context.Background(), mirror.ResolveOptions{FallbackBaseURL: fallbackBaseURL})
 }
 
+// autoMirrorDiscoveryEnabled is on unless ANNAS_AUTO_BASE_URL is explicitly false.
 func autoMirrorDiscoveryEnabled() bool {
-	enabled, err := strconv.ParseBool(os.Getenv("ANNAS_AUTO_BASE_URL"))
-	return err == nil && enabled
+	raw := strings.TrimSpace(os.Getenv("ANNAS_AUTO_BASE_URL"))
+	if raw == "" {
+		return true
+	}
+	enabled, err := strconv.ParseBool(raw)
+	if err != nil {
+		return true
+	}
+	return enabled
 }
 
 const accountCookieName = "aa_account_id2"

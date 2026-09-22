@@ -10,7 +10,7 @@ The archive includes public-domain and Creative Commons works. Download a file o
 
 Node.js 18 or newer. `npx` downloads the binary for your system from the latest [release](https://github.com/SokolskyNikita/annas-mcp/releases), checks it against the published checksum, and caches it in `~/.cache/annas-mcp`. The next launch starts that binary immediately. A newer release is downloaded in the background and used on the following launch.
 
-Search needs `ANNAS_ACCOUNT_COOKIE`. Downloads need `ANNAS_SECRET_KEY`, from an [Anna's Archive donation](https://annas-archive.gl/donate) ([API FAQ](https://annas-archive.gl/faq#api)), and an absolute `ANNAS_DOWNLOAD_PATH`.
+Search needs `ANNAS_ACCOUNT_COOKIE`. Downloads need `ANNAS_SECRET_KEY` and an absolute `ANNAS_DOWNLOAD_PATH`. The key comes from an [Anna's Archive membership](https://annas-archive.gl/donate) at Lucky Librarian or higher ([API FAQ](https://annas-archive.gl/faq#api)). A lower tier does not grant fast-download access, so downloads fail.
 
 Put these in the client `env` block. A `.env` file is read from the process working directory, which is usually not the directory that contains the binary.
 
@@ -62,10 +62,10 @@ ANNAS_ACCOUNT_COOKIE = "your-aa-account-id2-value"
 | Variable | Required | Description |
 | --- | --- | --- |
 | `ANNAS_ACCOUNT_COOKIE` | Search | `aa_account_id2` value. See below. |
-| `ANNAS_SECRET_KEY` | Downloads | Member API key. |
+| `ANNAS_SECRET_KEY` | Downloads | API key from Lucky Librarian or a higher tier. Lower tiers cannot download. |
 | `ANNAS_DOWNLOAD_PATH` | Downloads | Absolute directory where files are saved. |
-| `ANNAS_BASE_URL` | | Mirror hostname. Default `annas-archive.gl`. Used when automatic selection fails. |
-| `ANNAS_AUTO_BASE_URL` | | Set to `true` to pick a mirror from [SLUM](https://open-slum.org/). |
+| `ANNAS_BASE_URL` | | Mirror hostname used when automatic selection is off or fails. Default `annas-archive.gl`. |
+| `ANNAS_AUTO_BASE_URL` | | Automatic mirror selection. Default on. Set to `false` to use `ANNAS_BASE_URL` only. |
 
 ### Account cookie
 
@@ -80,9 +80,9 @@ A 403 on search means the cookie expired. Copy a new value.
 
 ### Mirrors
 
-With automatic selection off, requests go to `ANNAS_BASE_URL`, or to `annas-archive.gl`.
+Automatic selection is the default. The server reads the [SLUM](https://open-slum.org/) page, prefers mirrors marked up, then protected, probes them, and uses the first that answers. If discovery or probing fails, it uses `ANNAS_BASE_URL`, then `annas-archive.gl`.
 
-With `ANNAS_AUTO_BASE_URL=true`, the server reads the [SLUM](https://open-slum.org/) page, prefers mirrors marked up, then protected, probes them, and uses the first that answers. If discovery or probing fails, it uses `ANNAS_BASE_URL`, then `annas-archive.gl`.
+Set `ANNAS_AUTO_BASE_URL=false` to skip that and send every request to `ANNAS_BASE_URL`, or to `annas-archive.gl` when that variable is unset.
 
 ### Timeouts
 

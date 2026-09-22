@@ -243,7 +243,7 @@ async function main() {
       child.on("exit", (status) => resolve({ status, stdout, stderr }));
     });
     assert(version.status === 0, version.stderr || "version command failed");
-    assert(version.stdout.includes("v0.0.6"), `version stdout was ${JSON.stringify(version.stdout)}`);
+    assert(version.stdout.includes("v0.0.7"), `version stdout was ${JSON.stringify(version.stdout)}`);
     assert(release.downloads() === 1, "version command should download the archive once");
 
     const server = spawn(process.execPath, ["bin/annas-mcp.js"], {
