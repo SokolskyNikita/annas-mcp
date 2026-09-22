@@ -61,6 +61,7 @@ type Resolver struct {
 	client        *http.Client
 	statusPageURL string
 	probe         ProbeFunc
+	accountCookie string
 }
 
 type heartbeatEnvelope struct {
@@ -88,6 +89,11 @@ func NewResolver(client *http.Client, statusPageURL string, probe ProbeFunc) *Re
 	}
 
 	return resolver
+}
+
+// SetAccountCookie attaches an aa_account_id2 Cookie header to mirror probes.
+func (r *Resolver) SetAccountCookie(cookieHeader string) {
+	r.accountCookie = strings.TrimSpace(cookieHeader)
 }
 
 func NormalizeBaseURL(raw string) string {
@@ -245,6 +251,9 @@ func (r *Resolver) defaultProbe(ctx context.Context, baseURL string) error {
 	}
 
 	req.Header.Set("User-Agent", browserUserAgent)
+	if r.accountCookie != "" {
+		req.Header.Set("Cookie", r.accountCookie)
+	}
 
 	resp, err := r.client.Do(req)
 	if err != nil {

@@ -97,12 +97,50 @@ func GetEnv() (*Env, error) {
 func defaultResolveAnnasBaseURL() (string, error) {
 	fallbackBaseURL := normalizeBaseURL(os.Getenv("ANNAS_BASE_URL"))
 	resolver := mirror.NewResolver(nil, mirror.DefaultStatusPageURL, nil)
+	resolver.SetAccountCookie(AccountCookieHeader())
 	return resolver.Resolve(context.Background(), mirror.ResolveOptions{FallbackBaseURL: fallbackBaseURL})
 }
 
 func autoMirrorDiscoveryEnabled() bool {
 	enabled, err := strconv.ParseBool(os.Getenv("ANNAS_AUTO_BASE_URL"))
 	return err == nil && enabled
+}
+
+const accountCookieName = "aa_account_id2"
+
+// AccountCookie returns the aa_account_id2 session value from ANNAS_ACCOUNT_COOKIE.
+// The variable may be the raw value, a single name=value pair, or a full Cookie header.
+func AccountCookie() string {
+	raw := strings.Trim(strings.TrimSpace(os.Getenv("ANNAS_ACCOUNT_COOKIE")), `"'`)
+	if raw == "" {
+		return ""
+	}
+	if value, ok := cookieValue(raw, accountCookieName); ok {
+		return value
+	}
+	return raw
+}
+
+// AccountCookieHeader is the Cookie header value for Anna's Archive requests.
+func AccountCookieHeader() string {
+	value := AccountCookie()
+	if value == "" {
+		return ""
+	}
+	return accountCookieName + "=" + value
+}
+
+func cookieValue(header, name string) (string, bool) {
+	if !strings.Contains(header, name+"=") {
+		return "", false
+	}
+	for _, part := range strings.Split(header, ";") {
+		key, value, ok := strings.Cut(strings.TrimSpace(part), "=")
+		if ok && key == name {
+			return value, true
+		}
+	}
+	return "", false
 }
 
 func normalizeBaseURL(raw string) string {

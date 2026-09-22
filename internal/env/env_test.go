@@ -118,6 +118,31 @@ func TestGetEnvUsesSelectedBaseURL(t *testing.T) {
 	}
 }
 
+func TestAccountCookie(t *testing.T) {
+	t.Setenv("ANNAS_ACCOUNT_COOKIE", "token")
+	if got := AccountCookie(); got != "token" {
+		t.Fatalf("expected raw token, got %q", got)
+	}
+	if got := AccountCookieHeader(); got != "aa_account_id2=token" {
+		t.Fatalf("expected cookie header, got %q", got)
+	}
+
+	t.Setenv("ANNAS_ACCOUNT_COOKIE", "aa_account_id2=abc=")
+	if got := AccountCookie(); got != "abc=" {
+		t.Fatalf("expected padded token, got %q", got)
+	}
+
+	t.Setenv("ANNAS_ACCOUNT_COOKIE", "fundraiser_banner_hidden=6; aa_account_id2=from-jar; __ddg1_=x")
+	if got := AccountCookie(); got != "from-jar" {
+		t.Fatalf("expected cookie extracted from jar, got %q", got)
+	}
+
+	t.Setenv("ANNAS_ACCOUNT_COOKIE", "")
+	if got := AccountCookieHeader(); got != "" {
+		t.Fatalf("expected empty cookie header, got %q", got)
+	}
+}
+
 type assertiveError string
 
 func (e assertiveError) Error() string { return string(e) }

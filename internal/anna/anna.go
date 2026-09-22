@@ -33,8 +33,56 @@ const (
 
 var (
 	// Regex to sanitize filenames - removes dangerous characters
-	unsafeFilenameChars = regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
+	unsafeFilenameChars   = regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
+	accountCookieWarnOnce sync.Once
 )
+
+func newCollector(timeout time.Duration, async bool) *colly.Collector {
+	options := []colly.CollectorOption{
+		colly.UserAgent(BrowserUserAgent),
+	}
+	if async {
+		options = append([]colly.CollectorOption{colly.Async(true)}, options...)
+	}
+
+	c := colly.NewCollector(options...)
+	c.SetRequestTimeout(timeout)
+
+	if cookie := env.AccountCookieHeader(); cookie != "" {
+		c.OnRequest(func(r *colly.Request) {
+			r.Headers.Set("Cookie", cookie)
+		})
+	} else {
+		accountCookieWarnOnce.Do(func() {
+			logger.GetLogger().Warn("ANNAS_ACCOUNT_COOKIE is unset; Anna's Archive may block search")
+		})
+	}
+
+	return c
+}
+
+func doGet(client *http.Client, rawURL string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, rawURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", BrowserUserAgent)
+	if shouldSendAccountCookie(req.URL) {
+		if cookie := env.AccountCookieHeader(); cookie != "" {
+			req.Header.Set("Cookie", cookie)
+		}
+	}
+	return client.Do(req)
+}
+
+func shouldSendAccountCookie(target *url.URL) bool {
+	if target == nil {
+		return false
+	}
+	host := target.Hostname()
+	base := env.GetAnnasBaseURL()
+	return host == base || strings.HasSuffix(host, "."+base)
+}
 
 func extractMetaInformation(meta string) (language, format, size string) {
 	// The meta format may be:
@@ -110,12 +158,7 @@ func FindBook(query string, timeout time.Duration) ([]*Book, error) {
 	var bookListMutex sync.Mutex
 	bookList := make([]*colly.HTMLElement, 0)
 
-	c := colly.NewCollector(
-		colly.Async(true),
-		// Set realistic User-Agent to avoid DDoS-Guard blocking
-		colly.UserAgent(BrowserUserAgent),
-	)
-	c.SetRequestTimeout(timeout)
+	c := newCollector(timeout, true)
 
 	c.OnHTML("a[href^='/md5/']", func(e *colly.HTMLElement) {
 		// Only process the first link (the cover image link), not the duplicate title link
@@ -228,12 +271,7 @@ func FindArticle(query string, timeout time.Duration) ([]*Paper, error) {
 	var paperListMutex sync.Mutex
 	paperList := make([]*colly.HTMLElement, 0)
 
-	c := colly.NewCollector(
-		colly.Async(true),
-		// Set realistic User-Agent to avoid DDoS-Guard blocking
-		colly.UserAgent(BrowserUserAgent),
-	)
-	c.SetRequestTimeout(timeout)
+	c := newCollector(timeout, true)
 
 	c.OnHTML("a[href^='/md5/']", func(e *colly.HTMLElement) {
 		// Only process the first link (the cover image link), not the duplicate title link
@@ -352,7 +390,7 @@ func (b *Book) Download(secretKey, folderPath string, timeout time.Duration) err
 
 	l.Info("Fetching download URL", zap.String("hash", b.Hash))
 
-	resp, err := client.Get(apiURL)
+	resp, err := doGet(client, apiURL)
 	if err != nil {
 		return fmt.Errorf("failed to fetch download URL: %w", err)
 	}
@@ -382,7 +420,7 @@ func (b *Book) Download(secretKey, folderPath string, timeout time.Duration) err
 	// Second API call: download the file
 	l.Info("Downloading file", zap.String("url", apiResp.DownloadURL))
 
-	downloadResp, err := client.Get(apiResp.DownloadURL)
+	downloadResp, err := doGet(client, apiResp.DownloadURL)
 	if err != nil {
 		return fmt.Errorf("failed to download file: %w", err)
 	}
@@ -459,10 +497,7 @@ func LookupDOI(doi string, timeout time.Duration) (*Paper, error) {
 
 	// Phase 1: Visit /scidb/DOI which redirects to a search results page.
 	// Extract the MD5 hash from the first search result.
-	searchCollector := colly.NewCollector(
-		colly.UserAgent(BrowserUserAgent),
-	)
-	searchCollector.SetRequestTimeout(timeout)
+	searchCollector := newCollector(timeout, false)
 
 	searchCollector.OnHTML("a[href^='/md5/']", func(e *colly.HTMLElement) {
 		if paper.Hash != "" {
@@ -501,10 +536,7 @@ func LookupDOI(doi string, timeout time.Duration) (*Paper, error) {
 	}
 
 	// Phase 2: Visit /md5/HASH to get paper details.
-	detailCollector := colly.NewCollector(
-		colly.UserAgent(BrowserUserAgent),
-	)
-	detailCollector.SetRequestTimeout(timeout)
+	detailCollector := newCollector(timeout, false)
 
 	detailCollector.OnHTML("title", func(e *colly.HTMLElement) {
 		title := e.Text
@@ -589,6 +621,11 @@ func (p *Paper) Download(folderPath string, timeout time.Duration) error {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("User-Agent", BrowserUserAgent)
+	if shouldSendAccountCookie(req.URL) {
+		if cookie := env.AccountCookieHeader(); cookie != "" {
+			req.Header.Set("Cookie", cookie)
+		}
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
