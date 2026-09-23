@@ -222,25 +222,64 @@ function readMessages(stream) {
   return messages;
 }
 
-function waitFor(messages, predicate, timeoutMs, label) {
-  const started = Date.now();
+function waitFor(messages, predicate, timeoutMs, label, child) {
   return new Promise((resolve, reject) => {
-    const timer = setInterval(() => {
-      const found = messages.find(predicate);
-      if (found) {
-        clearInterval(timer);
-        resolve(found);
+    let timer;
+    let timeout;
+    let settled = false;
+    const cleanup = () => {
+      clearInterval(timer);
+      clearTimeout(timeout);
+      child?.off("error", onError);
+      child?.off("exit", onExit);
+    };
+    const finish = (callback, value) => {
+      if (settled) {
         return;
       }
-      if (Date.now() - started > timeoutMs) {
-        clearInterval(timer);
-        reject(new Error(`Timed out waiting for ${label}. Messages: ${JSON.stringify(messages)}`));
+      settled = true;
+      cleanup();
+      callback(value);
+    };
+    const onError = (error) => {
+      finish(reject, new Error(`${label} child error: ${error.message}`));
+    };
+    const onExit = (status, signal) => {
+      finish(
+        reject,
+        new Error(
+          `${label} child exited before response (code ${status ?? "null"}, signal ${signal ?? "none"}). Messages: ${JSON.stringify(messages)}`,
+        ),
+      );
+    };
+    const check = () => {
+      const found = messages.find(predicate);
+      if (found) {
+        finish(resolve, found);
       }
-    }, 20);
+    };
+
+    child?.once("error", onError);
+    child?.once("exit", onExit);
+    if (child && (child.exitCode !== null || child.signalCode !== null)) {
+      onExit(child.exitCode, child.signalCode);
+      return;
+    }
+    check();
+    if (settled) {
+      return;
+    }
+    timer = setInterval(check, 20);
+    timeout = setTimeout(() => {
+      finish(
+        reject,
+        new Error(`Timed out waiting for ${label}. Messages: ${JSON.stringify(messages)}`),
+      );
+    }, timeoutMs);
   });
 }
 
-async function handshake(child) {
+async function handshake(child, timeoutMs = 10_000) {
   const messages = readMessages(child.stdout);
   child.stdin.write(
     `${JSON.stringify({
@@ -254,13 +293,25 @@ async function handshake(child) {
       },
     })}\n`,
   );
-  const initialized = await waitFor(messages, (message) => message.id === 1, 10_000, "initialize");
+  const initialized = await waitFor(
+    messages,
+    (message) => message.id === 1,
+    timeoutMs,
+    "initialize",
+    child,
+  );
   assert(initialized.result?.serverInfo?.name === "annas-mcp", "initialize did not return annas-mcp");
   child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`);
   child.stdin.write(
     `${JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} })}\n`,
   );
-  const tools = await waitFor(messages, (message) => message.id === 2, 10_000, "tools/list");
+  const tools = await waitFor(
+    messages,
+    (message) => message.id === 2,
+    timeoutMs,
+    "tools/list",
+    child,
+  );
   const names = (tools.result?.tools || []).map((tool) => tool.name).sort();
   assert(
     JSON.stringify(names) ===
@@ -376,7 +427,7 @@ async function main() {
     const npxStderr = [];
     viaNpx.stderr.on("data", (chunk) => npxStderr.push(chunk.toString("utf8")));
     try {
-      await handshake(viaNpx);
+      await handshake(viaNpx, 60_000);
     } catch (error) {
       throw new Error(`${error.message}\nnpx stderr: ${npxStderr.join("")}`);
     } finally {
