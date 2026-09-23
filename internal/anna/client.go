@@ -79,6 +79,22 @@ func NewClient(config Config) *Client {
 	return c
 }
 
+// requireArchiveAccess keeps credential failures deterministic and local.
+// The archive account cookie is required for every archive operation; the
+// upstream service remains responsible for deciding whether the session is
+// still valid or has sufficient access.
+func (c *Client) requireArchiveAccess(ctx context.Context) error {
+	if ctx != nil {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+	}
+	if strings.TrimSpace(c.config.AccountCookie) == "" {
+		return apperr.New(apperr.Config, "ANNAS_ACCOUNT_COOKIE is required for archive access")
+	}
+	return nil
+}
+
 func (c *Client) FindBook(ctx context.Context, query string, options SearchOptions, timeout time.Duration) ([]*Book, error) {
 	ctx, cancel := operationContext(ctx, timeout)
 	defer cancel()

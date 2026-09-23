@@ -1,0 +1,11 @@
+[
+  {"name":"matching versions","embedded":"v1.2.3\n","package":"1.2.3","env":{},"expected":"v1.2.3"},
+  {"name":"matching release tag","embedded":"v1.2.3","package":"1.2.3","env":{"GITHUB_REF_TYPE":"tag","GITHUB_REF_NAME":"v1.2.3"},"expected":"v1.2.3"},
+  {"name":"branch does not act as release tag","embedded":"v1.2.3","package":"1.2.3","env":{"GITHUB_REF_TYPE":"branch","GITHUB_REF_NAME":"main"},"expected":"v1.2.3"},
+  {"name":"missing prefix","embedded":"1.2.3","package":"1.2.3","env":{},"error":"v-prefixed"},
+  {"name":"leading zero","embedded":"v1.02.3","package":"1.02.3","env":{},"error":"v-prefixed"},
+  {"name":"unreleased suffix","embedded":"v1.2.3-dev","package":"1.2.3-dev","env":{},"error":"v-prefixed"},
+  {"name":"package mismatch","embedded":"v1.2.3","package":"1.2.4","env":{},"error":"Version mismatch"},
+  {"name":"tag mismatch","embedded":"v1.2.3","package":"1.2.3","env":{"GITHUB_REF_TYPE":"tag","GITHUB_REF_NAME":"v1.2.2"},"error":"Release tag"},
+  {"name":"missing tag name","embedded":"v1.2.3","package":"1.2.3","env":{"GITHUB_REF_TYPE":"tag"},"error":"Release tag"}
+]

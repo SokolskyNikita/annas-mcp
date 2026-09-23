@@ -5,20 +5,60 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      run_snapshot:
+        description: Run the GoReleaser snapshot validation job
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+
 jobs:
+  workflow-lint:
+    name: Lint GitHub Actions workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Download actionlint
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/actionlint"
+          curl --fail --silent --show-error --location \
+            https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash \
+            --output "$RUNNER_TEMP/download-actionlint.bash"
+          bash "$RUNNER_TEMP/download-actionlint.bash" 1.7.12 "$RUNNER_TEMP/actionlint"
+
+      - name: Check workflow files
+        shell: bash
+        run: |
+          "$RUNNER_TEMP/actionlint/actionlint" -color
+
   test:
+    name: Test (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up Go
         uses: actions/setup-go@v7
@@ -31,6 +71,19 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 22
+
+      - name: Verify version metadata
+        run: node scripts/check-version.mjs
+
+      - name: Check Go formatting
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          unformatted=$(gofmt -l cmd internal)
+          if [[ -n "$unformatted" ]]; then
+            printf 'Run gofmt on:\n%s\n' "$unformatted"
+            exit 1
+          fi
 
       - name: Test with race detection
         run: go test -race -coverprofile coverage.out ./...
@@ -46,4 +99,38 @@ jobs:
         run: for script in scripts/*.sh; do bash -n "$script"; done
 
       - name: Test the npx launcher
-        run: node scripts/test-npx-launcher.mjs
+        run: npm test
+
+  snapshot:
+    name: Validate GoReleaser snapshot
+    needs: [workflow-lint, test]
+    if: inputs.run_snapshot || github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.x'
+          check-latest: true
+          cache-dependency-path: go.sum
+
+      - name: Validate GoReleaser configuration
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: check -f .goreleaser
+
+      - name: Build snapshot
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --snapshot --skip=publish --clean -f .goreleaser

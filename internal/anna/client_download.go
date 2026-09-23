@@ -16,7 +16,12 @@ import (
 
 var domainIndexes = []int{0, 1, 2}
 
-func (c *Client) validateDownload(format string, requireKey bool) error {
+func (c *Client) validateDownload(ctx context.Context, format string) error {
+	if ctx != nil {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+	}
 	if format != "" {
 		if _, err := normalizeFormat(format); err != nil {
 			return err
@@ -25,8 +30,11 @@ func (c *Client) validateDownload(format string, requireKey bool) error {
 	if c.config.DownloadPath == "" || !filepath.IsAbs(c.config.DownloadPath) {
 		return apperr.New(apperr.Config, "ANNAS_DOWNLOAD_PATH must be an absolute directory path")
 	}
-	if requireKey && strings.TrimSpace(c.config.SecretKey) == "" {
-		return apperr.New(apperr.Config, "ANNAS_SECRET_KEY is required for fast downloads")
+	if strings.TrimSpace(c.config.SecretKey) == "" {
+		return apperr.New(apperr.Config, "ANNAS_SECRET_KEY is required for downloads")
+	}
+	if strings.TrimSpace(c.config.AccountCookie) == "" {
+		return apperr.New(apperr.Config, "ANNAS_ACCOUNT_COOKIE is required for archive access")
 	}
 	return nil
 }
@@ -39,7 +47,7 @@ func (c *Client) downloadBook(ctx context.Context, book *Book, progress Progress
 	if err != nil {
 		return DownloadResult{}, err
 	}
-	if err := c.validateDownload(book.Format, true); err != nil {
+	if err := c.validateDownload(ctx, book.Format); err != nil {
 		return DownloadResult{}, err
 	}
 	client := c.requestClient(0)
@@ -83,7 +91,7 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 	if _, ok := ParseDOI(doi); !ok {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "doi must be a valid DOI or DOI URL")
 	}
-	if err := c.validateDownload(options.Format, false); err != nil {
+	if err := c.validateDownload(ctx, options.Format); err != nil {
 		return DownloadResult{}, err
 	}
 	paper, err := c.lookupDOI(ctx, doi)
@@ -94,7 +102,7 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 		paper.Title = options.Title
 	}
 	var fastErr error
-	if paper.Hash != "" && c.config.SecretKey != "" {
+	if paper.Hash != "" {
 		var result DownloadResult
 		result, fastErr = c.downloadBook(ctx, &Book{Hash: paper.Hash, Title: paper.Title, Format: options.Format}, progress)
 		if fastErr == nil {
@@ -115,7 +123,7 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 	if paper == nil {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "paper is required")
 	}
-	if err := c.validateDownload(format, false); err != nil {
+	if err := c.validateDownload(ctx, format); err != nil {
 		return DownloadResult{}, err
 	}
 	if paper.DownloadURL == "" {

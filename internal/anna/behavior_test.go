@@ -182,3 +182,84 @@ func TestDownloadFileRejectsNonSuccessResponse(t *testing.T) {
 		t.Fatalf("expected a non-success download error, got %v", err)
 	}
 }
+
+func TestPublicMethodsRequireAccountCookieBeforeNetwork(t *testing.T) {
+	t.Parallel()
+
+	newClient := func() (*Client, *int) {
+		calls := 0
+		client := NewClient(Config{
+			BaseURL:      "annas.test",
+			SecretKey:    "test-secret",
+			DownloadPath: t.TempDir(),
+			HTTPClient: &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+				calls++
+				return nil, errors.New("network should not be reached")
+			})},
+		})
+		return client, &calls
+	}
+	tests := map[string]func(*Client) error{
+		"FindBook": func(client *Client) error {
+			_, err := client.FindBook(context.Background(), "example", SearchOptions{}, 0)
+			return err
+		},
+		"FindArticle": func(client *Client) error {
+			_, err := client.FindArticle(context.Background(), "example", SearchOptions{}, 0)
+			return err
+		},
+		"LookupDOI": func(client *Client) error {
+			_, err := client.LookupDOI(context.Background(), "10.1000/example", 0)
+			return err
+		},
+		"DownloadBook": func(client *Client) error {
+			_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef"}, 0, nil)
+			return err
+		},
+		"DownloadArticle": func(client *Client) error {
+			_, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "10.1000/example"}, 0, nil)
+			return err
+		},
+	}
+	for name, call := range tests {
+		client, calls := newClient()
+		if err := call(client); apperr.CodeOf(err) != apperr.Config {
+			t.Errorf("%s returned %v, want config error", name, err)
+		}
+		if *calls != 0 {
+			t.Errorf("%s contacted the network %d times", name, *calls)
+		}
+	}
+}
+
+func TestDownloadMethodsRequireAPIKeyBeforeNetwork(t *testing.T) {
+	t.Parallel()
+
+	for name, call := range map[string]func(*Client) error{
+		"DownloadBook": func(client *Client) error {
+			_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef"}, 0, nil)
+			return err
+		},
+		"DownloadArticle": func(client *Client) error {
+			_, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "10.1000/example"}, 0, nil)
+			return err
+		},
+	} {
+		calls := 0
+		client := NewClient(Config{
+			BaseURL:       "annas.test",
+			AccountCookie: "aa_account_id2=test",
+			DownloadPath:  t.TempDir(),
+			HTTPClient: &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+				calls++
+				return nil, errors.New("network should not be reached")
+			})},
+		})
+		if err := call(client); apperr.CodeOf(err) != apperr.Config {
+			t.Errorf("%s returned %v, want config error", name, err)
+		}
+		if calls != 0 {
+			t.Errorf("%s contacted the network %d times", name, calls)
+		}
+	}
+}

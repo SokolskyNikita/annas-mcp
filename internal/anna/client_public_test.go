@@ -13,7 +13,8 @@ func TestFindArticleReturnsMappedPapers(t *testing.T) {
 	t.Parallel()
 
 	client := NewClient(Config{
-		BaseURL: "annas.test",
+		BaseURL:       "annas.test",
+		AccountCookie: "aa_account_id2=test",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.URL.Path != "/search" || req.URL.Query().Get("index") != "journals" {
 				return nil, errors.New("unexpected article search URL: " + req.URL.String())
@@ -39,7 +40,8 @@ func TestLookupDOIReadsSciDBAndDetailPages(t *testing.T) {
 
 	hash := fixtureHash(t, "paper.pdf")
 	client := NewClient(Config{
-		BaseURL: "annas.test",
+		BaseURL:       "annas.test",
+		AccountCookie: "aa_account_id2=test",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			switch req.URL.Path {
 			case "/scidb/10.1000/example":
@@ -68,7 +70,8 @@ func TestLookupDOIFallsBackToArchiveSearchAfterSciDBMiss(t *testing.T) {
 	t.Parallel()
 
 	client := NewClient(Config{
-		BaseURL: "annas.test",
+		BaseURL:       "annas.test",
+		AccountCookie: "aa_account_id2=test",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.URL.Path == "/scidb/10.48550/arXiv.1706.03762" {
 				return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
@@ -93,7 +96,8 @@ func TestLookupDOIFallsBackThroughCitationTitle(t *testing.T) {
 	t.Parallel()
 
 	client := NewClient(Config{
-		BaseURL: "annas.test",
+		BaseURL:       "annas.test",
+		AccountCookie: "aa_account_id2=test",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.URL.Host == "doi.org" {
 				return fixtureResponse(t, req, http.StatusOK, "doi_metadata.json", "application/json", nil), nil
@@ -126,9 +130,10 @@ func TestDownloadBookUsesFastDownloadAndVerifiesFile(t *testing.T) {
 	directory := t.TempDir()
 	hash := fixtureHash(t, "paper.pdf")
 	client := NewClient(Config{
-		BaseURL:      "annas.test",
-		SecretKey:    "test-secret",
-		DownloadPath: directory,
+		BaseURL:       "annas.test",
+		AccountCookie: "aa_account_id2=test",
+		SecretKey:     "test-secret",
+		DownloadPath:  directory,
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			switch req.URL.Host {
 			case "annas.test":
@@ -172,5 +177,11 @@ func TestPublicMethodsHonorCanceledContextBeforeNetwork(t *testing.T) {
 	}
 	if _, err := client.LookupDOI(ctx, "10.1000/example", time.Second); !errors.Is(err, context.Canceled) {
 		t.Fatalf("LookupDOI returned %v", err)
+	}
+	if _, err := client.DownloadBook(ctx, &Book{Hash: "0123456789abcdef0123456789abcdef"}, time.Second, nil); !errors.Is(err, context.Canceled) {
+		t.Fatalf("DownloadBook returned %v", err)
+	}
+	if _, err := client.DownloadArticle(ctx, ArticleDownloadOptions{DOI: "10.1000/example"}, time.Second, nil); !errors.Is(err, context.Canceled) {
+		t.Fatalf("DownloadArticle returned %v", err)
 	}
 }

@@ -50,6 +50,7 @@ archives:
     wrap_in_directory: true
     files:
       - README.md
+      - CHANGELOG.md
 
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}--checksums.txt"

@@ -299,7 +299,8 @@ Run the checks used by the project before opening a pull request:
 ```bash
 gofmt -w cmd internal
 go vet ./...
-npm test                           # launcher and stdio integration checks
+npm run check:version              # embedded and npm versions must agree
+npm test                           # version, launcher, and stdio integration checks
 npm run coverage                   # Go race tests; enforces 80% total coverage
 ```
 
@@ -318,7 +319,20 @@ node scripts/smoke-mcp.mjs ./annas-mcp
 
 The smoke test uses the configured environment and the repository's `.env`, so the [download access requirements](#membership-and-credentials) apply. It performs real searches and downloads, including DOI and hash article paths, and consumes download quota. It verifies byte counts and checksums, then leaves the downloaded files and `report.json` (server version, timings, paths, sizes, hashes) in the reported temporary directory.
 
-The release workflow validates pull requests and publishes only an immutable `vMAJOR.MINOR.PATCH` tag. Keep the embedded version, npm package version, and release tag synchronized. Before a release, run the full test suite, verify the GoReleaser configuration, update both version files, commit the change, and run `scripts/manage-tag.sh add` to create and push the next tag (for example `v0.0.10`). Do not move or recreate an existing release tag: the npm launcher caches binaries by release identity and checksum.
+### CI and releases
+
+Pull requests and pushes to `main` run Go race tests, the coverage gate, vet, shell checks, and Node integration tests on Linux, macOS, and Windows. CI also checks formatting, version consistency, workflow syntax with actionlint, and a GoReleaser snapshot of all eight release targets. Live archive tests remain opt-in because they require membership credentials and download quota.
+
+To publish a release:
+
+1. Update `internal/version/version.txt` (`vMAJOR.MINOR.PATCH`) and `package.json` (the same version without `v`), and record the changes in [CHANGELOG.md](CHANGELOG.md).
+2. Run the checks above, `goreleaser check -f .goreleaser`, and the live MCP smoke test.
+3. Commit and push to `main`, then wait for CI to pass.
+4. Run `scripts/manage-tag.sh add`. It requires a clean checkout matching the pushed `origin/main` commit and creates an annotated tag. Existing tags are rejected.
+
+The tag workflow repeats the platform tests before publishing binaries and SHA-256 checksums to GitHub Releases. It then installs the published binary through the npm launcher on Linux, macOS, and Windows, verifies its version, and checks the MCP handshake and all four registered tools. To repeat that verification locally, run `node scripts/verify-release.mjs v0.0.10` with the desired published tag; no archive credentials are needed.
+
+Release tags are immutable: do not move or recreate one, because the npm launcher caches binaries by release identity and checksum. The GitHub release is the distribution channel; this repository does not publish a package to the npm registry.
 
 ## Project lineage
 

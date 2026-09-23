@@ -225,7 +225,8 @@ func TestClientSearchUsesInjectedBaseAndTransport(t *testing.T) {
 	t.Parallel()
 
 	client := NewClient(Config{
-		BaseURL: "https://annas.test",
+		BaseURL:       "https://annas.test",
+		AccountCookie: "aa_account_id2=test",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.URL.Path != "/search" || req.URL.Query().Get("q") != "example" {
 				return nil, errors.New("unexpected request URL: " + req.URL.String())

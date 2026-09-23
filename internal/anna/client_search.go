@@ -18,6 +18,9 @@ func (c *Client) search(ctx context.Context, query string, options SearchOptions
 	if strings.TrimSpace(query) == "" {
 		return nil, "", apperr.New(apperr.InvalidArgument, "search query is empty")
 	}
+	if err := c.requireArchiveAccess(ctx); err != nil {
+		return nil, "", err
+	}
 	base, err := c.baseURLFor(ctx)
 	if err != nil {
 		return nil, "", err
@@ -43,6 +46,9 @@ func (c *Client) lookupDOI(ctx context.Context, doi string) (*Paper, error) {
 	}
 	if !validDOIPattern.MatchString(doi) {
 		return nil, apperr.New(apperr.InvalidArgument, fmt.Sprintf("invalid DOI: %s", doi))
+	}
+	if err := c.requireArchiveAccess(ctx); err != nil {
+		return nil, err
 	}
 	base, err := c.baseURLFor(ctx)
 	if err != nil {

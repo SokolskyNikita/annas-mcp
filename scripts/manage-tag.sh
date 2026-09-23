@@ -8,8 +8,6 @@ set -euo pipefail
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
-VERSION_FILE="$ROOT_DIR/internal/version/version.txt"
-PACKAGE_FILE="$ROOT_DIR/package.json"
 
 usage() {
     cat <<'EOF'
@@ -17,9 +15,9 @@ Usage: scripts/manage-tag.sh add
 
   add      Create and push the current release tag.
 
-Release tags are immutable. To publish a new build, update the version files,
-commit the change, and run this script again. Existing local or remote tags
-are rejected; there is no tag recreation or deletion command.
+Release tags are immutable and annotated. Update both version files, commit
+and push main, wait for CI to pass, then run this script. The checkout must
+match origin/main. Existing tags are rejected; tags are never recreated.
 EOF
 }
 
@@ -28,28 +26,7 @@ if [[ $# -ne 1 || "$1" != "add" ]]; then
     exit 2
 fi
 
-if [[ ! -f "$VERSION_FILE" ]]; then
-    printf 'Error: %s was not found\n' "$VERSION_FILE" >&2
-    exit 1
-fi
-
-VERSION=$(tr -d '[:space:]' < "$VERSION_FILE")
-if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    printf 'Error: version.txt must contain a release version like v1.2.3 (got %q)\n' "$VERSION" >&2
-    exit 1
-fi
-
-if [[ ! -f "$PACKAGE_FILE" ]]; then
-    printf 'Error: %s was not found\n' "$PACKAGE_FILE" >&2
-    exit 1
-fi
-
-PACKAGE_VERSION=$(node -p "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')).version" "$PACKAGE_FILE")
-if [[ "${VERSION#v}" != "$PACKAGE_VERSION" ]]; then
-    printf 'Error: %s and %s disagree (%s vs %s)\n' \
-        "$VERSION_FILE" "$PACKAGE_FILE" "$VERSION" "$PACKAGE_VERSION" >&2
-    exit 1
-fi
+VERSION=$(node "$ROOT_DIR/scripts/check-version.mjs")
 
 cd "$ROOT_DIR"
 
@@ -63,16 +40,22 @@ if git rev-parse --verify --quiet "refs/tags/$VERSION" >/dev/null; then
     exit 1
 fi
 
-if ! remote_tags=$(git ls-remote --tags origin "refs/tags/$VERSION"); then
-    printf 'Error: unable to verify whether remote tag %s exists\n' "$VERSION" >&2
+if ! remote_refs=$(git ls-remote origin refs/heads/main "refs/tags/$VERSION"); then
+    printf 'Error: unable to verify origin/main and remote release tags\n' >&2
     exit 1
 fi
-if [[ -n "$remote_tags" ]]; then
+if [[ "$remote_refs" == *"refs/tags/$VERSION"* ]]; then
     printf 'Error: remote tag %s already exists; release tags are immutable\n' "$VERSION" >&2
     exit 1
 fi
 
+remote_main=$(awk '$2 == "refs/heads/main" { print $1 }' <<<"$remote_refs")
+if [[ -z "$remote_main" || "$(git rev-parse HEAD)" != "$remote_main" ]]; then
+    printf 'Error: release tagging requires HEAD to match the pushed origin/main commit\n' >&2
+    exit 1
+fi
+
 printf 'Creating and pushing tag: %s\n' "$VERSION"
-git tag "$VERSION"
-git push origin "$VERSION"
+git tag -a "$VERSION" -m "Release $VERSION"
+git push origin "refs/tags/$VERSION"
 printf 'Tag %s pushed successfully\n' "$VERSION"

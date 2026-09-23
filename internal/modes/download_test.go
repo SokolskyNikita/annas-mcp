@@ -27,7 +27,7 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 	hash := hex.EncodeToString(digest[:])
 	dir := t.TempDir()
 	calls := 0
-	client := anna.NewClient(anna.Config{BaseURL: "https://annas.example", DownloadPath: dir, SecretKey: "test-secret", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+	client := anna.NewClient(anna.Config{BaseURL: "https://annas.example", DownloadPath: dir, AccountCookie: "test-cookie", SecretKey: "test-secret", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		calls++
 		responseBody := body
 		contentType := "application/pdf"

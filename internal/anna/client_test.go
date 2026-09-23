@@ -104,7 +104,7 @@ func TestMirrorWaiterCanCancelAndFailuresRetryAfterExpiry(t *testing.T) {
 func TestFailedArchiveRequestRefreshesMirrorOnNextCall(t *testing.T) {
 	t.Parallel()
 	resolves := 0
-	client := NewClient(Config{AutoBaseURL: true, Resolver: func(context.Context) (string, error) {
+	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", Resolver: func(context.Context) (string, error) {
 		resolves++
 		if resolves == 1 {
 			return "annas-archive.one", nil
@@ -147,8 +147,10 @@ func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 	hash := fixtureHash(t, "paper.pdf")
 	dir := t.TempDir()
 	corrupt := false
-	client := NewClient(Config{BaseURL: "annas.test", DownloadPath: dir, HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+	client := NewClient(Config{BaseURL: "annas.test", AccountCookie: "aa_account_id2=test", SecretKey: "test-secret", DownloadPath: dir, HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		switch req.URL.Path {
+		case "/dyn/api/fast_download.json":
+			return fixtureResponse(t, req, http.StatusBadRequest, "fast_download_error.json", "application/json", nil), nil
 		case "/scidb/10.1000/example":
 			return fixtureResponse(t, req, http.StatusOK, "scidb_result.html", "text/html", map[string]string{"{{HASH}}": hash}), nil
 		case "/md5/" + hash:
@@ -190,7 +192,7 @@ func TestDownloadRetriesShareOneDeadline(t *testing.T) {
 	t.Parallel()
 	var deadline time.Time
 	calls := 0
-	client := NewClient(Config{BaseURL: "annas.test", SecretKey: "secret", DownloadPath: t.TempDir(), HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+	client := NewClient(Config{BaseURL: "annas.test", SecretKey: "secret", AccountCookie: "aa_account_id2=test", DownloadPath: t.TempDir(), HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		calls++
 		current, ok := req.Context().Deadline()
 		if !ok {
