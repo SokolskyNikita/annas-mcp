@@ -7,13 +7,31 @@
 
 The archive's contents and access rules vary by work and account. Use the service only for material you are entitled to obtain and follow the applicable law and service terms.
 
+## Membership and credentials
+
+The supported setup for this MCP requires an active Anna's Archive membership and credentials supplied to the process:
+
+| Operations | Minimum membership | Required configuration |
+| --- | --- | --- |
+| `book_search`, `article_search` (including DOI lookup), and other archive metadata requests | **Brilliant Bookworm** or higher | `ANNAS_ACCOUNT_COOKIE` |
+| `book_download` and `article_download` (by hash or DOI) | **Lucky Librarian** or higher | `ANNAS_SECRET_KEY`, plus the account cookie and `ANNAS_DOWNLOAD_PATH` |
+
+**Downloads will not work without at least Lucky Librarian status and a valid API key.** A cookie does not replace the key, and a key does not replace the cookie required for searches and lookups. Obtain the key from your Anna's Archive account; see the [membership options](https://annas-archive.gl/donate) and [API FAQ](https://annas-archive.gl/faq#api) for account details.
+
+**The account cookie expires once a week. You must retrieve it manually every week**, update `ANNAS_ACCOUNT_COOKIE`, and restart the MCP server. This project does not renew cookies automatically.
+
+### Retrieve or renew the cookie
+
+1. Open Anna's Archive in your browser and sign in to the account with the required membership.
+2. Open developer tools → Application/Storage → Cookies and copy the current `aa_account_id2` value. Alternatively, copy the `Cookie` header from an authenticated request in the Network tab.
+3. Replace `ANNAS_ACCOUNT_COOKIE` in your MCP client's environment configuration or the `.env` file used by the CLI.
+4. Restart the MCP server through your client so it reads the new value. Repeat this procedure weekly, or sooner if the session is rejected.
+
+The variable accepts the raw value, `aa_account_id2=...`, or a full browser `Cookie` header. Only `aa_account_id2` is sent to the selected archive mirror. Keep the cookie and API key private; never commit them.
+
 ## Quick start
 
-Book and article titles, authors, publishers, DOIs, and file hashes in the examples below are fictional placeholders. Replace them with your own queries and identifiers when using the tools.
-
-The npm launcher requires Node.js 18 or newer and a `tar` command that supports `.tar.xz` archives (`.zip` on Windows). It downloads the release binary for the current OS and CPU, verifies the published SHA-256 checksum, stores it in a local cache, and starts it. A later launch checks for a newer release with a short bounded request; if the check or download fails, a valid cached binary is used.
-
-Configure the environment in the MCP client's `env` block. Set an Anna's Archive account cookie when the upstream search or mirror requires a browser session, a configured download directory for downloads, and the account's API key for fast downloads. DOI article downloads can use the SciDB route without the fast-download key; hash-based fast downloads require `ANNAS_SECRET_KEY`. See [Anna's Archive's API FAQ](https://annas-archive.gl/faq#api) for the service's current account and API requirements.
+Install Node.js 18 or newer and a `tar` command that supports `.tar.xz` archives (`.zip` on Windows). Add this configuration to your MCP client, replacing the placeholders with the credentials described above. Cursor and Claude Desktop use this JSON structure.
 
 ```json
 {
@@ -31,14 +49,9 @@ Configure the environment in the MCP client's `env` block. Set an Anna's Archive
 }
 ```
 
-The same launcher can be tried from a terminal:
+The launcher starts the latest published release binary over stdio, verifies its SHA-256 checksum, and caches it locally. Later launches check for updates with a bounded request and can use a verified cached binary when offline. It does not run the repository's current source; use [Build from source](#build-from-source) to test unreleased changes.
 
-```bash
-npx -y github:SokolskyNikita/annas-mcp --help
-npx -y github:SokolskyNikita/annas-mcp book-search "teapot astronomy" --language en
-```
-
-The launcher cache can be moved with `ANNAS_MCP_CACHE_DIR`. Keep the cache on a local, user-writable filesystem. A cached binary is selected only when its release metadata and target asset still match.
+For terminal use, configure the same environment variables and run `npx -y github:SokolskyNikita/annas-mcp --help`. See [CLI](#cli) for commands.
 
 ### Client configuration examples
 
@@ -65,25 +78,41 @@ ANNAS_SECRET_KEY = "your-api-key"
 ANNAS_DOWNLOAD_PATH = "/absolute/path/to/downloads"
 ```
 
-Cursor and Claude Desktop use the JSON shape shown above. Never commit real cookies or API keys.
+## Configuration
 
-## Account cookie
+The CLI and stdio server load `.env` from the process working directory; existing environment variables take precedence. Prefer your MCP client's explicit environment configuration so setup does not depend on where it launches the process.
 
-`ANNAS_ACCOUNT_COOKIE` may contain the raw `aa_account_id2` value, a single `aa_account_id2=...` pair, or a full browser `Cookie` header. The server extracts and sends only `aa_account_id2` to the configured Anna's Archive mirror.
+| Variable | Required for | Description |
+| --- | --- | --- |
+| `ANNAS_ACCOUNT_COOKIE` | Searches, DOI lookups, and archive access | `aa_account_id2` cookie; follow the [weekly renewal procedure](#retrieve-or-renew-the-cookie). |
+| `ANNAS_SECRET_KEY` | Downloads | API key from the account meeting the [download membership requirement](#membership-and-credentials). |
+| `ANNAS_DOWNLOAD_PATH` | Downloads | Absolute directory for downloaded files. It is created when needed. |
+| `ANNAS_BASE_URL` | Optional mirror fallback | Anna's Archive hostname or HTTPS base URL used as the fallback mirror. |
+| `ANNAS_AUTO_BASE_URL` | Optional mirror discovery | Automatic mirror selection is enabled by default. Set to `false` to use `ANNAS_BASE_URL` only. |
+| `ANNAS_MCP_CACHE_DIR` | Optional npm launcher cache | Local, user-writable directory for release binaries and metadata. |
 
-To copy it, open Anna's Archive in a browser, open developer tools, and either copy `aa_account_id2` from Application/Storage → Cookies or copy it from a request in the Network tab. A missing, stale, or otherwise rejected cookie can produce a 403. Refresh the browser value, update the client configuration, and restart the MCP process so it reads the new value.
+Mirror discovery starts on the first archive request, with a 15-second budget. Successful selections are cached for 10 minutes; fallbacks for 30 seconds. A failed mirror is invalidated. Discovery falls back to `ANNAS_BASE_URL`, or `annas-archive.gl` when unset. Set `ANNAS_AUTO_BASE_URL=false` to use a fixed mirror.
 
 ## MCP tools
 
-The server communicates over stdio. Search before downloading so the client can pass the returned MD5 hash and title to the download tool. Every successful download returns the absolute path and byte count:
+Successful calls return both structured JSON and text content. Failures follow the [error contract](#errors-and-troubleshooting).
 
-```json
-{"path":"/absolute/path/to/downloads/title.pdf","bytes":123456}
-```
+All titles, authors, publishers, DOIs, and hashes in the examples are **fictional placeholders**. Replace them with real queries and identifiers before use.
 
-Successful tool calls include both structured JSON output for programs and a text representation for clients that display tool text. Schema-invalid arguments can be rejected by the MCP SDK at the protocol boundary before a handler runs; validly shaped calls that fail inside the service return an application error with `isError: true` and a stable code.
+Every tool accepts `timeout_seconds`: searches default to 60 seconds and downloads to 1,800 seconds. `0` uses the default; the maximum is 86,400 seconds (24 hours). The timeout covers the complete operation, including retries.
 
-Every tool accepts an optional `timeout_seconds`. Search defaults to 60 seconds; downloads default to 1,800 seconds. `0` uses the command default, and the maximum is 86,400 seconds (24 hours). A timeout applies to the complete operation and can be increased for a slow mirror.
+### Shared search options
+
+`book_search` and keyword `article_search` accept these optional fields:
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `language` | Any language | Two-letter ISO 639-1 code, such as `en`. |
+| `page` | `1` | Upstream result page, starting at 1. |
+| `limit` | `10` | Maximum records returned from that page. Increase this before requesting another page. |
+| `content` | No content filter | `book_fiction`, `book_nonfiction`, `book_unknown`, `book_comic`, `magazine`, or `standards_document`. |
+
+Use current content filters; legacy values such as `book_any` are not useful filters.
 
 ### `book_search`
 
@@ -98,8 +127,6 @@ Search books, textbooks, manuals, standards, or other book records by title, aut
   "timeout_seconds": 60
 }
 ```
-
-`content` is optional. Supported values are `book_fiction`, `book_nonfiction`, `book_unknown`, `book_comic`, `magazine`, and `standards_document`.
 
 Keyword searches return one page:
 
@@ -127,6 +154,26 @@ Keyword searches return one page:
 
 `matched` is the number of parsed records on the current upstream page. `limit` is the number returned after this tool's limit is applied. A missing `description` or `doi` field means the source page did not provide it.
 
+### `article_search`
+
+Search journal articles by keywords, or resolve one article by a bare DOI or DOI URL. The DOI example refers to the fictional paper "Teleporting Teapots with Moonbeam Networks".
+
+For keywords:
+
+```json
+{"query":"moonbeam networks","language":"en","limit":10}
+```
+
+Keyword results have the same pagination fields as `book_search`, usually include `"index":"journals"`, and use `journal` and `page_url` in place of a book's `publisher` and `url`.
+
+For a DOI:
+
+```json
+{"query":"https://doi.org/10.0000/fictional.moonbeam-teapots"}
+```
+
+The result is one article object rather than a page envelope. Its fields can include `doi`, `title`, `authors`, `journal`, `format`, `size`, `hash`, `description`, `download_url`, and `page_url`. The `hash` is the value to pass to `article_download` when it is present.
+
 ### `book_download`
 
 Download a book by the `hash` returned by `book_search`.
@@ -139,33 +186,6 @@ Download a book by the `hash` returned by `book_search`.
   "timeout_seconds": 1800
 }
 ```
-
-`title` is used to form the local filename. `format` is an optional filename extension; it selects the name and does not convert the file. If omitted, the extension is inferred from the download response. Downloads are limited to 8 GiB per file. The downloader verifies the expected MD5 when the hash is known, removes incomplete or invalid files, keeps an existing file instead of overwriting it, and adds a short hash or numeric suffix on a name collision.
-
-### `article_search`
-
-Search journal articles by keywords, or resolve one article by DOI. The query may be a bare DOI or a DOI URL. The fictional paper "Teleporting Teapots with Moonbeam Networks" uses the placeholder `10.0000/fictional.moonbeam-teapots`, also shown as `https://doi.org/10.0000/fictional.moonbeam-teapots` below.
-
-For keywords:
-
-```json
-{
-  "query": "moonbeam networks",
-  "language": "en",
-  "page": 1,
-  "limit": 10
-}
-```
-
-Keyword results have the same pagination fields as `book_search`, usually include `"index":"journals"`, and use `journal` and `page_url` in place of a book's `publisher` and `url`.
-
-For a DOI:
-
-```json
-{"query":"https://doi.org/10.0000/fictional.moonbeam-teapots"}
-```
-
-The result is one article object rather than a page envelope. Its fields can include `doi`, `title`, `authors`, `journal`, `format`, `size`, `hash`, `description`, `download_url`, and `page_url`. The `hash` is the value to pass to `article_download` when it is present.
 
 ### `article_download`
 
@@ -185,49 +205,38 @@ When a hash is already known, use the direct path and provide a title if one is 
 }
 ```
 
-The DOI path resolves the record, tries the configured fast-download service when the record has a hash, and can fall back to the article's SciDB download route. DOI-only downloads can therefore work without `ANNAS_SECRET_KEY`; a hash-only article download requires that key. The same path and byte-count result applies. `format` remains a filename extension request; it never converts EPUB, PDF, or another source format.
+### Shared download behavior
 
-## Search and download workflow for AI clients
+Both download tools return the absolute local path and byte count:
 
-1. Call `book_search` or `article_search` with the user's exact title, citation, DOI, or topic.
-2. Inspect `title`, `authors`, `format`, `description`, `doi`, and `hash`; ask the user when several records are plausible.
-3. Pass the selected record's `hash` and `title` to the corresponding download tool. Use a DOI for `article_download` when no hash is available.
-4. If the desired record is not on the first page, raise `limit` first and then advance `page`. An empty page means that no records were parsed from that upstream page; narrow or revise the query when necessary.
-5. Return the tool's `path` to the user. The returned file has the requested extension in its name, subject to the response's detected type when `format` is omitted.
+```json
+{"path":"/absolute/path/to/downloads/teapot-astronomy.epub","bytes":123456}
+```
 
-## Pagination and limits
+`title` controls the filename. `format` sets its extension without converting the file; when omitted, the extension is inferred from the response. Files are limited to 8 GiB. The downloader verifies the expected MD5 when known, removes incomplete or invalid files, and preserves existing files by adding a short hash or numeric suffix on name collisions.
 
-MCP search tools return at most 10 hits by default. Set `limit` to a larger positive value when the desired record is not among the first results, then use `page` to inspect later upstream pages. `page` starts at 1. `language` is a lowercase ISO 639 language code such as `en`.
+## Workflow for AI clients
 
-Use current content filters; legacy values such as `book_any` are not useful search filters.
+1. Search with the user's title, citation, DOI, or topic. Compare title, authors, language, format, and description; ask the user when several records are plausible.
+2. Download the selected record using its `hash` and `title`. Use a DOI for `article_download` when a hash is unavailable. Never invent identifiers from the fictional examples.
+3. Return the successful tool result's `path` to the user. Report errors accurately; do not claim a download succeeded without a successful tool result.
 
-## Errors
+An empty search page means no records were parsed from that upstream page. Adjust the query or use the [search options](#shared-search-options). For access failures, check [membership and credentials](#membership-and-credentials) and request manual cookie renewal when needed; repeated retries do not renew an expired cookie.
 
-The CLI exits nonzero and prints a coded message. For MCP calls, schema-invalid arguments may be rejected by the SDK before the handler runs. Validly shaped calls that fail inside the service return `isError: true`, and their text starts with a stable machine-readable code.
+## Errors and troubleshooting
+
+The CLI exits nonzero with a coded message. MCP service failures return `isError: true` with a code at the start of the text. Schema-invalid arguments may instead be rejected at the protocol boundary.
+
+A successful startup, `tools/list`, or `--help` does not verify upstream access. Membership and credentials are exercised when you search or download.
 
 | Code | Meaning and next action |
 | --- | --- |
-| `[CONFIG]` | A required environment variable is missing or invalid. Check `ANNAS_ACCOUNT_COOKIE`, `ANNAS_SECRET_KEY`, `ANNAS_DOWNLOAD_PATH`, and mirror settings. |
+| `[CONFIG]` | Correct missing or invalid environment variables; see [Configuration](#configuration). |
 | `[INVALID_ARGUMENT]` | An input is malformed or out of range. Correct the DOI, hash, extension, page, limit, or timeout and retry. |
 | `[NOT_FOUND]` | A DOI or search did not resolve to a usable record. Try a title search, a larger limit, or another page. |
-| `[UPSTREAM_BLOCKED]` | Anna's Archive or its mirror refused the request, commonly because the account cookie is missing or rejected. Refresh the cookie and check configured access. |
+| `[UPSTREAM_BLOCKED]` | Check the required membership and credentials, then [retrieve a fresh cookie](#retrieve-or-renew-the-cookie) and restart the server. |
 | `[REQUEST_TIMEOUT]` | The request was cancelled or exceeded its timeout. Retry or increase `timeout_seconds`. |
-| `[UPSTREAM]` | The archive, mirror, API, or download failed for another reason. Retry, select a different configured mirror, or inspect the message. |
-
-## Configuration
-
-The CLI loads a `.env` file from its process working directory. For an MCP client, prefer its explicit `env` configuration because the working directory is usually where the client was launched, not where this repository or binary is stored.
-
-| Variable | Required for | Description |
-| --- | --- | --- |
-| `ANNAS_ACCOUNT_COOKIE` | Search and mirror requests when required upstream | Browser cookie input. Only the `aa_account_id2` value is used. It is an operational access credential, not a startup prerequisite. |
-| `ANNAS_SECRET_KEY` | Fast downloads | API key accepted by the configured Anna's Archive account. |
-| `ANNAS_DOWNLOAD_PATH` | Downloads | Absolute directory for downloaded files. It is created when needed. |
-| `ANNAS_BASE_URL` | Optional mirror fallback | Anna's Archive hostname or HTTPS base URL used as the fallback mirror. |
-| `ANNAS_AUTO_BASE_URL` | Optional mirror discovery | Automatic mirror selection is enabled by default. Set to `false` to use `ANNAS_BASE_URL` only. |
-| `ANNAS_MCP_CACHE_DIR` | Optional npm launcher cache | Directory for downloaded release binaries and metadata. |
-
-Automatic mirror selection is lazy: the first archive request performs status-page discovery and probing within a 15-second budget rather than delaying MCP startup. A successful selection is cached for 10 minutes; a fallback selection after discovery failure is cached for 30 seconds. If the selected mirror later fails, it is invalidated so the next request can rediscover. When discovery cannot select a mirror, the server uses explicitly configured `ANNAS_BASE_URL`, or `annas-archive.gl` when no base URL is configured. Set `ANNAS_AUTO_BASE_URL=false` when a fixed mirror is required.
+| `[UPSTREAM]` | Inspect the message, account download quota, API key, and mirror availability before retrying. |
 
 ## CLI
 
@@ -251,7 +260,7 @@ annas-mcp article-download "10.0000/fictional.moonbeam-teapots" --format pdf
 annas-mcp mcp
 ```
 
-Useful shared flags include `--timeout` (for example `30s` or `10m`, up to 24h), `--page`, `--language`, `--content`, and `--limit`. An omitted timeout uses the command default; an explicit `--timeout` must be positive. Run `annas-mcp --help` or a subcommand's `--help` for the current command-specific details.
+Use `--timeout 30s` or `--timeout 10m` to override an operation's default (positive, up to 24h). Search flags match the [shared search options](#shared-search-options). Run a subcommand's `--help` for its full argument list.
 
 ## Build from source
 
@@ -260,14 +269,10 @@ Building from source requires Go 1.26 or newer. The MCP server uses `github.com/
 ```bash
 git clone https://github.com/SokolskyNikita/annas-mcp.git
 cd annas-mcp
-go run ./cmd/annas-mcp mcp
 go build -o ./annas-mcp ./cmd/annas-mcp
-go install ./cmd/annas-mcp
 ```
 
-`go run` and the installed local binary use the current checkout. `go install github.com/SokolskyNikita/annas-mcp/cmd/annas-mcp@latest` installs the latest published release, which can predate untagged changes in this checkout; use it after a release is published when you want the released version.
-
-The source command reads `.env` from the current working directory. Configure the same environment variables shown above before calling search or download commands. To point an MCP client at this checkout, build the binary and use an absolute path:
+This builds the current checkout. To use it in an MCP client, select the built binary by absolute path and supply the same [configuration](#configuration):
 
 ```toml
 [mcp_servers.annas-mcp]
@@ -275,7 +280,7 @@ command = "/absolute/path/to/annas-mcp"
 args = ["mcp"]
 ```
 
-The `npx -y github:SokolskyNikita/annas-mcp` command fetches this repository’s launcher, which starts the latest published GitHub release binary. It does not run uncommitted source changes from a local checkout; use `go run`, `go build`, or the local `go install` command above while developing.
+For development, `go run ./cmd/annas-mcp mcp` starts the checkout directly, and `go install ./cmd/annas-mcp` installs it locally. To install the latest tagged version instead, use `go install github.com/SokolskyNikita/annas-mcp/cmd/annas-mcp@latest`.
 
 The main packages are arranged as follows:
 
@@ -293,17 +298,14 @@ Run the checks used by the project before opening a pull request:
 
 ```bash
 gofmt -w cmd internal
-go test ./...
 go vet ./...
-npm test
-npm run coverage                   # race-enabled Go tests; fails below 80% total coverage
-scripts/healthcheck.sh              # local build and CLI checks
-scripts/healthcheck.sh --live       # optional upstream checks
+npm test                           # launcher and stdio integration checks
+npm run coverage                   # Go race tests; enforces 80% total coverage
 ```
 
-The test suite uses checked-in upstream fixtures instead of requiring network access: Go fixtures live under `internal/anna/testdata`, `internal/mirror/testdata`, and `internal/modes/testdata`, while launcher fixtures live under `scripts/testdata`. `npm test` runs the JavaScript launcher tests. `npm run coverage` runs the Go tests with the race detector, writes `coverage.out`, and enforces at least 80% total coverage.
+Go fixtures live in each package's `testdata` directory; launcher fixtures live in `scripts/testdata`. These checks use fixtures and a local mock release server, without archive credentials. Coverage is written to `coverage.out`.
 
-The healthcheck is cwd-independent and local by default. `--live` (or `ANNAS_MCP_HEALTHCHECK_LIVE=1`) enables only the two upstream search checks; it does not download files. `ANNAS_MCP_HEALTHCHECK_TIMEOUT` sets the per-check timeout in seconds.
+`scripts/healthcheck.sh` runs local Go tests and CLI startup checks from any working directory. Add `--live` (or `ANNAS_MCP_HEALTHCHECK_LIVE=1`) for real book/article searches, without downloads. `ANNAS_MCP_HEALTHCHECK_TIMEOUT` sets the per-check timeout in seconds.
 
 ### Optional live MCP smoke test
 
@@ -314,7 +316,7 @@ go build -o ./annas-mcp ./cmd/annas-mcp
 node scripts/smoke-mcp.mjs ./annas-mcp
 ```
 
-The smoke test uses the configured environment and the repository's `.env`, creates a dedicated temporary download directory, validates returned files and checksums, and exercises both DOI and hash article-download paths. It requires working account access and performs real downloads, so it consumes upstream download quota. The printed report includes the server version, timings, saved paths, byte counts, and MD5 hashes. Downloads and `report.json` remain in the reported temporary directory for inspection.
+The smoke test uses the configured environment and the repository's `.env`, so the [download access requirements](#membership-and-credentials) apply. It performs real searches and downloads, including DOI and hash article paths, and consumes download quota. It verifies byte counts and checksums, then leaves the downloaded files and `report.json` (server version, timings, paths, sizes, hashes) in the reported temporary directory.
 
 The release workflow validates pull requests and publishes only an immutable `vMAJOR.MINOR.PATCH` tag. Keep the embedded version, npm package version, and release tag synchronized. Before a release, run the full test suite, verify the GoReleaser configuration, update both version files, commit the change, and run `scripts/manage-tag.sh add` to create and push the next tag (for example `v0.0.10`). Do not move or recreate an existing release tag: the npm launcher caches binaries by release identity and checksum.
 
