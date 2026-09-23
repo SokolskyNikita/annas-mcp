@@ -25,13 +25,12 @@ type Paper struct {
 	Hash        string `json:"hash,omitempty"`
 	Description string `json:"description,omitempty"`
 	DownloadURL string `json:"download_url,omitempty"`
-	SciHubURL   string `json:"scihub_url,omitempty"`
 	PageURL     string `json:"page_url"`
 }
 
 func (p *Paper) String() string {
-	return fmt.Sprintf("DOI: %s\nTitle: %s\nAuthors: %s\nJournal: %s\nSize: %s\nHash: %s\nDownload URL: %s\nSci-Hub: %s\nPage: %s",
-		p.DOI, p.Title, p.Authors, p.Journal, p.Size, p.Hash, p.DownloadURL, p.SciHubURL, p.PageURL)
+	return fmt.Sprintf("DOI: %s\nTitle: %s\nAuthors: %s\nJournal: %s\nSize: %s\nHash: %s\nDownload URL: %s\nPage: %s",
+		p.DOI, p.Title, p.Authors, p.Journal, p.Size, p.Hash, p.DownloadURL, p.PageURL)
 }
 
 type fastDownloadResponse struct {
@@ -51,9 +50,14 @@ type SearchOptions struct {
 
 // DownloadResult is the file written by a successful download.
 type DownloadResult struct {
-	Path  string
-	Bytes int64
+	Path  string `json:"path"`
+	Bytes int64  `json:"bytes"`
 }
 
 // ProgressFunc reports bytes written. total is 0 when the server omits Content-Length.
 type ProgressFunc func(done, total int64)
+
+func (b *Book) String() string {
+	return fmt.Sprintf("Title: %s\nAuthors: %s\nPublisher: %s\nLanguage: %s\nFormat: %s\nSize: %s\nURL: %s\nHash: %s",
+		b.Title, b.Authors, b.Publisher, b.Language, b.Format, b.Size, b.URL, b.Hash)
+}

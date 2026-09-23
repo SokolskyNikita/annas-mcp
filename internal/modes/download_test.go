@@ -1,0 +1,98 @@
+package modes
+
+import (
+	"bytes"
+	"context"
+	"crypto/md5"
+	"encoding/hex"
+	"encoding/json"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/SokolskyNikita/annas-mcp/internal/anna"
+	"github.com/modelcontextprotocol/go-sdk/mcp"
+)
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
+
+func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) {
+	t.Parallel()
+	body := []byte("%PDF-1.5\nA small deterministic test document.\n")
+	digest := md5.Sum(body)
+	hash := hex.EncodeToString(digest[:])
+	dir := t.TempDir()
+	calls := 0
+	client := anna.NewClient(anna.Config{BaseURL: "https://annas.example", DownloadPath: dir, SecretKey: "test-secret", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		calls++
+		responseBody := body
+		contentType := "application/pdf"
+		if req.URL.Path == "/dyn/api/fast_download.json" {
+			if req.URL.Query().Get("md5") != hash {
+				t.Errorf("wrong requested hash")
+			}
+			responseBody = []byte(`{"download_url":"https://files.example/document"}`)
+			contentType = "application/json"
+		}
+		return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {contentType}}, Body: io.NopCloser(bytes.NewReader(responseBody)), ContentLength: int64(len(responseBody)), Request: req}, nil
+	})}})
+	svc := &service{archive: client}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ct, st := mcp.NewInMemoryTransports()
+	serverSession, err := newMCPServer(svc, anna.DefaultSearchTimeout, anna.DefaultDownloadTimeout).Connect(ctx, st, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	session, err := mcp.NewClient(&mcp.Implementation{Name: "download-test"}, nil).Connect(ctx, ct, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+	defer serverSession.Close()
+	for _, args := range []map[string]any{
+		{"hash": hash, "title": "test", "format": "pdf/../../outside"},
+		{"hash": "not-a-hash", "title": "test"},
+	} {
+		result, err := session.CallTool(ctx, &mcp.CallToolParams{Name: "book_download", Arguments: args})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !result.IsError || !strings.HasPrefix(toolText(t, result), "[INVALID_ARGUMENT]") {
+			t.Fatalf("expected invalid argument, got %s", toolText(t, result))
+		}
+	}
+	if calls != 0 {
+		t.Fatalf("validation made %d network calls", calls)
+	}
+	var previous string
+	for i := 0; i < 2; i++ {
+		result, err := session.CallTool(ctx, &mcp.CallToolParams{Name: "book_download", Arguments: map[string]any{"hash": hash, "title": "Test", "format": "pdf"}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if result.IsError {
+			t.Fatal(toolText(t, result))
+		}
+		var downloaded anna.DownloadResult
+		if err := json.Unmarshal([]byte(toolText(t, result)), &downloaded); err != nil {
+			t.Fatal(err)
+		}
+		if downloaded.Bytes != int64(len(body)) || filepath.Dir(downloaded.Path) != dir {
+			t.Fatalf("wrong result: %+v", downloaded)
+		}
+		if downloaded.Path == previous {
+			t.Fatal("second call replaced the first file")
+		}
+		actual, err := os.ReadFile(downloaded.Path)
+		if err != nil || !bytes.Equal(actual, body) {
+			t.Fatalf("wrong saved body: %v", err)
+		}
+		previous = downloaded.Path
+	}
+}

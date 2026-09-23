@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/iosifache/annas-mcp/internal/modes"
+	"github.com/SokolskyNikita/annas-mcp/internal/modes"
 )
 
 func main() {

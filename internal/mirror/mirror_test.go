@@ -3,6 +3,7 @@ package mirror
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -16,166 +17,243 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
 
-func TestParseStatusPageExtractsAnnaCandidatesWithoutHardcodedIDs(t *testing.T) {
+const currentSLUMFixture = `
+<html><body>
+<div class="site-card">
+  <a href="annas.html" class="site-card-title">annas</a>
+  <li class="domain-item-dense">
+    <a href="https://annas-archive.pro">annas-archive.pro</a>
+    <a class="status-badge compact protected">PROTECTED</a>
+  </li>
+  <li class="domain-item-dense">
+    <a href="https://annas-archive.good">annas-archive.good</a>
+    <a class="status-badge compact up">UP</a>
+  </li>
+  <li class="domain-item-dense">
+    <a href="https://software.annas-archive.gl">software.annas-archive.gl</a>
+    <a class="status-badge compact up">UP</a>
+  </li>
+</div>
+<div class="site-card">
+  <a href="libgen.html" class="site-card-title">libgen</a>
+</div>
+</body></html>`
+
+func TestParseStatusPageExtractsCurrentSLUMAnnaDirectory(t *testing.T) {
 	t.Parallel()
 
-	html := `
-<html><body>
-<script>
-window.preloadData = {'config':{'slug':'slum'},'incident':null,'publicGroupList':[
-  {'id':1,'name':'Anna\'s Archive','monitorList':[
-    {'id':900,'name':'Anna A','sendUrl':1,'type':'keyword','url':'https://annas-archive.zz/'},
-    {'id':901,'name':'Anna B','sendUrl':1,'type':'keyword','url':'https://annas-archive.yy/'}
-  ]},
-  {'id':2,'name':'Others','monitorList':[
-    {'id':999,'name':'Not Anna','sendUrl':1,'type':'keyword','url':'https://example.org/'}
-  ]}
-],'maintenanceList':[]};
-</script>
-</body></html>`
+	candidates, err := ParseStatusPageHTML(currentSLUMFixture)
+	if err != nil {
+		t.Fatalf("ParseStatusPageHTML returned error: %v", err)
+	}
+	if len(candidates) != 2 {
+		t.Fatalf("expected 2 direct Anna candidates, got %d: %+v", len(candidates), candidates)
+	}
+	if candidates[0] != (Candidate{BaseURL: "annas-archive.pro", Status: "protected"}) {
+		t.Fatalf("unexpected protected candidate: %+v", candidates[0])
+	}
+	if candidates[1] != (Candidate{BaseURL: "annas-archive.good", Status: "up"}) {
+		t.Fatalf("unexpected up candidate: %+v", candidates[1])
+	}
+}
+
+func TestParseStatusPageRejectsUntrustedCandidateOrigins(t *testing.T) {
+	t.Parallel()
+
+	html := `<div class="site-card">
+  <a class="site-card-title">annas</a>
+  <li class="domain-item-dense"><a href="https://annas-archive.good@evil.example/">bad userinfo</a><a class="status-badge compact up">UP</a></li>
+  <li class="domain-item-dense"><a href="https://annas-archive.good.evil.example/">bad suffix</a><a class="status-badge compact up">UP</a></li>
+  <li class="domain-item-dense"><a href="http://annas-archive.http/">bad scheme</a><a class="status-badge compact up">UP</a></li>
+  <li class="domain-item-dense"><a href="https://annas-archive.path/path">bad path</a><a class="status-badge compact up">UP</a></li>
+  <li class="domain-item-dense"><a href="https://annas-archive.good/">good</a><a class="status-badge compact up">UP</a></li>
+</div>`
 
 	candidates, err := ParseStatusPageHTML(html)
 	if err != nil {
 		t.Fatalf("ParseStatusPageHTML returned error: %v", err)
 	}
-
-	if len(candidates) != 2 {
-		t.Fatalf("expected 2 Anna candidates, got %d", len(candidates))
-	}
-
-	if candidates[0].MonitorID != 900 || candidates[0].BaseURL != "annas-archive.zz" {
-		t.Fatalf("unexpected first candidate: %+v", candidates[0])
-	}
-
-	if candidates[1].MonitorID != 901 || candidates[1].BaseURL != "annas-archive.yy" {
-		t.Fatalf("unexpected second candidate: %+v", candidates[1])
+	if len(candidates) != 1 || candidates[0].BaseURL != "annas-archive.good" {
+		t.Fatalf("expected only the exact HTTPS origin, got %+v", candidates)
 	}
 }
 
-func TestResolveBestBaseURLPrefersHealthyFastCandidateAndSkipsFailedProbe(t *testing.T) {
+func TestParseStatusPageCapsCandidates(t *testing.T) {
 	t.Parallel()
 
-	html := `
-<script>
-window.preloadData = {'config':{'slug':'slum'},'incident':null,'publicGroupList':[
-  {'id':1,'name':'Anna\'s Archive','monitorList':[
-    {'id':10,'name':'Slow','sendUrl':1,'type':'keyword','url':'https://annas-archive.slow/'},
-    {'id':20,'name':'FastButProbeFails','sendUrl':1,'type':'keyword','url':'https://annas-archive.fail/'},
-    {'id':30,'name':'FastHealthy','sendUrl':1,'type':'keyword','url':'https://annas-archive.good/'}
-  ]}
-],'maintenanceList':[]};
-</script>`
-
-	heartbeatJSON := `{
-		"heartbeatList": {
-			"10": [
-				{"status": 1, "time": "2026-03-23 10:00:00", "ping": 900},
-				{"status": 1, "time": "2026-03-23 10:01:00", "ping": 800}
-			],
-			"20": [
-				{"status": 1, "time": "2026-03-23 10:00:00", "ping": 100},
-				{"status": 1, "time": "2026-03-23 10:01:00", "ping": 110}
-			],
-			"30": [
-				{"status": 1, "time": "2026-03-23 10:00:00", "ping": 150},
-				{"status": 1, "time": "2026-03-23 10:01:00", "ping": 140}
-			]
-		},
-		"uptimeList": {}
-	}`
-
-	client := &http.Client{
-		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			switch req.URL.String() {
-			case "https://status.example/":
-				return stringResponse(req, http.StatusOK, html), nil
-			case "https://status.example/api/status-page/heartbeat/slum":
-				return stringResponse(req, http.StatusOK, heartbeatJSON), nil
-			default:
-				return nil, errors.New("unexpected request: " + req.URL.String())
-			}
-		}),
+	var rows strings.Builder
+	for i := 0; i < maxMirrorCandidates+4; i++ {
+		fmt.Fprintf(&rows, `<li class="domain-item-dense"><a href="https://annas-archive.%c">mirror</a><a class="status-badge compact up">UP</a></li>`, 'a'+rune(i))
 	}
+	html := `<div class="site-card"><a class="site-card-title">annas</a>` + rows.String() + `</div>`
+	candidates, err := ParseStatusPageHTML(html)
+	if err != nil {
+		t.Fatalf("ParseStatusPageHTML returned error: %v", err)
+	}
+	if len(candidates) != maxMirrorCandidates {
+		t.Fatalf("expected %d candidates, got %d", maxMirrorCandidates, len(candidates))
+	}
+}
 
-	probeCalls := make([]string, 0)
-	resolver := NewResolver(client, "https://status.example/", func(ctx context.Context, baseURL string) error {
-		probeCalls = append(probeCalls, baseURL)
-		if baseURL == "annas-archive.fail" {
-			return errors.New("probe failed")
+func TestResolvePrefersUpMirrorAndSkipsDownMirror(t *testing.T) {
+	t.Parallel()
+
+	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		if req.URL.String() != "https://status.example/" {
+			return nil, errors.New("unexpected request: " + req.URL.String())
 		}
+		return stringResponse(req, http.StatusOK, `<div class="site-card"><a class="site-card-title">annas</a>
+<li class="domain-item-dense"><a href="https://annas-archive.pro">protected</a><a class="status-badge compact protected">PROTECTED</a></li>
+<li class="domain-item-dense"><a href="https://annas-archive.good">up</a><a class="status-badge compact up">UP</a></li>
+<li class="domain-item-dense"><a href="https://annas-archive.down">down</a><a class="status-badge compact down">DOWN</a></li></div>`), nil
+	})}
+
+	var probed []string
+	resolver := NewResolver(client, "https://status.example/", func(_ context.Context, baseURL string) error {
+		probed = append(probed, baseURL)
 		return nil
 	})
-
 	baseURL, err := resolver.Resolve(context.Background(), ResolveOptions{FallbackBaseURL: "fallback.example"})
 	if err != nil {
 		t.Fatalf("Resolve returned error: %v", err)
 	}
-
 	if baseURL != "annas-archive.good" {
-		t.Fatalf("expected annas-archive.good, got %q", baseURL)
+		t.Fatalf("expected up mirror, got %q", baseURL)
 	}
-
-	if len(probeCalls) == 0 {
-		t.Fatal("expected probe to be called")
-	}
-}
-
-func TestResolveProbesURLFallbackCandidatesWithoutHeartbeatData(t *testing.T) {
-	t.Parallel()
-
-	html := `<html><body><a href="https://annas-archive.fallback/">mirror</a></body></html>`
-	heartbeatJSON := `{"heartbeatList":{},"uptimeList":{}}`
-
-	client := &http.Client{
-		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			switch req.URL.String() {
-			case "https://status.example/":
-				return stringResponse(req, http.StatusOK, html), nil
-			case "https://status.example/api/status-page/heartbeat/slum":
-				return stringResponse(req, http.StatusOK, heartbeatJSON), nil
-			default:
-				return nil, errors.New("unexpected request: " + req.URL.String())
-			}
-		}),
-	}
-
-	resolver := NewResolver(client, "https://status.example/", func(ctx context.Context, baseURL string) error {
-		if baseURL != "annas-archive.fallback" {
-			return errors.New("unexpected probe: " + baseURL)
-		}
-		return nil
-	})
-
-	baseURL, err := resolver.Resolve(context.Background(), ResolveOptions{})
-	if err != nil {
-		t.Fatalf("Resolve returned error: %v", err)
-	}
-
-	if baseURL != "annas-archive.fallback" {
-		t.Fatalf("expected annas-archive.fallback, got %q", baseURL)
+	if len(probed) != 1 || probed[0] != "annas-archive.good" {
+		t.Fatalf("expected only the up mirror to be probed, got %v", probed)
 	}
 }
 
 func TestResolveFallsBackWhenStatusPageFails(t *testing.T) {
 	t.Parallel()
 
-	client := &http.Client{
-		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			return nil, errors.New("network down")
-		}),
-	}
+	client := &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+		return nil, errors.New("network down")
+	})}
+	resolver := NewResolver(client, "https://status.example/", func(context.Context, string) error { return nil })
 
-	resolver := NewResolver(client, "https://status.example/", func(ctx context.Context, baseURL string) error {
-		return nil
-	})
-
-	baseURL, err := resolver.Resolve(context.Background(), ResolveOptions{FallbackBaseURL: "fallback.example"})
+	baseURL, err := resolver.Resolve(context.Background(), ResolveOptions{FallbackBaseURL: "https://fallback.example/"})
 	if err != nil {
 		t.Fatalf("Resolve returned error: %v", err)
 	}
-
 	if baseURL != "fallback.example" {
 		t.Fatalf("expected fallback.example, got %q", baseURL)
+	}
+}
+
+func TestResolveDoesNotUseUnsafeFallback(t *testing.T) {
+	t.Parallel()
+
+	client := &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+		return nil, errors.New("network down")
+	})}
+	resolver := NewResolver(client, "https://status.example/", nil)
+
+	if _, err := resolver.Resolve(context.Background(), ResolveOptions{FallbackBaseURL: "http://fallback.example"}); err == nil {
+		t.Fatal("expected unsafe fallback to be rejected")
+	}
+}
+
+func TestResolveUsesBoundedContextBeforeFallback(t *testing.T) {
+	t.Parallel()
+
+	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return stringResponse(req, http.StatusOK, currentSLUMFixture), nil
+	})}
+	resolver := NewResolver(client, "https://status.example/", func(ctx context.Context, _ string) error {
+		<-ctx.Done()
+		return ctx.Err()
+	})
+	start := time.Now()
+	baseURL, err := resolver.Resolve(context.Background(), ResolveOptions{
+		FallbackBaseURL: "fallback.example",
+		Timeout:         20 * time.Millisecond,
+	})
+	if err != nil {
+		t.Fatalf("Resolve returned error: %v", err)
+	}
+	if baseURL != "fallback.example" {
+		t.Fatalf("expected fallback.example, got %q", baseURL)
+	}
+	if elapsed := time.Since(start); elapsed > time.Second {
+		t.Fatalf("resolution exceeded bounded timeout: %s", elapsed)
+	}
+}
+
+func TestDefaultProbeRequiresAnnaMarkerAndSendsCookie(t *testing.T) {
+	t.Parallel()
+
+	var seen *http.Request
+	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		seen = req
+		return stringResponse(req, http.StatusOK, `<html><title>Anna's Archive search</title></html>`), nil
+	})}
+	resolver := NewResolver(client, "https://status.example/", nil)
+	resolver.SetAccountCookie("aa_account_id2=token")
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err != nil {
+		t.Fatalf("defaultProbe returned error: %v", err)
+	}
+	if seen == nil || seen.Header.Get("Cookie") != "aa_account_id2=token" {
+		t.Fatalf("expected account cookie on probe request, got %#v", seen)
+	}
+
+	client.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return stringResponse(req, http.StatusOK, `<html><title>challenge</title></html>`), nil
+	})
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err == nil {
+		t.Fatal("expected a response without the Anna marker to fail")
+	}
+
+	client.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		body := `<html><title>Anna's Archive search</title></html>` + strings.Repeat("result ", maxProbeBodyBytes)
+		return stringResponse(req, http.StatusOK, body), nil
+	})
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err != nil {
+		t.Fatalf("expected a large response with an early Anna marker to pass: %v", err)
+	}
+}
+
+func TestDefaultProbeRejectsHTTPSDowngrade(t *testing.T) {
+	t.Parallel()
+
+	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return redirectResponse(req, http.StatusFound, "http://annas-archive.good/search"), nil
+	})}
+	resolver := NewResolver(client, "https://status.example/", nil)
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err == nil || !strings.Contains(err.Error(), "downgrade") {
+		t.Fatalf("expected HTTPS downgrade to fail, got %v", err)
+	}
+}
+
+func TestParseBaseURLRejectsDowngradeAndURLParts(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		raw  string
+		want string
+	}{
+		{name: "bare host", raw: "fallback.example", want: "fallback.example"},
+		{name: "https origin", raw: "https://Fallback.Example/", want: "fallback.example"},
+		{name: "http", raw: "http://fallback.example"},
+		{name: "path", raw: "https://fallback.example/path"},
+		{name: "userinfo", raw: "https://user:fallback@example.com"},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			got, err := ParseBaseURL(test.raw)
+			if test.want == "" {
+				if err == nil {
+					t.Fatalf("expected %q to fail, got %q", test.raw, got)
+				}
+				return
+			}
+			if err != nil || got != test.want {
+				t.Fatalf("ParseBaseURL(%q) = %q, %v; want %q", test.raw, got, err, test.want)
+			}
+		})
 	}
 }
 
@@ -189,112 +267,8 @@ func stringResponse(req *http.Request, status int, body string) *http.Response {
 	}
 }
 
-func TestResolveProbesWhenHeartbeatEndpointIsMissing(t *testing.T) {
-	t.Parallel()
-
-	html := `<html><body><a href="https://annas-archive.fallback/">mirror</a></body></html>`
-	client := &http.Client{
-		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			switch req.URL.String() {
-			case "https://status.example/":
-				return stringResponse(req, http.StatusOK, html), nil
-			case "https://status.example/api/status-page/heartbeat/slum":
-				return stringResponse(req, http.StatusNotFound, "missing"), nil
-			default:
-				return nil, errors.New("unexpected request: " + req.URL.String())
-			}
-		}),
-	}
-
-	resolver := NewResolver(client, "https://status.example/", func(ctx context.Context, baseURL string) error {
-		if baseURL != "annas-archive.fallback" {
-			return errors.New("unexpected probe: " + baseURL)
-		}
-		return nil
-	})
-
-	baseURL, err := resolver.Resolve(context.Background(), ResolveOptions{FallbackBaseURL: "configured.example"})
-	if err != nil {
-		t.Fatalf("Resolve returned error: %v", err)
-	}
-	if baseURL != "annas-archive.fallback" {
-		t.Fatalf("expected annas-archive.fallback, got %q", baseURL)
-	}
-}
-
-func TestResolvePrefersUpMirrorFromCurrentSLUMPage(t *testing.T) {
-	t.Parallel()
-
-	html := `
-<div class="site-card">
-  <a href="annas.html" class="site-card-title">annas</a>
-  <li class="domain-item-dense">
-    <a href="https://annas-archive.aaa">annas-archive.aaa</a>
-    <a class="status-badge compact protected">PROTECTED</a>
-  </li>
-  <li class="domain-item-dense">
-    <a href="https://annas-archive.zzz">annas-archive.zzz</a>
-    <a class="status-badge compact up">UP</a>
-  </li>
-  <li class="domain-item-dense">
-    <a href="https://software.annas-archive.gl">software</a>
-    <a class="status-badge compact up">UP</a>
-  </li>
-</div>
-<div class="site-card">
-  <a href="libgen.html" class="site-card-title">libgen</a>
-</div>`
-
-	client := &http.Client{
-		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			if req.URL.String() != "https://status.example/" {
-				return nil, errors.New("heartbeat should not be requested: " + req.URL.String())
-			}
-			return stringResponse(req, http.StatusOK, html), nil
-		}),
-	}
-
-	var probed []string
-	resolver := NewResolver(client, "https://status.example/", func(ctx context.Context, baseURL string) error {
-		probed = append(probed, baseURL)
-		return nil
-	})
-
-	baseURL, err := resolver.Resolve(context.Background(), ResolveOptions{FallbackBaseURL: "configured.example"})
-	if err != nil {
-		t.Fatalf("Resolve returned error: %v", err)
-	}
-	if baseURL != "annas-archive.zzz" {
-		t.Fatalf("expected annas-archive.zzz, got %q", baseURL)
-	}
-	if len(probed) != 1 || probed[0] != "annas-archive.zzz" {
-		t.Fatalf("expected only the up mirror to be probed first, got %v", probed)
-	}
-}
-
-func TestCandidateScoreUsesRecentHeartbeatQuality(t *testing.T) {
-	t.Parallel()
-
-	now := time.Date(2026, 3, 23, 11, 0, 0, 0, time.UTC)
-	candidate := Candidate{
-		BaseURL: "annas-archive.good",
-		Heartbeats: []Heartbeat{
-			{Status: 1, Ping: 200, Time: now.Add(-2 * time.Minute)},
-			{Status: 1, Ping: 100, Time: now.Add(-1 * time.Minute)},
-			{Status: 0, Ping: 0, Time: now},
-		},
-	}
-
-	score := candidate.Score()
-	if score.SuccessCount != 2 {
-		t.Fatalf("expected 2 successful heartbeats, got %d", score.SuccessCount)
-	}
-
-	if score.LastStatus != 0 {
-		t.Fatalf("expected last status 0, got %d", score.LastStatus)
-	}
-
-	if score.AveragePing != 150 {
-		t.Fatalf("expected average ping 150, got %d", score.AveragePing)
-	}
+func redirectResponse(req *http.Request, status int, location string) *http.Response {
+	response := stringResponse(req, status, "redirect")
+	response.Header.Set("Location", location)
+	return response
 }

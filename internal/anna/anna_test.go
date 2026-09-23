@@ -6,15 +6,16 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"io"
 	"net/http"
-	"net/http/httptest"
-	"os"
-	"path/filepath"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
 func TestBuildSearchURLIncludesFiltersAndPage(t *testing.T) {
@@ -77,6 +78,16 @@ func TestSelectDOIHitIgnoresUnrelatedFilenames(t *testing.T) {
 	if hit == nil || hit.Hash != "ddd" {
 		t.Fatalf("expected the exact title, got %+v", hit)
 	}
+	hit = selectDOIHit([]*Book{
+		{Hash: "wrong", Title: "10.1000/abc.123"},
+		{Hash: "right", Title: "The requested paper", DOI: "10.1000/abc"},
+	}, "10.1000/abc")
+	if hit == nil || hit.Hash != "right" {
+		t.Fatalf("substring DOI match selected the wrong result: %+v", hit)
+	}
+	if got := selectTitleHit([]*Book{{Hash: "wrong", Title: "Attention Is All You Need: a critique"}}, "Attention Is All You Need"); got != nil {
+		t.Fatalf("commentary title selected as an exact title: %+v", got)
+	}
 }
 
 func TestParseBooksReadsSearchCard(t *testing.T) {
@@ -117,76 +128,169 @@ func TestParseBooksReadsSearchCard(t *testing.T) {
 	}
 }
 
-func TestReserveDownloadPathDoesNotReplaceExistingFile(t *testing.T) {
-	t.Parallel()
-
-	dir := t.TempDir()
-	existing := filepath.Join(dir, "Example.pdf")
-	if err := os.WriteFile(existing, []byte("keep"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-
-	path, err := reserveDownloadPath(dir, "Example", "pdf", "abc123def456")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if path == existing {
-		t.Fatal("reserved the existing file")
-	}
-	body, err := os.ReadFile(existing)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(body) != "keep" {
-		t.Fatalf("existing file was changed to %q", body)
-	}
-}
-
 func TestCopyWithHashRejectsMismatchedChecksum(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
-	path, err := reserveDownloadPath(dir, "Example", "bin", "abc123def456")
-	if err != nil {
-		t.Fatal(err)
-	}
-	file, err := os.OpenFile(path, os.O_WRONLY, 0o644)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer file.Close()
-
 	sum := md5.Sum([]byte("hello"))
-	_, err = copyWithHash(context.Background(), file, bytes.NewReader([]byte("hello")), -1, hex.EncodeToString(sum[:]), nil)
+	_, err := copyWithHash(context.Background(), io.Discard, bytes.NewReader([]byte("hello")), -1, hex.EncodeToString(sum[:]), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = copyWithHash(context.Background(), file, bytes.NewReader([]byte("other")), -1, hex.EncodeToString(sum[:]), nil)
+	_, err = copyWithHash(context.Background(), io.Discard, bytes.NewReader([]byte("other")), -1, hex.EncodeToString(sum[:]), nil)
 	if err == nil {
 		t.Fatal("expected a checksum mismatch")
+	}
+}
+
+func TestCopyWithHashRejectsEmptyAndMismatchedLength(t *testing.T) {
+	t.Parallel()
+
+	if _, err := copyWithHash(context.Background(), io.Discard, strings.NewReader(""), 0, "", nil); err == nil || !strings.Contains(err.Error(), "empty") {
+		t.Fatalf("expected an empty-file error, got %v", err)
+	}
+	if _, err := copyWithHash(context.Background(), io.Discard, strings.NewReader("hello"), 4, "", nil); err == nil || !strings.Contains(err.Error(), "size mismatch") {
+		t.Fatalf("expected a content-length error, got %v", err)
+	}
+}
+
+func TestSanitizeFilenameIsSafeAndByteBounded(t *testing.T) {
+	t.Parallel()
+
+	if got := sanitizeFilename("CON.txt"); got != "_CON.txt" {
+		t.Fatalf("reserved Windows name was not escaped: %q", got)
+	}
+	if got := sanitizeFilename("report.pdf.  "); got != "report.pdf" {
+		t.Fatalf("trailing Windows punctuation was not removed: %q", got)
+	}
+	got := sanitizeFilename(strings.Repeat("界", 100) + ".pdf")
+	if len(got) > 180 || !utf8.ValidString(got) {
+		t.Fatalf("filename is not a valid <=180-byte UTF-8 name: bytes=%d valid=%v", len(got), utf8.ValidString(got))
+	}
+}
+
+func TestNormalizeDOIPreservesBalancedParentheses(t *testing.T) {
+	t.Parallel()
+
+	if got := NormalizeDOI("https://doi.org/10.1000%2Fexample?utm_source=test#fragment"); got != "10.1000/example" {
+		t.Fatalf("DOI URL was not decoded/cleaned: %q", got)
+	}
+	if got := NormalizeDOI("10.1000/example(02). "); got != "10.1000/example(02)" {
+		t.Fatalf("balanced DOI suffix was changed: %q", got)
+	}
+	if got := NormalizeDOI("10.1000/example). "); got != "10.1000/example" {
+		t.Fatalf("unmatched prose punctuation was retained: %q", got)
+	}
+}
+
+func TestResolvePaperDownloadURLPreservesQuery(t *testing.T) {
+	t.Parallel()
+
+	got, err := resolvePaperDownloadURL("https://annas.test", "/scidb?doi=10.1000%2Fexample")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "https://annas.test/scidb?doi=10.1000%2Fexample" {
+		t.Fatalf("download query was rewritten: %q", got)
 	}
 }
 
 func TestRedactErrHidesSecret(t *testing.T) {
 	t.Parallel()
 
-	got := redactErr(errors.New("request failed for secret-key"), "secret-key")
-	if strings.Contains(got.Error(), "secret-key") || !strings.Contains(got.Error(), "REDACTED") {
+	secret := "secret key/part"
+	cause := apperr.Wrap(apperr.Config, "request failed for "+secret+"?q="+url.QueryEscape(secret)+" path="+url.PathEscape(secret), context.Canceled)
+	got := redactErr(cause, secret)
+	if strings.Contains(got.Error(), secret) || strings.Contains(got.Error(), url.QueryEscape(secret)) || strings.Contains(got.Error(), url.PathEscape(secret)) || !strings.Contains(got.Error(), "REDACTED") {
 		t.Fatalf("secret leaked: %v", got)
+	}
+	if !errors.Is(got, context.Canceled) {
+		t.Fatalf("redaction dropped context cause: %v", got)
+	}
+	var coded *apperr.Error
+	if !errors.As(got, &coded) || coded.Code != apperr.Config {
+		t.Fatalf("redaction dropped typed cause: %v", got)
 	}
 }
 
 func TestFetchDocumentReportsForbidden(t *testing.T) {
 	t.Parallel()
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "blocked", http.StatusForbidden)
-	}))
-	t.Cleanup(server.Close)
-
-	_, _, err := fetchDocument(context.Background(), time.Second, server.URL)
+	client := NewClient(Config{BaseURL: "https://annas.test", HTTPClient: &http.Client{Transport: staticRoundTripper(func(*http.Request) (*http.Response, error) {
+		return &http.Response{StatusCode: http.StatusForbidden, Body: io.NopCloser(strings.NewReader("blocked"))}, nil
+	})}})
+	_, _, err := client.fetchDocument(context.Background(), time.Second, "https://annas.test/search?q=blocked")
 	if err == nil || !strings.Contains(err.Error(), "403") {
 		t.Fatalf("expected a 403 error, got %v", err)
 	}
+}
+
+func TestDownloadFileRejectsHTMLChallenge(t *testing.T) {
+	t.Parallel()
+
+	client := &http.Client{Transport: staticRoundTripper(func(*http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode:    http.StatusOK,
+			Header:        http.Header{"Content-Type": []string{"text/html; charset=utf-8"}},
+			Body:          io.NopCloser(strings.NewReader("<!doctype html><title>challenge</title>")),
+			ContentLength: 40,
+		}, nil
+	})}
+	_, err := downloadFileWithGetter(context.Background(), client, "https://download.invalid/file", t.TempDir(), "paper", "", "", nil, func(_ context.Context, _ *http.Client, _ string) (*http.Response, error) {
+		return client.Transport.RoundTrip(&http.Request{})
+	})
+	if err == nil || !strings.Contains(err.Error(), "HTML") {
+		t.Fatalf("expected HTML rejection, got %v", err)
+	}
+}
+
+func TestClientSearchUsesInjectedBaseAndTransport(t *testing.T) {
+	t.Parallel()
+
+	client := NewClient(Config{
+		BaseURL: "https://annas.test",
+		HTTPClient: &http.Client{Transport: staticRoundTripper(func(req *http.Request) (*http.Response, error) {
+			if req.URL.Path != "/search" || req.URL.Query().Get("q") != "example" {
+				return nil, errors.New("unexpected request URL: " + req.URL.String())
+			}
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(strings.NewReader(`<div><a class="custom-a block" href="/md5/abc123def456"></a><div class="max-w-full"><a href="/md5/abc123def456">Example</a></div></div>`)),
+			}, nil
+		})},
+	})
+	books, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+	if err != nil || len(books) != 1 || books[0].Hash != "abc123def456" {
+		t.Fatalf("injected client search failed: books=%+v err=%v", books, err)
+	}
+}
+
+func TestClientRedirectDropsCookieOnSchemeChange(t *testing.T) {
+	t.Parallel()
+
+	var requests []string
+	client := NewClient(Config{
+		BaseURL:       "https://annas.test",
+		AccountCookie: "aa_account_id2=secret",
+		HTTPClient: &http.Client{Transport: staticRoundTripper(func(req *http.Request) (*http.Response, error) {
+			requests = append(requests, req.URL.String()+" cookie="+req.Header.Get("Cookie"))
+			if len(requests) == 1 {
+				return &http.Response{StatusCode: http.StatusFound, Header: http.Header{"Location": []string{"http://annas.test/insecure"}}, Body: io.NopCloser(http.NoBody), Request: req}, nil
+			}
+			return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(http.NoBody), Request: req}, nil
+		})},
+	})
+	_, err := client.doGet(context.Background(), client.requestClient(time.Second), "https://annas.test/start")
+	if err == nil || !strings.Contains(err.Error(), "unsafe upstream redirect") {
+		t.Fatalf("expected HTTPS-only redirect rejection, got %v", err)
+	}
+	if len(requests) != 1 || !strings.Contains(requests[0], "cookie=aa_account_id2=secret") {
+		t.Fatalf("unexpected redirect cookies: %v", requests)
+	}
+}
+
+type staticRoundTripper func(*http.Request) (*http.Response, error)
+
+func (f staticRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
 }
