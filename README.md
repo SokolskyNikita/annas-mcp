@@ -31,7 +31,7 @@ The variable accepts the raw value, `aa_account_id2=...`, or a full browser `Coo
 
 ## Quick start
 
-Install Node.js 18 or newer and a `tar` command that supports `.tar.xz` archives (`.zip` on Windows). Add this configuration to your MCP client, replacing the placeholders with the credentials described above. Cursor and Claude Desktop use this JSON structure.
+Install Node.js 18 or newer and a `tar` command that supports `.tar.xz` archives. On Windows, the launcher uses the system's built-in `tar.exe` to extract `.zip` archives, including when launched from Git Bash. Add this configuration to your MCP client, replacing the placeholders with the credentials described above. Cursor and Claude Desktop use this JSON structure.
 
 ```json
 {
@@ -330,7 +330,7 @@ To publish a release:
 3. Commit and push to `main`, then wait for CI to pass.
 4. Run `scripts/manage-tag.sh add`. It requires a clean checkout matching the pushed `origin/main` commit and creates an annotated tag. Existing tags are rejected.
 
-The tag workflow repeats the platform tests before publishing binaries and SHA-256 checksums to GitHub Releases. It then installs the published binary through the npm launcher on Linux, macOS, and Windows, verifies its version, and checks the MCP handshake and all four registered tools. To repeat that verification locally, run `node scripts/verify-release.mjs v0.0.10` with the desired published tag; no archive credentials are needed.
+The tag workflow repeats the platform tests before publishing binaries and SHA-256 checksums to GitHub Releases. It then installs the published binary through the npm launcher on Linux, macOS, and Windows, verifies its version, and checks the MCP handshake and all four registered tools. To repeat that verification locally, run `node scripts/verify-release.mjs v0.0.11` with the desired published tag; no archive credentials are needed.
 
 Release tags are immutable: do not move or recreate one, because the npm launcher caches binaries by release identity and checksum. The GitHub release is the distribution channel; this repository does not publish a package to the npm registry.
 

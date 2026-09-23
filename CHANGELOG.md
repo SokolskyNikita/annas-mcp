@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.0.11
+
+- Fix Windows launcher installation under Git Bash by selecting the system's native `tar.exe`. Git Bash's GNU tar does not handle Windows drive paths or ZIP archives as required by the launcher.
+- Run launcher integration tests under Bash on all CI platforms so Windows shell differences are covered before publication.
+
 ## v0.0.10
 
 - Refactor the archive client, mirror discovery, MCP/CLI services, and npm launcher into focused modules; remove obsolete helpers and configuration paths.

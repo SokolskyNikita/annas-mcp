@@ -17,7 +17,7 @@ import {
   sha256Digest,
 } from "../lib/target.js";
 import { cacheDir, releaseAPI } from "../lib/launcher.js";
-import { validateArchiveEntryName } from "../lib/archive.js";
+import { tarExecutable, validateArchiveEntryName } from "../lib/archive.js";
 import { MCPProcessClient } from "./mcp-session.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -80,6 +80,16 @@ function testInputValidation() {
     "/tmp/annas-mcp-test",
   );
   assert.equal(validateArchiveEntryName("annas-mcp/annas-mcp"), "annas-mcp/annas-mcp");
+  assert.equal(tarExecutable("linux", {}), "tar");
+  assert.equal(
+    tarExecutable("win32", { SystemRoot: "C:\\Windows" }),
+    "C:\\Windows\\System32\\tar.exe",
+  );
+  assert.equal(
+    tarExecutable("win32", { WINDIR: "D:\\Windows" }),
+    "D:\\Windows\\System32\\tar.exe",
+  );
+  assert.equal(tarExecutable("win32", {}), "C:\\Windows\\System32\\tar.exe");
   for (const name of ["../escape", "/absolute", "C:/absolute", "nested/../escape"]) {
     assert.throws(() => validateArchiveEntryName(name), /unsafe archive path/);
   }

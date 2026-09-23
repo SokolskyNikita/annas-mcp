@@ -98,7 +98,8 @@ jobs:
         shell: bash
         run: for script in scripts/*.sh; do bash -n "$script"; done
 
-      - name: Test the npx launcher
+      - name: Test version metadata and the npx launcher
+        shell: bash
         run: npm test
 
   snapshot:
