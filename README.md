@@ -9,6 +9,8 @@ The archive's contents and access rules vary by work and account. Use the servic
 
 ## Quick start
 
+Book and article titles, authors, publishers, DOIs, and file hashes in the examples below are fictional placeholders. Replace them with your own queries and identifiers when using the tools.
+
 The npm launcher requires Node.js 18 or newer and a `tar` command that supports `.tar.xz` archives (`.zip` on Windows). It downloads the release binary for the current OS and CPU, verifies the published SHA-256 checksum, stores it in a local cache, and starts it. A later launch checks for a newer release with a short bounded request; if the check or download fails, a valid cached binary is used.
 
 Configure the environment in the MCP client's `env` block. Set an Anna's Archive account cookie when the upstream search or mirror requires a browser session, a configured download directory for downloads, and the account's API key for fast downloads. DOI article downloads can use the SciDB route without the fast-download key; hash-based fast downloads require `ANNAS_SECRET_KEY`. See [Anna's Archive's API FAQ](https://annas-archive.gl/faq#api) for the service's current account and API requirements.
@@ -33,7 +35,7 @@ The same launcher can be tried from a terminal:
 
 ```bash
 npx -y github:SokolskyNikita/annas-mcp --help
-npx -y github:SokolskyNikita/annas-mcp book-search "distributed systems" --language en
+npx -y github:SokolskyNikita/annas-mcp book-search "teapot astronomy" --language en
 ```
 
 The launcher cache can be moved with `ANNAS_MCP_CACHE_DIR`. Keep the cache on a local, user-writable filesystem. A cached binary is selected only when its release metadata and target asset still match.
@@ -89,7 +91,7 @@ Search books, textbooks, manuals, standards, or other book records by title, aut
 
 ```json
 {
-  "query": "Designing Data-Intensive Applications",
+  "query": "The Moon Goblin's Guide to Teapot Astronomy",
   "language": "en",
   "page": 1,
   "limit": 10,
@@ -105,18 +107,18 @@ Keyword searches return one page:
 {
   "page": 1,
   "language": "en",
-  "matched": 2,
-  "limit": 2,
+  "matched": 1,
+  "limit": 1,
   "results": [
     {
       "hash": "abc123def4567890abc123def4567890",
-      "title": "Designing Data-Intensive Applications",
-      "authors": "Martin Kleppmann",
-      "publisher": "O'Reilly Media",
+      "title": "The Moon Goblin's Guide to Teapot Astronomy",
+      "authors": "Professor Puddlewhisk",
+      "publisher": "Imaginary Moon Press",
       "language": "English",
       "format": "EPUB",
       "size": "3.1MB",
-      "description": "A short record excerpt.",
+      "description": "A fictional handbook for charting constellations with enchanted teapots.",
       "url": "https://annas-archive.gl/md5/abc123def4567890abc123def4567890"
     }
   ]
@@ -132,7 +134,7 @@ Download a book by the `hash` returned by `book_search`.
 ```json
 {
   "hash": "abc123def4567890abc123def4567890",
-  "title": "Designing Data-Intensive Applications",
+  "title": "The Moon Goblin's Guide to Teapot Astronomy",
   "format": "epub",
   "timeout_seconds": 1800
 }
@@ -142,13 +144,13 @@ Download a book by the `hash` returned by `book_search`.
 
 ### `article_search`
 
-Search journal articles by keywords, or resolve one article by DOI. The query may be a bare DOI such as `10.48550/arXiv.1706.03762` or a DOI URL such as `https://doi.org/10.48550/arXiv.1706.03762`.
+Search journal articles by keywords, or resolve one article by DOI. The query may be a bare DOI or a DOI URL. The fictional paper "Teleporting Teapots with Moonbeam Networks" uses the placeholder `10.0000/fictional.moonbeam-teapots`, also shown as `https://doi.org/10.0000/fictional.moonbeam-teapots` below.
 
 For keywords:
 
 ```json
 {
-  "query": "attention mechanisms",
+  "query": "moonbeam networks",
   "language": "en",
   "page": 1,
   "limit": 10
@@ -160,7 +162,7 @@ Keyword results have the same pagination fields as `book_search`, usually includ
 For a DOI:
 
 ```json
-{"query":"https://doi.org/10.48550/arXiv.1706.03762"}
+{"query":"https://doi.org/10.0000/fictional.moonbeam-teapots"}
 ```
 
 The result is one article object rather than a page envelope. Its fields can include `doi`, `title`, `authors`, `journal`, `format`, `size`, `hash`, `description`, `download_url`, and `page_url`. The `hash` is the value to pass to `article_download` when it is present.
@@ -170,7 +172,7 @@ The result is one article object rather than a page envelope. Its fields can inc
 Download an article by exactly one of `doi` or a `hash` from `article_search`.
 
 ```json
-{"doi":"10.48550/arXiv.1706.03762","format":"pdf"}
+{"doi":"10.0000/fictional.moonbeam-teapots","format":"pdf"}
 ```
 
 When a hash is already known, use the direct path and provide a title if one is available:
@@ -178,7 +180,7 @@ When a hash is already known, use the direct path and provide a title if one is 
 ```json
 {
   "hash": "abc123def4567890abc123def4567890",
-  "title": "Attention Is All You Need",
+  "title": "Teleporting Teapots with Moonbeam Networks",
   "format": "pdf"
 }
 ```
@@ -233,17 +235,17 @@ The CLI uses the same validation and download code as the MCP tools. Search comm
 
 ```bash
 # Search
-annas-mcp book-search "distributed systems" --language en --page 1 --limit 20
-annas-mcp article-search "attention mechanisms" --json
-annas-mcp article-search "10.1038/nature12373" --json
+annas-mcp book-search "teapot astronomy" --language en --page 1 --limit 20
+annas-mcp article-search "moonbeam networks" --json
+annas-mcp article-search "10.0000/fictional.moonbeam-teapots" --json
 
 # Download by a search result hash
-annas-mcp book-download abc123def4567890abc123def4567890 "my-book.epub"
+annas-mcp book-download abc123def4567890abc123def4567890 "teapot-astronomy.epub"
 annas-mcp article-download --hash abc123def4567890abc123def4567890 \
-  --title "Attention Is All You Need" --format pdf
+  --title "Teleporting Teapots with Moonbeam Networks" --format pdf
 
 # Download an article by DOI
-annas-mcp article-download "10.1038/nature12373" --format pdf
+annas-mcp article-download "10.0000/fictional.moonbeam-teapots" --format pdf
 
 # Start the stdio server explicitly
 annas-mcp mcp
