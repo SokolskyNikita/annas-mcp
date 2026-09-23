@@ -20,7 +20,11 @@ import (
 func TestBuildSearchURLIncludesFiltersAndPage(t *testing.T) {
 	t.Parallel()
 
-	got := buildSearchURL("annas-archive.gl", "machine learning", "book_nonfiction", "en", 2)
+	got := buildSearchURL("annas-archive.gl", "machine learning", SearchOptions{
+		Content:  "book_nonfiction",
+		Language: "en",
+		Page:     2,
+	})
 	for _, part := range []string{
 		"https://annas-archive.gl/search?",
 		"q=machine+learning",
@@ -31,6 +35,47 @@ func TestBuildSearchURLIncludesFiltersAndPage(t *testing.T) {
 		if !strings.Contains(got, part) {
 			t.Fatalf("search URL %q does not contain %q", got, part)
 		}
+	}
+}
+
+func TestResolveSearchDropsLegacyFilters(t *testing.T) {
+	t.Parallel()
+
+	books := ResolveSearch(SearchOptions{Content: "book_any", Page: 2}, "book_any")
+	if books.Content != "" || books.Index != "" || books.Page != 2 {
+		t.Fatalf("book_any should not be sent: %+v", books)
+	}
+	articles := ResolveSearch(SearchOptions{}, "journal")
+	if articles.Index != "journals" || articles.Content != "" {
+		t.Fatalf("articles should use the journals index: %+v", articles)
+	}
+	got := buildSearchURL("annas-archive.gl", "transformers", articles)
+	if strings.Contains(got, "content=") || !strings.Contains(got, "index=journals") {
+		t.Fatalf("article URL = %s", got)
+	}
+}
+
+func TestSelectDOIHitIgnoresUnrelatedFilenames(t *testing.T) {
+	t.Parallel()
+
+	books := []*Book{
+		{Hash: "aaa", Title: "1t86xnb7cd6x29mqzpy17os8m.pdf"},
+		{Hash: "bbb", Title: "Attention Is All You Need", Description: "arXiv:1706.03762v7 Abstract The dominant sequence transduction models"},
+	}
+	hit := selectDOIHit(books, "10.48550/arXiv.1706.03762")
+	if hit == nil || hit.Hash != "bbb" {
+		t.Fatalf("expected the arXiv paper, got %+v", hit)
+	}
+	if arxivID("10.48550/arXiv.1706.03762v3") != "1706.03762" {
+		t.Fatal("arxiv id was not stripped")
+	}
+	hit = selectTitleHit([]*Book{
+		{Hash: "ccc", Title: "Attention Is All You Need 中文翻译"},
+		{Hash: "ddd", Title: "Attention Is All You Need"},
+		{Hash: "eee", Title: "1t86xnb7cd6x29mqzpy17os8m.pdf"},
+	}, "Attention Is All You Need")
+	if hit == nil || hit.Hash != "ddd" {
+		t.Fatalf("expected the exact title, got %+v", hit)
 	}
 }
 
@@ -45,6 +90,7 @@ func TestParseBooksReadsSearchCard(t *testing.T) {
     <a href="/search?q=author"><span class="icon-[mdi--user-edit]"></span>Ada Lovelace</a>
     <a href="/search?q=pub"><span class="icon-[mdi--company]"></span>Example Press</a>
     <div class="text-gray-800">✅ English [en] · EPUB · 1.2MB · 2020</div>
+    <div class="line-clamp-[2] text-sm text-gray-600">A short description. DOI 10.1000/example.123.</div>
   </div>
 </div>`
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(html))
@@ -65,6 +111,9 @@ func TestParseBooksReadsSearchCard(t *testing.T) {
 	}
 	if book.URL != "https://annas-archive.gl/md5/abc123def456" {
 		t.Fatalf("unexpected URL %q", book.URL)
+	}
+	if book.Description != "A short description. DOI 10.1000/example.123." || book.DOI != "10.1000/example.123" {
+		t.Fatalf("unexpected description: %+v", book)
 	}
 }
 

@@ -111,14 +111,13 @@ MCP tools take an optional `timeout_seconds` argument.
 
 ## Tools
 
-Search first. Pass `hash` from `book_search` to `book_download`. Pass `doi` to `article_download`. A DOI that does not resolve is a tool error.
+Search first. Pass `hash` from either search tool to `book_download` or `article_download`. Pass `doi` to `article_download`. A DOI that does not resolve is a tool error.
 
-`book_search`, and `article_search` with keywords, return one page:
+`book_search`, and `article_search` with keywords, return one page. Each hit includes `hash` and, when the page has one, `description`. Article keyword search uses Anna's journals index. A book content filter replaces that index.
 
 ```json
 {
   "page": 1,
-  "content": "book_any",
   "language": "en",
   "results": [
     {
@@ -129,21 +128,22 @@ Search first. Pass `hash` from `book_search` to `book_download`. Pass `doi` to `
       "language": "English",
       "format": "EPUB",
       "size": "0.3MB",
+      "description": "Short excerpt from the record.",
       "url": "https://annas-archive.gl/md5/abc123def456"
     }
   ]
 }
 ```
 
-Keyword article results use `journal` and `page_url` in place of `publisher` and `url`. A DOI passed to `article_search` returns one object: `doi`, `title`, `authors`, `journal`, `size`, `hash`, `page_url`.
+Keyword article results use `journal` and `page_url` in place of `publisher` and `url`, and include `doi` when the record text contains one. The response also has `"index": "journals"`. A DOI passed to `article_search` returns one object: `doi`, `title`, `authors`, `journal`, `size`, `hash`, `description`, `page_url`. If SciDB has no file, lookup searches for the DOI and then for the title registered at doi.org.
 
 Both download tools return `{"path":"/absolute/file.epub","bytes":300188}`. The file is checked against the MD5 `hash`. An existing file with the same name is kept; the new file gets a short hash suffix.
 
-Anna's search can return an empty later page, with the text "No files found", even when more matches exist. Retry the same page, or change the query.
+Anna's search can still return an empty later page when its search server is slow. Retry that page, or change the query. Do not send `content=book_any`; it is not a current filter and makes later pages empty.
 
 | Tool | Arguments | CLI |
 | --- | --- | --- |
-| `book_search` | `query`. Optional `content` (default `book_any`; also `book_fiction`, `book_nonfiction`, `book_unknown`, `book_comic`, `magazine`, `standards_document`, and other Anna content tokens), `language` (`en`), `page` (default 1), `timeout_seconds` | `book-search --language en --content book_fiction "query"` |
+| `book_search` | `query`. Optional `content` (`book_fiction`, `book_nonfiction`, `book_unknown`, `book_comic`, `magazine`, `standards_document`, and other Anna content tokens), `language` (`en`), `page` (default 1), `timeout_seconds` | `book-search --language en --content book_fiction "query"` |
 | `book_download` | `hash`, `title`. Optional `format` (`pdf`, `epub`); otherwise taken from the response. `timeout_seconds` | `book-download abc123def456 "my-book.epub"` |
-| `article_search` | `query`: a DOI (`10.…`) or keywords. Optional `content` (default `journal`), `language`, `page`, `timeout_seconds` | `article-search "10.1038/nature12373"` |
-| `article_download` | `doi`, optional `timeout_seconds` | `article-download "10.1038/nature12373"` |
+| `article_search` | `query`: a DOI (`10.…`) or keywords. Optional `content` (a book filter; otherwise the journals index), `language`, `page`, `timeout_seconds` | `article-search "10.1038/nature12373"` |
+| `article_download` | `doi` or `hash` from search. Optional `title`, `format`, `timeout_seconds` | `article-download "10.1038/nature12373"` |

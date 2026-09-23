@@ -2,6 +2,7 @@ package modes
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -77,5 +78,51 @@ func TestBookSearchRejectsAnInvalidPageWithoutCallingUpstream(t *testing.T) {
 	}
 	if !result.IsError {
 		t.Fatal("expected an invalid page to be a tool error")
+	}
+}
+
+func TestArticleDownloadRequiresDOIOrHash(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	clientTransport, serverTransport := mcp.NewInMemoryTransports()
+	server := newMCPServer()
+	if _, err := server.Connect(ctx, serverTransport); err != nil {
+		t.Fatal(err)
+	}
+	client := mcp.NewClient("annas-mcp-test", "0.0.0", nil)
+	session, err := client.Connect(ctx, clientTransport)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { session.Close() })
+
+	if !strings.Contains(serverInstructions, "full text") {
+		t.Fatal("server instructions should say when to use the tools")
+	}
+
+	listed, err := session.ListTools(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var download *mcp.Tool
+	for _, tool := range listed.Tools {
+		if tool.Name == "article_download" {
+			download = tool
+		}
+	}
+	if download == nil || !strings.Contains(download.Description, "hash") {
+		t.Fatal("article_download should accept a hash from search")
+	}
+
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "article_download",
+		Arguments: map[string]any{},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.IsError {
+		t.Fatal("expected a missing doi and hash to be a tool error")
 	}
 }

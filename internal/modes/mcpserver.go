@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const serverInstructions = "Search before downloading. book_search and article_search return one page of JSON results; pass the hash to book_download, or the doi to article_download. Increase page when you need more hits. language is an ISO 639-1 code such as en. Book content filters include book_any, book_fiction, book_nonfiction, magazine, and standards_document. Article search defaults to journal. Downloads are written under ANNAS_DOWNLOAD_PATH and the tool result includes the file path. A missing DOI is an error."
+const serverInstructions = "Use these tools when the user needs the full text of a specific book, paper, standard, or citation. Search before downloading. article_search with keywords searches journal articles and returns hash, description, and doi when the page includes one. book_search searches books. Pass hash to book_download or article_download, or pass doi to article_download. Increase page only when the first page is not enough. language is an ISO 639-1 code such as en. Book content filters include book_fiction, book_nonfiction, magazine, and standards_document. Downloads are written under ANNAS_DOWNLOAD_PATH and the tool result includes the file path. A DOI that does not resolve is an error."
 
 var (
 	searchTimeout       = anna.DefaultSearchTimeout
@@ -64,23 +64,24 @@ func BookSearchTool(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 		return toolError(err)
 	}
 
-	books, err := anna.FindBook(ctx, params.Arguments.Query, anna.SearchOptions{
+	resolved := anna.ResolveSearch(anna.SearchOptions{
 		Content:  content,
 		Language: language,
 		Page:     page,
-	}, timeout)
+	}, "book_any")
+	books, err := anna.FindBook(ctx, params.Arguments.Query, resolved, timeout)
 	if err != nil {
 		return toolError(err)
 	}
-	if content == "" {
-		content = "book_any"
-	}
-	return jsonResult(map[string]any{
-		"page":     page,
-		"content":  content,
-		"language": language,
+	payload := map[string]any{
+		"page":     resolved.Page,
+		"language": resolved.Language,
 		"results":  books,
-	})
+	}
+	if resolved.Content != "" {
+		payload["content"] = resolved.Content
+	}
+	return jsonResult(payload)
 }
 
 func BookDownloadTool(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[BookDownloadParams]) (*mcp.CallToolResultFor[any], error) {
@@ -127,23 +128,27 @@ func ArticleSearchTool(ctx context.Context, cc *mcp.ServerSession, params *mcp.C
 	if err != nil {
 		return toolError(err)
 	}
-	papers, err := anna.FindArticle(ctx, query, anna.SearchOptions{
+	resolved := anna.ResolveSearch(anna.SearchOptions{
 		Content:  content,
 		Language: language,
 		Page:     page,
-	}, timeout)
+	}, "journal")
+	papers, err := anna.FindArticle(ctx, query, resolved, timeout)
 	if err != nil {
 		return toolError(err)
 	}
-	if content == "" {
-		content = "journal"
-	}
-	return jsonResult(map[string]any{
-		"page":     page,
-		"content":  content,
-		"language": language,
+	payload := map[string]any{
+		"page":     resolved.Page,
+		"language": resolved.Language,
 		"results":  papers,
-	})
+	}
+	if resolved.Index != "" {
+		payload["index"] = resolved.Index
+	}
+	if resolved.Content != "" {
+		payload["content"] = resolved.Content
+	}
+	return jsonResult(payload)
 }
 
 func ArticleDownloadTool(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ArticleDownloadParams]) (*mcp.CallToolResultFor[any], error) {
@@ -151,12 +156,32 @@ func ArticleDownloadTool(ctx context.Context, cc *mcp.ServerSession, params *mcp
 	if err != nil {
 		return toolError(err)
 	}
+	hash := strings.TrimSpace(params.Arguments.Hash)
+	doi := strings.TrimSpace(params.Arguments.DOI)
+	if hash == "" && doi == "" {
+		return toolError(errors.New("pass doi or hash"))
+	}
 	config, err := env.GetEnv()
 	if err != nil {
 		return toolError(err)
 	}
+	if hash != "" {
+		book := &anna.Book{
+			Hash:   hash,
+			Title:  params.Arguments.Title,
+			Format: params.Arguments.Format,
+		}
+		result, downloadErr := book.Download(ctx, config.SecretKey, config.DownloadPath, timeout, progressNotifier(ctx, cc, params.GetProgressToken()))
+		if downloadErr != nil {
+			return toolError(downloadErr)
+		}
+		return jsonResult(map[string]any{
+			"path":  result.Path,
+			"bytes": result.Bytes,
+		})
+	}
 
-	paper, err := anna.LookupDOI(ctx, params.Arguments.DOI, timeout)
+	paper, err := anna.LookupDOI(ctx, doi, timeout)
 	if err != nil {
 		return toolError(err)
 	}
@@ -175,7 +200,7 @@ func ArticleDownloadTool(ctx context.Context, cc *mcp.ServerSession, params *mcp
 			})
 		}
 		logger.GetLogger().Warn("Fast download failed, trying SciDB download",
-			zap.String("doi", params.Arguments.DOI),
+			zap.String("doi", doi),
 			zap.Error(downloadErr),
 		)
 	}
@@ -238,28 +263,31 @@ func newMCPServer() *mcp.Server {
 		Instructions: serverInstructions,
 	})
 
-	bookSearch := mcp.NewServerTool("book_search", "Search for books by title, author, or topic. Returns one page of JSON results, including the MD5 hash used for downloading.", BookSearchTool, mcp.Input(
+	bookSearch := mcp.NewServerTool("book_search", "Use when the user needs a book, textbook, manual, or standard by title, author, or topic. Returns one page of JSON with hash, format, and a short description. Pass hash to book_download.", BookSearchTool, mcp.Input(
 		mcp.Property("query", mcp.Description("Search query for books (title, author, or topic)")),
-		mcp.Property("content", mcp.Description("Optional content filter: book_any, book_fiction, book_nonfiction, magazine, or standards_document")),
+		mcp.Property("content", mcp.Description("Optional content filter: book_fiction, book_nonfiction, magazine, or standards_document")),
 		mcp.Property("language", mcp.Description("Optional ISO 639-1 language code, for example en")),
 		mcp.Property("page", mcp.Description("Result page, starting at 1")),
 		mcp.Property("timeout_seconds", mcp.Description("Optional HTTP timeout in seconds. Defaults to 60")),
 	))
-	bookDownload := mcp.NewServerTool("book_download", "Download a book by its MD5 hash into ANNAS_DOWNLOAD_PATH. Returns the file path. Requires ANNAS_SECRET_KEY and ANNAS_DOWNLOAD_PATH.", BookDownloadTool, mcp.Input(
+	bookDownload := mcp.NewServerTool("book_download", "Download a book the user asked for. Pass hash from book_search. Writes the file under ANNAS_DOWNLOAD_PATH and returns its path.", BookDownloadTool, mcp.Input(
 		mcp.Property("hash", mcp.Description("MD5 hash of the book to download")),
 		mcp.Property("title", mcp.Description("Book title, used for the filename")),
 		mcp.Property("format", mcp.Description("Optional file extension, for example pdf or epub. Detected from the download when omitted")),
 		mcp.Property("timeout_seconds", mcp.Description("Optional HTTP timeout in seconds. Defaults to 1800")),
 	))
-	articleSearch := mcp.NewServerTool("article_search", "Search for articles by DOI or keywords. A DOI returns one paper. Keywords return one page of JSON results.", ArticleSearchTool, mcp.Input(
+	articleSearch := mcp.NewServerTool("article_search", "Use when the user needs a paper or article, by DOI or by title. A DOI returns one paper. Keywords search journal articles and return hash, description, and doi when the page includes one. Pass hash or doi to article_download.", ArticleSearchTool, mcp.Input(
 		mcp.Property("query", mcp.Description("DOI or search keywords")),
-		mcp.Property("content", mcp.Description("Optional content filter. Defaults to journal")),
+		mcp.Property("content", mcp.Description("Optional file-type filter. Keywords use the journals index unless a book content filter is set")),
 		mcp.Property("language", mcp.Description("Optional ISO 639-1 language code, for example en")),
 		mcp.Property("page", mcp.Description("Result page, starting at 1")),
 		mcp.Property("timeout_seconds", mcp.Description("Optional HTTP timeout in seconds. Defaults to 60")),
 	))
-	articleDownload := mcp.NewServerTool("article_download", "Download an article by DOI into ANNAS_DOWNLOAD_PATH. Returns the file path. Requires ANNAS_SECRET_KEY and ANNAS_DOWNLOAD_PATH.", ArticleDownloadTool, mcp.Input(
-		mcp.Property("doi", mcp.Description("DOI of the article to download")),
+	articleDownload := mcp.NewServerTool("article_download", "Download a paper the user asked for. Pass doi, or hash from article_search. Writes the file under ANNAS_DOWNLOAD_PATH and returns its path.", ArticleDownloadTool, mcp.Input(
+		mcp.Property("doi", mcp.Description("DOI of the article to download. Optional when hash is set")),
+		mcp.Property("hash", mcp.Description("MD5 hash from article_search. Optional when doi is set")),
+		mcp.Property("title", mcp.Description("Optional title, used for the filename when downloading by hash")),
+		mcp.Property("format", mcp.Description("Optional file extension, for example pdf. Detected from the download when omitted")),
 		mcp.Property("timeout_seconds", mcp.Description("Optional HTTP timeout in seconds. Defaults to 1800")),
 	))
 

@@ -3,24 +3,28 @@ package anna
 import "fmt"
 
 type Book struct {
-	Language  string `json:"language"`
-	Format    string `json:"format"`
-	Size      string `json:"size"`
-	Title     string `json:"title"`
-	Publisher string `json:"publisher"`
-	Authors   string `json:"authors"`
-	URL       string `json:"url"`
-	Hash      string `json:"hash"`
+	Language    string `json:"language"`
+	Format      string `json:"format"`
+	Size        string `json:"size"`
+	Title       string `json:"title"`
+	Publisher   string `json:"publisher"`
+	Authors     string `json:"authors"`
+	Description string `json:"description,omitempty"`
+	DOI         string `json:"doi,omitempty"`
+	URL         string `json:"url"`
+	Hash        string `json:"hash"`
 }
 
 type Paper struct {
-	DOI         string `json:"doi"`
+	DOI         string `json:"doi,omitempty"`
 	Title       string `json:"title,omitempty"`
 	Authors     string `json:"authors"`
 	Journal     string `json:"journal"`
+	Format      string `json:"format,omitempty"`
 	Size        string `json:"size"`
 	Hash        string `json:"hash,omitempty"`
-	DownloadURL string `json:"download_url"`
+	Description string `json:"description,omitempty"`
+	DownloadURL string `json:"download_url,omitempty"`
 	SciHubURL   string `json:"scihub_url,omitempty"`
 	PageURL     string `json:"page_url"`
 }
@@ -36,9 +40,12 @@ type fastDownloadResponse struct {
 }
 
 // SearchOptions narrows one page of Anna's Archive results.
+// Index is an Anna search tab such as "journals". Content is a file-type filter
+// such as "book_nonfiction". book_any and journal are legacy values and are not sent.
 type SearchOptions struct {
 	Content  string
 	Language string
+	Index    string
 	Page     int
 }
 

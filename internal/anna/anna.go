@@ -18,6 +18,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/iosifache/annas-mcp/internal/env"
@@ -26,11 +27,11 @@ import (
 )
 
 const (
-	AnnasSciDBEndpointFormat = "https://%s/scidb/%s"
-	DefaultSearchTimeout     = 60 * time.Second
-	DefaultDownloadTimeout   = 30 * time.Minute
-	BrowserUserAgent         = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-	maxDownloadBytes int64 = 8 << 30
+	AnnasSciDBEndpointFormat       = "https://%s/scidb/%s"
+	DefaultSearchTimeout           = 60 * time.Second
+	DefaultDownloadTimeout         = 30 * time.Minute
+	BrowserUserAgent               = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+	maxDownloadBytes         int64 = 8 << 30
 )
 
 var (
@@ -39,6 +40,8 @@ var (
 	domainIndexes         = []int{0, 1, 2}
 	authorSelector        = "a[href^='/search'] span.icon-\\[mdi--user-edit\\]"
 	publisherSelector     = "a[href^='/search'] span.icon-\\[mdi--company\\]"
+	doiPattern            = regexp.MustCompile(`(?i)10\.\d{4,9}/[-._;()/:A-Za-z0-9]+`)
+	descriptionSelector   = "div.text-gray-600"
 )
 
 func FindBook(ctx context.Context, query string, options SearchOptions, timeout time.Duration) ([]*Book, error) {
@@ -54,16 +57,40 @@ func FindArticle(ctx context.Context, query string, options SearchOptions, timeo
 
 	papers := make([]*Paper, 0, len(books))
 	for _, book := range books {
-		papers = append(papers, &Paper{
-			Title:   book.Title,
-			Authors: book.Authors,
-			Journal: book.Publisher,
-			Size:    book.Size,
-			Hash:    book.Hash,
-			PageURL: book.URL,
-		})
+		papers = append(papers, paperFromBook(book, book.DOI))
 	}
 	return papers, nil
+}
+
+// ResolveSearch applies legacy content values and the default for a search.
+// book_any is not a current Anna filter and makes later pages empty, so it is dropped.
+// journal is the old article default and maps to the journals index.
+func ResolveSearch(options SearchOptions, defaultContent string) SearchOptions {
+	options.Content = strings.ToLower(strings.TrimSpace(options.Content))
+	options.Index = strings.ToLower(strings.TrimSpace(options.Index))
+	options.Language = strings.ToLower(strings.TrimSpace(options.Language))
+	if options.Page < 1 {
+		options.Page = 1
+	}
+	if options.Content == "journal" {
+		options.Content = ""
+		if options.Index == "" {
+			options.Index = "journals"
+		}
+	}
+	if options.Content == "book_any" {
+		options.Content = ""
+	}
+	if options.Content == "" && options.Index == "" {
+		switch defaultContent {
+		case "journal", "journals":
+			options.Index = "journals"
+		case "", "book_any":
+		default:
+			options.Content = defaultContent
+		}
+	}
+	return options
 }
 
 func search(ctx context.Context, query string, options SearchOptions, defaultContent string, timeout time.Duration) ([]*Book, string, error) {
@@ -72,11 +99,8 @@ func search(ctx context.Context, query string, options SearchOptions, defaultCon
 		return nil, "", errors.New("search query is empty")
 	}
 
-	content := options.Content
-	if content == "" {
-		content = defaultContent
-	}
-	pageURL := buildSearchURL(env.GetAnnasBaseURL(), query, content, options.Language, options.Page)
+	options = ResolveSearch(options, defaultContent)
+	pageURL := buildSearchURL(env.GetAnnasBaseURL(), query, options)
 	l.Info("Searching", zap.String("url", pageURL))
 
 	doc, _, err := fetchDocument(ctx, timeout, pageURL)
@@ -89,18 +113,23 @@ func search(ctx context.Context, query string, options SearchOptions, defaultCon
 	return books, pageURL, nil
 }
 
-func buildSearchURL(base, query, content, language string, page int) string {
-	if page < 1 {
-		page = 1
+func buildSearchURL(base, query string, options SearchOptions) string {
+	if options.Page < 1 {
+		options.Page = 1
 	}
 	values := url.Values{}
 	values.Set("q", query)
-	values.Set("content", content)
-	if language != "" {
-		values.Set("lang", language)
+	if options.Index != "" {
+		values.Set("index", options.Index)
 	}
-	if page > 1 {
-		values.Set("page", strconv.Itoa(page))
+	if options.Content != "" {
+		values.Set("content", options.Content)
+	}
+	if options.Language != "" {
+		values.Set("lang", options.Language)
+	}
+	if options.Page > 1 {
+		values.Set("page", strconv.Itoa(options.Page))
 	}
 	return "https://" + base + "/search?" + values.Encode()
 }
@@ -130,15 +159,18 @@ func parseBooks(doc *goquery.Document, pageURL string) []*Book {
 		}
 
 		language, format, size := extractMetaInformation(info.Find("div.text-gray-800").Text())
+		description := snippet(info.Find(descriptionSelector).First().Text())
 		books = append(books, &Book{
-			Language:  language,
-			Format:    format,
-			Size:      size,
-			Title:     title,
-			Publisher: strings.TrimSpace(info.Find(publisherSelector).Parent().Text()),
-			Authors:   strings.TrimSpace(info.Find(authorSelector).Parent().Text()),
-			URL:       absoluteURL(pageURL, link),
-			Hash:      hash,
+			Language:    language,
+			Format:      format,
+			Size:        size,
+			Title:       title,
+			Publisher:   strings.TrimSpace(info.Find(publisherSelector).Parent().Text()),
+			Authors:     strings.TrimSpace(info.Find(authorSelector).Parent().Text()),
+			Description: description,
+			DOI:         firstDOI(title + " " + description),
+			URL:         absoluteURL(pageURL, link),
+			Hash:        hash,
 		})
 	})
 	return books
@@ -146,7 +178,7 @@ func parseBooks(doc *goquery.Document, pageURL string) []*Book {
 
 func LookupDOI(ctx context.Context, doi string, timeout time.Duration) (*Paper, error) {
 	l := logger.GetLogger()
-	doi = strings.TrimSpace(doi)
+	doi = normalizeDOI(doi)
 	if doi == "" {
 		return nil, errors.New("doi is empty")
 	}
@@ -159,10 +191,50 @@ func LookupDOI(ctx context.Context, doi string, timeout time.Duration) (*Paper, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to lookup DOI: %w", err)
 	}
-	if finalURL == nil || !strings.Contains(finalURL.Path, "/scidb/") {
-		return nil, fmt.Errorf("no paper found for DOI: %s", doi)
+	if finalURL != nil && strings.Contains(finalURL.Path, "/scidb/") {
+		paper, sciErr := paperFromSciDB(ctx, doc, doi, scidbURL, annasBaseURL, timeout)
+		if sciErr == nil {
+			return paper, nil
+		}
+		l.Info("SciDB page had no file, searching for the DOI", zap.String("doi", doi), zap.Error(sciErr))
+	} else if doc != nil {
+		page := scidbURL
+		if finalURL != nil {
+			page = finalURL.String()
+		}
+		if book := selectDOIHit(parseBooks(doc, page), doi); book != nil {
+			return paperFromBook(book, doi), nil
+		}
 	}
 
+	paper, err := searchForDOI(ctx, doi, timeout)
+	if err != nil {
+		return nil, err
+	}
+	if paper != nil {
+		return paper, nil
+	}
+
+	title, titleErr := titleFromDOI(ctx, doi, timeout)
+	if titleErr != nil {
+		l.Info("DOI metadata lookup failed", zap.String("doi", doi), zap.Error(titleErr))
+	} else if title != "" {
+		for _, index := range []string{"", "journals"} {
+			books, _, searchErr := search(ctx, title, SearchOptions{Index: index, Page: 1}, "", timeout)
+			if searchErr != nil {
+				l.Info("Title search for DOI failed", zap.String("title", title), zap.Error(searchErr))
+				continue
+			}
+			if book := selectTitleHit(books, title); book != nil {
+				return paperFromBook(book, doi), nil
+			}
+		}
+	}
+	return nil, fmt.Errorf("no paper found for DOI: %s", doi)
+}
+
+func paperFromSciDB(ctx context.Context, doc *goquery.Document, doi, scidbURL, annasBaseURL string, timeout time.Duration) (*Paper, error) {
+	l := logger.GetLogger()
 	paper := &Paper{DOI: doi, PageURL: scidbURL}
 	doc.Find("a[href^='/md5/']").EachWithBreak(func(_ int, element *goquery.Selection) bool {
 		href, _ := element.Attr("href")
@@ -216,6 +288,187 @@ func LookupDOI(ctx context.Context, doi string, timeout time.Duration) (*Paper, 
 
 	paper.DownloadURL = fmt.Sprintf("/scidb?doi=%s", url.QueryEscape(doi))
 	return paper, nil
+}
+
+func searchForDOI(ctx context.Context, doi string, timeout time.Duration) (*Paper, error) {
+	queries := []string{doi}
+	if id := arxivID(doi); id != "" {
+		queries = append(queries, id)
+	}
+	var lastErr error
+	for _, query := range queries {
+		for _, index := range []string{"journals", ""} {
+			books, _, err := search(ctx, query, SearchOptions{Index: index, Page: 1}, "", timeout)
+			if err != nil {
+				lastErr = err
+				continue
+			}
+			if book := selectDOIHit(books, doi); book != nil {
+				return paperFromBook(book, doi), nil
+			}
+		}
+	}
+	if lastErr != nil {
+		return nil, lastErr
+	}
+	return nil, nil
+}
+
+func paperFromBook(book *Book, doi string) *Paper {
+	if book == nil {
+		return nil
+	}
+	if doi == "" {
+		doi = book.DOI
+	}
+	paper := &Paper{
+		DOI:         doi,
+		Title:       book.Title,
+		Authors:     book.Authors,
+		Journal:     book.Publisher,
+		Format:      book.Format,
+		Size:        book.Size,
+		Hash:        book.Hash,
+		Description: book.Description,
+		PageURL:     book.URL,
+	}
+	if doi != "" {
+		paper.DownloadURL = fmt.Sprintf("/scidb?doi=%s", url.QueryEscape(doi))
+	}
+	return paper
+}
+
+func titleFromDOI(ctx context.Context, doi string, timeout time.Duration) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://doi.org/"+doi, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Accept", "application/vnd.citationstyles.csl+json")
+	req.Header.Set("User-Agent", BrowserUserAgent)
+	resp, err := newHTTPClient(timeout).Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("doi.org returned status %d", resp.StatusCode)
+	}
+	var payload struct {
+		Title string `json:"title"`
+	}
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&payload); err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(payload.Title), nil
+}
+
+func selectTitleHit(books []*Book, title string) *Book {
+	want := normalizeTitle(title)
+	if want == "" {
+		return nil
+	}
+	var exact, prefix *Book
+	for _, book := range books {
+		if book == nil || book.Hash == "" || looksLikeFilename(book.Title) {
+			continue
+		}
+		got := normalizeTitle(book.Title)
+		switch {
+		case got == want && exact == nil:
+			exact = book
+		case strings.HasPrefix(got, want) && prefix == nil:
+			prefix = book
+		}
+	}
+	if exact != nil {
+		return exact
+	}
+	return prefix
+}
+
+func normalizeTitle(title string) string {
+	var b strings.Builder
+	lastSpace := true
+	for _, r := range strings.ToLower(title) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			b.WriteRune(r)
+			lastSpace = false
+			continue
+		}
+		if !lastSpace {
+			b.WriteByte(' ')
+			lastSpace = true
+		}
+	}
+	return strings.TrimSpace(b.String())
+}
+
+func looksLikeFilename(title string) bool {
+	title = strings.TrimSpace(title)
+	if title == "" || strings.Contains(title, " ") {
+		return false
+	}
+	switch strings.ToLower(filepath.Ext(title)) {
+	case ".pdf", ".epub", ".djvu", ".mobi", ".azw3", ".azw", ".fb2", ".cbz", ".cbr":
+		return true
+	default:
+		return false
+	}
+}
+
+func selectDOIHit(books []*Book, doi string) *Book {
+	needle := strings.ToLower(strings.TrimSpace(doi))
+	arxiv := arxivID(doi)
+	for _, book := range books {
+		if book == nil || book.Hash == "" {
+			continue
+		}
+		hay := strings.ToLower(strings.Join([]string{book.DOI, book.Title, book.Description, book.Publisher}, " "))
+		if needle != "" && strings.Contains(hay, needle) {
+			return book
+		}
+		if arxiv != "" && strings.Contains(hay, arxiv) {
+			return book
+		}
+	}
+	return nil
+}
+
+func normalizeDOI(doi string) string {
+	doi = strings.TrimSpace(doi)
+	doi = strings.TrimPrefix(doi, "https://doi.org/")
+	doi = strings.TrimPrefix(doi, "http://doi.org/")
+	doi = strings.TrimPrefix(doi, "doi:")
+	return strings.TrimSpace(doi)
+}
+
+func arxivID(doi string) string {
+	_, rest, ok := strings.Cut(strings.ToLower(doi), "arxiv.")
+	if !ok {
+		return ""
+	}
+	rest = strings.Trim(rest, " ./")
+	if i := strings.LastIndex(rest, "v"); i > 0 && rest[i+1:] != "" && strings.Trim(rest[i+1:], "0123456789") == "" {
+		rest = rest[:i]
+	}
+	return rest
+}
+
+func firstDOI(text string) string {
+	return strings.TrimRight(doiPattern.FindString(text), ".,;:)")
+}
+
+func snippet(text string) string {
+	text = strings.Join(strings.Fields(text), " ")
+	const limit = 480
+	if len(text) <= limit {
+		return text
+	}
+	cut := text[:limit]
+	if i := strings.LastIndex(cut, " "); i > 320 {
+		cut = cut[:i]
+	}
+	return cut
 }
 
 func (b *Book) Download(ctx context.Context, secretKey, folderPath string, timeout time.Duration, progress ProgressFunc) (DownloadResult, error) {

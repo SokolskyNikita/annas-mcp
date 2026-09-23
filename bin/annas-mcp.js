@@ -316,30 +316,34 @@ function runBinary(binary, args) {
   });
 }
 
-async function refreshRelease(current, target) {
-  const release = await fetchLatestRelease();
-  const asset = selectAsset(release.assets, target);
-  if (current.tag === release.tag_name && current.asset === asset.name) {
-    return;
+async function resolveBinary(target) {
+  const current = await readCacheMeta(cacheDir());
+  let cached = null;
+  if (current?.binary && (await cachedBinary(cacheDir(), { tag_name: current.tag }, { name: current.asset }))) {
+    cached = current.binary;
   }
-  await installBinary(release, asset, target);
+  try {
+    const release = await fetchLatestRelease();
+    const asset = selectAsset(release.assets, target);
+    const currentRelease = await cachedBinary(cacheDir(), release, asset);
+    if (currentRelease) {
+      return currentRelease;
+    }
+    return await installBinary(release, asset, target);
+  } catch (error) {
+    if (cached) {
+      console.error(`annas-mcp: update check failed, using the cached binary. ${error.message}`);
+      return cached;
+    }
+    throw error;
+  }
 }
 
 async function main() {
   const target = goreleaserTarget();
   const args = process.argv.slice(2);
   const commandArgs = args.length === 0 ? ["mcp"] : args;
-  const current = await readCacheMeta(cacheDir());
-  if (current?.binary && (await cachedBinary(cacheDir(), { tag_name: current.tag }, { name: current.asset }))) {
-    refreshRelease(current, target).catch((error) => {
-      console.error(`annas-mcp: update check failed, using the cached binary. ${error.message}`);
-    });
-    runBinary(current.binary, commandArgs);
-    return;
-  }
-  const release = await fetchLatestRelease();
-  const asset = selectAsset(release.assets, target);
-  const binary = await installBinary(release, asset, target);
+  const binary = await resolveBinary(target);
   runBinary(binary, commandArgs);
 }
 
