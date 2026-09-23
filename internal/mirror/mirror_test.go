@@ -37,14 +37,17 @@ func TestParseStatusPageExtractsCurrentSLUMAnnaDirectory(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseStatusPageHTML returned error: %v", err)
 	}
-	if len(candidates) != 2 {
-		t.Fatalf("expected 2 direct Anna candidates, got %d: %+v", len(candidates), candidates)
+	if len(candidates) != 3 {
+		t.Fatalf("expected 3 direct official Anna candidates, got %d: %+v", len(candidates), candidates)
 	}
-	if candidates[0] != (Candidate{BaseURL: "annas-archive.pro", Status: "protected"}) {
+	if candidates[0] != (Candidate{BaseURL: "annas-archive.gl", Status: "protected"}) {
 		t.Fatalf("unexpected protected candidate: %+v", candidates[0])
 	}
-	if candidates[1] != (Candidate{BaseURL: "annas-archive.good", Status: "up"}) {
+	if candidates[1] != (Candidate{BaseURL: "annas-archive.pk", Status: "up"}) {
 		t.Fatalf("unexpected up candidate: %+v", candidates[1])
+	}
+	if candidates[2] != (Candidate{BaseURL: "annas-archive.gd", Status: "degraded"}) {
+		t.Fatalf("unexpected degraded candidate: %+v", candidates[2])
 	}
 }
 
@@ -55,20 +58,20 @@ func TestParseStatusPageRejectsUntrustedCandidateOrigins(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseStatusPageHTML returned error: %v", err)
 	}
-	if len(candidates) != 1 || candidates[0].BaseURL != "annas-archive.good" {
-		t.Fatalf("expected only the exact HTTPS origin, got %+v", candidates)
+	if len(candidates) != 1 || candidates[0].BaseURL != "annas-archive.gl" {
+		t.Fatalf("expected only the official HTTPS origin, got %+v", candidates)
 	}
 }
 
-func TestParseStatusPageCapsCandidates(t *testing.T) {
+func TestParseStatusPageOnlyReturnsOfficialCandidatesFromLargeDirectory(t *testing.T) {
 	t.Parallel()
 
 	candidates, err := ParseStatusPageHTML(fixture(t, "status_many.html"))
 	if err != nil {
 		t.Fatalf("ParseStatusPageHTML returned error: %v", err)
 	}
-	if len(candidates) != maxMirrorCandidates {
-		t.Fatalf("expected %d candidates, got %d", maxMirrorCandidates, len(candidates))
+	if len(candidates) != 3 {
+		t.Fatalf("expected only the 3 official candidates, got %d: %+v", len(candidates), candidates)
 	}
 }
 
@@ -92,9 +95,9 @@ func TestParseStatusPageReadsTextBadgesAndMissingStatus(t *testing.T) {
 		t.Fatalf("ParseStatusPageHTML returned error: %v", err)
 	}
 	want := []Candidate{
-		{BaseURL: "annas-archive.degraded", Status: "degraded"},
-		{BaseURL: "annas-archive.unknown", Status: ""},
-		{BaseURL: "annas-archive.nobadge", Status: ""},
+		{BaseURL: "annas-archive.gl", Status: "degraded"},
+		{BaseURL: "annas-archive.pk", Status: ""},
+		{BaseURL: "annas-archive.gd", Status: ""},
 	}
 	if len(candidates) != len(want) {
 		t.Fatalf("got %d candidates, want %d: %+v", len(candidates), len(want), candidates)
@@ -131,14 +134,19 @@ func TestParseCandidateURLRequiresTrustedHTTPSOrigin(t *testing.T) {
 		raw  string
 		want string
 	}{
-		{name: "canonical host", raw: "https://ANNAS-ARCHIVE.GOOD/", want: "annas-archive.good"},
-		{name: "userinfo", raw: "https://annas-archive.good@evil.example"},
-		{name: "suffix", raw: "https://annas-archive.good.evil.example"},
-		{name: "invalid label start", raw: "https://annas-archive.-good"},
-		{name: "invalid label end", raw: "https://annas-archive.good-"},
-		{name: "port", raw: "https://annas-archive.good:443"},
-		{name: "path", raw: "https://annas-archive.good/search"},
-		{name: "http", raw: "http://annas-archive.good"},
+		{name: "canonical official host", raw: "https://ANNAS-ARCHIVE.GL/", want: "annas-archive.gl"},
+		{name: "official pk host", raw: "https://annas-archive.pk", want: "annas-archive.pk"},
+		{name: "official gd host", raw: "annas-archive.gd", want: "annas-archive.gd"},
+		{name: "arbitrary suffix", raw: "https://annas-archive.good"},
+		{name: "fraudulent su suffix", raw: "https://annas-archive.su"},
+		{name: "fraudulent io suffix", raw: "https://annas-archive.io"},
+		{name: "fraudulent is suffix", raw: "https://annas-archive.is"},
+		{name: "fraudulent cc suffix", raw: "https://annas-archive.cc"},
+		{name: "userinfo", raw: "https://annas-archive.gl@evil.example"},
+		{name: "suffix", raw: "https://annas-archive.gl.evil.example"},
+		{name: "port", raw: "https://annas-archive.gl:443"},
+		{name: "path", raw: "https://annas-archive.gl/search"},
+		{name: "http", raw: "http://annas-archive.gl"},
 	}
 	for _, test := range tests {
 		test := test
@@ -176,11 +184,47 @@ func TestResolvePrefersUpMirrorAndSkipsDownMirror(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Resolve returned error: %v", err)
 	}
-	if baseURL != "annas-archive.good" {
-		t.Fatalf("expected up mirror, got %q", baseURL)
+	if baseURL != "annas-archive.pk" {
+		t.Fatalf("expected up official mirror, got %q", baseURL)
 	}
-	if len(probed) != 1 || probed[0] != "annas-archive.good" {
+	if len(probed) != 1 || probed[0] != "annas-archive.pk" {
 		t.Fatalf("expected only the up mirror to be probed, got %v", probed)
+	}
+}
+
+func TestResolveNeverProbesFraudulentSLUMCandidates(t *testing.T) {
+	t.Parallel()
+
+	var probedHosts []string
+	var cookieHosts []string
+	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		if req.URL.Host == "status.example" {
+			return stringResponse(req, http.StatusOK, fixture(t, "status_untrusted.html")), nil
+		}
+		probedHosts = append(probedHosts, req.URL.Host)
+		if req.Header.Get("Cookie") != "" {
+			cookieHosts = append(cookieHosts, req.URL.Host)
+		}
+		if req.URL.Host != "annas-archive.gl" {
+			t.Errorf("unexpected mirror probe to %q", req.URL.Host)
+		}
+		return stringResponse(req, http.StatusOK, fixture(t, "probe_valid.html")), nil
+	})}
+	resolver := NewResolver(client, "https://status.example/", nil)
+	resolver.SetAccountCookie("aa_account_id2=token")
+
+	selected, err := resolver.Resolve(context.Background(), ResolveOptions{})
+	if err != nil {
+		t.Fatalf("Resolve returned error: %v", err)
+	}
+	if selected != "annas-archive.gl" {
+		t.Fatalf("selected %q, want official annas-archive.gl", selected)
+	}
+	if len(probedHosts) != 1 || probedHosts[0] != "annas-archive.gl" {
+		t.Fatalf("unexpected probed hosts: %v", probedHosts)
+	}
+	if len(cookieHosts) != 1 || cookieHosts[0] != "annas-archive.gl" {
+		t.Fatalf("account cookie reached unexpected hosts: %v", cookieHosts)
 	}
 }
 
@@ -262,7 +306,7 @@ func TestResolveFallsBackAfterAllProbesFail(t *testing.T) {
 	if baseURL != "fallback.example" {
 		t.Fatalf("expected fallback.example, got %q", baseURL)
 	}
-	if len(probed) != 1 || probed[0] != "annas-archive.good" {
+	if len(probed) != 1 || probed[0] != "annas-archive.pk" {
 		t.Fatalf("expected only highest-ranked candidate to be probed, got %v", probed)
 	}
 }
@@ -291,7 +335,7 @@ func TestDefaultProbeRequiresAnnaMarkerAndSendsCookie(t *testing.T) {
 	})}
 	resolver := NewResolver(client, "https://status.example/", nil)
 	resolver.SetAccountCookie("aa_account_id2=token")
-	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err != nil {
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err != nil {
 		t.Fatalf("defaultProbe returned error: %v", err)
 	}
 	if seen == nil || seen.Header.Get("Cookie") != "aa_account_id2=token" {
@@ -301,7 +345,7 @@ func TestDefaultProbeRequiresAnnaMarkerAndSendsCookie(t *testing.T) {
 	client.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		return stringResponse(req, http.StatusOK, fixture(t, "probe_challenge.html")), nil
 	})
-	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err == nil {
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err == nil {
 		t.Fatal("expected a response without the Anna marker to fail")
 	}
 
@@ -309,7 +353,7 @@ func TestDefaultProbeRequiresAnnaMarkerAndSendsCookie(t *testing.T) {
 		body := fixture(t, "probe_valid.html") + strings.Repeat("result ", maxProbeBodyBytes)
 		return stringResponse(req, http.StatusOK, body), nil
 	})
-	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err != nil {
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err != nil {
 		t.Fatalf("expected a large response with an early Anna marker to pass: %v", err)
 	}
 }
@@ -318,10 +362,10 @@ func TestDefaultProbeRejectsHTTPSDowngrade(t *testing.T) {
 	t.Parallel()
 
 	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		return redirectResponse(req, http.StatusFound, "http://annas-archive.good/search"), nil
+		return redirectResponse(req, http.StatusFound, "http://annas-archive.gl/search"), nil
 	})}
 	resolver := NewResolver(client, "https://status.example/", nil)
-	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err == nil || !strings.Contains(err.Error(), "downgrade") {
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err == nil || !strings.Contains(err.Error(), "downgrade") {
 		t.Fatalf("expected HTTPS downgrade to fail, got %v", err)
 	}
 }
@@ -333,14 +377,14 @@ func TestDefaultProbeRejectsCrossOriginRedirectAndHTTPError(t *testing.T) {
 		return redirectResponse(req, http.StatusFound, "https://evil.example/search"), nil
 	})}
 	resolver := NewResolver(client, "https://status.example/", nil)
-	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err == nil || !strings.Contains(err.Error(), "cross-origin") {
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err == nil || !strings.Contains(err.Error(), "cross-origin") {
 		t.Fatalf("expected cross-origin redirect to fail, got %v", err)
 	}
 
 	client.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		return stringResponse(req, http.StatusForbidden, fixture(t, "probe_challenge.html")), nil
 	})
-	if err := resolver.defaultProbe(context.Background(), "annas-archive.good"); err == nil || !strings.Contains(err.Error(), "status 403") {
+	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err == nil || !strings.Contains(err.Error(), "status 403") {
 		t.Fatalf("expected HTTP error status to fail, got %v", err)
 	}
 }
@@ -367,6 +411,7 @@ func TestParseBaseURLRejectsDowngradeAndURLParts(t *testing.T) {
 	}{
 		{name: "bare host", raw: "fallback.example", want: "fallback.example"},
 		{name: "https origin", raw: "https://Fallback.Example/", want: "fallback.example"},
+		{name: "explicit fraudulent-looking host is a deliberate override", raw: "https://annas-archive.su/", want: "annas-archive.su"},
 		{name: "http", raw: "http://fallback.example"},
 		{name: "path", raw: "https://fallback.example/path"},
 		{name: "userinfo", raw: "https://user:fallback@example.com"},

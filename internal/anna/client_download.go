@@ -126,9 +126,6 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 	if err := c.validateDownload(ctx, format); err != nil {
 		return DownloadResult{}, err
 	}
-	if paper.DownloadURL == "" {
-		return DownloadResult{}, apperr.New(apperr.NotFound, "no download URL is available for this paper")
-	}
 	expectedMD5 := ""
 	var err error
 	if paper.Hash != "" {
@@ -141,7 +138,17 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 	if err != nil {
 		return DownloadResult{}, err
 	}
-	downloadURL, err := resolvePaperDownloadURL(base, paper.DownloadURL)
+	sourceURL := paper.DownloadURL
+	if sourceURL == "" {
+		if _, valid := ParseDOI(paper.DOI); !valid {
+			return DownloadResult{}, apperr.New(apperr.NotFound, "no DOI is available for SciDB lookup")
+		}
+		sourceURL, expectedMD5, err = c.resolveSciDBFile(ctx, base, paper)
+		if err != nil {
+			return DownloadResult{}, err
+		}
+	}
+	downloadURL, err := resolvePaperDownloadURL(base, sourceURL)
 	if err != nil {
 		return DownloadResult{}, err
 	}
@@ -149,7 +156,10 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 	if name == "" {
 		name = paper.DOI
 	}
-	return downloadFileWithGetter(ctx, c.requestClient(0), downloadURL, c.config.DownloadPath, name, format, expectedMD5, progress, c.doGet)
+	if format == "" {
+		format = "pdf"
+	}
+	return downloadFileWithGetter(ctx, c.requestClient(0), downloadURL, c.config.DownloadPath, name, format, expectedMD5, progress, c.getSciDBPDF)
 }
 
 func (c *Client) resolveDownloadURL(ctx context.Context, client *http.Client, base, hash, secretKey string, domainIndex int) (string, error) {

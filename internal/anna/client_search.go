@@ -2,12 +2,6 @@ package anna
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -39,142 +33,18 @@ func (c *Client) search(ctx context.Context, query string, options SearchOptions
 	return books, pageURL, nil
 }
 
-func (c *Client) lookupDOI(ctx context.Context, doi string) (*Paper, error) {
-	doi = NormalizeDOI(doi)
-	if doi == "" {
-		return nil, apperr.New(apperr.InvalidArgument, "doi is empty")
-	}
-	if !validDOIPattern.MatchString(doi) {
-		return nil, apperr.New(apperr.InvalidArgument, fmt.Sprintf("invalid DOI: %s", doi))
-	}
-	if err := c.requireArchiveAccess(ctx); err != nil {
-		return nil, err
-	}
-	base, err := c.baseURLFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	scidbURL := buildPathURL(base, "/scidb/"+doi)
-	doc, finalURL, err := c.fetchDocument(ctx, scidbURL)
-	if err != nil && apperr.CodeOf(err) != apperr.NotFound {
-		return nil, fmt.Errorf("failed to lookup DOI: %w", err)
-	}
-	if doc != nil && finalURL != nil && strings.Contains(finalURL.Path, "/scidb/") {
-		paper, sciErr := c.paperFromSciDB(ctx, doc, doi, scidbURL, base)
-		if sciErr == nil {
-			return paper, nil
-		}
-	} else if doc != nil {
-		page := scidbURL
-		if finalURL != nil {
-			page = finalURL.String()
-		}
-		if book := selectDOIHit(parseBooks(doc, page), doi); book != nil {
-			return paperFromBook(book, doi), nil
-		}
-	}
-
-	paper, err := c.searchForDOI(ctx, doi)
-	if err != nil {
-		return nil, err
-	}
-	if paper != nil {
-		return paper, nil
-	}
-	title, titleErr := c.titleFromDOI(ctx, doi)
-	if titleErr == nil && title != "" {
-		for _, index := range []string{"", "journals"} {
-			books, _, searchErr := c.search(ctx, title, SearchOptions{Index: index, Page: 1}, "")
-			if searchErr != nil {
-				continue
-			}
-			if book := selectTitleHit(books, title); book != nil {
-				return paperFromBook(book, doi), nil
-			}
-		}
-	}
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-	return nil, apperr.New(apperr.NotFound, fmt.Sprintf("no paper found for DOI: %s", doi))
-}
-
-func (c *Client) searchForDOI(ctx context.Context, doi string) (*Paper, error) {
-	queries := []string{doi}
-	if id := arxivID(doi); id != "" {
-		queries = append(queries, id)
-	}
-	var lastErr error
-	for _, query := range queries {
-		for _, index := range []string{"journals", ""} {
-			books, _, err := c.search(ctx, query, SearchOptions{Index: index, Page: 1}, "")
-			if err != nil {
-				lastErr = err
-				continue
-			}
-			if book := selectDOIHit(books, doi); book != nil {
-				return paperFromBook(book, doi), nil
-			}
-		}
-	}
-	if lastErr != nil {
-		return nil, lastErr
-	}
-	return nil, nil
-}
-
-func (c *Client) titleFromDOI(ctx context.Context, doi string) (string, error) {
-	doiURL := &url.URL{Scheme: "https", Host: "doi.org", Path: "/" + doi}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, doiURL.String(), nil)
-	if err != nil {
-		return "", err
-	}
-	request.Header.Set("Accept", "application/vnd.citationstyles.csl+json")
-	request.Header.Set("User-Agent", BrowserUserAgent)
-	response, err := c.requestClient(0).Do(request)
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-	if response.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("doi.org returned status %d", response.StatusCode)
-	}
-	var payload struct {
-		Title string `json:"title"`
-	}
-	if err := json.NewDecoder(io.LimitReader(response.Body, 1<<20)).Decode(&payload); err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(payload.Title), nil
-}
-
 func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi, scidbURL, base string) (*Paper, error) {
-	if doc == nil {
-		return nil, errors.New("SciDB response was empty")
+	downloadURL, hash, err := parseSciDBFile(doc, scidbURL)
+	if err != nil {
+		return nil, err
 	}
-	paper := &Paper{DOI: doi, PageURL: scidbURL}
-	doc.Find("a[href^='/md5/']").EachWithBreak(func(_ int, element *goquery.Selection) bool {
-		href, _ := element.Attr("href")
-		hash := strings.TrimPrefix(href, "/md5/")
-		if hash == "" {
-			return true
-		}
-		paper.Hash = hash
-		return false
-	})
-	if paper.Hash == "" {
-		if err := ctx.Err(); err != nil {
-			return nil, err
-		}
-		return nil, apperr.New(apperr.NotFound, fmt.Sprintf("no paper found for DOI: %s", doi))
-	}
+	paper := &Paper{DOI: doi, PageURL: scidbURL, Hash: hash, DownloadURL: downloadURL, Format: "PDF"}
 	detailURL := buildPathURL(base, "/md5/"+paper.Hash)
 	detail, _, err := c.fetchDocument(ctx, detailURL)
 	if err != nil {
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
 		}
-		paper.DownloadURL = fmt.Sprintf("/scidb?doi=%s", url.QueryEscape(doi))
 		return paper, nil
 	}
 	if title := strings.TrimSpace(detail.Find("title").First().Text()); title != "" {
@@ -205,6 +75,5 @@ func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi,
 		}
 		return true
 	})
-	paper.DownloadURL = fmt.Sprintf("/scidb?doi=%s", url.QueryEscape(doi))
 	return paper, nil
 }

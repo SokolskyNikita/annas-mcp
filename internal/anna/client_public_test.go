@@ -5,8 +5,11 @@ import (
 	"errors"
 	"net/http"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
 func TestFindArticleReturnsMappedPapers(t *testing.T) {
@@ -30,7 +33,7 @@ func TestFindArticleReturnsMappedPapers(t *testing.T) {
 	if len(papers) != 1 {
 		t.Fatalf("expected one paper, got %d", len(papers))
 	}
-	if papers[0].Title != "Attention Is All You Need" || papers[0].DOI != "10.48550/arXiv.1706.03762" {
+	if papers[0].Title != "Attention Is All You Need" || papers[0].DOI != "" {
 		t.Fatalf("unexpected paper: %+v", papers[0])
 	}
 }
@@ -73,11 +76,17 @@ func TestLookupDOIFallsBackToArchiveSearchAfterSciDBMiss(t *testing.T) {
 		BaseURL:       "annas.test",
 		AccountCookie: "aa_account_id2=test",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if req.URL.Host == "doi.org" {
+				return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
+			}
 			if req.URL.Path == "/scidb/10.48550/arXiv.1706.03762" {
 				return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 			}
 			if req.URL.Path == "/search" {
 				return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+			}
+			if req.URL.Path == "/md5/0123456789abcdef0123456789abcdef" {
+				return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{"<head>": `<head><meta name="citation_doi" content="10.48550/arXiv.1706.03762">`}), nil
 			}
 			return nil, errors.New("unexpected DOI fallback URL: " + req.URL.String())
 		})},
@@ -92,35 +101,62 @@ func TestLookupDOIFallsBackToArchiveSearchAfterSciDBMiss(t *testing.T) {
 	}
 }
 
-func TestLookupDOIFallsBackThroughCitationTitle(t *testing.T) {
+func TestLookupDOIRequiresVerifiedCitationIdentity(t *testing.T) {
 	t.Parallel()
 
-	client := NewClient(Config{
-		BaseURL:       "annas.test",
-		AccountCookie: "aa_account_id2=test",
-		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			if req.URL.Host == "doi.org" {
-				return fixtureResponse(t, req, http.StatusOK, "doi_metadata.json", "application/json", nil), nil
-			}
-			if req.URL.Path == "/scidb/10.1000/example" {
-				return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
-			}
-			if req.URL.Path == "/search" {
-				if req.URL.Query().Get("q") == "Attention Is All You Need" {
-					return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
-				}
-				return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
-			}
-			return nil, errors.New("unexpected DOI title fallback URL: " + req.URL.String())
-		})},
-	})
+	for _, test := range []struct {
+		name, doiMeta, authors string
+		wantMatch              bool
+	}{
+		{"matching title and authors", "", "Ashish Vaswani", true},
+		{"matching title but conflicting DOI", `<meta name="citation_doi" content="10.48550/arXiv.1706.03762">`, "Ashish Vaswani", false},
+		{"matching title but different author", "", "Unrelated Author", false},
+		{"matching title without authors", "", "", false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			client := NewClient(Config{
+				BaseURL:       "annas.test",
+				AccountCookie: "aa_account_id2=test",
+				HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+					if req.URL.Host == "doi.org" {
+						if req.Header.Get("Cookie") != "" {
+							t.Fatal("archive cookie sent to DOI metadata service")
+						}
+						return fixtureResponse(t, req, http.StatusOK, "doi_metadata.json", "application/json", nil), nil
+					}
+					if req.URL.Path == "/scidb/10.1000/example" {
+						return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
+					}
+					if req.URL.Path == "/search" {
+						if req.URL.Query().Get("q") == "Attention Is All You Need" {
+							return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+						}
+						return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
+					}
+					if strings.HasPrefix(req.URL.Path, "/md5/") {
+						return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{
+							"<head>":         "<head>" + test.doiMeta,
+							"Ashish Vaswani": test.authors,
+						}), nil
+					}
+					return nil, errors.New("unexpected DOI title fallback URL: " + req.URL.String())
+				})},
+			})
 
-	paper, err := client.LookupDOI(context.Background(), "10.1000/example", time.Second)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if paper.Title != "Attention Is All You Need" || paper.Hash != "0123456789abcdef0123456789abcdef" {
-		t.Fatalf("citation title fallback returned %+v", paper)
+			paper, err := client.LookupDOI(context.Background(), "10.1000/example", time.Second)
+			if !test.wantMatch {
+				if paper != nil || apperr.CodeOf(err) != apperr.NotFound {
+					t.Fatalf("unverified citation was accepted: paper=%+v err=%v", paper, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if paper.Title != "Attention Is All You Need" || paper.Hash != "0123456789abcdef0123456789abcdef" || paper.DOI != "10.1000/example" || paper.DownloadURL != "" {
+				t.Fatalf("citation title fallback returned %+v", paper)
+			}
+		})
 	}
 }
 

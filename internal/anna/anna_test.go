@@ -53,40 +53,6 @@ func TestResolveSearchDropsLegacyFilters(t *testing.T) {
 	}
 }
 
-func TestSelectDOIHitIgnoresUnrelatedFilenames(t *testing.T) {
-	t.Parallel()
-
-	books := []*Book{
-		{Hash: "aaa", Title: "1t86xnb7cd6x29mqzpy17os8m.pdf"},
-		{Hash: "bbb", Title: "Attention Is All You Need", Description: "arXiv:1706.03762v7 Abstract The dominant sequence transduction models"},
-	}
-	hit := selectDOIHit(books, "10.48550/arXiv.1706.03762")
-	if hit == nil || hit.Hash != "bbb" {
-		t.Fatalf("expected the arXiv paper, got %+v", hit)
-	}
-	if arxivID("10.48550/arXiv.1706.03762v3") != "1706.03762" {
-		t.Fatal("arxiv id was not stripped")
-	}
-	hit = selectTitleHit([]*Book{
-		{Hash: "ccc", Title: "Attention Is All You Need 中文翻译"},
-		{Hash: "ddd", Title: "Attention Is All You Need"},
-		{Hash: "eee", Title: "1t86xnb7cd6x29mqzpy17os8m.pdf"},
-	}, "Attention Is All You Need")
-	if hit == nil || hit.Hash != "ddd" {
-		t.Fatalf("expected the exact title, got %+v", hit)
-	}
-	hit = selectDOIHit([]*Book{
-		{Hash: "wrong", Title: "10.1000/abc.123"},
-		{Hash: "right", Title: "The requested paper", DOI: "10.1000/abc"},
-	}, "10.1000/abc")
-	if hit == nil || hit.Hash != "right" {
-		t.Fatalf("substring DOI match selected the wrong result: %+v", hit)
-	}
-	if got := selectTitleHit([]*Book{{Hash: "wrong", Title: "Attention Is All You Need: a critique"}}, "Attention Is All You Need"); got != nil {
-		t.Fatalf("commentary title selected as an exact title: %+v", got)
-	}
-}
-
 func TestParseBooksReadsSearchCard(t *testing.T) {
 	t.Parallel()
 
@@ -104,7 +70,7 @@ func TestParseBooksReadsSearchCard(t *testing.T) {
 	if book.URL != "https://annas-archive.gl/md5/abc123def456" {
 		t.Fatalf("unexpected URL %q", book.URL)
 	}
-	if book.Description != "A short description. DOI 10.1000/example.123." || book.DOI != "10.1000/example.123" {
+	if book.Description != "A short description. DOI 10.1000/example.123." || book.DOI != "" {
 		t.Fatalf("unexpected description: %+v", book)
 	}
 }
@@ -151,17 +117,29 @@ func TestSanitizeFilenameIsSafeAndByteBounded(t *testing.T) {
 	}
 }
 
-func TestNormalizeDOIPreservesBalancedParentheses(t *testing.T) {
+func TestNormalizeDOIPreservesSuffixPunctuation(t *testing.T) {
 	t.Parallel()
 
 	if got := NormalizeDOI("https://doi.org/10.1000%2Fexample?utm_source=test#fragment"); got != "10.1000/example" {
 		t.Fatalf("DOI URL was not decoded/cleaned: %q", got)
 	}
-	if got := NormalizeDOI("10.1000/example(02). "); got != "10.1000/example(02)" {
-		t.Fatalf("balanced DOI suffix was changed: %q", got)
+	for _, suffix := range []string{"(02)", "(02).", ").", ".", ",", ";", ":", "]", "}", ">", "'", "\"", "?", "#"} {
+		want := "10.1000/example" + suffix
+		for _, input := range []string{want + " ", "doi: " + want, "https://doi.org/" + url.PathEscape(want)} {
+			got, valid := ParseDOI(input)
+			if got != want || !valid {
+				t.Errorf("DOI suffix changed: input=%q got=%q valid=%v want=%q", input, got, valid, want)
+			}
+		}
+		if verifyDOIIdentity("10.1000/example", doiMetadata{}, archiveIdentity{DOI: want}) {
+			t.Errorf("distinct DOI suffix %q matched the unpunctuated DOI", suffix)
+		}
 	}
-	if got := NormalizeDOI("10.1000/example). "); got != "10.1000/example" {
-		t.Fatalf("unmatched prose punctuation was retained: %q", got)
+	for _, input := range []string{"<https://doi.org/10.1000/example(02)>", "\"10.1000/example(02)\"", "doi: <10.1000/example(02)>", "(10.1000/example(02))", "doi: https://doi.org/10.1000/example(02)"} {
+		got, valid := ParseDOI(input)
+		if got != "10.1000/example(02)" || !valid || !IsDOIQuery(input) {
+			t.Errorf("enclosing DOI wrapper was not recognized: input=%q got=%q valid=%v", input, got, valid)
+		}
 	}
 }
 

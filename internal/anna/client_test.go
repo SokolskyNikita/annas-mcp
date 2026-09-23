@@ -24,7 +24,7 @@ func TestAutomaticMirrorDiscoveryIsLazyAndUsesInjectedTransport(t *testing.T) {
 			}
 			return fixtureResponse(t, req, http.StatusOK, "mirror_discovery.html", "text/html", nil), nil
 		}
-		if req.URL.Host != "annas-archive.test" {
+		if req.URL.Host != "annas-archive.gl" {
 			t.Errorf("request used %s", req.URL.Host)
 		}
 		if req.Header.Get("Cookie") != "aa_account_id2=test" {
@@ -57,7 +57,7 @@ func TestMirrorWaiterCanCancelAndFailuresRetryAfterExpiry(t *testing.T) {
 		close(started)
 		select {
 		case <-release:
-			return "annas-archive.test", nil
+			return "annas-archive.gl", nil
 		case <-ctx.Done():
 			return "", ctx.Err()
 		}
@@ -81,7 +81,7 @@ func TestMirrorWaiterCanCancelAndFailuresRetryAfterExpiry(t *testing.T) {
 		if resolves == 1 {
 			return "", errors.New("temporary discovery failure")
 		}
-		return "annas-archive.test", nil
+		return "annas-archive.gl", nil
 	}})
 	for i := 0; i < 2; i++ {
 		base, err := client.baseURLFor(context.Background())
@@ -96,7 +96,7 @@ func TestMirrorWaiterCanCancelAndFailuresRetryAfterExpiry(t *testing.T) {
 	client.baseExpires = time.Now().Add(-time.Second)
 	client.baseMu.Unlock()
 	base, err := client.baseURLFor(context.Background())
-	if err != nil || base != "https://annas-archive.test" || resolves != 2 {
+	if err != nil || base != "https://annas-archive.gl" || resolves != 2 {
 		t.Fatalf("did not retry: %s %v %d", base, err, resolves)
 	}
 }
@@ -107,11 +107,11 @@ func TestFailedArchiveRequestRefreshesMirrorOnNextCall(t *testing.T) {
 	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", Resolver: func(context.Context) (string, error) {
 		resolves++
 		if resolves == 1 {
-			return "annas-archive.one", nil
+			return "annas-archive.gl", nil
 		}
-		return "annas-archive.two", nil
+		return "annas-archive.pk", nil
 	}, HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		if req.URL.Host == "annas-archive.one" {
+		if req.URL.Host == "annas-archive.gl" {
 			return fixtureResponse(t, req, http.StatusForbidden, "blocked.txt", "text/plain", nil), nil
 		}
 		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
@@ -155,7 +155,10 @@ func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 			return fixtureResponse(t, req, http.StatusOK, "scidb_result.html", "text/html", map[string]string{"{{HASH}}": hash}), nil
 		case "/md5/" + hash:
 			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", nil), nil
-		case "/scidb":
+		case "/scidb-paper.pdf":
+			if req.Header.Get("Cookie") != "" {
+				t.Error("sent archive cookie to SciDB PDF CDN")
+			}
 			name := "paper.pdf"
 			if corrupt {
 				name = "corrupt.pdf"
@@ -219,12 +222,12 @@ func TestMirrorFailureFallsBackToConfiguredOrigin(t *testing.T) {
 	client := NewClient(Config{BaseURL: "configured.example", AutoBaseURL: true, Resolver: func(context.Context) (string, error) {
 		resolves++
 		if resolves == 1 {
-			return "annas-archive.test", nil
+			return "annas-archive.gl", nil
 		}
 		return "", errors.New("discovery unavailable")
 	}})
 	base, err := client.baseURLFor(context.Background())
-	if err != nil || base != "https://annas-archive.test" {
+	if err != nil || base != "https://annas-archive.gl" {
 		t.Fatalf("initial selection: %s %v", base, err)
 	}
 	client.invalidateMirror(base)

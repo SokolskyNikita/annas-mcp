@@ -108,13 +108,7 @@ func TestParserHelpersNormalizeMetadataAndSnippets(t *testing.T) {
 	if language, format, size := extractMetaInformation("unstructured metadata"); language != "" || format != "" || size != "" {
 		t.Fatalf("malformed metadata = %q, %q, %q", language, format, size)
 	}
-	if !looksLikeFilename("book.pdf") || looksLikeFilename("A title") {
-		t.Fatal("filename heuristic returned an unexpected result")
-	}
-	candidates := bookDOICandidates(&Book{DOI: "10.1000/example", Description: "See 10.1000/example and 10.1000/other"})
-	if len(candidates) != 2 {
-		t.Fatalf("DOI candidates were not deduplicated: %v", candidates)
-	}
+
 }
 
 func TestParseBooksSkipsMalformedCards(t *testing.T) {

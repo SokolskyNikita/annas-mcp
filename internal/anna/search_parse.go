@@ -1,9 +1,7 @@
 package anna
 
 import (
-	"fmt"
 	"net/url"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -24,7 +22,6 @@ const (
 var (
 	authorSelector      = "a[href^='/search'] span.icon-\\[mdi--user-edit\\]"
 	publisherSelector   = "a[href^='/search'] span.icon-\\[mdi--company\\]"
-	doiPattern          = regexp.MustCompile(`(?i)10\.\d{4,9}/[-._;()/:A-Za-z0-9]+`)
 	validDOIPattern     = regexp.MustCompile(`(?i)^10\.\d{4,9}/\S+$`)
 	descriptionSelector = "div.text-gray-600"
 )
@@ -97,7 +94,6 @@ func parseBooks(doc *goquery.Document, pageURL string) []*Book {
 			Publisher:   strings.TrimSpace(info.Find(publisherSelector).Parent().Text()),
 			Authors:     strings.TrimSpace(info.Find(authorSelector).Parent().Text()),
 			Description: description,
-			DOI:         firstDOI(title + " " + description),
 			URL:         absoluteURL(pageURL, link),
 			Hash:        hash,
 		})
@@ -123,26 +119,7 @@ func paperFromBook(book *Book, doi string) *Paper {
 		Description: book.Description,
 		PageURL:     book.URL,
 	}
-	if doi != "" {
-		paper.DownloadURL = fmt.Sprintf("/scidb?doi=%s", url.QueryEscape(doi))
-	}
 	return paper
-}
-
-func selectTitleHit(books []*Book, title string) *Book {
-	want := normalizeTitle(title)
-	if want == "" {
-		return nil
-	}
-	for _, book := range books {
-		if book == nil || book.Hash == "" || looksLikeFilename(book.Title) {
-			continue
-		}
-		if normalizeTitle(book.Title) == want {
-			return book
-		}
-	}
-	return nil
 }
 
 func normalizeTitle(title string) string {
@@ -162,152 +139,13 @@ func normalizeTitle(title string) string {
 	return strings.TrimSpace(b.String())
 }
 
-func looksLikeFilename(title string) bool {
-	title = strings.TrimSpace(title)
-	if title == "" || strings.Contains(title, " ") {
-		return false
-	}
-	switch strings.ToLower(filepath.Ext(title)) {
-	case ".pdf", ".epub", ".djvu", ".mobi", ".azw3", ".azw", ".fb2", ".cbz", ".cbr":
-		return true
-	default:
-		return false
-	}
-}
-
-func selectDOIHit(books []*Book, doi string) *Book {
-	needle := NormalizeDOI(doi)
-	if needle == "" {
-		return nil
-	}
-	arxiv := arxivID(needle)
-	// A DOI field on a result is the archive's authoritative identifier. Give
-	// it precedence over mentions in titles/descriptions, which may be
-	// citations to a different work.
-	for _, book := range books {
-		if book == nil || book.Hash == "" {
-			continue
-		}
-		if strings.EqualFold(NormalizeDOI(book.DOI), needle) {
-			return book
-		}
-	}
-	// Match complete DOI tokens extracted from the result. Do not use a
-	// substring fallback: periods and other DOI punctuation are valid token
-	// characters, so a token such as 10.1000/abc must not match
-	// 10.1000/abc.123.
-	for _, book := range books {
-		if book == nil || book.Hash == "" || strings.TrimSpace(book.DOI) != "" {
-			continue
-		}
-		for _, field := range []string{book.Title, book.Description, book.Publisher} {
-			for _, candidate := range doiPattern.FindAllString(field, -1) {
-				if strings.EqualFold(NormalizeDOI(candidate), needle) {
-					return book
-				}
-			}
-		}
-	}
-	// arXiv identifiers are often shown without a DOI in search cards. Only
-	// use that fallback when the card contains no conflicting DOI at all.
-	if arxiv != "" {
-		for _, book := range books {
-			if book == nil || book.Hash == "" {
-				continue
-			}
-			if len(bookDOICandidates(book)) != 0 {
-				continue
-			}
-			hay := strings.ToLower(strings.Join([]string{book.Title, book.Description, book.Publisher}, " "))
-			if containsArxivToken(hay, arxiv) {
-				return book
-			}
-		}
-	}
-	return nil
-}
-
-func bookDOICandidates(book *Book) []string {
-	if book == nil {
-		return nil
-	}
-	fields := []string{book.DOI, book.Title, book.Description, book.Publisher}
-	seen := make(map[string]struct{})
-	var candidates []string
-	for _, field := range fields {
-		for _, candidate := range doiPattern.FindAllString(field, -1) {
-			candidate = NormalizeDOI(candidate)
-			if candidate == "" {
-				continue
-			}
-			if _, ok := seen[strings.ToLower(candidate)]; ok {
-				continue
-			}
-			seen[strings.ToLower(candidate)] = struct{}{}
-			candidates = append(candidates, candidate)
-		}
-	}
-	return candidates
-}
-
-func containsToken(value, token string) bool {
-	if token == "" {
-		return false
-	}
-	for start := 0; start < len(value); {
-		i := strings.Index(value[start:], token)
-		if i < 0 {
-			return false
-		}
-		i += start
-		beforeOK := i == 0 || !isTokenByte(value[i-1])
-		end := i + len(token)
-		afterOK := end == len(value) || !isTokenByte(value[end])
-		if beforeOK && afterOK {
-			return true
-		}
-		start = i + 1
-	}
-	return false
-}
-
-func isTokenByte(value byte) bool {
-	return (value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z') || (value >= '0' && value <= '9')
-}
-
-func containsArxivToken(value, token string) bool {
-	if containsToken(value, token) {
-		return true
-	}
-	for start := 0; start < len(value); {
-		i := strings.Index(value[start:], token)
-		if i < 0 {
-			return false
-		}
-		i += start
-		if i > 0 && isTokenByte(value[i-1]) {
-			start = i + 1
-			continue
-		}
-		end := i + len(token)
-		if end+1 < len(value) && value[end] == 'v' && value[end+1] >= '0' && value[end+1] <= '9' {
-			end++
-			for end < len(value) && value[end] >= '0' && value[end] <= '9' {
-				end++
-			}
-			if end == len(value) || !isTokenByte(value[end]) {
-				return true
-			}
-		}
-		start = i + 1
-	}
-	return false
-}
-
-// NormalizeDOI removes the common DOI URL and label prefixes and trims
-// punctuation commonly attached when a DOI is copied from prose.
+// NormalizeDOI removes common DOI URL/label prefixes and enclosing wrappers.
+// Suffix punctuation is significant and must not be guessed away as prose.
 func NormalizeDOI(doi string) string {
-	doi = strings.TrimSpace(doi)
+	doi = unwrapDOI(doi)
+	if strings.HasPrefix(strings.ToLower(doi), "doi:") {
+		doi = unwrapDOI(doi[len("doi:"):])
+	}
 	lower := strings.ToLower(doi)
 	for _, prefix := range []string{"https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "http://dx.doi.org/"} {
 		if strings.HasPrefix(lower, prefix) {
@@ -322,32 +160,19 @@ func NormalizeDOI(doi string) string {
 			break
 		}
 	}
-	if strings.HasPrefix(lower, "doi:") {
-		doi = doi[len("doi:"):]
-	}
-	doi = strings.TrimSpace(strings.Trim(doi, "<>\"'"))
-	return trimDOIPunctuation(doi)
+	return strings.TrimSpace(doi)
 }
 
-func trimDOIPunctuation(doi string) string {
-	for doi != "" {
-		last, size := utf8.DecodeLastRuneInString(doi)
-		if last == utf8.RuneError && size == 0 {
-			return doi
-		}
-		trim := false
-		switch last {
-		case '.', ',', ';', ':', ']', '}':
-			trim = true
-		case ')':
-			// A closing parenthesis may be part of the DOI (for example
-			// SICI suffixes). Remove it only when it is unmatched.
-			trim = strings.Count(doi, ")") > strings.Count(doi, "(")
-		}
-		if !trim {
+func unwrapDOI(doi string) string {
+	doi = strings.TrimSpace(doi)
+	for len(doi) >= 2 {
+		first, last := doi[0], doi[len(doi)-1]
+		if !(first == '<' && last == '>' || first == '(' && last == ')' ||
+			first == '[' && last == ']' || first == '{' && last == '}' ||
+			first == '"' && last == '"' || first == '\'' && last == '\'') {
 			break
 		}
-		doi = doi[:len(doi)-size]
+		doi = strings.TrimSpace(doi[1 : len(doi)-1])
 	}
 	return doi
 }
@@ -356,7 +181,7 @@ func trimDOIPunctuation(doi string) string {
 // It intentionally returns true for malformed DOI-shaped input so callers can
 // report an invalid DOI instead of silently treating it as keyword search.
 func IsDOIQuery(query string) bool {
-	query = strings.ToLower(strings.TrimSpace(query))
+	query = strings.ToLower(unwrapDOI(query))
 	return strings.HasPrefix(query, "10.") ||
 		strings.HasPrefix(query, "doi:") ||
 		strings.HasPrefix(query, "https://doi.org/") ||
@@ -372,19 +197,22 @@ func ParseDOI(query string) (string, bool) {
 }
 
 func arxivID(doi string) string {
-	_, rest, ok := strings.Cut(strings.ToLower(doi), "arxiv.")
-	if !ok {
+	const prefix = "10.48550/arxiv."
+	doi = NormalizeDOI(doi)
+	if !strings.HasPrefix(strings.ToLower(doi), prefix) {
 		return ""
 	}
-	rest = strings.Trim(rest, " ./")
-	if i := strings.LastIndex(rest, "v"); i > 0 && rest[i+1:] != "" && strings.Trim(rest[i+1:], "0123456789") == "" {
-		rest = rest[:i]
-	}
-	return rest
+	return strings.ToLower(stripArxivVersion(doi[len(prefix):]))
 }
 
-func firstDOI(text string) string {
-	return strings.TrimRight(doiPattern.FindString(text), ".,;:)")
+func stripArxivVersion(identifier string) string {
+	if i := strings.LastIndex(strings.ToLower(identifier), "v"); i > 0 && i+1 < len(identifier) {
+		version := identifier[i+1:]
+		if strings.Trim(version, "0123456789") == "" {
+			return identifier[:i]
+		}
+	}
+	return identifier
 }
 
 func snippet(text string) string {

@@ -11,12 +11,14 @@ The archive's contents and access rules vary by work and account. Use the servic
 
 The supported setup for this MCP requires an active Anna's Archive membership and credentials supplied to the process:
 
-| Operations | Minimum membership | Required configuration |
+| Operations | Upstream access | Required configuration |
 | --- | --- | --- |
-| `book_search`, `article_search` (including DOI lookup), and other archive metadata requests | **Brilliant Bookworm** or higher | `ANNAS_ACCOUNT_COOKIE` |
-| `book_download` and `article_download` (by hash or DOI) | **Lucky Librarian** or higher | `ANNAS_SECRET_KEY`, plus the account cookie and `ANNAS_DOWNLOAD_PATH` |
+| `book_search`, `article_search` (including DOI lookup), and other archive metadata requests | Authenticated website access; HTML requests remain subject to browser checks | `ANNAS_ACCOUNT_COOKIE` |
+| `book_download` and `article_download` (by hash or DOI) | **Brilliant Bookworm** or higher for the fast-download JSON API | `ANNAS_SECRET_KEY`, plus the account cookie and `ANNAS_DOWNLOAD_PATH` |
 
-**Downloads will not work without at least Lucky Librarian status and a valid API key.** A cookie does not replace the key, and a key does not replace the cookie required for searches and lookups. Obtain the key from your Anna's Archive account; see the [membership options](https://annas-archive.gl/donate) and [API FAQ](https://annas-archive.gl/faq#api) for account details.
+Anna's [membership options](https://annas-archive.gl/donate) include JSON API access starting at **Brilliant Bookworm**. **Lucky Librarian** adds exemption from browser checks for normal browser use; the site does not promise that exemption for scripts. Searches and DOI lookups scrape HTML, so JSON API access alone does not guarantee those requests will succeed.
+
+This MCP requires an account cookie for archive access and a valid API key for downloads. A cookie does not replace the key, and a key does not replace the cookie. Obtain the key from your Anna's Archive account; see the [API FAQ](https://annas-archive.gl/faq#api) for details.
 
 **The account cookie expires once a week. You must retrieve it manually every week**, update `ANNAS_ACCOUNT_COOKIE`, and restart the MCP server. This project does not renew cookies automatically.
 
@@ -91,7 +93,7 @@ The CLI and stdio server load `.env` from the process working directory; existin
 | `ANNAS_AUTO_BASE_URL` | Optional mirror discovery | Automatic mirror selection is enabled by default. Set to `false` to use `ANNAS_BASE_URL` only. |
 | `ANNAS_MCP_CACHE_DIR` | Optional npm launcher cache | Local, user-writable directory for release binaries and metadata. |
 
-Mirror discovery starts on the first archive request, with a 15-second budget. Successful selections are cached for 10 minutes; fallbacks for 30 seconds. A failed mirror is invalidated. Discovery falls back to `ANNAS_BASE_URL`, or `annas-archive.gl` when unset. Set `ANNAS_AUTO_BASE_URL=false` to use a fixed mirror.
+Mirror discovery starts on the first archive request, with a 15-second budget. Automatic candidates are restricted to the verified official mirrors `annas-archive.gl`, `annas-archive.pk`, and `annas-archive.gd`; other domains from the status directory are never probed with account credentials. Successful selections are cached for 10 minutes; fallbacks for 30 seconds. A failed mirror is invalidated. Discovery falls back to `ANNAS_BASE_URL`, or `annas-archive.gl` when unset. Set `ANNAS_AUTO_BASE_URL=false` to use a fixed mirror. An explicitly configured base URL is trusted with your credentials, so only configure a host you trust.
 
 ## MCP tools
 
@@ -174,6 +176,8 @@ For a DOI:
 
 The result is one article object rather than a page envelope. Its fields can include `doi`, `title`, `authors`, `journal`, `format`, `size`, `hash`, `description`, `download_url`, and `page_url`. The `hash` is the value to pass to `article_download` when it is present.
 
+DOI suffix punctuation is preserved exactly, including parentheses and trailing periods. When copying a DOI from prose, remove any punctuation that belongs to the surrounding sentence.
+
 ### `book_download`
 
 Download a book by the `hash` returned by `book_search`.
@@ -214,6 +218,8 @@ Both download tools return the absolute local path and byte count:
 ```
 
 `title` controls the filename. `format` sets its extension without converting the file; when omitted, the extension is inferred from the response. Files are limited to 8 GiB. The downloader verifies the expected MD5 when known, removes incomplete or invalid files, and preserves existing files by adding a short hash or numeric suffix on name collisions.
+
+If a DOI download's fast API request fails, the client can use the PDF embedded in that DOI's SciDB article page. It extracts the PDF.js viewer's file URL, checks the PDF signature and the page's MD5, and saves it with a `.pdf` extension when `format` is omitted. A generic SciDB search form or a page without a unique PDF and matching archive hash is not a usable fallback. The account cookie stays on the archive origin; external PDF hosts do not receive it.
 
 ## Workflow for AI clients
 
@@ -319,6 +325,14 @@ node scripts/smoke-mcp.mjs ./annas-mcp
 
 The smoke test uses the configured environment and the repository's `.env`, so the [download access requirements](#membership-and-credentials) apply. It performs real searches and downloads, including DOI and hash article paths, and consumes download quota. It verifies byte counts and checksums, then leaves the downloaded files and `report.json` (server version, timings, paths, sizes, hashes) in the reported temporary directory.
 
+To test SciDB independently of the fast API, run:
+
+```bash
+ANNAS_MCP_TEST_SCIDB_LIVE=1 go test ./internal/anna -run '^TestLiveSciDBFallback$' -count=1 -v
+```
+
+This opt-in check uses `ANNAS_ACCOUNT_COOKIE` (or the repository's `.env`) against the official `.gl` mirror. It deliberately disables fast API requests locally, downloads a small article through the SciDB viewer link, and verifies its PDF signature, MD5, and credential handling. Temporary download files are removed when the test finishes.
+
 ### CI and releases
 
 Pull requests and pushes to `main` run Go race tests, the coverage gate, vet, shell checks, and Node integration tests on Linux, macOS, and Windows. CI also checks formatting, version consistency, workflow syntax with actionlint, and a GoReleaser snapshot of all eight release targets. Live archive tests remain opt-in because they require membership credentials and download quota.
@@ -330,7 +344,7 @@ To publish a release:
 3. Commit and push to `main`, then wait for CI to pass.
 4. Run `scripts/manage-tag.sh add`. It requires a clean checkout matching the pushed `origin/main` commit and creates an annotated tag. Existing tags are rejected.
 
-The tag workflow repeats the platform tests before publishing binaries and SHA-256 checksums to GitHub Releases. It then installs the published binary through the npm launcher on Linux, macOS, and Windows, verifies its version, and checks the MCP handshake and all four registered tools. To repeat that verification locally, run `node scripts/verify-release.mjs v0.0.11` with the desired published tag; no archive credentials are needed.
+The tag workflow repeats the platform tests before publishing binaries and SHA-256 checksums to GitHub Releases. It then installs the published binary through the npm launcher on Linux, macOS, and Windows, verifies its version, and checks the MCP handshake and all four registered tools. To repeat that verification locally, run `node scripts/verify-release.mjs v0.0.12` with the desired published tag; no archive credentials are needed.
 
 Release tags are immutable: do not move or recreate one, because the npm launcher caches binaries by release identity and checksum. The GitHub release is the distribution channel; this repository does not publish a package to the npm registry.
 

@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"regexp"
 	"strings"
 )
 
-var candidateHostPattern = regexp.MustCompile(`^annas-archive\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$`)
+var officialCandidateHosts = map[string]struct{}{
+	"annas-archive.gl": {},
+	"annas-archive.pk": {},
+	"annas-archive.gd": {},
+}
 
 // ParseBaseURL validates and canonicalizes a configured archive base URL. A
 // bare hostname is interpreted as HTTPS for backwards-compatible environment
@@ -18,22 +21,19 @@ func ParseBaseURL(raw string) (string, error) {
 	return parseBaseURL(raw, true)
 }
 
-// ParseCandidateURL validates a URL discovered in SLUM. Discovered mirrors
-// must be HTTPS origins whose host is exactly annas-archive.<single-label>.
-// This rejects userinfo tricks such as annas-archive.gl@evil.example.
+// ParseCandidateURL validates a URL discovered in SLUM or returned by an
+// automatic resolver. Only Anna's currently documented official mirror
+// origins are trusted. Explicitly configured fallback URLs are validated by
+// ParseBaseURL instead.
 func ParseCandidateURL(raw string) (string, error) {
 	value, err := parseBaseURL(raw, false)
 	if err != nil {
 		return "", err
 	}
-	host := value
-	if port := strings.LastIndexByte(host, ':'); port >= 0 {
-		host = host[:port]
+	if _, ok := officialCandidateHosts[value]; !ok {
+		return "", fmt.Errorf("mirror host %q is not an official Anna's Archive origin", value)
 	}
-	if !candidateHostPattern.MatchString(host) {
-		return "", fmt.Errorf("mirror host %q is not an annas-archive single-label origin", host)
-	}
-	return host, nil
+	return value, nil
 }
 
 func parseBaseURL(raw string, allowPort bool) (string, error) {
