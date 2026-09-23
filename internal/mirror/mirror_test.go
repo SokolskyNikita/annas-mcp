@@ -6,7 +6,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"path/filepath"
+	"path"
 	"strings"
 	"testing"
 	"time"
@@ -23,7 +23,7 @@ var fixtureFiles embed.FS
 
 func fixture(t *testing.T, name string) string {
 	t.Helper()
-	data, err := fixtureFiles.ReadFile(filepath.Join("testdata", name))
+	data, err := fixtureFiles.ReadFile(path.Join("testdata", name))
 	if err != nil {
 		t.Fatalf("read fixture %q: %v", name, err)
 	}
