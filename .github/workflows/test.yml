@@ -33,7 +33,10 @@ jobs:
           node-version: 22
 
       - name: Test with race detection
-        run: go test -race ./...
+        run: go test -race -coverprofile=coverage.out ./...
+
+      - name: Enforce test coverage
+        run: node scripts/check-coverage.mjs coverage.out
 
       - name: Vet
         run: go vet ./...

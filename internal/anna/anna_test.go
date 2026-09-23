@@ -3,8 +3,6 @@ package anna
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"io"
 	"net/http"
@@ -14,7 +12,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -93,23 +90,7 @@ func TestSelectDOIHitIgnoresUnrelatedFilenames(t *testing.T) {
 func TestParseBooksReadsSearchCard(t *testing.T) {
 	t.Parallel()
 
-	html := `
-<div>
-  <a class="custom-a block" href="/md5/abc123def456"></a>
-  <div class="max-w-full">
-    <a href="/md5/abc123def456">Example Title</a>
-    <a href="/search?q=author"><span class="icon-[mdi--user-edit]"></span>Ada Lovelace</a>
-    <a href="/search?q=pub"><span class="icon-[mdi--company]"></span>Example Press</a>
-    <div class="text-gray-800">✅ English [en] · EPUB · 1.2MB · 2020</div>
-    <div class="line-clamp-[2] text-sm text-gray-600">A short description. DOI 10.1000/example.123.</div>
-  </div>
-</div>`
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(html))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	books := parseBooks(doc, "https://annas-archive.gl/search?q=example")
+	books := parseBooks(fixtureDocument(t, "search_card.html"), "https://annas-archive.gl/search?q=example")
 	if len(books) != 1 {
 		t.Fatalf("expected 1 book, got %d", len(books))
 	}
@@ -131,13 +112,14 @@ func TestParseBooksReadsSearchCard(t *testing.T) {
 func TestCopyWithHashRejectsMismatchedChecksum(t *testing.T) {
 	t.Parallel()
 
-	sum := md5.Sum([]byte("hello"))
-	_, err := copyWithHash(context.Background(), io.Discard, bytes.NewReader([]byte("hello")), -1, hex.EncodeToString(sum[:]), nil)
+	paper := readFixture(t, "paper.pdf")
+	hash := fixtureHash(t, "paper.pdf")
+	_, err := copyWithHash(context.Background(), io.Discard, bytes.NewReader(paper), -1, hash, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = copyWithHash(context.Background(), io.Discard, bytes.NewReader([]byte("other")), -1, hex.EncodeToString(sum[:]), nil)
+	_, err = copyWithHash(context.Background(), io.Discard, bytes.NewReader(readFixture(t, "corrupt.pdf")), -1, hash, nil)
 	if err == nil {
 		t.Fatal("expected a checksum mismatch")
 	}
@@ -146,10 +128,10 @@ func TestCopyWithHashRejectsMismatchedChecksum(t *testing.T) {
 func TestCopyWithHashRejectsEmptyAndMismatchedLength(t *testing.T) {
 	t.Parallel()
 
-	if _, err := copyWithHash(context.Background(), io.Discard, strings.NewReader(""), 0, "", nil); err == nil || !strings.Contains(err.Error(), "empty") {
+	if _, err := copyWithHash(context.Background(), io.Discard, bytes.NewReader(readFixture(t, "empty.txt")), 0, "", nil); err == nil || !strings.Contains(err.Error(), "empty") {
 		t.Fatalf("expected an empty-file error, got %v", err)
 	}
-	if _, err := copyWithHash(context.Background(), io.Discard, strings.NewReader("hello"), 4, "", nil); err == nil || !strings.Contains(err.Error(), "size mismatch") {
+	if _, err := copyWithHash(context.Background(), io.Discard, bytes.NewReader(readFixture(t, "short.txt")), 4, "", nil); err == nil || !strings.Contains(err.Error(), "size mismatch") {
 		t.Fatalf("expected a content-length error, got %v", err)
 	}
 }
@@ -216,10 +198,10 @@ func TestRedactErrHidesSecret(t *testing.T) {
 func TestFetchDocumentReportsForbidden(t *testing.T) {
 	t.Parallel()
 
-	client := NewClient(Config{BaseURL: "https://annas.test", HTTPClient: &http.Client{Transport: staticRoundTripper(func(*http.Request) (*http.Response, error) {
-		return &http.Response{StatusCode: http.StatusForbidden, Body: io.NopCloser(strings.NewReader("blocked"))}, nil
+	client := NewClient(Config{BaseURL: "https://annas.test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return fixtureResponse(t, nil, http.StatusForbidden, "blocked.txt", "text/plain", nil), nil
 	})}})
-	_, _, err := client.fetchDocument(context.Background(), time.Second, "https://annas.test/search?q=blocked")
+	_, _, err := client.fetchDocument(context.Background(), "https://annas.test/search?q=blocked")
 	if err == nil || !strings.Contains(err.Error(), "403") {
 		t.Fatalf("expected a 403 error, got %v", err)
 	}
@@ -228,13 +210,8 @@ func TestFetchDocumentReportsForbidden(t *testing.T) {
 func TestDownloadFileRejectsHTMLChallenge(t *testing.T) {
 	t.Parallel()
 
-	client := &http.Client{Transport: staticRoundTripper(func(*http.Request) (*http.Response, error) {
-		return &http.Response{
-			StatusCode:    http.StatusOK,
-			Header:        http.Header{"Content-Type": []string{"text/html; charset=utf-8"}},
-			Body:          io.NopCloser(strings.NewReader("<!doctype html><title>challenge</title>")),
-			ContentLength: 40,
-		}, nil
+	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return fixtureResponse(t, req, http.StatusOK, "challenge.html", "text/html; charset=utf-8", nil), nil
 	})}
 	_, err := downloadFileWithGetter(context.Background(), client, "https://download.invalid/file", t.TempDir(), "paper", "", "", nil, func(_ context.Context, _ *http.Client, _ string) (*http.Response, error) {
 		return client.Transport.RoundTrip(&http.Request{})
@@ -249,14 +226,11 @@ func TestClientSearchUsesInjectedBaseAndTransport(t *testing.T) {
 
 	client := NewClient(Config{
 		BaseURL: "https://annas.test",
-		HTTPClient: &http.Client{Transport: staticRoundTripper(func(req *http.Request) (*http.Response, error) {
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.URL.Path != "/search" || req.URL.Query().Get("q") != "example" {
 				return nil, errors.New("unexpected request URL: " + req.URL.String())
 			}
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(strings.NewReader(`<div><a class="custom-a block" href="/md5/abc123def456"></a><div class="max-w-full"><a href="/md5/abc123def456">Example</a></div></div>`)),
-			}, nil
+			return fixtureResponse(t, req, http.StatusOK, "search_card.html", "text/html", nil), nil
 		})},
 	})
 	books, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
@@ -272,7 +246,7 @@ func TestClientRedirectDropsCookieOnSchemeChange(t *testing.T) {
 	client := NewClient(Config{
 		BaseURL:       "https://annas.test",
 		AccountCookie: "aa_account_id2=secret",
-		HTTPClient: &http.Client{Transport: staticRoundTripper(func(req *http.Request) (*http.Response, error) {
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			requests = append(requests, req.URL.String()+" cookie="+req.Header.Get("Cookie"))
 			if len(requests) == 1 {
 				return &http.Response{StatusCode: http.StatusFound, Header: http.Header{"Location": []string{"http://annas.test/insecure"}}, Body: io.NopCloser(http.NoBody), Request: req}, nil
@@ -287,10 +261,4 @@ func TestClientRedirectDropsCookieOnSchemeChange(t *testing.T) {
 	if len(requests) != 1 || !strings.Contains(requests[0], "cookie=aa_account_id2=secret") {
 		t.Fatalf("unexpected redirect cookies: %v", requests)
 	}
-}
-
-type staticRoundTripper func(*http.Request) (*http.Response, error)
-
-func (f staticRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
 }

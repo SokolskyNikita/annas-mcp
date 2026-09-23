@@ -2,7 +2,6 @@ package modes
 
 import (
 	"bytes"
-	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
@@ -23,7 +22,7 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) { re
 
 func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) {
 	t.Parallel()
-	body := []byte("%PDF-1.5\nA small deterministic test document.\n")
+	body := fixture(t, "document.pdf")
 	digest := md5.Sum(body)
 	hash := hex.EncodeToString(digest[:])
 	dir := t.TempDir()
@@ -36,25 +35,13 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 			if req.URL.Query().Get("md5") != hash {
 				t.Errorf("wrong requested hash")
 			}
-			responseBody = []byte(`{"download_url":"https://files.example/document"}`)
+			responseBody = fixture(t, "fast-download.json")
 			contentType = "application/json"
 		}
 		return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {contentType}}, Body: io.NopCloser(bytes.NewReader(responseBody)), ContentLength: int64(len(responseBody)), Request: req}, nil
 	})}})
-	svc := &service{archive: client}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	ct, st := mcp.NewInMemoryTransports()
-	serverSession, err := newMCPServer(svc, anna.DefaultSearchTimeout, anna.DefaultDownloadTimeout).Connect(ctx, st, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	session, err := mcp.NewClient(&mcp.Implementation{Name: "download-test"}, nil).Connect(ctx, ct, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer session.Close()
-	defer serverSession.Close()
+	ctx := t.Context()
+	session := connectTestServer(t, client)
 	for _, args := range []map[string]any{
 		{"hash": hash, "title": "test", "format": "pdf/../../outside"},
 		{"hash": "not-a-hash", "title": "test"},

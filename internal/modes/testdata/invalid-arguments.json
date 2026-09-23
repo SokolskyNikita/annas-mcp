@@ -1,0 +1,70 @@
+[
+  {
+    "name": "negative page",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "page": -1
+    }
+  },
+  {
+    "name": "negative limit",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "limit": -1
+    }
+  },
+  {
+    "name": "invalid language",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "language": "English"
+    }
+  },
+  {
+    "name": "DOI invalid page",
+    "tool": "article_search",
+    "arguments": {
+      "query": "https://doi.org/10.1000/example",
+      "page": -1
+    }
+  },
+  {
+    "name": "blank query",
+    "tool": "book_search",
+    "arguments": {
+      "query": " "
+    }
+  },
+  {
+    "name": "invalid content",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "content": "pdf"
+    }
+  },
+  {
+    "name": "timeout too large",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "timeout_seconds": 86401
+    }
+  },
+  {
+    "name": "no article identifier",
+    "tool": "article_download",
+    "arguments": {}
+  },
+  {
+    "name": "ambiguous article identifier",
+    "tool": "article_download",
+    "arguments": {
+      "doi": "10.1000/example",
+      "hash": "abc"
+    }
+  }
+]

@@ -6,6 +6,8 @@ dist
 
 # Binaries
 /annas-mcp
+/coverage.out
+/coverage.html
 
 # Environment file
 .env

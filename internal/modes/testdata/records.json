@@ -1,0 +1,26 @@
+{
+  "books": [
+    {
+      "hash": "0123456789abcdef0123456789abcdef",
+      "title": "Example Book",
+      "authors": "Ada Author",
+      "publisher": "Example Press",
+      "format": "PDF",
+      "language": "English",
+      "size": "1MB",
+      "url": "https://annas.example/md5/0123456789abcdef0123456789abcdef"
+    }
+  ],
+  "papers": [
+    {
+      "doi": "10.1000/example",
+      "hash": "0123456789abcdef0123456789abcdef",
+      "title": "Example Paper",
+      "authors": "Ada Author",
+      "journal": "Example Journal",
+      "format": "PDF",
+      "size": "1MB",
+      "page_url": "https://annas.example/md5/0123456789abcdef0123456789abcdef"
+    }
+  ]
+}

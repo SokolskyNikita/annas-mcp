@@ -97,6 +97,13 @@ func TestLoadAccountCookieForms(t *testing.T) {
 	if _, err := Load(); err == nil {
 		t.Fatal("expected empty account cookie to be rejected")
 	}
+
+	for _, raw := range []string{"token with spaces", "token,with,commas", "token\\with\\slashes", "токен"} {
+		t.Setenv("ANNAS_ACCOUNT_COOKIE", raw)
+		if _, err := Load(); err == nil {
+			t.Fatalf("expected invalid cookie value %q to be rejected", raw)
+		}
+	}
 }
 
 func TestCookieValueDoesNotConfuseSimilarNames(t *testing.T) {

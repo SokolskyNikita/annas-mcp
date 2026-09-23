@@ -1,0 +1,13 @@
+{
+  "tag_name": "{{RELEASE_TAG}}",
+  "assets": [
+    {
+      "name": "{{ARCHIVE_ASSET}}",
+      "browser_download_url": "{{ARCHIVE_URL}}"
+    },
+    {
+      "name": "{{CHECKSUM_ASSET}}",
+      "browser_download_url": "{{CHECKSUM_URL}}"
+    }
+  ]
+}

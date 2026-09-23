@@ -5,18 +5,29 @@
 
 set -uo pipefail
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P) || exit 1
+REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P) || exit 1
+cd "$REPO_ROOT" || exit 1
+
+if [[ -t 1 && -z ${NO_COLOR:-} ]]; then
+    RED=$'\033[0;31m'
+    GREEN=$'\033[0;32m'
+    YELLOW=$'\033[1;33m'
+    NC=$'\033[0m'
+else
+    RED=''
+    GREEN=''
+    YELLOW=''
+    NC=''
+fi
 
 usage() {
     cat <<'EOF'
 Usage: scripts/healthcheck.sh [--live]
 
-Runs local build and CLI checks. Pass --live to query Anna's Archive with
-the configured environment. Live checks can also be enabled with
-ANNAS_MCP_HEALTHCHECK_LIVE=1.
+Runs local build and CLI checks from the repository root. Pass --live to query
+Anna's Archive with the configured environment. Live checks can also be enabled
+with ANNAS_MCP_HEALTHCHECK_LIVE=1.
 
 ANNAS_MCP_HEALTHCHECK_TIMEOUT sets the per-check timeout in seconds (default: 120).
 EOF
@@ -61,24 +72,49 @@ if ! [[ "$TIMEOUT_SECONDS" =~ ^[1-9][0-9]*$ ]]; then
     exit 2
 fi
 
-TESTS_PASSED=0
-TESTS_FAILED=0
+CHECK_DIR=$(mktemp -d "${TMPDIR:-/tmp}/annas-mcp-healthcheck.XXXXXX") || {
+    printf 'Could not create a temporary healthcheck directory\n' >&2
+    exit 1
+}
 
-printf '%s\n' '====================================='
-printf '%s\n' "  Anna's Archive MCP Healthcheck"
-printf '%s\n\n' '====================================='
+cleanup() {
+    local status=$?
+    trap - EXIT INT TERM HUP
+    rm -rf -- "$CHECK_DIR" >/dev/null 2>&1 || true
+    exit "$status"
+}
+
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
+
+TIMEOUT_MODE=none
+TIMEOUT_COMMAND=''
+if command -v timeout >/dev/null 2>&1; then
+    TIMEOUT_MODE=command
+    TIMEOUT_COMMAND=timeout
+elif command -v gtimeout >/dev/null 2>&1; then
+    TIMEOUT_MODE=command
+    TIMEOUT_COMMAND=gtimeout
+elif command -v perl >/dev/null 2>&1; then
+    TIMEOUT_MODE=perl
+else
+    printf '%bWarning:%b no timeout implementation found; checks will run without a timeout\n' "$YELLOW" "$NC" >&2
+fi
 
 run_with_timeout() {
-    if command -v timeout >/dev/null 2>&1; then
-        timeout "$TIMEOUT_SECONDS" "$@"
-    elif command -v gtimeout >/dev/null 2>&1; then
-        gtimeout "$TIMEOUT_SECONDS" "$@"
-    elif command -v perl >/dev/null 2>&1; then
-        perl -e 'alarm shift; exec @ARGV' "$TIMEOUT_SECONDS" "$@"
-    else
-        printf 'No timeout implementation found; running the check without a timeout\n' >&2
-        "$@"
-    fi
+    case "$TIMEOUT_MODE" in
+        command)
+            "$TIMEOUT_COMMAND" "$TIMEOUT_SECONDS" "$@"
+            ;;
+        perl)
+            perl -e 'alarm shift; exec @ARGV' "$TIMEOUT_SECONDS" "$@"
+            ;;
+        none)
+            "$@"
+            ;;
+    esac
 }
 
 redact_output() {
@@ -91,66 +127,62 @@ redact_output() {
     fi
 }
 
+TESTS_PASSED=0
+TESTS_FAILED=0
+
 run_check() {
     local label=$1
     local expected=$2
     shift 2
-    local output_file
+    local output_file="$CHECK_DIR/check-$((TESTS_PASSED + TESTS_FAILED + 1)).log"
     local status
-    local matched=1
-    output_file=$(mktemp "${TMPDIR:-/tmp}/annas-mcp-healthcheck.XXXXXX")
+    local matched=0
 
-    printf '%b[%s]%b %s...\n' "$YELLOW" "$((TESTS_PASSED + TESTS_FAILED + 1))" "$NC" "$label"
+    printf '%b[%d]%b %s...\n' "$YELLOW" "$((TESTS_PASSED + TESTS_FAILED + 1))" "$NC" "$label"
     run_with_timeout "$@" >"$output_file" 2>&1
     status=$?
 
-    if [[ -z "$expected" ]] || grep -Fq "$expected" "$output_file"; then
-        matched=0
+    if [[ -n "$expected" ]] && ! grep -Fq "$expected" "$output_file"; then
+        matched=1
     fi
     if [[ $status -eq 0 && $matched -eq 0 ]]; then
-        printf '%b✓ PASSED%b\n\n' "$GREEN" "$NC"
+        printf '%bpassed%b\n' "$GREEN" "$NC"
         TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        if [[ $status -eq 124 ]]; then
-            printf '%b✗ FAILED%b - timed out after %ss\n' "$RED" "$NC" "$TIMEOUT_SECONDS"
-        elif [[ $status -ne 0 ]]; then
-            printf '%b✗ FAILED%b - exited with code %s\n' "$RED" "$NC" "$status"
-        else
-            printf '%b✗ FAILED%b - expected output was not found\n' "$RED" "$NC"
-        fi
-        if [[ -s "$output_file" ]]; then
-            printf '%s\n' '  Diagnostic output (credentials redacted):'
-            redact_output <"$output_file" | sed 's/^/    /'
-        fi
-        printf '\n'
-        TESTS_FAILED=$((TESTS_FAILED + 1))
+        return
     fi
-    rm -f "$output_file"
+
+    if [[ $status -eq 124 || $status -eq 142 ]]; then
+        printf '%bfailed%b (timed out after %ss)\n' "$RED" "$NC" "$TIMEOUT_SECONDS"
+    elif [[ $status -ne 0 ]]; then
+        printf '%bfailed%b (exit %s)\n' "$RED" "$NC" "$status"
+    else
+        printf '%bfailed%b (expected output was not found)\n' "$RED" "$NC"
+    fi
+    if [[ -s "$output_file" ]]; then
+        printf '  diagnostics:\n'
+        redact_output <"$output_file" | sed 's/^/    /'
+    fi
+    TESTS_FAILED=$((TESTS_FAILED + 1))
 }
 
-run_check 'Running the Go test suite' '' go test ./...
-run_check 'Checking the CLI help command' '' go run ./cmd/annas-mcp --help
+printf "Anna's Archive MCP healthcheck (%s)\n" "$([[ "$LIVE" -eq 1 ]] && printf 'live' || printf 'local')"
+run_check 'Go test suite' '' go test ./...
+run_check 'CLI help' '' go run ./cmd/annas-mcp --help
 
 if [[ "$LIVE" -eq 1 ]]; then
-    run_check "Testing live book search for 'crypto'" 'Book 1:' \
+    run_check "Live book search for 'crypto'" 'Book 1:' \
         go run ./cmd/annas-mcp book-search crypto
-    run_check "Testing live article search for DOI 10.48550/arXiv.1706.03762" 'DOI:' \
+    run_check "Live article search for DOI 10.48550/arXiv.1706.03762" 'DOI:' \
         go run ./cmd/annas-mcp article-search 10.48550/arXiv.1706.03762
 else
-    printf '%bLive upstream checks skipped%b; pass --live to enable them.\n\n' "$YELLOW" "$NC"
+    printf '%bLive upstream searches skipped%b; pass --live to enable them.\n' "$YELLOW" "$NC"
 fi
 
-printf '%s\n' '====================================='
-printf '%s\n' '  Test Summary'
-printf '%s\n' '====================================='
-printf 'Total tests: %s\n' "$((TESTS_PASSED + TESTS_FAILED))"
-printf '%bPassed: %s%b\n' "$GREEN" "$TESTS_PASSED" "$NC"
-printf '%bFailed: %s%b\n\n' "$RED" "$TESTS_FAILED" "$NC"
-
+printf '\n%d passed, %d failed\n' "$TESTS_PASSED" "$TESTS_FAILED"
 if [[ "$TESTS_FAILED" -eq 0 ]]; then
-    printf '%bAll healthchecks passed!%b\n' "$GREEN" "$NC"
+    printf '%bAll healthchecks passed.%b\n' "$GREEN" "$NC"
     exit 0
 fi
 
-printf '%bSome healthchecks failed.%b\n' "$RED" "$NC"
+printf '%bHealthcheck failed.%b\n' "$RED" "$NC"
 exit 1

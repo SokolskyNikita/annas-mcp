@@ -83,7 +83,7 @@ func loadAccountCookieHeader() (string, error) {
 	// directly. Values may themselves contain base64 padding (=).
 	if strings.HasPrefix(raw, accountCookieName+"=") {
 		value := strings.TrimPrefix(raw, accountCookieName+"=")
-		if value == "" || hasInvalidCookieChars(value) {
+		if !validCookieValue(value) {
 			return "", apperr.New(apperr.Config, "ANNAS_ACCOUNT_COOKIE contains an empty or invalid aa_account_id2 value")
 		}
 		return accountCookieName + "=" + value, nil
@@ -94,6 +94,9 @@ func loadAccountCookieHeader() (string, error) {
 	// name=value pair and is rejected instead of being sent as a cookie value.
 	if strings.ContainsRune(raw, '=') && !isPaddedRawCookieValue(raw) {
 		return "", apperr.New(apperr.Config, "ANNAS_ACCOUNT_COOKIE must be a raw aa_account_id2 value or a Cookie header containing aa_account_id2")
+	}
+	if !validCookieValue(raw) {
+		return "", apperr.New(apperr.Config, "ANNAS_ACCOUNT_COOKIE contains an empty or invalid aa_account_id2 value")
 	}
 	return accountCookieName + "=" + raw, nil
 }
@@ -106,7 +109,7 @@ func cookieValue(header, name string) (string, bool) {
 		key, value, ok := strings.Cut(strings.TrimSpace(part), "=")
 		if ok && strings.TrimSpace(key) == name {
 			value = strings.TrimSpace(value)
-			if value == "" || hasInvalidCookieChars(value) {
+			if !validCookieValue(value) {
 				return "", false
 			}
 			return value, true
@@ -119,6 +122,19 @@ func hasInvalidCookieChars(value string) bool {
 	return strings.IndexFunc(value, func(r rune) bool {
 		return r < 0x20 || r == 0x7f
 	}) >= 0
+}
+
+func validCookieValue(value string) bool {
+	if value == "" {
+		return false
+	}
+	for i := 0; i < len(value); i++ {
+		char := value[i]
+		if char < 0x21 || char > 0x7e || char == '"' || char == ',' || char == ';' || char == '\\' {
+			return false
+		}
+	}
+	return true
 }
 
 func isPaddedRawCookieValue(value string) bool {

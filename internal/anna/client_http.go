@@ -14,8 +14,8 @@ import (
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
-func (c *Client) fetchDocument(ctx context.Context, timeout time.Duration, rawURL string) (*goquery.Document, *url.URL, error) {
-	response, err := c.doGet(ctx, c.requestClient(timeout), rawURL)
+func (c *Client) fetchDocument(ctx context.Context, rawURL string) (*goquery.Document, *url.URL, error) {
+	response, err := c.doGet(ctx, c.requestClient(0), rawURL)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -82,14 +82,14 @@ func NewClient(config Config) *Client {
 func (c *Client) FindBook(ctx context.Context, query string, options SearchOptions, timeout time.Duration) ([]*Book, error) {
 	ctx, cancel := operationContext(ctx, timeout)
 	defer cancel()
-	books, _, err := c.search(ctx, query, options, "", 0)
+	books, _, err := c.search(ctx, query, options, "")
 	return books, err
 }
 
 func (c *Client) FindArticle(ctx context.Context, query string, options SearchOptions, timeout time.Duration) ([]*Paper, error) {
 	ctx, cancel := operationContext(ctx, timeout)
 	defer cancel()
-	books, _, err := c.search(ctx, query, options, "journals", 0)
+	books, _, err := c.search(ctx, query, options, "journals")
 	if err != nil {
 		return nil, err
 	}
@@ -103,19 +103,19 @@ func (c *Client) FindArticle(ctx context.Context, query string, options SearchOp
 func (c *Client) LookupDOI(ctx context.Context, doi string, timeout time.Duration) (*Paper, error) {
 	ctx, cancel := operationContext(ctx, timeout)
 	defer cancel()
-	return c.lookupDOI(ctx, doi, 0)
+	return c.lookupDOI(ctx, doi)
 }
 
 func (c *Client) DownloadBook(ctx context.Context, book *Book, timeout time.Duration, progress ProgressFunc) (DownloadResult, error) {
 	ctx, cancel := operationContext(ctx, timeout)
 	defer cancel()
-	return c.downloadBook(ctx, book, 0, progress)
+	return c.downloadBook(ctx, book, progress)
 }
 
 func (c *Client) DownloadArticle(ctx context.Context, options ArticleDownloadOptions, timeout time.Duration, progress ProgressFunc) (DownloadResult, error) {
 	ctx, cancel := operationContext(ctx, timeout)
 	defer cancel()
-	return c.downloadArticle(ctx, options, 0, progress)
+	return c.downloadArticle(ctx, options, progress)
 }
 
 func (c *Client) baseURLFor(ctx context.Context) (string, error) {

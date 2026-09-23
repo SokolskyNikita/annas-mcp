@@ -9,13 +9,12 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
-func (c *Client) search(ctx context.Context, query string, options SearchOptions, defaultContent string, timeout time.Duration) ([]*Book, string, error) {
+func (c *Client) search(ctx context.Context, query string, options SearchOptions, defaultContent string) ([]*Book, string, error) {
 	if strings.TrimSpace(query) == "" {
 		return nil, "", apperr.New(apperr.InvalidArgument, "search query is empty")
 	}
@@ -25,7 +24,7 @@ func (c *Client) search(ctx context.Context, query string, options SearchOptions
 	}
 	options = ResolveSearch(options, defaultContent)
 	pageURL := buildSearchURL(base, query, options)
-	doc, _, err := c.fetchDocument(ctx, timeout, pageURL)
+	doc, _, err := c.fetchDocument(ctx, pageURL)
 	if err != nil {
 		return nil, pageURL, err
 	}
@@ -37,7 +36,7 @@ func (c *Client) search(ctx context.Context, query string, options SearchOptions
 	return books, pageURL, nil
 }
 
-func (c *Client) lookupDOI(ctx context.Context, doi string, timeout time.Duration) (*Paper, error) {
+func (c *Client) lookupDOI(ctx context.Context, doi string) (*Paper, error) {
 	doi = NormalizeDOI(doi)
 	if doi == "" {
 		return nil, apperr.New(apperr.InvalidArgument, "doi is empty")
@@ -50,12 +49,12 @@ func (c *Client) lookupDOI(ctx context.Context, doi string, timeout time.Duratio
 		return nil, err
 	}
 	scidbURL := buildPathURL(base, "/scidb/"+doi)
-	doc, finalURL, err := c.fetchDocument(ctx, timeout, scidbURL)
+	doc, finalURL, err := c.fetchDocument(ctx, scidbURL)
 	if err != nil && apperr.CodeOf(err) != apperr.NotFound {
 		return nil, fmt.Errorf("failed to lookup DOI: %w", err)
 	}
 	if doc != nil && finalURL != nil && strings.Contains(finalURL.Path, "/scidb/") {
-		paper, sciErr := c.paperFromSciDB(ctx, doc, doi, scidbURL, base, timeout)
+		paper, sciErr := c.paperFromSciDB(ctx, doc, doi, scidbURL, base)
 		if sciErr == nil {
 			return paper, nil
 		}
@@ -69,17 +68,17 @@ func (c *Client) lookupDOI(ctx context.Context, doi string, timeout time.Duratio
 		}
 	}
 
-	paper, err := c.searchForDOI(ctx, doi, timeout)
+	paper, err := c.searchForDOI(ctx, doi)
 	if err != nil {
 		return nil, err
 	}
 	if paper != nil {
 		return paper, nil
 	}
-	title, titleErr := c.titleFromDOI(ctx, doi, timeout)
+	title, titleErr := c.titleFromDOI(ctx, doi)
 	if titleErr == nil && title != "" {
 		for _, index := range []string{"", "journals"} {
-			books, _, searchErr := c.search(ctx, title, SearchOptions{Index: index, Page: 1}, "", timeout)
+			books, _, searchErr := c.search(ctx, title, SearchOptions{Index: index, Page: 1}, "")
 			if searchErr != nil {
 				continue
 			}
@@ -94,7 +93,7 @@ func (c *Client) lookupDOI(ctx context.Context, doi string, timeout time.Duratio
 	return nil, apperr.New(apperr.NotFound, fmt.Sprintf("no paper found for DOI: %s", doi))
 }
 
-func (c *Client) searchForDOI(ctx context.Context, doi string, timeout time.Duration) (*Paper, error) {
+func (c *Client) searchForDOI(ctx context.Context, doi string) (*Paper, error) {
 	queries := []string{doi}
 	if id := arxivID(doi); id != "" {
 		queries = append(queries, id)
@@ -102,7 +101,7 @@ func (c *Client) searchForDOI(ctx context.Context, doi string, timeout time.Dura
 	var lastErr error
 	for _, query := range queries {
 		for _, index := range []string{"journals", ""} {
-			books, _, err := c.search(ctx, query, SearchOptions{Index: index, Page: 1}, "", timeout)
+			books, _, err := c.search(ctx, query, SearchOptions{Index: index, Page: 1}, "")
 			if err != nil {
 				lastErr = err
 				continue
@@ -118,7 +117,7 @@ func (c *Client) searchForDOI(ctx context.Context, doi string, timeout time.Dura
 	return nil, nil
 }
 
-func (c *Client) titleFromDOI(ctx context.Context, doi string, timeout time.Duration) (string, error) {
+func (c *Client) titleFromDOI(ctx context.Context, doi string) (string, error) {
 	doiURL := &url.URL{Scheme: "https", Host: "doi.org", Path: "/" + doi}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, doiURL.String(), nil)
 	if err != nil {
@@ -126,7 +125,7 @@ func (c *Client) titleFromDOI(ctx context.Context, doi string, timeout time.Dura
 	}
 	request.Header.Set("Accept", "application/vnd.citationstyles.csl+json")
 	request.Header.Set("User-Agent", BrowserUserAgent)
-	response, err := c.requestClient(timeout).Do(request)
+	response, err := c.requestClient(0).Do(request)
 	if err != nil {
 		return "", err
 	}
@@ -143,7 +142,7 @@ func (c *Client) titleFromDOI(ctx context.Context, doi string, timeout time.Dura
 	return strings.TrimSpace(payload.Title), nil
 }
 
-func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi, scidbURL, base string, timeout time.Duration) (*Paper, error) {
+func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi, scidbURL, base string) (*Paper, error) {
 	if doc == nil {
 		return nil, errors.New("SciDB response was empty")
 	}
@@ -164,7 +163,7 @@ func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi,
 		return nil, apperr.New(apperr.NotFound, fmt.Sprintf("no paper found for DOI: %s", doi))
 	}
 	detailURL := buildPathURL(base, "/md5/"+paper.Hash)
-	detail, _, err := c.fetchDocument(ctx, timeout, detailURL)
+	detail, _, err := c.fetchDocument(ctx, detailURL)
 	if err != nil {
 		if ctx.Err() != nil {
 			return nil, ctx.Err()

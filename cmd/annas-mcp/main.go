@@ -1,9 +1,11 @@
 package main
 
 import (
+	"os"
+
 	"github.com/SokolskyNikita/annas-mcp/internal/modes"
 )
 
 func main() {
-	modes.StartCLI()
+	os.Exit(modes.RunCLI())
 }

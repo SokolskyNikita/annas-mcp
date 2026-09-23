@@ -1,0 +1,95 @@
+[
+  {
+    "name": "book text",
+    "args": [
+      "book-search",
+      "example"
+    ],
+    "contains": "Example Book"
+  },
+  {
+    "name": "article text",
+    "args": [
+      "article-search",
+      "example"
+    ],
+    "contains": "Example Paper"
+  },
+  {
+    "name": "DOI text",
+    "args": [
+      "article-search",
+      "10.1000/example"
+    ],
+    "contains": "DOI: 10.1000/example"
+  },
+  {
+    "name": "book JSON",
+    "args": [
+      "book-search",
+      "example",
+      "--json"
+    ],
+    "contains": "\"results\""
+  },
+  {
+    "name": "article JSON",
+    "args": [
+      "article-search",
+      "example",
+      "--json"
+    ],
+    "contains": "\"index\":\"journals\""
+  },
+  {
+    "name": "book download",
+    "args": [
+      "book-download",
+      "0123456789abcdef0123456789abcdef",
+      "example.pdf"
+    ],
+    "contains": "Book downloaded successfully"
+  },
+  {
+    "name": "book download JSON",
+    "args": [
+      "book-download",
+      "0123456789abcdef0123456789abcdef",
+      "example.pdf",
+      "--json"
+    ],
+    "contains": "\"bytes\":123"
+  },
+  {
+    "name": "article DOI download",
+    "args": [
+      "article-download",
+      "10.1000/example"
+    ],
+    "contains": "Article downloaded successfully"
+  },
+  {
+    "name": "article hash download",
+    "args": [
+      "article-download",
+      "--hash",
+      "0123456789abcdef0123456789abcdef",
+      "--title",
+      "Example",
+      "--format",
+      "pdf",
+      "--timeout",
+      "45s"
+    ],
+    "contains": "Article downloaded successfully"
+  },
+  {
+    "name": "article download JSON",
+    "args": [
+      "article-download",
+      "10.1000/example",
+      "--json"
+    ],
+    "contains": "\"bytes\":123"
+  }
+]

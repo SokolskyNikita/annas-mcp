@@ -2,14 +2,10 @@ package anna
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -17,23 +13,16 @@ import (
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
-type clientRoundTrip func(*http.Request) (*http.Response, error)
-
-func (f clientRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
-func fakeResponse(req *http.Request, status int, body, contentType string) *http.Response {
-	return &http.Response{StatusCode: status, Header: http.Header{"Content-Type": {contentType}}, Body: io.NopCloser(strings.NewReader(body)), ContentLength: int64(len(body)), Request: req}
-}
-
 func TestAutomaticMirrorDiscoveryIsLazyAndUsesInjectedTransport(t *testing.T) {
 	t.Parallel()
 	var calls atomic.Int32
-	client := NewClient(Config{BaseURL: "fallback.example", AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: clientRoundTrip(func(req *http.Request) (*http.Response, error) {
+	client := NewClient(Config{BaseURL: "fallback.example", AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		calls.Add(1)
 		if req.URL.Host == "open-slum.org" {
 			if req.Header.Get("Cookie") != "" {
 				t.Error("sent account cookie to discovery service")
 			}
-			return fakeResponse(req, 200, `<div class="site-card"><div class="site-card-title">annas</div><div class="domain-item-dense"><a href="https://annas-archive.test/">mirror</a><span class="status-badge compact up">UP</span></div></div>`, "text/html"), nil
+			return fixtureResponse(t, req, http.StatusOK, "mirror_discovery.html", "text/html", nil), nil
 		}
 		if req.URL.Host != "annas-archive.test" {
 			t.Errorf("request used %s", req.URL.Host)
@@ -41,7 +30,7 @@ func TestAutomaticMirrorDiscoveryIsLazyAndUsesInjectedTransport(t *testing.T) {
 		if req.Header.Get("Cookie") != "aa_account_id2=test" {
 			t.Error("missing cookie on archive request")
 		}
-		return fakeResponse(req, 200, "<title>Search - Anna's Archive</title>", "text/html"), nil
+		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
 	})}})
 	if calls.Load() != 0 {
 		t.Fatal("constructor contacted upstream")
@@ -121,11 +110,11 @@ func TestFailedArchiveRequestRefreshesMirrorOnNextCall(t *testing.T) {
 			return "annas-archive.one", nil
 		}
 		return "annas-archive.two", nil
-	}, HTTPClient: &http.Client{Transport: clientRoundTrip(func(req *http.Request) (*http.Response, error) {
+	}, HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		if req.URL.Host == "annas-archive.one" {
-			return fakeResponse(req, 403, "blocked", "text/html"), nil
+			return fixtureResponse(t, req, http.StatusForbidden, "blocked.txt", "text/plain", nil), nil
 		}
-		return fakeResponse(req, 200, "<title>Anna's Archive</title>", "text/html"), nil
+		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
 	})}})
 	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); apperr.CodeOf(err) != apperr.UpstreamBlocked {
 		t.Fatalf("wrong error: %v", err)
@@ -141,7 +130,7 @@ func TestFailedArchiveRequestRefreshesMirrorOnNextCall(t *testing.T) {
 func TestDownloadConfigurationFailsBeforeNetwork(t *testing.T) {
 	t.Parallel()
 	for _, config := range []Config{{DownloadPath: "relative", SecretKey: "key"}, {DownloadPath: t.TempDir()}} {
-		config.HTTPClient = &http.Client{Transport: clientRoundTrip(func(req *http.Request) (*http.Response, error) {
+		config.HTTPClient = &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			t.Error("invalid configuration contacted upstream")
 			return nil, errors.New("unexpected request")
 		})}
@@ -154,18 +143,22 @@ func TestDownloadConfigurationFailsBeforeNetwork(t *testing.T) {
 
 func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 	t.Parallel()
-	body := "%PDF-1.5\nTest paper\n"
-	sum := md5.Sum([]byte(body))
-	hash := hex.EncodeToString(sum[:])
+	body := readFixture(t, "paper.pdf")
+	hash := fixtureHash(t, "paper.pdf")
 	dir := t.TempDir()
-	client := NewClient(Config{BaseURL: "annas.test", DownloadPath: dir, HTTPClient: &http.Client{Transport: clientRoundTrip(func(req *http.Request) (*http.Response, error) {
+	corrupt := false
+	client := NewClient(Config{BaseURL: "annas.test", DownloadPath: dir, HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		switch req.URL.Path {
 		case "/scidb/10.1000/example":
-			return fakeResponse(req, 200, `<a href="/md5/`+hash+`">file</a>`, "text/html"), nil
+			return fixtureResponse(t, req, http.StatusOK, "scidb_result.html", "text/html", map[string]string{"{{HASH}}": hash}), nil
 		case "/md5/" + hash:
-			return fakeResponse(req, 200, "<title>Original title - Anna's Archive</title>", "text/html"), nil
+			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", nil), nil
 		case "/scidb":
-			return fakeResponse(req, 200, body, "application/pdf"), nil
+			name := "paper.pdf"
+			if corrupt {
+				name = "corrupt.pdf"
+			}
+			return fixtureResponse(t, req, http.StatusOK, name, "application/pdf", nil), nil
 		default:
 			return nil, errors.New("unexpected URL")
 		}
@@ -180,7 +173,7 @@ func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 	if result.Bytes != int64(len(body)) {
 		t.Fatalf("bytes: %d", result.Bytes)
 	}
-	body = "%PDF-1.5\nCorrupt replacement\n"
+	corrupt = true
 	if _, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "10.1000/example"}, time.Second, nil); err == nil {
 		t.Fatal("SciDB checksum mismatch was accepted")
 	}
@@ -197,7 +190,7 @@ func TestDownloadRetriesShareOneDeadline(t *testing.T) {
 	t.Parallel()
 	var deadline time.Time
 	calls := 0
-	client := NewClient(Config{BaseURL: "annas.test", SecretKey: "secret", DownloadPath: t.TempDir(), HTTPClient: &http.Client{Transport: clientRoundTrip(func(req *http.Request) (*http.Response, error) {
+	client := NewClient(Config{BaseURL: "annas.test", SecretKey: "secret", DownloadPath: t.TempDir(), HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		calls++
 		current, ok := req.Context().Deadline()
 		if !ok {

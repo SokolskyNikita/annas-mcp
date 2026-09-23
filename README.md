@@ -282,6 +282,7 @@ The main packages are arranged as follows:
 - `internal/anna` handles archive search, article lookup, and downloads.
 - `internal/mirror` discovers and probes archive mirrors; the archive client caches the selection.
 - `internal/env`, `internal/apperr`, and `internal/version` hold configuration, stable application errors, and the embedded release version.
+- `lib/launcher.js`, `lib/archive.js`, and `lib/target.js` split npm release fetching, safe archive extraction, and platform/checksum selection.
 - `scripts` contains launcher tests, health checks, and immutable release-tag tooling.
 
 ## Development
@@ -291,14 +292,27 @@ Run the checks used by the project before opening a pull request:
 ```bash
 gofmt -w cmd internal
 go test ./...
-go test -race ./...
 go vet ./...
-node scripts/test-npx-launcher.mjs
+npm test
+npm run coverage                   # race-enabled Go tests; fails below 80% total coverage
 scripts/healthcheck.sh              # local build and CLI checks
 scripts/healthcheck.sh --live       # optional upstream checks
 ```
 
-The healthcheck is local by default. `--live` (or `ANNAS_MCP_HEALTHCHECK_LIVE=1`) enables archive requests; `ANNAS_MCP_HEALTHCHECK_TIMEOUT` sets the per-check timeout in seconds.
+The test suite uses checked-in upstream fixtures instead of requiring network access: Go fixtures live under `internal/anna/testdata`, `internal/mirror/testdata`, and `internal/modes/testdata`, while launcher fixtures live under `scripts/testdata`. `npm test` runs the JavaScript launcher tests. `npm run coverage` runs the Go tests with the race detector, writes `coverage.out`, and enforces at least 80% total coverage.
+
+The healthcheck is cwd-independent and local by default. `--live` (or `ANNAS_MCP_HEALTHCHECK_LIVE=1`) enables only the two upstream search checks; it does not download files. `ANNAS_MCP_HEALTHCHECK_TIMEOUT` sets the per-check timeout in seconds.
+
+### Optional live MCP smoke test
+
+Build the checkout and opt in when you want to exercise all four MCP tools against the real upstream services:
+
+```bash
+go build -o ./annas-mcp ./cmd/annas-mcp
+node scripts/smoke-mcp.mjs ./annas-mcp
+```
+
+The smoke test uses the configured environment and the repository's `.env`, creates a dedicated temporary download directory, validates returned files and checksums, and exercises both DOI and hash article-download paths. It requires working account access and performs real downloads, so it consumes upstream download quota. The printed report includes the server version, timings, saved paths, byte counts, and MD5 hashes. Downloads and `report.json` remain in the reported temporary directory for inspection.
 
 The release workflow validates pull requests and publishes only an immutable `vMAJOR.MINOR.PATCH` tag. Keep the embedded version, npm package version, and release tag synchronized. Before a release, run the full test suite, verify the GoReleaser configuration, update both version files, commit the change, and run `scripts/manage-tag.sh add` to create and push the next tag (for example `v0.0.10`). Do not move or recreate an existing release tag: the npm launcher caches binaries by release identity and checksum.
 

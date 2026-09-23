@@ -1,19 +1,30 @@
+import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
+import { EventEmitter } from "node:events";
 import { appendFileSync, createReadStream, readFileSync } from "node:fs";
 import { copyFile, mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import os from "node:os";
 import path from "node:path";
+import { PassThrough } from "node:stream";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { checksumFor, goreleaserTarget, selectAsset } from "../bin/annas-mcp.js";
+import {
+  checksumFor,
+  goreleaserTarget,
+  safePathComponent,
+  selectAsset,
+  sha256Digest,
+} from "../lib/target.js";
+import { cacheDir, releaseAPI } from "../lib/launcher.js";
+import { validateArchiveEntryName } from "../lib/archive.js";
+import { MCPProcessClient } from "./mcp-session.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const testdata = path.join(path.dirname(fileURLToPath(import.meta.url)), "testdata");
 
-function assert(condition, message) {
-  if (!condition) {
-    throw new Error(message);
-  }
+function fixture(name) {
+  return readFileSync(path.join(testdata, name), "utf8");
 }
 
 function testAssetSelection() {
@@ -54,6 +65,98 @@ function testAssetSelection() {
     checksumFor(`${digest}  annas-mcp_0.0.6_darwin_arm64.tar.xz\n`, "annas-mcp_0.0.6_darwin_arm64.tar.xz") === digest,
     "checksum line was not parsed",
   );
+}
+
+function testInputValidation() {
+  const digest = "A".repeat(64);
+  assert.equal(sha256Digest(`sha256:${digest}`), digest.toLowerCase());
+  assert.equal(sha256Digest("not-a-digest"), null);
+  assert.equal(
+    releaseAPI({ ANNAS_MCP_RELEASE_API: "https://example.test/releases/latest" }),
+    "https://example.test/releases/latest",
+  );
+  assert.equal(
+    cacheDir({ ANNAS_MCP_CACHE_DIR: "/tmp/annas-mcp-test" }, "linux", "/home/tester"),
+    "/tmp/annas-mcp-test",
+  );
+  assert.equal(validateArchiveEntryName("annas-mcp/annas-mcp"), "annas-mcp/annas-mcp");
+  for (const name of ["../escape", "/absolute", "C:/absolute", "nested/../escape"]) {
+    assert.throws(() => validateArchiveEntryName(name), /unsafe archive path/);
+  }
+  assert.throws(() => safePathComponent("../release", "release tag"), /Invalid release tag/);
+}
+
+function fakeMCPProcess(onRequest) {
+  const child = new EventEmitter();
+  child.stdin = new PassThrough();
+  child.stdout = new PassThrough();
+  child.stderr = new PassThrough();
+  child.exitCode = null;
+  child.signalCode = null;
+  child.kill = (signal) => {
+    if (child.exitCode !== null || child.signalCode !== null) {
+      return false;
+    }
+    child.signalCode = signal;
+    child.stdout.end();
+    child.stderr.end();
+    child.emit("exit", null, signal);
+    return true;
+  };
+  let input = "";
+  child.stdin.on("data", (chunk) => {
+    input += chunk.toString("utf8");
+    const lines = input.split("\n");
+    input = lines.pop() ?? "";
+    for (const line of lines) {
+      if (line.trim()) {
+        onRequest(JSON.parse(line), child);
+      }
+    }
+  });
+  child.stdin.on("finish", () => {
+    if (child.exitCode === null && child.signalCode === null) {
+      child.exitCode = 0;
+      child.stdout.end();
+      child.stderr.end();
+      child.emit("exit", 0, null);
+    }
+  });
+  return child;
+}
+
+async function testMCPProcessClient() {
+  const child = fakeMCPProcess((request, process) => {
+    if (request.id === undefined) {
+      return;
+    }
+    if (request.method === "denied") {
+      process.stdout.write(
+        `${JSON.stringify({
+          jsonrpc: "2.0",
+          id: request.id,
+          error: { code: -32000, message: "denied" },
+        })}\n`,
+      );
+      return;
+    }
+    process.stdout.write(
+      `${JSON.stringify({ jsonrpc: "2.0", id: request.id, result: { method: request.method } })}\n`,
+    );
+  });
+  const session = new MCPProcessClient(child);
+  assert.deepEqual(await session.request("ping"), { method: "ping" });
+  await assert.rejects(
+    () => session.request("denied"),
+    (error) => error.code === -32000 && /denied/.test(error.message),
+  );
+  await session.close();
+  await session.close();
+
+  const malformedChild = fakeMCPProcess((_request, process) => process.stdout.write("not-json\n"));
+  const malformedSession = new MCPProcessClient(malformedChild);
+  await assert.rejects(() => malformedSession.request("ping"), /malformed JSON/);
+  await malformedSession.close();
 }
 
 function buildBinary(destination) {
@@ -114,23 +217,23 @@ async function createArchive(binaryPath, archivePath, directoryName, extension, 
 function startReleaseServer(archivePath, assetName, releaseTag, releaseVersion) {
   let archiveDownloads = 0;
   const checksum = createHash("sha256").update(readFileSync(archivePath)).digest("hex");
-  const checksumBody = `${checksum}  ${assetName}\n`;
+  const checksumBody = fixture("checksums.txt")
+    .replaceAll("{{ARCHIVE_CHECKSUM}}", checksum)
+    .replaceAll("{{ARCHIVE_ASSET}}", assetName);
   const server = createServer((request, response) => {
     if (request.url === "/releases/latest") {
       const origin = `http://127.0.0.1:${server.address().port}`;
-      const payload = {
-        tag_name: releaseTag,
-        assets: [
-          {
-            name: assetName,
-            browser_download_url: `${origin}/${assetName}`,
-          },
-          {
-            name: `annas-mcp_${releaseVersion}--checksums.txt`,
-            browser_download_url: `${origin}/checksums`,
-          },
-        ],
-      };
+      const payload = JSON.parse(
+        fixture("release-response.json")
+          .replaceAll("{{RELEASE_TAG}}", releaseTag)
+          .replaceAll("{{ARCHIVE_ASSET}}", assetName)
+          .replaceAll("{{ARCHIVE_URL}}", `${origin}/${assetName}`)
+          .replaceAll(
+            "{{CHECKSUM_ASSET}}",
+            `annas-mcp_${releaseVersion}--checksums.txt`,
+          )
+          .replaceAll("{{CHECKSUM_URL}}", `${origin}/checksums`),
+      );
       response.setHeader("Content-Type", "application/json");
       response.end(JSON.stringify(payload));
       return;
@@ -204,140 +307,22 @@ function runLauncher(args, env, stdio = ["ignore", "pipe", "pipe"]) {
   });
 }
 
-function readMessages(stream) {
-  let buffer = "";
-  const messages = [];
-  stream.on("data", (chunk) => {
-    buffer += chunk.toString("utf8");
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) {
-        continue;
-      }
-      messages.push(JSON.parse(trimmed));
-    }
-  });
-  return messages;
-}
-
-function waitFor(messages, predicate, timeoutMs, label, child) {
-  return new Promise((resolve, reject) => {
-    let timer;
-    let timeout;
-    let settled = false;
-    const cleanup = () => {
-      clearInterval(timer);
-      clearTimeout(timeout);
-      child?.off("error", onError);
-      child?.off("exit", onExit);
-    };
-    const finish = (callback, value) => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      cleanup();
-      callback(value);
-    };
-    const onError = (error) => {
-      finish(reject, new Error(`${label} child error: ${error.message}`));
-    };
-    const onExit = (status, signal) => {
-      finish(
-        reject,
-        new Error(
-          `${label} child exited before response (code ${status ?? "null"}, signal ${signal ?? "none"}). Messages: ${JSON.stringify(messages)}`,
-        ),
-      );
-    };
-    const check = () => {
-      const found = messages.find(predicate);
-      if (found) {
-        finish(resolve, found);
-      }
-    };
-
-    child?.once("error", onError);
-    child?.once("exit", onExit);
-    check();
-    if (settled) {
-      return;
-    }
-    if (child && (child.exitCode !== null || child.signalCode !== null)) {
-      onExit(child.exitCode, child.signalCode);
-      return;
-    }
-    timer = setInterval(check, 20);
-    timeout = setTimeout(() => {
-      finish(
-        reject,
-        new Error(`Timed out waiting for ${label}. Messages: ${JSON.stringify(messages)}`),
-      );
-    }, timeoutMs);
-  });
-}
-
-async function handshake(child, timeoutMs = 10_000) {
-  const messages = readMessages(child.stdout);
-  child.stdin.write(
-    `${JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "initialize",
-      params: {
-        protocolVersion: "2025-03-26",
-        capabilities: {},
-        clientInfo: { name: "annas-mcp-test", version: "0.0.0" },
-      },
-    })}\n`,
-  );
-  const initialized = await waitFor(
-    messages,
-    (message) => message.id === 1,
-    timeoutMs,
-    "initialize",
-    child,
-  );
-  assert(initialized.result?.serverInfo?.name === "annas-mcp", "initialize did not return annas-mcp");
-  child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`);
-  child.stdin.write(
-    `${JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} })}\n`,
-  );
-  const tools = await waitFor(
-    messages,
-    (message) => message.id === 2,
-    timeoutMs,
-    "tools/list",
-    child,
-  );
-  const names = (tools.result?.tools || []).map((tool) => tool.name).sort();
-  assert(
-    JSON.stringify(names) ===
-      JSON.stringify(["article_download", "article_search", "book_download", "book_search"]),
+async function assertHandshake(client, timeoutMs = 10_000) {
+  const initialized = await client.initialize(timeoutMs);
+  assert.equal(initialized?.serverInfo?.name, "annas-mcp", "initialize did not return annas-mcp");
+  const tools = await client.request("tools/list", {}, timeoutMs);
+  const names = (tools?.tools || []).map((tool) => tool.name).sort();
+  assert.deepEqual(
+    names,
+    ["article_download", "article_search", "book_download", "book_search"],
     `unexpected tools: ${names.join(", ")}`,
   );
 }
 
-async function stopChild(child) {
-  if (child.exitCode !== null || child.signalCode !== null) {
-    return;
-  }
-  child.stdin.end();
-  await new Promise((resolve) => {
-    const timer = setTimeout(() => {
-      child.kill("SIGTERM");
-    }, 2_000);
-    child.on("exit", () => {
-      clearTimeout(timer);
-      resolve();
-    });
-  });
-}
-
 async function main() {
   testAssetSelection();
+  testInputValidation();
+  await testMCPProcessClient();
   const target = goreleaserTarget();
   const releaseTag = readFileSync(path.join(root, "internal/version/version.txt"), "utf8").trim();
   assert(/^v[0-9]+\.[0-9]+\.[0-9]+$/.test(releaseTag), `invalid test release version: ${releaseTag}`);
@@ -372,14 +357,11 @@ async function main() {
       env,
       stdio: ["pipe", "pipe", "pipe"],
     });
-    const stderr = [];
-    server.stderr.on("data", (chunk) => stderr.push(chunk.toString("utf8")));
+    const session = new MCPProcessClient(server);
     try {
-      await handshake(server);
-    } catch (error) {
-      throw new Error(`${error.message}\nstderr: ${stderr.join("")}`);
+      await assertHandshake(session);
     } finally {
-      await stopChild(server);
+      await session.close();
     }
     assert(release.downloads() === 1, "cached launch should not download the archive again");
 
@@ -424,14 +406,11 @@ async function main() {
       env: launcherEnv(release.api, npxCache),
       stdio: ["pipe", "pipe", "pipe"],
     });
-    const npxStderr = [];
-    viaNpx.stderr.on("data", (chunk) => npxStderr.push(chunk.toString("utf8")));
+    const npxSession = new MCPProcessClient(viaNpx);
     try {
-      await handshake(viaNpx, 60_000);
-    } catch (error) {
-      throw new Error(`${error.message}\nnpx stderr: ${npxStderr.join("")}`);
+      await assertHandshake(npxSession, 60_000);
     } finally {
-      await stopChild(viaNpx);
+      await npxSession.close();
     }
     await closeServer(release.server);
 
@@ -440,12 +419,13 @@ async function main() {
       env,
       stdio: ["pipe", "pipe", "pipe"],
     });
+    const offlineSession = new MCPProcessClient(offline);
     try {
-      await handshake(offline);
+      await assertHandshake(offlineSession);
     } catch (error) {
       throw new Error(`${error.message}\noffline start should use the cached binary`);
     } finally {
-      await stopChild(offline);
+      await offlineSession.close();
     }
 
     const mismatched = JSON.parse(readFileSync(path.join(cache, "current.json"), "utf8"));

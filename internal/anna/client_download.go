@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
@@ -32,7 +31,7 @@ func (c *Client) validateDownload(format string, requireKey bool) error {
 	return nil
 }
 
-func (c *Client) downloadBook(ctx context.Context, book *Book, timeout time.Duration, progress ProgressFunc) (DownloadResult, error) {
+func (c *Client) downloadBook(ctx context.Context, book *Book, progress ProgressFunc) (DownloadResult, error) {
 	if book == nil {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "book is required")
 	}
@@ -43,7 +42,7 @@ func (c *Client) downloadBook(ctx context.Context, book *Book, timeout time.Dura
 	if err := c.validateDownload(book.Format, true); err != nil {
 		return DownloadResult{}, err
 	}
-	client := c.requestClient(timeout)
+	client := c.requestClient(0)
 	var lastErr error
 	for _, domainIndex := range domainIndexes {
 		if err := ctx.Err(); err != nil {
@@ -73,13 +72,13 @@ func (c *Client) downloadBook(ctx context.Context, book *Book, timeout time.Dura
 	return DownloadResult{}, fmt.Errorf("download failed: %w", redactErr(lastErr, c.config.SecretKey))
 }
 
-func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOptions, timeout time.Duration, progress ProgressFunc) (DownloadResult, error) {
+func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOptions, progress ProgressFunc) (DownloadResult, error) {
 	hash, doi := strings.TrimSpace(options.Hash), strings.TrimSpace(options.DOI)
 	if (hash == "") == (doi == "") {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "pass exactly one of doi or hash")
 	}
 	if hash != "" {
-		return c.downloadBook(ctx, &Book{Hash: hash, Title: options.Title, Format: options.Format}, timeout, progress)
+		return c.downloadBook(ctx, &Book{Hash: hash, Title: options.Title, Format: options.Format}, progress)
 	}
 	if _, ok := ParseDOI(doi); !ok {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "doi must be a valid DOI or DOI URL")
@@ -87,7 +86,7 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 	if err := c.validateDownload(options.Format, false); err != nil {
 		return DownloadResult{}, err
 	}
-	paper, err := c.lookupDOI(ctx, doi, timeout)
+	paper, err := c.lookupDOI(ctx, doi)
 	if err != nil {
 		return DownloadResult{}, err
 	}
@@ -97,7 +96,7 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 	var fastErr error
 	if paper.Hash != "" && c.config.SecretKey != "" {
 		var result DownloadResult
-		result, fastErr = c.downloadBook(ctx, &Book{Hash: paper.Hash, Title: paper.Title, Format: options.Format}, timeout, progress)
+		result, fastErr = c.downloadBook(ctx, &Book{Hash: paper.Hash, Title: paper.Title, Format: options.Format}, progress)
 		if fastErr == nil {
 			return result, nil
 		}
@@ -105,14 +104,14 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 	if err := ctx.Err(); err != nil {
 		return DownloadResult{}, err
 	}
-	result, err := c.downloadPaper(ctx, paper, options.Format, timeout, progress)
+	result, err := c.downloadPaper(ctx, paper, options.Format, progress)
 	if err != nil && fastErr != nil {
 		return DownloadResult{}, fmt.Errorf("fast download failed (%v); SciDB fallback failed: %w", redactErr(fastErr, c.config.SecretKey), err)
 	}
 	return result, err
 }
 
-func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string, timeout time.Duration, progress ProgressFunc) (DownloadResult, error) {
+func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string, progress ProgressFunc) (DownloadResult, error) {
 	if paper == nil {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "paper is required")
 	}
@@ -142,7 +141,7 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 	if name == "" {
 		name = paper.DOI
 	}
-	return downloadFileWithGetter(ctx, c.requestClient(timeout), downloadURL, c.config.DownloadPath, name, format, expectedMD5, progress, c.doGet)
+	return downloadFileWithGetter(ctx, c.requestClient(0), downloadURL, c.config.DownloadPath, name, format, expectedMD5, progress, c.doGet)
 }
 
 func (c *Client) resolveDownloadURL(ctx context.Context, client *http.Client, base, hash, secretKey string, domainIndex int) (string, error) {
