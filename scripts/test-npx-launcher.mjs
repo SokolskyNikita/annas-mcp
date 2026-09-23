@@ -261,12 +261,12 @@ function waitFor(messages, predicate, timeoutMs, label, child) {
 
     child?.once("error", onError);
     child?.once("exit", onExit);
-    if (child && (child.exitCode !== null || child.signalCode !== null)) {
-      onExit(child.exitCode, child.signalCode);
-      return;
-    }
     check();
     if (settled) {
+      return;
+    }
+    if (child && (child.exitCode !== null || child.signalCode !== null)) {
+      onExit(child.exitCode, child.signalCode);
       return;
     }
     timer = setInterval(check, 20);
