@@ -5,6 +5,7 @@ type BookSearchParams struct {
 	Content        string `json:"content,omitempty" mcp:"Optional content filter: book_fiction, book_nonfiction, magazine, or standards_document"`
 	Language       string `json:"language,omitempty" mcp:"Optional ISO 639-1 language code, for example en"`
 	Page           int    `json:"page,omitempty" mcp:"Result page, starting at 1. Raise it when the current page is not enough"`
+	Limit          int    `json:"limit,omitempty" mcp:"Maximum hits to return from this page. Defaults to 10. Raise it when the match is not in the first results"`
 	TimeoutSeconds int    `json:"timeout_seconds,omitempty" mcp:"Optional HTTP timeout in seconds. Defaults to 60"`
 }
 
@@ -20,6 +21,7 @@ type ArticleSearchParams struct {
 	Content        string `json:"content,omitempty" mcp:"Optional file-type filter. Keywords use the journals index unless this is set"`
 	Language       string `json:"language,omitempty" mcp:"Optional ISO 639-1 language code, for example en"`
 	Page           int    `json:"page,omitempty" mcp:"Result page, starting at 1"`
+	Limit          int    `json:"limit,omitempty" mcp:"Maximum hits to return from this page. Defaults to 10. Raise it when the match is not in the first results"`
 	TimeoutSeconds int    `json:"timeout_seconds,omitempty" mcp:"Optional HTTP timeout in seconds. Defaults to 60"`
 }
 

@@ -28,6 +28,7 @@ func StartCLI() {
 
 	timeout := anna.DefaultDownloadTimeout
 	var searchPage int
+	var searchLimit int
 	var searchLanguage string
 	var searchContent string
 
@@ -73,6 +74,9 @@ func StartCLI() {
 				return fmt.Errorf("failed to search books: %w", err)
 			}
 
+			if searchLimit > 0 && searchLimit < len(books) {
+				books = books[:searchLimit]
+			}
 			if len(books) == 0 {
 				fmt.Println("No books found.")
 				return nil
@@ -196,6 +200,9 @@ func StartCLI() {
 				return fmt.Errorf("article search failed: %w", err)
 			}
 
+			if searchLimit > 0 && searchLimit < len(papers) {
+				papers = papers[:searchLimit]
+			}
 			if len(papers) == 0 {
 				fmt.Println("No articles found.")
 				return nil
@@ -299,6 +306,7 @@ func StartCLI() {
 
 	bindSearchFlags := func(cmd *cobra.Command) {
 		cmd.Flags().IntVar(&searchPage, "page", 1, "Result page, starting at 1")
+		cmd.Flags().IntVar(&searchLimit, "limit", 0, "Maximum hits to print from this page. 0 prints the page")
 		cmd.Flags().StringVar(&searchLanguage, "language", "", "Language code, for example en")
 		cmd.Flags().StringVar(&searchContent, "content", "", "Content filter, for example book_fiction. Article search uses the journals index when this is omitted")
 	}
