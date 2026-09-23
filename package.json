@@ -1,10 +1,10 @@
 {
   "name": "annas-mcp",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "MCP server and CLI for searching and downloading books and articles from Anna's Archive",
   "type": "module",
   "scripts": {
-    "test": "node --test scripts/check-version.test.mjs && node scripts/test-npx-launcher.mjs",
+    "test": "node --test scripts/check-version.test.mjs scripts/release-metadata.test.mjs && node scripts/test-npx-launcher.mjs",
     "check:version": "node scripts/check-version.mjs",
     "coverage": "go test -race -coverprofile coverage.out ./... && node scripts/check-coverage.mjs coverage.out",
     "smoke": "node scripts/smoke-mcp.mjs"

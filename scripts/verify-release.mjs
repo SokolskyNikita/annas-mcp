@@ -7,12 +7,12 @@ import { fileURLToPath } from "node:url";
 import { MCPProcessClient } from "./mcp-session.mjs";
 import { checkVersion } from "./check-version.mjs";
 import {
-  GITHUB_REPO,
   expectedArchiveChecksum,
   installBinary,
   readCacheMeta,
   sha256File,
 } from "../lib/launcher.js";
+import { fetchPublishedRelease } from "./release-metadata.mjs";
 import {
   goreleaserTarget,
   selectAsset,
@@ -34,10 +34,6 @@ const releaseTargets = [
   ["win32", "arm64"],
 ];
 
-function githubURL(tag) {
-  return `https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${tag}`;
-}
-
 function authenticatedFetch(input, options = {}) {
   const url = new URL(input);
   const headers = new Headers(options.headers);
@@ -46,21 +42,6 @@ function authenticatedFetch(input, options = {}) {
     headers.set("Authorization", `Bearer ${token}`);
   }
   return fetch(input, { ...options, headers, redirect: "follow" });
-}
-
-async function fetchRelease(tag) {
-  const response = await authenticatedFetch(githubURL(tag), {
-    headers: {
-      Accept: "application/vnd.github+json",
-      "User-Agent": "annas-mcp-release-verifier",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    signal: AbortSignal.timeout(30_000),
-  });
-  if (!response.ok) {
-    throw new Error(`GitHub release lookup failed (${response.status}) for ${tag}`);
-  }
-  return response.json();
 }
 
 function releaseAssets(release, tag) {
@@ -189,12 +170,19 @@ async function main() {
     assert.equal(currentVersion, tag, "workflow tag does not match repository version");
   }
 
-  const release = await fetchRelease(tag);
+  const { release, apiURL } = await fetchPublishedRelease(tag, {
+    fetchImpl: authenticatedFetch,
+    headers: {
+      Accept: "application/vnd.github+json",
+      "User-Agent": "annas-mcp-release-verifier",
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+  });
   releaseAssets(release, tag);
   const target = goreleaserTarget();
   const asset = selectAsset(release.assets, target);
   const cache = await mkdtemp(path.join(os.tmpdir(), "annas-mcp-release-"));
-  const env = childEnvironment(cache, githubURL(tag));
+  const env = childEnvironment(cache, apiURL);
   try {
     const expected = await expectedArchiveChecksum(release, asset, {
       env,

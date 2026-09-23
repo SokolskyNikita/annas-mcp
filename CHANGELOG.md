@@ -2,12 +2,19 @@
 
 Changes made in this fork, reconstructed from Git history and grouped by the first release containing them. Release dates are GitHub publication dates in UTC.
 
+## [v0.0.13](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.0.13) — 2026-09-23
+
+- Resolve published-release verification through GitHub's release ID when the tag endpoint omits uploaded assets, retaining all archive, checksum, version, and MCP checks. Added regression tests for inconsistent metadata and mismatched release identities.
+
+[All changes since v0.0.12](https://github.com/SokolskyNikita/annas-mcp/compare/v0.0.12...v0.0.13)
+
 ## [v0.0.12](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.0.12) — 2026-09-23
 
 - Verify DOI search candidates against their own record identifiers or matching citation metadata, reject conflicting identifiers, and preserve DOI suffix punctuation.
 - Resolve SciDB fallback PDFs from the article page's PDF.js viewer, verify the PDF signature and archive hash, and keep account cookies off external file hosts. Added an opt-in live test with the fast API deliberately disabled.
 - Restrict automatic mirror discovery to verified official domains before sending credentials; preserve explicitly configured base URLs.
 - Correct membership documentation: Brilliant Bookworm includes JSON API access, while Lucky Librarian's browser-check exemption applies to normal browser use.
+- Published all eight archives and their checksums; post-publication verification exposed inconsistent assets metadata from GitHub's tag endpoint, addressed in v0.0.13.
 
 [All changes since v0.0.11](https://github.com/SokolskyNikita/annas-mcp/compare/v0.0.11...v0.0.12)
 

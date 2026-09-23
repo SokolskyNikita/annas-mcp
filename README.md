@@ -344,7 +344,7 @@ To publish a release:
 3. Commit and push to `main`, then wait for CI to pass.
 4. Run `scripts/manage-tag.sh add`. It requires a clean checkout matching the pushed `origin/main` commit and creates an annotated tag. Existing tags are rejected.
 
-The tag workflow repeats the platform tests before publishing binaries and SHA-256 checksums to GitHub Releases. It then installs the published binary through the npm launcher on Linux, macOS, and Windows, verifies its version, and checks the MCP handshake and all four registered tools. To repeat that verification locally, run `node scripts/verify-release.mjs v0.0.12` with the desired published tag; no archive credentials are needed.
+The tag workflow repeats the platform tests before publishing binaries and SHA-256 checksums to GitHub Releases. It then installs the published binary through the npm launcher on Linux, macOS, and Windows, verifies its version, and checks the MCP handshake and all four registered tools. To repeat that verification locally, run `node scripts/verify-release.mjs v0.0.13` with the desired published tag; no archive credentials are needed.
 
 Release tags are immutable: do not move or recreate one, because the npm launcher caches binaries by release identity and checksum. The GitHub release is the distribution channel; this repository does not publish a package to the npm registry.
 
