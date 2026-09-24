@@ -83,3 +83,42 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 		previous = downloaded.Path
 	}
 }
+
+func TestDownloadToolReportsAttemptsWithoutHTML(t *testing.T) {
+	t.Parallel()
+	client := anna.NewClient(anna.Config{
+		BaseURL: "https://annas.example", DownloadPath: t.TempDir(),
+		AccountCookie: "test-cookie", SecretKey: "test-secret",
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			status, contentType := http.StatusNotFound, "text/html"
+			body := []byte("<html><body>upstream error body</body></html>")
+			if req.URL.Path == "/dyn/api/fast_download.json" {
+				status, contentType = http.StatusOK, "application/json"
+				body = fixture(t, "fast-download.json")
+			}
+			return &http.Response{
+				StatusCode: status, Header: http.Header{"Content-Type": {contentType}},
+				Body: io.NopCloser(bytes.NewReader(body)), Request: req,
+			}, nil
+		})},
+	})
+	session := connectTestServer(t, client)
+	result, err := session.CallTool(t.Context(), &mcp.CallToolParams{
+		Name: "article_download", Arguments: map[string]any{"hash": "0123456789abcdef0123456789abcdef"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	message := toolText(t, result)
+	if !result.IsError || !strings.HasPrefix(message, "[UPSTREAM] download failed:") {
+		t.Fatalf("expected coded tool failure, got %q", message)
+	}
+	for _, want := range []string{"fast server 1 (file)", "fast server 2 (file)", "fast server 3 (file)", "HTTP status 404 Not Found"} {
+		if !strings.Contains(message, want) {
+			t.Errorf("tool result omitted %q: %s", want, message)
+		}
+	}
+	if strings.Contains(message, "<html>") || strings.Contains(message, "upstream error body") {
+		t.Fatalf("tool result included upstream HTML: %s", message)
+	}
+}

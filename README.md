@@ -233,6 +233,8 @@ An empty search page means no records were parsed from that upstream page. Adjus
 
 The CLI exits nonzero with a coded message. MCP service failures return `isError: true` with a code at the start of the text. Schema-invalid arguments may instead be rejected at the protocol boundary.
 
+Failed downloads list every attempted fast server, distinguish API requests from file transfers, and include the SciDB fallback when attempted. HTTP failures show the server hostname, status code, and a brief explanation. Raw response bodies and signed download URLs are omitted. A file-transfer 404 means the download server did not provide the file; it does not mean the archive's metadata record is missing.
+
 A successful startup, `tools/list`, or `--help` does not verify upstream access. Membership and credentials are exercised when you search or download.
 
 | Code | Meaning and next action |

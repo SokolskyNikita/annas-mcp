@@ -51,33 +51,27 @@ func (c *Client) downloadBook(ctx context.Context, book *Book, progress Progress
 		return DownloadResult{}, err
 	}
 	client := c.requestClient(0)
-	var lastErr error
+	var attempts []error
 	for _, domainIndex := range domainIndexes {
 		if err := ctx.Err(); err != nil {
-			return DownloadResult{}, err
+			return DownloadResult{}, failedDownload(attempts, err)
 		}
 		base, err := c.baseURLFor(ctx)
 		if err != nil {
-			return DownloadResult{}, err
+			return DownloadResult{}, failedDownload(attempts, err)
 		}
 		downloadURL, err := c.resolveDownloadURL(ctx, client, base, hash, c.config.SecretKey, domainIndex)
 		if err != nil {
-			lastErr = err
+			attempts = append(attempts, fmt.Errorf("fast server %d (API): %w", domainIndex+1, redactErr(err, c.config.SecretKey)))
 			continue
 		}
 		result, err := downloadFileWithGetter(ctx, client, downloadURL, c.config.DownloadPath, book.Title, book.Format, hash, progress, c.doGet)
 		if err == nil {
 			return result, nil
 		}
-		lastErr = err
+		attempts = append(attempts, fmt.Errorf("fast server %d (file): %w", domainIndex+1, redactErr(err, c.config.SecretKey)))
 	}
-	if err := ctx.Err(); err != nil {
-		return DownloadResult{}, err
-	}
-	if lastErr == nil {
-		lastErr = errors.New("no download server succeeded")
-	}
-	return DownloadResult{}, fmt.Errorf("download failed: %w", redactErr(lastErr, c.config.SecretKey))
+	return DownloadResult{}, failedDownload(attempts, ctx.Err())
 }
 
 func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOptions, progress ProgressFunc) (DownloadResult, error) {
@@ -110,11 +104,26 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 		}
 	}
 	if err := ctx.Err(); err != nil {
+		if fastErr != nil {
+			var fastAttempts *downloadAttemptsError
+			if errors.As(fastErr, &fastAttempts) {
+				return DownloadResult{}, failedDownload(fastAttempts.attempts, err)
+			}
+			return DownloadResult{}, failedDownload([]error{fmt.Errorf("fast download: %w", fastErr)}, err)
+		}
 		return DownloadResult{}, err
 	}
 	result, err := c.downloadPaper(ctx, paper, options.Format, progress)
-	if err != nil && fastErr != nil {
-		return DownloadResult{}, fmt.Errorf("fast download failed (%v); SciDB fallback failed: %w", redactErr(fastErr, c.config.SecretKey), err)
+	if err != nil {
+		var attempts []error
+		var fastAttempts *downloadAttemptsError
+		if errors.As(fastErr, &fastAttempts) {
+			attempts = append(attempts, fastAttempts.attempts...)
+		} else if fastErr != nil {
+			attempts = append(attempts, fmt.Errorf("fast download: %w", fastErr))
+		}
+		attempts = append(attempts, fmt.Errorf("SciDB fallback: %w", redactErr(err, c.config.SecretKey)))
+		return DownloadResult{}, failedDownload(attempts, ctx.Err())
 	}
 	return result, err
 }
@@ -171,33 +180,33 @@ func (c *Client) resolveDownloadURL(ctx context.Context, client *http.Client, ba
 	apiURL := buildPathURL(base, "/dyn/api/fast_download.json") + "?" + values.Encode()
 	response, err := c.doGet(ctx, client, apiURL)
 	if err != nil {
-		return "", redactErr(err, secretKey)
+		return "", redactErr(requestFailure(err, apiURL), secretKey)
 	}
 	defer response.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(response.Body, 1<<20))
-	if err != nil {
-		return "", err
-	}
 	if response.StatusCode == http.StatusForbidden {
-		return "", apperr.New(apperr.UpstreamBlocked, "fast download API returned 403; check account access and credentials")
+		return "", apperr.New(apperr.UpstreamBlocked, httpResponseError(response, apiURL).Error()+"; check account access and credentials")
 	}
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusBadRequest {
-		return "", fmt.Errorf("fast download API failed with status %d for domain_index=%d", response.StatusCode, domainIndex)
+		return "", httpResponseError(response, apiURL)
+	}
+	body, err := io.ReadAll(io.LimitReader(response.Body, 1<<20))
+	if err != nil {
+		return "", fmt.Errorf("could not read API response from %s: %w", responseHost(response, apiURL), err)
 	}
 	var payload fastDownloadResponse
 	if err := json.Unmarshal(body, &payload); err != nil {
-		return "", fmt.Errorf("domain_index=%d: failed to decode API response: %w", domainIndex, err)
+		return "", fmt.Errorf("invalid JSON from %s (HTTP status %d): %w", responseHost(response, apiURL), response.StatusCode, err)
 	}
 	if payload.Error != "" {
-		return "", fmt.Errorf("domain_index=%d: %s", domainIndex, payload.Error)
+		return "", fmt.Errorf("API rejected request at %s (HTTP status %d): %s", responseHost(response, apiURL), response.StatusCode, apiErrorMessage(redactErr(errors.New(payload.Error), secretKey).Error()))
 	}
 	if payload.DownloadURL == nil || strings.TrimSpace(*payload.DownloadURL) == "" {
-		return "", fmt.Errorf("domain_index=%d: API returned an empty download URL", domainIndex)
+		return "", fmt.Errorf("API at %s returned an empty download URL", responseHost(response, apiURL))
 	}
 	downloadURL := strings.TrimSpace(*payload.DownloadURL)
 	parsed, err := url.Parse(downloadURL)
 	if err != nil || !parsed.IsAbs() || parsed.Scheme != "https" || parsed.Host == "" || parsed.User != nil {
-		return "", fmt.Errorf("domain_index=%d: API returned an invalid download URL", domainIndex)
+		return "", fmt.Errorf("API at %s returned an invalid download URL", responseHost(response, apiURL))
 	}
 	return parsed.String(), nil
 }

@@ -34,13 +34,12 @@ func downloadFileWithGetter(ctx context.Context, client *http.Client, rawURL, fo
 	}
 	resp, err := get(ctx, client, rawURL)
 	if err != nil {
-		return DownloadResult{}, err
+		return DownloadResult{}, requestFailure(err, rawURL)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
-		return DownloadResult{}, fmt.Errorf("download failed with status %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+		return DownloadResult{}, httpResponseError(resp, rawURL)
 	}
 	if resp.ContentLength > maxDownloadBytes {
 		return DownloadResult{}, fmt.Errorf("download is larger than %d bytes", maxDownloadBytes)
@@ -50,7 +49,7 @@ func downloadFileWithGetter(ctx context.Context, client *http.Client, rawURL, fo
 		return DownloadResult{}, err
 	}
 	if isHTML {
-		return DownloadResult{}, errors.New("download returned an HTML page instead of a file")
+		return DownloadResult{}, fmt.Errorf("download from %s returned HTML instead of a file (possible access challenge)", responseHost(resp, rawURL))
 	}
 
 	if format == "" {

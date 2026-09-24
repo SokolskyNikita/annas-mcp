@@ -46,6 +46,14 @@ func CodeOf(err error) string {
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return RequestTimeout
 	}
+	// Compound diagnostics may expose all retry causes while retaining the
+	// final attempt's classification. Do this before walking those causes,
+	// so an earlier network timeout or access failure does not mask the final
+	// result. Cancellation of the overall operation still takes precedence.
+	var classified interface{ ErrorCode() string }
+	if errors.As(err, &classified) {
+		return classified.ErrorCode()
+	}
 	var networkError net.Error
 	if errors.As(err, &networkError) && networkError.Timeout() {
 		return RequestTimeout

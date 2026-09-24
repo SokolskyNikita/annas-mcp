@@ -31,8 +31,7 @@ func (c *Client) fetchDocument(ctx context.Context, rawURL string) (*goquery.Doc
 		return nil, finalURL, apperr.New(apperr.NotFound, "archive record was not found")
 	}
 	if response.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(io.LimitReader(response.Body, 512))
-		return nil, finalURL, fmt.Errorf("request failed with status %d: %s", response.StatusCode, strings.TrimSpace(string(body)))
+		return nil, finalURL, httpResponseError(response, rawURL)
 	}
 	body, err := io.ReadAll(io.LimitReader(response.Body, (8<<20)+1))
 	if err != nil {

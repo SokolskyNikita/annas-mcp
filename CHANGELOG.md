@@ -2,6 +2,13 @@
 
 Changes made in this fork, reconstructed from Git history and grouped by the first release containing them. Release dates are GitHub publication dates in UTC.
 
+## [v0.0.14](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.0.14) — 2026-09-24
+
+- Replace raw HTML download errors with server hostnames, HTTP statuses, and concise explanations. Preserve every fast-server failure and the SciDB fallback outcome, including underlying error causes, while omitting signed URLs from HTTP and transport diagnostics.
+- Keep error codes tied to the final failed attempt while preserving operation cancellation and earlier causes. Added regression tests for mixed failures, credential redaction, cancellation, and MCP tool error output.
+
+[All changes since v0.0.13](https://github.com/SokolskyNikita/annas-mcp/compare/v0.0.13...v0.0.14)
+
 ## [v0.0.13](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.0.13) — 2026-09-23
 
 - Resolve published-release verification through GitHub's release ID when the tag endpoint omits uploaded assets, retaining all archive, checksum, version, and MCP checks. Added regression tests for inconsistent metadata and mismatched release identities.
