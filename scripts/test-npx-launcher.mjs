@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
 import { EventEmitter } from "node:events";
-import { appendFileSync, createReadStream, readFileSync } from "node:fs";
-import { copyFile, mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { appendFileSync, createReadStream, readdirSync, readFileSync } from "node:fs";
+import { copyFile, mkdtemp, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import os from "node:os";
 import path from "node:path";
@@ -16,7 +16,7 @@ import {
   selectAsset,
   sha256Digest,
 } from "../lib/target.js";
-import { cacheDir, releaseAPI } from "../lib/launcher.js";
+import { cacheDir, readCacheMeta, releaseAPI, writeCacheMeta } from "../lib/launcher.js";
 import { tarExecutable, validateArchiveEntryName } from "../lib/archive.js";
 import { MCPProcessClient } from "./mcp-session.mjs";
 
@@ -329,10 +329,44 @@ async function assertHandshake(client, timeoutMs = 10_000) {
   );
 }
 
+// Windows reports EPERM when two launchers replace current.json at once.
+async function testCacheMetaSharingErrors() {
+  const dir = await mkdtemp(path.join(os.tmpdir(), "annas-mcp-meta-"));
+  const sharingError = (code) => Object.assign(new Error(code), { code });
+  try {
+    let calls = 0;
+    const flaky = async (from, to) => {
+      calls += 1;
+      if (calls < 3) throw sharingError("EPERM");
+      await rename(from, to);
+    };
+    await writeCacheMeta(dir, { tag: "v1.0.0" }, { renameImpl: flaky, retryDelayMs: 0 });
+    assert.equal(calls, 3, "writeCacheMeta should retry transient sharing errors");
+    assert.equal((await readCacheMeta(dir)).tag, "v1.0.0");
+
+    const busy = async () => {
+      throw sharingError("EBUSY");
+    };
+    await assert.rejects(writeCacheMeta(dir, {}, { renameImpl: busy, retryDelayMs: 0 }), /EBUSY/);
+    const full = async () => {
+      throw sharingError("ENOSPC");
+    };
+    await assert.rejects(writeCacheMeta(dir, {}, { renameImpl: full, retryDelayMs: 0 }), /ENOSPC/);
+    assert.deepEqual(
+      readdirSync(dir),
+      ["current.json"],
+      "failed writes must not leave temporary files behind",
+    );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   testAssetSelection();
   testInputValidation();
   await testMCPProcessClient();
+  await testCacheMetaSharingErrors();
   const target = goreleaserTarget();
   const releaseTag = readFileSync(path.join(root, "internal/version/version.txt"), "utf8").trim();
   assert(/^v[0-9]+\.[0-9]+\.[0-9]+$/.test(releaseTag), `invalid test release version: ${releaseTag}`);
