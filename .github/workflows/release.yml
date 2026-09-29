@@ -100,17 +100,41 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
+      # Both steps skip a version that is already published, so the job can
+      # be re-run after a partial failure.
       - name: Publish to npm
-        run: npm publish --provenance --access public
+        shell: bash
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          if npm view "annas-mcp@$version" version >/dev/null 2>&1; then
+            echo "annas-mcp@$version is already on npm"
+          else
+            npm publish --provenance --access public
+          fi
 
       - name: Publish to the MCP Registry
         shell: bash
         run: |
+          version=$(node -p 'require("./package.json").version')
+          registry=https://registry.modelcontextprotocol.io/v0/servers/io.github.SokolskyNikita%2Fannas-mcp/versions
+          if curl --fail --silent --output /dev/null "$registry/$version"; then
+            echo "Version $version is already in the MCP Registry"
+            exit 0
+          fi
           curl --fail --silent --show-error --location \
             https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz \
             | tar xz mcp-publisher
-          ./mcp-publisher login github-oidc
-          ./mcp-publisher publish
+          # The registry checks npm for the version, which can take a few
+          # minutes to appear after publishing. Log in each time: tokens are short-lived.
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            ./mcp-publisher login github-oidc
+            if ./mcp-publisher publish; then
+              exit 0
+            fi
+            echo "Attempt $attempt failed; retrying in 30 seconds"
+            sleep 30
+          done
+          exit 1
 
   verify:
     name: Verify published release (${{ matrix.os }})
