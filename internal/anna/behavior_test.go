@@ -3,6 +3,7 @@ package anna
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -40,7 +41,19 @@ func TestModelStringMethodsIncludeCoreFields(t *testing.T) {
 			t.Errorf("book string %q does not contain %q", book, part)
 		}
 	}
-	paper := (&Paper{DOI: "10.1000/example", Title: "Example", Authors: "Author", Journal: "Journal", PageURL: "https://annas.test/scidb"}).String()
+	const signedLink = "https://cdn.example/d4/y/anon/f/1790666329/10000/paper.pdf~/SIGNATURE/Example.pdf"
+	paperValue := &Paper{DOI: "10.1000/example", Title: "Example", Authors: "Author", Journal: "Journal", PageURL: "https://annas.test/scidb", DownloadURL: signedLink}
+	encoded, err := json.Marshal(paperValue)
+	if err != nil {
+		t.Fatal(err)
+	}
+	paper := paperValue.String()
+	// The SciDB link is a bearer URL issued to the member session.
+	for _, output := range []string{paper, string(encoded)} {
+		if strings.Contains(output, "SIGNATURE") || strings.Contains(output, "download_url") {
+			t.Errorf("paper output exposes the signed download link: %s", output)
+		}
+	}
 	for _, part := range []string{"DOI: 10.1000/example", "Title: Example", "Journal: Journal", "Page: https://annas.test/scidb"} {
 		if !strings.Contains(paper, part) {
 			t.Errorf("paper string %q does not contain %q", paper, part)

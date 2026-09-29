@@ -17,7 +17,8 @@ type Book struct {
 }
 
 // Paper is a journal article found by DOI or keyword search. DownloadURL is
-// set when Anna's SciDB page embeds the PDF directly.
+// set when Anna's SciDB page embeds the PDF directly. It is a signed link
+// issued to the member session, so it is used internally and never output.
 type Paper struct {
 	DOI         string `json:"doi,omitempty"`
 	Title       string `json:"title,omitempty"`
@@ -27,7 +28,7 @@ type Paper struct {
 	Size        string `json:"size"`
 	Hash        string `json:"hash,omitempty"`
 	Description string `json:"description,omitempty"`
-	DownloadURL string `json:"download_url,omitempty"`
+	DownloadURL string `json:"-"`
 	PageURL     string `json:"page_url"`
 }
 
@@ -70,7 +71,7 @@ func (b *Book) String() string {
 func (p *Paper) String() string {
 	return labeled(
 		"DOI", p.DOI, "Title", p.Title, "Authors", p.Authors, "Journal", p.Journal,
-		"Size", p.Size, "Hash", p.Hash, "Download URL", p.DownloadURL, "Page", p.PageURL,
+		"Size", p.Size, "Hash", p.Hash, "Page", p.PageURL,
 	)
 }
 

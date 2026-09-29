@@ -2,6 +2,12 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.1.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.1.0) — 2026-09-28
+
+- Stop returning the SciDB PDF link as `download_url` in `article_search` results and CLI output. It is a signed link issued to the member session that works for anyone who has it until it expires. `article_download` still resolves it internally.
+- Remove affiliation blocks that follow the last author in parentheses (for example `Lin Ning(Innovative Institute of …;Department of …)`), and normalize the spacing of `;`-separated author lists.
+- Correct the membership requirements in the README: searches need Lucky Librarian or higher, and downloads work with any tier.
+
 ## [v0.0.16](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.0.16) — 2026-09-28
 
 - Restart the repository from a fresh history under the MIT license. Credit iosifache/annas-mcp for the original idea; none of its code remains.

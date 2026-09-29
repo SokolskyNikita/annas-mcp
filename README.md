@@ -18,7 +18,7 @@ Use it only for material you are entitled to obtain, under the laws and service 
 
 You need:
 
-- An Anna's Archive membership, its account cookie (renewed weekly) and an API key. Downloads require **Brilliant Bookworm** or higher. See [Membership and credentials](#membership-and-credentials).
+- An Anna's Archive membership, its account cookie (renewed weekly) and an API key. Searches require **Lucky Librarian** or higher; downloads work with any tier. See [Membership and credentials](#membership-and-credentials).
 - Node.js 18 or newer.
 - On macOS and Linux, a `tar` that handles `.tar.xz` archives. On Windows the launcher extracts the `.zip` release with the system's built-in `tar.exe`, even when started from Git Bash.
 
@@ -77,12 +77,12 @@ Every archive request needs the account cookie. Downloads also need an API key.
 
 | Operations | Membership | Required variables |
 | --- | --- | --- |
-| `book_search`, `article_search` (including DOI lookup) and other metadata requests | Active membership, authenticated by the cookie | `ANNAS_ACCOUNT_COOKIE` |
-| `book_download` and `article_download` (by hash or DOI) | **Brilliant Bookworm** or higher, for the fast-download JSON API | `ANNAS_ACCOUNT_COOKIE`, `ANNAS_SECRET_KEY` and `ANNAS_DOWNLOAD_PATH` |
+| `book_search`, `article_search` (including DOI lookup) and other metadata requests | **Lucky Librarian** or higher, authenticated by the cookie | `ANNAS_ACCOUNT_COOKIE` |
+| `book_download` and `article_download` (by hash or DOI) | Any [membership tier](https://annas-archive.gl/donate), for the fast-download JSON API | `ANNAS_ACCOUNT_COOKIE`, `ANNAS_SECRET_KEY` and `ANNAS_DOWNLOAD_PATH` |
 
 Neither credential substitutes for the other. The cookie authenticates archive requests; the key unlocks downloads. Get the key from your Anna's Archive account. The [API FAQ](https://annas-archive.gl/faq#api) has details.
 
-Searches and DOI lookups scrape HTML, so they stay subject to the site's browser checks. The **Lucky Librarian** [membership tier](https://annas-archive.gl/donate) exempts normal browser use from those checks, but the site makes no such promise for scripts. An API key alone does not guarantee that searches succeed.
+Searches and DOI lookups read the site's HTML pages with the cookie, so they need **Lucky Librarian** or higher even though downloads work with any tier. An API key alone does not make searches work.
 
 > [!IMPORTANT]
 > The account cookie expires every week. You must fetch a new one by hand, update `ANNAS_ACCOUNT_COOKIE` and restart the MCP server. This project does not renew cookies.
@@ -196,7 +196,7 @@ DOI lookup:
 {"query":"https://doi.org/10.0000/fictional.moonbeam-teapots"}
 ```
 
-A DOI lookup returns one article object instead of a page envelope. Its fields can include `doi`, `title`, `authors`, `journal`, `format`, `size`, `hash`, `description`, `download_url` and `page_url`. When `hash` is present, pass it to `article_download`.
+A DOI lookup returns one article object instead of a page envelope. Its fields can include `doi`, `title`, `authors`, `journal`, `format`, `size`, `hash`, `description` and `page_url`. The signed SciDB PDF link is never returned; `article_download` resolves it again when needed. When `hash` is present, pass it to `article_download`.
 
 DOI suffix punctuation is preserved exactly, including parentheses and trailing periods. When copying a DOI out of prose, strip any punctuation that belongs to the surrounding sentence.
 
