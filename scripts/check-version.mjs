@@ -18,10 +18,29 @@ export function validateVersion(embedded, packageVersion, env = {}) {
   return version;
 }
 
+// server.json (MCP Registry) and manifest.json (MCP Bundle) repeat the version.
+export function validateMetadataVersions(packageJSON, serverJSON, manifestJSON) {
+  const expected = packageJSON.version;
+  const found = {
+    "server.json version": serverJSON.version,
+    "server.json npm package version": serverJSON.packages?.find((p) => p.registryType === "npm")?.version,
+    "manifest.json version": manifestJSON.version,
+  };
+  for (const [label, version] of Object.entries(found)) {
+    if (version !== expected) {
+      throw new Error(`Version mismatch: ${label}=${version}, package.json=${expected}`);
+    }
+  }
+  if (serverJSON.name !== packageJSON.mcpName) {
+    throw new Error(`server.json name ${serverJSON.name} must match package.json mcpName ${packageJSON.mcpName}`);
+  }
+}
+
 export function checkVersion(directory = root, env = process.env) {
-  const embedded = readFileSync(path.join(directory, "internal/version/version.txt"), "utf8");
-  const packageJSON = JSON.parse(readFileSync(path.join(directory, "package.json"), "utf8"));
-  return validateVersion(embedded, packageJSON.version, env);
+  const read = (file) => readFileSync(path.join(directory, file), "utf8");
+  const packageJSON = JSON.parse(read("package.json"));
+  validateMetadataVersions(packageJSON, JSON.parse(read("server.json")), JSON.parse(read("manifest.json")));
+  return validateVersion(read("internal/version/version.txt"), packageJSON.version, env);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

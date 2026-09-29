@@ -15,7 +15,7 @@ Usage: scripts/manage-tag.sh add
 
   add      Create and push the current release tag.
 
-Release tags are immutable and annotated. Update both version files, commit
+Release tags are immutable and annotated. Update the version files, commit
 and push main, wait for CI to pass, then run this script. The checkout must
 match origin/main. Existing tags are rejected; tags are never recreated.
 EOF

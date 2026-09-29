@@ -1,0 +1,43 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.SokolskyNikita/annas-mcp",
+  "title": "Anna's Archive",
+  "description": "Search Anna's Archive for books and papers (by title, author or DOI) and download the file you pick.",
+  "websiteUrl": "https://github.com/SokolskyNikita/annas-mcp",
+  "repository": {
+    "url": "https://github.com/SokolskyNikita/annas-mcp",
+    "source": "github"
+  },
+  "version": "0.1.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "annas-mcp",
+      "version": "0.1.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "ANNAS_ACCOUNT_COOKIE",
+          "description": "Your aa_account_id2 cookie from a signed-in Anna's Archive session. Needed for everything.",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "ANNAS_SECRET_KEY",
+          "description": "Your Anna's Archive API key. Needed for downloads.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "ANNAS_DOWNLOAD_PATH",
+          "description": "Absolute folder for downloaded files. Needed for downloads.",
+          "isRequired": false,
+          "format": "filepath"
+        }
+      ]
+    }
+  ]
+}

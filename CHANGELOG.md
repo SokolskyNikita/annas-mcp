@@ -2,6 +2,13 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.1.1](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.1.1) — 2026-09-29
+
+- Publish the launcher to npm as `annas-mcp` and list the server in the MCP Registry as `io.github.SokolskyNikita/annas-mcp`. `npx -y github:SokolskyNikita/annas-mcp` keeps working.
+- Attach `annas-mcp.mcpb` to each release: an MCP Bundle for one-click installs in Claude Desktop and for Smithery, which asks for the cookie, API key and download folder.
+- Give every MCP tool a human-readable title. Add `glama.json` and a Privacy section to the README for directory listings.
+- `npm run check:version` also checks the versions in `server.json` and `manifest.json`.
+
 ## [v0.1.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.1.0) — 2026-09-28
 
 - Stop returning the SciDB PDF link as `download_url` in `article_search` results and CLI output. It is a signed link issued to the member session that works for anyone who has it until it expires. `article_download` still resolves it internally.

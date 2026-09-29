@@ -1,24 +1,46 @@
 {
   "name": "annas-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "description": "MCP server and CLI for searching and downloading books and articles from Anna's Archive",
+  "mcpName": "io.github.SokolskyNikita/annas-mcp",
+  "author": "Nikita Sokolsky",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "annas-archive",
+    "books",
+    "papers",
+    "doi",
+    "claude",
+    "cursor",
+    "codex"
+  ],
+  "homepage": "https://github.com/SokolskyNikita/annas-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/SokolskyNikita/annas-mcp/issues"
+  },
   "type": "module",
   "scripts": {
     "test": "node --test scripts/check-version.test.mjs scripts/release-metadata.test.mjs && node scripts/test-npx-launcher.mjs",
     "check:version": "node scripts/check-version.mjs",
     "coverage": "go test -race -coverprofile coverage.out ./... && node scripts/check-coverage.mjs coverage.out",
-    "smoke": "node scripts/smoke-mcp.mjs"
+    "smoke": "node scripts/smoke-mcp.mjs",
+    "pack:mcpb": "node scripts/pack-mcpb.mjs"
   },
   "bin": {
-    "annas-mcp": "./bin/annas-mcp.js"
+    "annas-mcp": "bin/annas-mcp.js"
   },
+  "files": [
+    "bin/",
+    "lib/"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SokolskyNikita/annas-mcp.git"
   },
   "engines": {
     "node": ">=18"
-  },
-  "private": true
+  }
 }

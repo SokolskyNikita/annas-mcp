@@ -162,6 +162,10 @@ npx -y github:SokolskyNikita/annas-mcp article-download 10.1038/nature14539
 
 Add `--json` for machine-readable output, `--timeout 10m` to change the timeout, and `--help` to any command for all of its options.
 
+## Privacy
+
+annas-mcp runs on your machine and has no telemetry. It sends your cookie and API key only to Anna's Archive, and downloads files from the servers Anna's Archive points it to. DOI lookups may contact doi.org. The `npx` launcher and the MCP Bundle contact GitHub to fetch and verify release binaries. Downloaded files stay in `ANNAS_DOWNLOAD_PATH`; nothing else is stored apart from the cached binary. Questions: [open an issue](https://github.com/SokolskyNikita/annas-mcp/issues).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for building from source, tests and releases.

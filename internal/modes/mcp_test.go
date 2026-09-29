@@ -30,6 +30,9 @@ func TestMCPInitializationAndSchemasNeedNoUpstream(t *testing.T) {
 		if tool.Annotations == nil || tool.Annotations.ReadOnlyHint != readOnly {
 			t.Fatalf("wrong annotations: %+v", tool)
 		}
+		if tool.Title == "" || tool.Annotations.Title != tool.Title {
+			t.Fatalf("missing title: %s", tool.Name)
+		}
 		if tool.Annotations.DestructiveHint == nil || *tool.Annotations.DestructiveHint {
 			t.Fatalf("tool marked destructive: %s", tool.Name)
 		}

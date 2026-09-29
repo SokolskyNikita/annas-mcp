@@ -38,6 +38,7 @@ The `npx` launcher always runs the latest published release, never your checkout
 | `internal/mirror` | Mirror discovery and probing |
 | `internal/env`, `internal/apperr`, `internal/version` | Configuration, stable error codes, embedded version |
 | `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
+| `server.json`, `manifest.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery) and Glama |
 | `scripts` | Test, health-check and release tooling |
 
 ## Checks
@@ -69,6 +70,10 @@ These use real credentials from your environment or `.env`.
 3. Commit, push to `main` and wait for CI to pass.
 4. Run `scripts/manage-tag.sh add` to create and push the annotated tag.
 
-The tag triggers the release workflow. It builds the binaries, publishes them with SHA-256 checksums to GitHub Releases, then installs the release through the `npx` launcher on each platform and checks the MCP handshake and all four tools. `node scripts/verify-release.mjs vX.Y.Z` repeats that check locally.
+Step 1 also covers `server.json` (both `version` fields) and `manifest.json`; `npm run check:version` fails if any of them disagree.
 
-Never move or recreate a published tag: the launcher caches binaries by release and checksum. Releases are published only on GitHub, not on the npm registry.
+The tag triggers the release workflow. It builds the binaries, publishes them with SHA-256 checksums to GitHub Releases, attaches `annas-mcp.mcpb` (built by `npm run pack:mcpb`), then installs the release through the `npx` launcher on each platform and checks the MCP handshake and all four tools. `node scripts/verify-release.mjs vX.Y.Z` repeats that check locally.
+
+When the repository variable `PUBLISH_REGISTRIES` is `true`, the workflow then publishes the launcher to npm through npm trusted publishing and the new version to the [MCP Registry](https://registry.modelcontextprotocol.io) through GitHub OIDC. Neither needs a stored secret. The npm package holds only the launcher (`bin`, `lib`); binaries always come from GitHub Releases.
+
+Never move or recreate a published tag: the launcher caches binaries by release and checksum.

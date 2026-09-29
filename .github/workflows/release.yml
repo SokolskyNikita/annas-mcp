@@ -51,6 +51,67 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  bundle:
+    name: Attach MCP Bundle
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Build and upload annas-mcp.mcpb
+        shell: bash
+        run: |
+          node scripts/pack-mcpb.mjs
+          gh release upload "$GITHUB_REF_NAME" dist/annas-mcp.mcpb
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  # Inert until the repository variable PUBLISH_REGISTRIES is set to true and
+  # npm trusted publishing is configured for this workflow (see CONTRIBUTING.md).
+  registries:
+    name: Publish to npm and the MCP Registry
+    needs: [verify, bundle]
+    if: vars.PUBLISH_REGISTRIES == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
+
+      - name: Publish to the MCP Registry
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location \
+            https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz \
+            | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
+
   verify:
     name: Verify published release (${{ matrix.os }})
     needs: publish

@@ -102,6 +102,10 @@ jobs:
         shell: bash
         run: npm test
 
+      - name: Validate the MCP Bundle
+        if: runner.os == 'Linux'
+        run: node scripts/pack-mcpb.mjs
+
   snapshot:
     name: Validate GoReleaser snapshot
     needs: [workflow-lint, test]

@@ -34,10 +34,10 @@ func progressNotifier(ctx context.Context, req *mcp.CallToolRequest) anna.Progre
 	}
 }
 
-func tool(name, description string, readOnly bool) *mcp.Tool {
+func tool(name, title, description string, readOnly bool) *mcp.Tool {
 	openWorld, destructive := true, false
-	return &mcp.Tool{Name: name, Description: description, Annotations: &mcp.ToolAnnotations{
-		ReadOnlyHint: readOnly, OpenWorldHint: &openWorld, DestructiveHint: &destructive,
+	return &mcp.Tool{Name: name, Title: title, Description: description, Annotations: &mcp.ToolAnnotations{
+		Title: title, ReadOnlyHint: readOnly, OpenWorldHint: &openWorld, DestructiveHint: &destructive,
 	}}
 }
 
@@ -46,7 +46,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 		Instructions: serverInstructions,
 		Capabilities: &mcp.ServerCapabilities{},
 	})
-	mcp.AddTool(server, tool("book_search", "Search books, textbooks, manuals, and standards by title, author, or topic. Returns one page with hash, format, metadata, and description when available. Pass a selected hash to book_download.", true),
+	mcp.AddTool(server, tool("book_search", "Search books", "Search books, textbooks, manuals, and standards by title, author, or topic. Returns one page with hash, format, metadata, and description when available. Pass a selected hash to book_download.", true),
 		func(ctx context.Context, req *mcp.CallToolRequest, params SearchParams) (*mcp.CallToolResult, searchResult[*anna.Book], error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, searchTimeout)
 			if err != nil {
@@ -58,7 +58,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 			}
 			return nil, result, nil
 		})
-	mcp.AddTool(server, tool("article_search", "Find a paper by DOI (including DOI URLs), or search journal articles by keywords. DOI lookup returns one paper; keyword search returns one page. Compare metadata before downloading by hash or DOI.", true),
+	mcp.AddTool(server, tool("article_search", "Search articles", "Find a paper by DOI (including DOI URLs), or search journal articles by keywords. DOI lookup returns one paper; keyword search returns one page. Compare metadata before downloading by hash or DOI.", true),
 		func(ctx context.Context, req *mcp.CallToolRequest, params SearchParams) (*mcp.CallToolResult, any, error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, searchTimeout)
 			if err != nil {
@@ -70,7 +70,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 			}
 			return nil, result, nil
 		})
-	mcp.AddTool(server, tool("book_download", "Download the selected book using its hash from search. Saves a verified file under ANNAS_DOWNLOAD_PATH and returns path and bytes. Format sets the extension; it does not convert the file.", false),
+	mcp.AddTool(server, tool("book_download", "Download book", "Download the selected book using its hash from search. Saves a verified file under ANNAS_DOWNLOAD_PATH and returns path and bytes. Format sets the extension; it does not convert the file.", false),
 		func(ctx context.Context, req *mcp.CallToolRequest, params BookDownloadParams) (*mcp.CallToolResult, anna.DownloadResult, error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, downloadTimeout)
 			if err != nil {
@@ -82,7 +82,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 			}
 			return nil, result, nil
 		})
-	mcp.AddTool(server, tool("article_download", "Download a selected paper by exactly one of doi or hash. Saves the file under ANNAS_DOWNLOAD_PATH and returns path and bytes. Optional title and format control its filename.", false),
+	mcp.AddTool(server, tool("article_download", "Download article", "Download a selected paper by exactly one of doi or hash. Saves the file under ANNAS_DOWNLOAD_PATH and returns path and bytes. Optional title and format control its filename.", false),
 		func(ctx context.Context, req *mcp.CallToolRequest, params ArticleDownloadParams) (*mcp.CallToolResult, anna.DownloadResult, error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, downloadTimeout)
 			if err != nil {
