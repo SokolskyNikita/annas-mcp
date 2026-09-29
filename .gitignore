@@ -1,0 +1,11 @@
+# Local build output: goreleaser's dist/ and `go build` in the repo root.
+dist/
+/annas-mcp
+
+# Coverage reports from scripts/check-coverage.mjs.
+/coverage.out
+/coverage.html
+
+# Local credentials and editor/OS noise.
+.env
+.DS_Store

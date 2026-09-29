@@ -1,0 +1,58 @@
+[
+  {
+    "name": "books",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "timeout_seconds": 23
+    },
+    "result_key": "results"
+  },
+  {
+    "name": "article keywords",
+    "tool": "article_search",
+    "arguments": {
+      "query": "example",
+      "timeout_seconds": 23
+    },
+    "result_key": "results"
+  },
+  {
+    "name": "article DOI",
+    "tool": "article_search",
+    "arguments": {
+      "query": "10.1000/example",
+      "timeout_seconds": 23
+    },
+    "result_key": "doi"
+  },
+  {
+    "name": "book download",
+    "tool": "book_download",
+    "arguments": {
+      "hash": "0123456789abcdef0123456789abcdef",
+      "title": "Example",
+      "format": "pdf",
+      "timeout_seconds": 23
+    },
+    "result_key": "path"
+  },
+  {
+    "name": "article hash download",
+    "tool": "article_download",
+    "arguments": {
+      "hash": "0123456789abcdef0123456789abcdef",
+      "timeout_seconds": 23
+    },
+    "result_key": "path"
+  },
+  {
+    "name": "article DOI download",
+    "tool": "article_download",
+    "arguments": {
+      "doi": "10.1000/example",
+      "timeout_seconds": 23
+    },
+    "result_key": "path"
+  }
+]

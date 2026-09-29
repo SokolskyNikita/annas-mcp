@@ -1,0 +1,13 @@
+{
+  "book": {
+    "query": "Alice's Adventures in Wonderland",
+    "language": "en",
+    "limit": 20,
+    "timeout_seconds": 90
+  },
+  "book_title": "Alice",
+  "book_author": "Carroll",
+  "article_query": "Attention Is All You Need",
+  "article_doi": "10.48550/arXiv.1706.03762",
+  "article_title": "Attention Is All You Need"
+}

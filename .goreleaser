@@ -1,0 +1,35 @@
+# Release configuration for `goreleaser release -f .goreleaser`.
+# bin/annas-mcp.js and scripts/verify-release.mjs rely on the archive and
+# checksum names below; change them together.
+version: 2
+project_name: annas-mcp
+
+builds:
+  - id: annas-mcp
+    main: ./cmd/annas-mcp
+    env: [CGO_ENABLED=0]
+    # Release builds report the tag through version.Version.
+    ldflags: ["-s -w -X github.com/SokolskyNikita/annas-mcp/internal/version.Version=v{{.Version}}"]
+    goos: [darwin, freebsd, linux, windows]
+    goarch: [amd64, arm64, arm]
+    goarm: ["7"]
+    # 32-bit ARM ships for Linux only; FreeBSD ships for amd64 only.
+    ignore:
+      - {goos: darwin, goarch: arm}
+      - {goos: windows, goarch: arm}
+      - {goos: freebsd, goarch: arm}
+      - {goos: freebsd, goarch: arm64}
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.xz]
+    format_overrides:
+      - {goos: windows, formats: [zip]}
+    wrap_in_directory: true
+    files: [README.md, CHANGELOG.md, LICENSE]
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}--checksums.txt"
+
+changelog:
+  sort: asc
