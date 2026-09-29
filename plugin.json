@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.1.0/plugin.schema.json",
+  "name": "annas-mcp",
+  "description": "Search Anna's Archive for books and papers by title, author or DOI, and download the file you pick.",
+  "author": {
+    "name": "Nikita Sokolsky",
+    "url": "https://github.com/SokolskyNikita"
+  },
+  "homepage": "https://github.com/SokolskyNikita/annas-mcp#readme",
+  "repository": "https://github.com/SokolskyNikita/annas-mcp",
+  "license": "MIT",
+  "keywords": ["mcp", "annas-archive", "books", "papers", "doi"]
+}

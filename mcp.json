@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.1.0/mcp.schema.json",
+  "mcpServers": {
+    "annas-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "annas-mcp"]
+    }
+  }
+}
