@@ -15,6 +15,7 @@ import {
   safePathComponent,
   selectAsset,
   sha256Digest,
+  targetForRelease,
 } from "../lib/target.js";
 import { cacheDir, readCacheMeta, releaseAPI, writeCacheMeta } from "../lib/launcher.js";
 import { tarExecutable, validateArchiveEntryName } from "../lib/archive.js";
@@ -33,11 +34,15 @@ function testAssetSelection() {
   const assets = [
     { name: "annas-mcp_0.0.6--checksums.txt" },
     {
-      name: "annas-mcp_0.0.6_darwin_arm64.tar.xz",
+      name: "annas-mcp_0.0.6_darwin_arm64.tar.gz",
       browser_download_url: "https://example.test/darwin",
     },
     {
-      name: "annas-mcp_0.0.6_linux_arm64.tar.xz",
+      name: "annas-mcp_0.0.6_darwin_arm64.tar.xz",
+      browser_download_url: "https://example.test/darwin-xz",
+    },
+    {
+      name: "annas-mcp_0.0.6_linux_arm64.tar.gz",
       browser_download_url: "https://example.test/linux",
     },
     {
@@ -46,13 +51,19 @@ function testAssetSelection() {
     },
   ];
   assert(
-    selectAsset(assets, darwin).name === "annas-mcp_0.0.6_darwin_arm64.tar.xz",
+    selectAsset(assets, darwin).name === "annas-mcp_0.0.6_darwin_arm64.tar.gz",
     "darwin asset was not selected",
   );
   assert(
     selectAsset(assets, windows).name === "annas-mcp_0.0.6_windows_amd64.zip",
     "windows asset was not selected",
   );
+  assert.equal(targetForRelease(assets, darwin), darwin, "gzip release should keep the .tar.gz target");
+  const legacy = [{ name: "annas-mcp_0.1.1_linux_arm64.tar.xz", browser_download_url: "https://example.test/xz" }];
+  const legacyTarget = targetForRelease(legacy, goreleaserTarget("linux", "arm64"));
+  assert.equal(legacyTarget.extension, "tar.xz", "releases without .tar.gz should fall back to .tar.xz");
+  assert.equal(selectAsset(legacy, legacyTarget).name, legacy[0].name);
+  assert.equal(targetForRelease(assets, windows), windows, "windows keeps .zip");
   let rejected = false;
   try {
     selectAsset(assets, goreleaserTarget("linux", "arm"));
@@ -62,7 +73,7 @@ function testAssetSelection() {
   assert(rejected, "missing linux/arm asset should fail");
   const digest = "a".repeat(64);
   assert(
-    checksumFor(`${digest}  annas-mcp_0.0.6_darwin_arm64.tar.xz\n`, "annas-mcp_0.0.6_darwin_arm64.tar.xz") === digest,
+    checksumFor(`${digest}  annas-mcp_0.0.6_darwin_arm64.tar.gz\n`, "annas-mcp_0.0.6_darwin_arm64.tar.gz") === digest,
     "checksum line was not parsed",
   );
 }
@@ -216,7 +227,7 @@ async function createArchive(binaryPath, archivePath, directoryName, extension, 
             cwd: staging,
             encoding: "utf8",
           })
-      : spawnSync("tar", ["-cJf", archivePath, "-C", staging, directoryName], {
+      : spawnSync("tar", ["-czf", archivePath, "-C", staging, directoryName], {
           encoding: "utf8",
         });
   if (result.status !== 0) {

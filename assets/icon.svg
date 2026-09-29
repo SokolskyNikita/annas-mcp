@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14532d"/>
+      <stop offset="1" stop-color="#0b3b2e"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Books on a shelf -->
+  <rect x="96" y="120" width="64" height="260" rx="10" fill="#f4d58d"/>
+  <rect x="96" y="160" width="64" height="14" fill="#d9b25f"/>
+  <rect x="96" y="326" width="64" height="14" fill="#d9b25f"/>
+  <rect x="172" y="150" width="56" height="230" rx="10" fill="#f28f6b"/>
+  <rect x="172" y="186" width="56" height="12" fill="#cf6b48"/>
+  <rect x="172" y="330" width="56" height="12" fill="#cf6b48"/>
+  <rect x="240" y="104" width="60" height="276" rx="10" fill="#9cc9f0"/>
+  <rect x="240" y="146" width="60" height="14" fill="#6fa3d1"/>
+  <rect x="240" y="330" width="60" height="14" fill="#6fa3d1"/>
+  <rect x="80" y="380" width="252" height="18" rx="9" fill="#e7efe9"/>
+  <!-- Download badge -->
+  <circle cx="374" cy="352" r="94" fill="#ffffff"/>
+  <path d="M374 290 v96 M334 348 l40 40 l40 -40" fill="none" stroke="#14532d" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M328 408 h92" stroke="#14532d" stroke-width="22" stroke-linecap="round"/>
+</svg>

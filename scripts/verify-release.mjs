@@ -57,6 +57,12 @@ function releaseAssets(release, tag) {
     const asset = selectAsset(release.assets, target);
     assert.equal(asset.name, expected, `unexpected ${platform}/${arch} asset`);
     assert(Number.isInteger(asset.size) && asset.size > 0, `${expected} is empty`);
+    if (target.extension !== "zip") {
+      // Launchers from v0.1.1 and older download .tar.xz.
+      const legacy = `annas-mcp_${version}_${target.os}_${target.arch}.tar.xz`;
+      const legacyAsset = release.assets.find((candidate) => candidate.name === legacy);
+      assert(legacyAsset?.size > 0, `${legacy} is missing or empty`);
+    }
   }
 
   const checksumName = `annas-mcp_${version}--checksums.txt`;

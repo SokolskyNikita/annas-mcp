@@ -43,6 +43,9 @@ func TestMCPInitializationAndSchemasNeedNoUpstream(t *testing.T) {
 			t.Fatalf("missing output schema: %s", tool.Name)
 		}
 	}
+	if info := session.InitializeResult().ServerInfo; len(info.Icons) == 0 || info.WebsiteURL == "" {
+		t.Fatalf("server info is missing icons or website: %+v", info)
+	}
 	if archive.calls != 0 {
 		t.Fatal("initialization contacted upstream")
 	}

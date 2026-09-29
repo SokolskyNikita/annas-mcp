@@ -22,7 +22,8 @@ builds:
 
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    formats: [tar.xz]
+    # The launcher downloads .tar.gz; .tar.xz stays for v0.1.1 and older launchers.
+    formats: [tar.gz, tar.xz]
     format_overrides:
       - {goos: windows, formats: [zip]}
     wrap_in_directory: true

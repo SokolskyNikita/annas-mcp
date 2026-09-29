@@ -8,13 +8,25 @@
     "url": "https://github.com/SokolskyNikita/annas-mcp",
     "source": "github"
   },
-  "version": "0.1.1",
+  "version": "0.1.2",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    },
+    {
+      "src": "https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.svg",
+      "mimeType": "image/svg+xml",
+      "sizes": ["any"]
+    }
+  ],
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "annas-mcp",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "transport": {
         "type": "stdio"
       },

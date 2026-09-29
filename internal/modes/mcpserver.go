@@ -14,6 +14,9 @@ import (
 //go:embed instructions.md
 var serverInstructions string
 
+// iconURL is the published icon without its extension; assets/ has .png and .svg.
+const iconURL = "https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon"
+
 func toolFailure[T any](err error) (*mcp.CallToolResult, T, error) {
 	var zero T
 	return nil, zero, errors.New(codedError(err))
@@ -42,7 +45,15 @@ func tool(name, title, description string, readOnly bool) *mcp.Tool {
 }
 
 func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *mcp.Server {
-	server := mcp.NewServer(&mcp.Implementation{Name: "annas-mcp", Version: version.GetVersion()}, &mcp.ServerOptions{
+	server := mcp.NewServer(&mcp.Implementation{
+		Name:       "annas-mcp",
+		Version:    version.GetVersion(),
+		WebsiteURL: "https://github.com/SokolskyNikita/annas-mcp",
+		Icons: []mcp.Icon{
+			{Source: iconURL + ".png", MIMEType: "image/png", Sizes: []string{"512x512"}},
+			{Source: iconURL + ".svg", MIMEType: "image/svg+xml", Sizes: []string{"any"}},
+		},
+	}, &mcp.ServerOptions{
 		Instructions: serverInstructions,
 		Capabilities: &mcp.ServerCapabilities{},
 	})

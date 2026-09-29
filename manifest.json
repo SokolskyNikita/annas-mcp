@@ -3,7 +3,7 @@
   "manifest_version": "0.3",
   "name": "annas-mcp",
   "display_name": "Anna's Archive",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Search Anna's Archive for books and papers and download the file you pick.",
   "long_description": "Search Anna's Archive for books, textbooks, manuals, standards and journal articles by title, author, topic or DOI, then download the copy you pick into a local folder. Requires an Anna's Archive membership. On first run the bundle downloads the matching annas-mcp release binary from GitHub, verifies its SHA-256 checksum and caches it.",
   "author": {
@@ -18,6 +18,7 @@
   "documentation": "https://github.com/SokolskyNikita/annas-mcp#readme",
   "support": "https://github.com/SokolskyNikita/annas-mcp/issues",
   "license": "MIT",
+  "icon": "icon.png",
   "keywords": ["books", "papers", "doi", "annas-archive", "library"],
   "server": {
     "type": "node",

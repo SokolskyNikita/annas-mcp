@@ -2,6 +2,13 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.1.2](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.1.2) — 2026-09-29
+
+- Publish `.tar.gz` archives for macOS, Linux and FreeBSD, and have the launcher download them. The launcher no longer needs `xz`, which minimal systems such as slim Docker images lack. `.tar.xz` archives are still published for older launchers, and the launcher falls back to them for releases without `.tar.gz`.
+- Fix a race on Windows where two launchers starting at once could fail with `EPERM` while recording the cached binary.
+- Add an icon to the MCP Bundle, the MCP Registry entry and the server's `initialize` response, which also reports the project website.
+- Add `npm run publish:smithery`, which publishes the release's MCP Bundle to Smithery with the tool schemas Smithery requires.
+
 ## [v0.1.1](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.1.1) — 2026-09-29
 
 - Publish the launcher to npm as `annas-mcp` and list the server in the MCP Registry as `io.github.SokolskyNikita/annas-mcp`. `npx -y github:SokolskyNikita/annas-mcp` keeps working.

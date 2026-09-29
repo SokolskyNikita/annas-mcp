@@ -39,6 +39,7 @@ The `npx` launcher always runs the latest published release, never your checkout
 | `internal/env`, `internal/apperr`, `internal/version` | Configuration, stable error codes, embedded version |
 | `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
 | `server.json`, `manifest.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery) and Glama |
+| `assets` | Icon (`icon.svg`, rendered to `icon.png` at 512×512) |
 | `plugin.json`, `mcp.json` | [Agent Plugins](https://agent-plugins.org) manifest for plugin directories such as cursor.directory. It carries no credentials; the server reads the `ANNAS_*` variables from its environment |
 | `scripts` | Test, health-check and release tooling |
 
@@ -76,5 +77,7 @@ Step 1 also covers `server.json` (both `version` fields) and `manifest.json`; `n
 The tag triggers the release workflow. It builds the binaries, publishes them with SHA-256 checksums to GitHub Releases, attaches `annas-mcp.mcpb` (built by `npm run pack:mcpb`), then installs the release through the `npx` launcher on each platform and checks the MCP handshake and all four tools. `node scripts/verify-release.mjs vX.Y.Z` repeats that check locally.
 
 When the repository variable `PUBLISH_REGISTRIES` is `true`, the workflow then publishes the launcher to npm through npm trusted publishing and the new version to the [MCP Registry](https://registry.modelcontextprotocol.io) through GitHub OIDC. Neither needs a stored secret. The npm package holds only the launcher (`bin`, `lib`); binaries always come from GitHub Releases.
+
+After the release workflow finishes, run `npm run publish:smithery` to update the [Smithery](https://smithery.ai/servers/sokolx/annas-mcp) listing. It needs `zip` and a one-time `npx @smithery/cli auth login`; `--dry-run` builds the bundle without publishing.
 
 Never move or recreate a published tag: the launcher caches binaries by release and checksum.

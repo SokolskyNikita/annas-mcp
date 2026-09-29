@@ -32,6 +32,7 @@ await mkdir(stage, { recursive: true });
 for (const entry of ["bin", "lib", "manifest.json", "LICENSE", "README.md"]) {
   await cp(path.join(root, entry), path.join(stage, entry), { recursive: true });
 }
+await cp(path.join(root, "assets", "icon.png"), path.join(stage, "icon.png"));
 // lib/ is ESM; the bundle needs its own package.json to say so.
 const bundlePackage = {
   name: pkg.name,

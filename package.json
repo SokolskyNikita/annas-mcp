@@ -1,6 +1,6 @@
 {
   "name": "annas-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "description": "MCP server and CLI for searching and downloading books and articles from Anna's Archive",
   "mcpName": "io.github.SokolskyNikita/annas-mcp",
@@ -27,7 +27,8 @@
     "check:version": "node scripts/check-version.mjs",
     "coverage": "go test -race -coverprofile coverage.out ./... && node scripts/check-coverage.mjs coverage.out",
     "smoke": "node scripts/smoke-mcp.mjs",
-    "pack:mcpb": "node scripts/pack-mcpb.mjs"
+    "pack:mcpb": "node scripts/pack-mcpb.mjs",
+    "publish:smithery": "node scripts/publish-smithery.mjs"
   },
   "bin": {
     "annas-mcp": "bin/annas-mcp.js"
