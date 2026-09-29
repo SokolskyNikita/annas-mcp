@@ -2,6 +2,7 @@
 
 [![Tests](https://github.com/SokolskyNikita/annas-mcp/actions/workflows/test.yml/badge.svg)](https://github.com/SokolskyNikita/annas-mcp/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/SokolskyNikita/annas-mcp)](https://github.com/SokolskyNikita/annas-mcp/releases)
+[![npm](https://img.shields.io/npm/v/annas-mcp)](https://www.npmjs.com/package/annas-mcp)
 
 An MCP server that lets Claude, Cursor, Codex and other AI clients search [Anna's Archive](https://annas-archive.gl) for books and papers and download the file you pick. It also works as a command-line tool.
 
@@ -37,19 +38,21 @@ claude mcp add annas-mcp \
   --env ANNAS_ACCOUNT_COOKIE=your-cookie \
   --env ANNAS_SECRET_KEY=your-api-key \
   --env ANNAS_DOWNLOAD_PATH=/absolute/path/to/downloads \
-  -- npx -y github:SokolskyNikita/annas-mcp
+  -- npx -y annas-mcp
 ```
 
-On native Windows (not WSL), end the command with `-- cmd /c npx -y github:SokolskyNikita/annas-mcp`.
+On native Windows (not WSL), end the command with `-- cmd /c npx -y annas-mcp`.
 
-**Claude Desktop and Cursor.** Add this to Claude Desktop's config (Settings → Developer → Edit Config) or to Cursor's `~/.cursor/mcp.json`:
+**Claude Desktop, one click.** Download [annas-mcp.mcpb](https://github.com/SokolskyNikita/annas-mcp/releases/latest/download/annas-mcp.mcpb) and open it, or drag it onto Settings → Extensions. Claude Desktop asks for the cookie, API key and download folder.
+
+**Claude Desktop and Cursor, by hand.** Add this to Claude Desktop's config (Settings → Developer → Edit Config) or to Cursor's `~/.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "annas-mcp": {
       "command": "npx",
-      "args": ["-y", "github:SokolskyNikita/annas-mcp"],
+      "args": ["-y", "annas-mcp"],
       "env": {
         "ANNAS_ACCOUNT_COOKIE": "your-cookie",
         "ANNAS_SECRET_KEY": "your-api-key",
@@ -65,7 +68,7 @@ On native Windows (not WSL), end the command with `-- cmd /c npx -y github:Sokol
 ```toml
 [mcp_servers.annas-mcp]
 command = "npx"
-args = ["-y", "github:SokolskyNikita/annas-mcp"]
+args = ["-y", "annas-mcp"]
 
 [mcp_servers.annas-mcp.env]
 ANNAS_ACCOUNT_COOKIE = "your-cookie"
@@ -147,17 +150,17 @@ Errors start with a code:
 
 A failed download lists every server it tried and why each one failed. A server starting up cleanly doesn't prove your credentials work; only a search or download tests them.
 
-If the server doesn't start at all, run `npx -y github:SokolskyNikita/annas-mcp --version` in a terminal to see the error. The launcher unpacks releases with the system's `tar`, which comes preinstalled on macOS, Windows 10 and later, and mainstream Linux distributions.
+If the server doesn't start at all, run `npx -y annas-mcp --version` in a terminal to see the error. The launcher unpacks releases with the system's `tar`, which comes preinstalled on macOS, Windows 10 and later, and mainstream Linux distributions.
 
 ## Command line
 
 Every tool is also a command. Set the same variables (or put them in a `.env` file), then:
 
 ```bash
-npx -y github:SokolskyNikita/annas-mcp book-search "pride and prejudice" --language en
-npx -y github:SokolskyNikita/annas-mcp article-search 10.1038/nature14539
-npx -y github:SokolskyNikita/annas-mcp book-download <hash> "Pride and Prejudice.epub"
-npx -y github:SokolskyNikita/annas-mcp article-download 10.1038/nature14539
+npx -y annas-mcp book-search "pride and prejudice" --language en
+npx -y annas-mcp article-search 10.1038/nature14539
+npx -y annas-mcp book-download <hash> "Pride and Prejudice.epub"
+npx -y annas-mcp article-download 10.1038/nature14539
 ```
 
 Add `--json` for machine-readable output, `--timeout 10m` to change the timeout, and `--help` to any command for all of its options.
