@@ -217,14 +217,13 @@ func TestDownloadFileRejectsNonSuccessResponse(t *testing.T) {
 	}
 }
 
-func TestPublicMethodsRequireAccountCookieBeforeNetwork(t *testing.T) {
+func TestPublicMethodsRequireCredentialsBeforeNetwork(t *testing.T) {
 	t.Parallel()
 
 	newClient := func() (*Client, *int) {
 		calls := 0
 		client := NewClient(Config{
 			BaseURL:      "annas.test",
-			SecretKey:    "test-secret",
 			DownloadPath: t.TempDir(),
 			HTTPClient: &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
 				calls++

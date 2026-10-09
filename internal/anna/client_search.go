@@ -28,7 +28,7 @@ func (c *Client) search(ctx context.Context, query string, options SearchOptions
 	books := parseBooks(doc, pageURL)
 	if len(books) == 0 && !isArchiveDocument(doc) {
 		c.invalidateMirror(pageURL)
-		return nil, pageURL, apperr.New(apperr.UpstreamBlocked, "archive returned an unexpected page; check the mirror and account cookie")
+		return nil, pageURL, apperr.New(apperr.UpstreamBlocked, "archive returned an unexpected page; check the mirror and account access")
 	}
 	return books, pageURL, nil
 }

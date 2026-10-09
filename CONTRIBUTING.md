@@ -20,7 +20,7 @@ To try your build in an MCP client, point the client at the binary with the `mcp
     "annas-mcp": {
       "command": "/absolute/path/to/annas-mcp",
       "args": ["mcp"],
-      "env": { "ANNAS_ACCOUNT_COOKIE": "…", "ANNAS_SECRET_KEY": "…", "ANNAS_DOWNLOAD_PATH": "…" }
+      "env": { "ANNAS_SECRET_KEY": "…", "ANNAS_DOWNLOAD_PATH": "…" }
     }
   }
 }
@@ -34,7 +34,7 @@ The `npx` launcher always runs the latest published release, never your checkout
 | --- | --- |
 | `cmd/annas-mcp` | Executable entry point |
 | `internal/modes` | MCP server and CLI, sharing one service layer for validation and output |
-| `internal/anna` | Archive search, DOI lookup and downloads |
+| `internal/anna` | Archive search, DOI lookup, downloads and sign-in, including the saved session |
 | `internal/mirror` | Mirror discovery and probing |
 | `internal/env`, `internal/apperr`, `internal/version` | Configuration, stable error codes, embedded version |
 | `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
@@ -61,7 +61,7 @@ CI runs the same checks on Linux, macOS and Windows. It also lints the workflows
 
 These use real credentials from your environment or `.env`.
 
-- `node scripts/smoke-mcp.mjs ./annas-mcp` exercises all four MCP tools against the live archive, including real downloads (so it uses download quota), and verifies sizes and checksums.
+- `node scripts/smoke-mcp.mjs ./annas-mcp` exercises all four MCP tools against the live archive, including real downloads (so it uses download quota), and verifies sizes and checksums. It ignores `ANNAS_ACCOUNT_COOKIE` and saves the session in a temporary folder, so it always tests signing in with `ANNAS_SECRET_KEY`.
 - `scripts/healthcheck.sh --live` runs real searches without downloading anything.
 - `ANNAS_MCP_TEST_SCIDB_LIVE=1 go test ./internal/anna -run '^TestLiveSciDBFallback$' -count=1 -v` tests the SciDB PDF fallback on its own.
 

@@ -219,7 +219,7 @@ func TestResolveNeverProbesFraudulentSLUMCandidates(t *testing.T) {
 		return serve(req, http.StatusOK, page(t, "probe_valid.html")), nil
 	})}
 	resolver := NewResolver(client, "https://status.example/", nil)
-	resolver.SetAccountCookie("aa_account_id2=token")
+	resolver.SetAccountCookie(func() string { return "aa_account_id2=token" })
 
 	selected, err := resolver.Resolve(context.Background(), ResolveOptions{})
 	if err != nil {
@@ -312,7 +312,7 @@ func TestDefaultProbeRequiresAnnaMarkerAndSendsCookie(t *testing.T) {
 		return serve(req, http.StatusOK, page(t, "probe_valid.html")), nil
 	})}
 	resolver := NewResolver(client, "https://status.example/", nil)
-	resolver.SetAccountCookie("aa_account_id2=token")
+	resolver.SetAccountCookie(func() string { return "aa_account_id2=token" })
 	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err != nil {
 		t.Fatalf("defaultProbe returned error: %v", err)
 	}

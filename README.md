@@ -24,28 +24,32 @@ You need Node.js 18 or newer and an Anna's Archive [membership](https://annas-ar
 | Search | **Lucky Librarian** or higher |
 | Download | Any tier |
 
-### 1. Get your credentials
+### 1. Get your secret key
 
-- **Account cookie.** Sign in to Anna's Archive, open your browser's developer tools and go to Application (Chrome, Edge) or Storage (Firefox, Safari) → Cookies. Copy the value of `aa_account_id2`. It expires weekly; see [Renewing the cookie](#renewing-the-cookie).
-- **API key.** Copy it from your Anna's Archive account page. See the [API FAQ](https://annas-archive.gl/faq#api). Only needed for downloads.
+Copy the secret key you log in with from your Anna's Archive [account page](https://annas-archive.gl/account/). It is also your API key ([API FAQ](https://annas-archive.gl/faq#api)). The server signs in with it by itself, so you don't need to copy cookies from your browser.
 
 ### 2. Add the server to your client
 
-**Claude Code**
+Pick a permanent `ANNAS_DOWNLOAD_PATH`. Folders under `/tmp` are cleared by the operating system.
+
+#### Claude Code
 
 ```bash
 claude mcp add annas-mcp \
-  --env ANNAS_ACCOUNT_COOKIE=your-cookie \
-  --env ANNAS_SECRET_KEY=your-api-key \
+  --env ANNAS_SECRET_KEY=your-secret-key \
   --env ANNAS_DOWNLOAD_PATH=/absolute/path/to/downloads \
   -- npx -y annas-mcp
 ```
 
 On native Windows (not WSL), end the command with `-- cmd /c npx -y annas-mcp`.
 
-**Claude Desktop, one click.** Download [annas-mcp.mcpb](https://github.com/SokolskyNikita/annas-mcp/releases/latest/download/annas-mcp.mcpb) and open it, or drag it onto Settings → Extensions. Claude Desktop asks for the cookie, API key and download folder.
+#### Claude Desktop, one click
 
-**Claude Desktop and Cursor, by hand.** Add this to Claude Desktop's config (Settings → Developer → Edit Config) or to Cursor's `~/.cursor/mcp.json`:
+Download [annas-mcp.mcpb](https://github.com/SokolskyNikita/annas-mcp/releases/latest/download/annas-mcp.mcpb) and open it, or drag it onto Settings → Extensions. Claude Desktop asks for your secret key and download folder.
+
+#### Claude Desktop or Cursor, by hand
+
+Add this to Claude Desktop's config (Settings → Developer → Edit Config) or to Cursor's `~/.cursor/mcp.json`:
 
 ```json
 {
@@ -54,8 +58,7 @@ On native Windows (not WSL), end the command with `-- cmd /c npx -y annas-mcp`.
       "command": "npx",
       "args": ["-y", "annas-mcp"],
       "env": {
-        "ANNAS_ACCOUNT_COOKIE": "your-cookie",
-        "ANNAS_SECRET_KEY": "your-api-key",
+        "ANNAS_SECRET_KEY": "your-secret-key",
         "ANNAS_DOWNLOAD_PATH": "/absolute/path/to/downloads"
       }
     }
@@ -63,7 +66,9 @@ On native Windows (not WSL), end the command with `-- cmd /c npx -y annas-mcp`.
 }
 ```
 
-**Codex.** Add this to `~/.codex/config.toml`:
+#### Codex
+
+Add this to `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.annas-mcp]
@@ -71,39 +76,39 @@ command = "npx"
 args = ["-y", "annas-mcp"]
 
 [mcp_servers.annas-mcp.env]
-ANNAS_ACCOUNT_COOKIE = "your-cookie"
-ANNAS_SECRET_KEY = "your-api-key"
+ANNAS_SECRET_KEY = "your-secret-key"
 ANNAS_DOWNLOAD_PATH = "/absolute/path/to/downloads"
 ```
-
-Pick a permanent `ANNAS_DOWNLOAD_PATH`. Folders under `/tmp` are cleared by the operating system.
 
 ### 3. Try it
 
 Restart your client and ask something like *"Find the EPUB of Pride and Prejudice and download it."* The AI searches, picks a copy and returns the path of the saved file.
 
-`npx` downloads the latest release on first run, verifies its checksum and caches it. Later runs start from the cache and pick up new releases automatically.
+On first run `npx` downloads the latest release and caches it once its checksum matches. Later runs start from the cache and pick up new releases automatically.
 
-## Renewing the cookie
+## Signing in
 
-The `aa_account_id2` cookie expires every week. When searches start failing with `[UPSTREAM_BLOCKED]`:
+Anna's Archive only lets signed-in members search. The server signs in with your secret key before its first request, and again whenever the archive ends the session, which happens about once a week. Nothing needs renewing by hand.
 
-1. Copy a fresh `aa_account_id2` value from your browser, as in [step 1](#1-get-your-credentials).
-2. Replace `ANNAS_ACCOUNT_COOKIE` in your client's config.
-3. Restart the MCP server from your client.
+The session is saved as `session.json` in the server's cache folder, so restarts and CLI commands don't sign in again. It's the folder `npx` caches the server in: `ANNAS_MCP_CACHE_DIR` if you set it, otherwise `~/.cache/annas-mcp` on macOS and Linux (`$XDG_CACHE_HOME/annas-mcp` if that is set) and `%LOCALAPPDATA%\annas-mcp` on Windows. Only you can read the file. It holds the session cookie plus SHA-256 fingerprints of your secret key and of any `ANNAS_ACCOUNT_COOKIE` the session replaced. Deleting it is safe; the server just signs in again.
 
-`ANNAS_ACCOUNT_COOKIE` accepts the bare value, `aa_account_id2=…` or a whole `Cookie` header copied from the Network tab. Only `aa_account_id2` is ever sent. Keep the cookie and API key private.
+If signing in fails, the error says what each mirror answered and how to give the server a browser session instead:
+
+1. Sign in to Anna's Archive in your browser, open its developer tools and go to Application (Chrome, Edge) or Storage (Firefox, Safari) → Cookies.
+2. Copy the value of `aa_account_id2` into `ANNAS_ACCOUNT_COOKIE` and restart the MCP server from your client.
+
+The server uses that cookie first and still signs in with the secret key once it expires. From then on it remembers that this cookie expired and skips it until you set a different one. `ANNAS_ACCOUNT_COOKIE` accepts the bare value, `aa_account_id2=…` or a whole `Cookie` header copied from the Network tab. Only `aa_account_id2` is ever sent. Keep the secret key and cookie private.
 
 ## Configuration
 
 | Variable | Needed for | Description |
 | --- | --- | --- |
-| `ANNAS_ACCOUNT_COOKIE` | Everything | Your `aa_account_id2` cookie. |
-| `ANNAS_SECRET_KEY` | Downloads | Your Anna's Archive API key. |
+| `ANNAS_SECRET_KEY` | Everything | Your Anna's Archive secret key. The server signs in with it and uses it for downloads. |
 | `ANNAS_DOWNLOAD_PATH` | Downloads | Absolute folder for downloaded files. Created if missing. |
+| `ANNAS_ACCOUNT_COOKIE` | Optional | An `aa_account_id2` cookie to use before signing in. See [Signing in](#signing-in). |
 | `ANNAS_BASE_URL` | Optional | Mirror to fall back on when automatic selection fails. Defaults to `annas-archive.gl`. |
 | `ANNAS_AUTO_BASE_URL` | Optional | Set to `false` to always use `ANNAS_BASE_URL` instead of picking a mirror automatically. |
-| `ANNAS_MCP_CACHE_DIR` | Optional | Where `npx` caches release binaries. |
+| `ANNAS_MCP_CACHE_DIR` | Optional | Where the server saves its session and `npx` caches release binaries. |
 
 The server picks a working mirror by itself, and only among the official domains `annas-archive.gl`, `.pk` and `.gd`. Whatever host you set in `ANNAS_BASE_URL` receives your credentials, so only use one you trust.
 
@@ -130,10 +135,9 @@ Give `article_search` a DOI (`10.1038/nature14539`, `doi:…` or `https://doi.or
 
 `book_download` takes the `hash` and a `title`. `article_download` takes either a `doi` or a `hash`, plus an optional `title`. Both return the saved file's `path` and size in `bytes`.
 
-- **Filename.** `title` becomes the filename. Pass `format` (such as `epub` or `pdf`) to set the extension; this doesn't convert the file. Without it, the extension is detected from the download.
-- **No overwrites.** An existing file is never overwritten: a name clash gets a short suffix.
-- **Integrity.** Files are checked against the archive's MD5 hash, and incomplete or corrupt downloads are deleted.
-- **DOI fallback.** When the fast download servers don't have a paper, `article_download` by DOI falls back to the PDF on Anna's SciDB page.
+`title` becomes the filename. Pass `format` (such as `epub` or `pdf`) to set the extension; this doesn't convert the file, and without it the extension is detected from the download. An existing file is never overwritten: a name clash gets a short suffix.
+
+Files are checked against the archive's MD5 hash, and incomplete or corrupt downloads are deleted. When the fast download servers don't have a paper, `article_download` by DOI falls back to the PDF on Anna's SciDB page.
 
 ## Troubleshooting
 
@@ -141,16 +145,16 @@ Errors start with a code:
 
 | Code | What to do |
 | --- | --- |
-| `[CONFIG]` | A variable is missing or invalid. Check [Configuration](#configuration). |
-| `[UPSTREAM_BLOCKED]` | The archive refused access. Usually the cookie has expired: [renew it](#renewing-the-cookie). Also check your membership tier. |
+| `[CONFIG]` | A variable is missing or invalid, or Anna's Archive rejected the secret key. Check [Configuration](#configuration). |
+| `[UPSTREAM_BLOCKED]` | The archive refused access. Check that your membership allows searching. If signing in itself failed, see [Signing in](#signing-in). |
 | `[NOT_FOUND]` | Nothing matched, or that copy has no fast download. Try another query, or another copy from the search results. |
 | `[INVALID_ARGUMENT]` | Fix the hash, DOI, format, page, limit or timeout. |
 | `[REQUEST_TIMEOUT]` | Retry, or raise `timeout_seconds`. |
-| `[UPSTREAM]` | The archive or a download server failed. Check your daily download quota and API key, then retry. |
+| `[UPSTREAM]` | The archive or a download server failed. Check your daily download quota and secret key, then retry. |
 
-A failed download lists every server it tried and why each one failed. A server starting up cleanly doesn't prove your credentials work; only a search or download tests them.
+A failed download lists every server it tried and why each one failed. The server only checks your credentials when you search or download, not when it starts.
 
-If the server doesn't start at all, run `npx -y annas-mcp --version` in a terminal to see the error. The launcher unpacks releases with the system's `tar`, which comes preinstalled on macOS, Windows 10 and later, and mainstream Linux distributions.
+If the server doesn't start at all, run `npx -y annas-mcp --version` in a terminal to see the error. The launcher unpacks releases with the system's `tar`, which comes preinstalled on macOS, mainstream Linux distributions and Windows 10 or later.
 
 ## Command line
 
@@ -163,11 +167,11 @@ npx -y annas-mcp book-download <hash> "Pride and Prejudice.epub"
 npx -y annas-mcp article-download 10.1038/nature14539
 ```
 
-Add `--json` for machine-readable output, `--timeout 10m` to change the timeout, and `--help` to any command for all of its options.
+Add `--json` for machine-readable output, `--timeout 10m` to change the timeout and `--help` to any command for all of its options.
 
 ## Privacy
 
-annas-mcp runs on your machine and has no telemetry. It sends your cookie and API key only to Anna's Archive, and downloads files from the servers Anna's Archive points it to. DOI lookups may contact doi.org. The `npx` launcher and the MCP Bundle contact GitHub to fetch and verify release binaries. Downloaded files stay in `ANNAS_DOWNLOAD_PATH`; nothing else is stored apart from the cached binary. Questions: [open an issue](https://github.com/SokolskyNikita/annas-mcp/issues).
+annas-mcp runs on your machine and has no telemetry. It sends your secret key (and cookie, if you set one) only to Anna's Archive, and downloads files from the servers Anna's Archive points it to. DOI lookups may contact doi.org. The `npx` launcher and the MCP Bundle contact GitHub to fetch and verify release binaries. Downloaded files stay in `ANNAS_DOWNLOAD_PATH`; nothing else is stored apart from the cached binary and the [saved session](#signing-in). Questions: [open an issue](https://github.com/SokolskyNikita/annas-mcp/issues).
 
 ## Contributing
 

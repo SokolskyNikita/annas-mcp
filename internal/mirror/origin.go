@@ -4,13 +4,15 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 )
 
-var officialCandidateHosts = map[string]struct{}{
-	"annas-archive.gl": {},
-	"annas-archive.pk": {},
-	"annas-archive.gd": {},
+var officialHosts = []string{"annas-archive.gl", "annas-archive.pk", "annas-archive.gd"}
+
+// OfficialHosts returns Anna's documented mirror hosts, primary first.
+func OfficialHosts() []string {
+	return slices.Clone(officialHosts)
 }
 
 // ParseBaseURL validates and canonicalizes a configured archive base URL. A
@@ -30,7 +32,7 @@ func ParseCandidateURL(raw string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if _, ok := officialCandidateHosts[value]; !ok {
+	if !slices.Contains(officialHosts, value) {
 		return "", fmt.Errorf("mirror host %q is not an official Anna's Archive origin", value)
 	}
 	return value, nil
@@ -55,7 +57,7 @@ func parseBaseURL(raw string, allowPort bool) (string, error) {
 		return "", errors.New("base URL must be an HTTPS origin without credentials")
 	}
 	if (parsed.Path != "" && parsed.Path != "/") || parsed.RawQuery != "" || parsed.Fragment != "" {
-		return "", errors.New("base URL must not include a path, query, or fragment")
+		return "", errors.New("base URL must not include a path, query or fragment")
 	}
 	port := parsed.Port()
 	if !allowPort && port != "" {

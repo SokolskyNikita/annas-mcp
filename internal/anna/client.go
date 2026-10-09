@@ -19,11 +19,13 @@ type BaseURLResolver func(context.Context) (string, error)
 
 // Config contains all state needed by a Client. AccountCookie may be either
 // the complete Cookie header value or the raw aa_account_id2 value.
+// SessionFile keeps the signed-in session between runs; empty disables it.
 type Config struct {
 	BaseURL       string
 	SecretKey     string
 	DownloadPath  string
 	AccountCookie string
+	SessionFile   string
 	AutoBaseURL   bool
 	HTTPClient    *http.Client
 	Resolver      BaseURLResolver
@@ -49,6 +51,13 @@ type Client struct {
 	baseURL     string
 	baseExpires time.Time
 	resolving   chan struct{}
+	sessionMu   sync.Mutex
+	cookie      string
+	// configuredCookie is ANNAS_ACCOUNT_COOKIE, kept to recognize it later.
+	configuredCookie string
+	signingIn        chan struct{}
+	signedInAt       time.Time
+	signInErr        error
 }
 
 const defaultClientBaseURL = "https://annas-archive.gl"
@@ -70,27 +79,29 @@ func NewClient(config Config) *Client {
 		}
 	}
 	c.config.BaseURL = c.baseURL
-	c.config.AccountCookie = normalizeCookieHeader(config.AccountCookie)
+	c.configuredCookie = normalizeCookieHeader(config.AccountCookie)
+	c.cookie = c.configuredCookie
+	c.restoreSession()
 	if c.config.AutoBaseURL && c.config.Resolver == nil {
 		resolver := mirror.NewResolver(c.requestClient(5*time.Second), mirror.DefaultStatusPageURL, nil)
-		resolver.SetAccountCookie(c.config.AccountCookie)
+		resolver.SetAccountCookie(c.sessionCookie)
 		c.config.Resolver = func(ctx context.Context) (string, error) { return resolver.Resolve(ctx, mirror.ResolveOptions{}) }
 	}
 	return c
 }
 
 // requireArchiveAccess keeps credential failures deterministic and local.
-// The archive account cookie is required for every archive operation; the
-// upstream service remains responsible for deciding whether the session is
-// still valid or has sufficient access.
+// Every archive operation needs a session: either a configured cookie or the
+// secret key to sign in with. The upstream service remains responsible for
+// deciding whether the session is still valid or has sufficient access.
 func (c *Client) requireArchiveAccess(ctx context.Context) error {
 	if ctx != nil {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
 	}
-	if strings.TrimSpace(c.config.AccountCookie) == "" {
-		return apperr.New(apperr.Config, "ANNAS_ACCOUNT_COOKIE is required for archive access")
+	if c.sessionCookie() == "" && strings.TrimSpace(c.config.SecretKey) == "" {
+		return apperr.New(apperr.Config, "ANNAS_SECRET_KEY is required for archive access: copy the secret key from your Anna's Archive account page")
 	}
 	return nil
 }
@@ -140,6 +151,9 @@ func (c *Client) baseURLFor(ctx context.Context) (string, error) {
 	}
 	if ctx == nil {
 		ctx = context.Background()
+	}
+	if err := c.ensureSession(ctx); err != nil {
+		return "", err
 	}
 	for {
 		if err := ctx.Err(); err != nil {
@@ -220,14 +234,14 @@ func normalizeCookieHeader(raw string) string {
 	}
 	for _, part := range strings.Split(raw, ";") {
 		key, value, found := strings.Cut(strings.TrimSpace(part), "=")
-		if found && key == "aa_account_id2" {
-			return "aa_account_id2=" + strings.TrimSpace(value)
+		if found && key == accountCookieName {
+			return accountCookieName + "=" + strings.TrimSpace(value)
 		}
 	}
 	if strings.Contains(raw, ";") {
 		return ""
 	}
-	return "aa_account_id2=" + raw
+	return accountCookieName + "=" + raw
 }
 
 func operationContext(ctx context.Context, timeout time.Duration) (context.Context, context.CancelFunc) {

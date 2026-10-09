@@ -1,9 +1,11 @@
 // Opt-in real-network checks. Uses the account configured in env/.env and its download quota.
+// ANNAS_ACCOUNT_COOKIE is ignored and the session is saved in a temporary folder,
+// so every run signs in with ANNAS_SECRET_KEY the way a fresh install does.
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { mkdtemp, open, readFile, realpath, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, open, readFile, realpath, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,9 +16,10 @@ const cases = JSON.parse(await readFile(new URL("./testdata/live-smoke.json", im
 const binary = path.resolve(process.argv[2] || path.join(root, process.platform === "win32" ? "annas-mcp.exe" : "annas-mcp"));
 await stat(binary); // Fail before creating a directory if the binary was not built.
 const output = await realpath(await mkdtemp(path.join(os.tmpdir(), "annas-mcp-live-")));
+const cache = await realpath(await mkdtemp(path.join(os.tmpdir(), "annas-mcp-live-cache-")));
 const client = new MCPProcessClient(spawn(binary, ["mcp"], {
   cwd: root,
-  env: { ...process.env, ANNAS_DOWNLOAD_PATH: output },
+  env: { ...process.env, ANNAS_DOWNLOAD_PATH: output, ANNAS_ACCOUNT_COOKIE: "", ANNAS_MCP_CACHE_DIR: cache },
   stdio: ["pipe", "pipe", "pipe"],
 }));
 const report = { binary, output, calls: [], downloads: [] };
@@ -68,6 +71,10 @@ try {
 
   const books = await call("book_search", cases.book);
   assert(books.results.length > 0, "Book search returned no records");
+  // The first search had to sign in, which saves the session for later runs.
+  const session = JSON.parse(await readFile(path.join(cache, "session.json"), "utf8"));
+  assert.match(session.cookie, /^aa_account_id2=/, "Sign-in did not save a session");
+  console.log("Verified sign-in: session saved");
   const book = books.results.find((record) =>
     record.title.includes(cases.book_title) && record.authors.includes(cases.book_author) && /^epub$/i.test(record.format),
   ) || books.results.find((record) =>
@@ -97,6 +104,8 @@ try {
   process.exitCode = 1;
 } finally {
   await client.close();
+  // The saved session is a live credential; keep only the downloads and report.
+  await rm(cache, { recursive: true, force: true });
   await writeFile(path.join(output, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
 }

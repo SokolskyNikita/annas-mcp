@@ -49,7 +49,7 @@ type Resolver struct {
 	client        *http.Client
 	statusPageURL string
 	probe         ProbeFunc
-	accountCookie string
+	accountCookie func() string
 }
 
 // NewResolver never fails: a nil client gets a short default timeout, a nil
@@ -69,10 +69,11 @@ func NewResolver(client *http.Client, statusPageURL string, probe ProbeFunc) *Re
 	return r
 }
 
-// SetAccountCookie sets the normalized aa_account_id2 Cookie header sent with
-// mirror probes. Call it before Resolve; it is never sent to the status page.
-func (r *Resolver) SetAccountCookie(cookieHeader string) {
-	r.accountCookie = strings.TrimSpace(cookieHeader)
+// SetAccountCookie sets where mirror probes read the normalized aa_account_id2
+// Cookie header, so a renewed session reaches later probes. Call it before
+// Resolve; the cookie is never sent to the status page.
+func (r *Resolver) SetAccountCookie(cookieHeader func() string) {
+	r.accountCookie = cookieHeader
 }
 
 // Resolve returns the first reachable official mirror, trying the best-ranked

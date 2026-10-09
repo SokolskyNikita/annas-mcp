@@ -39,9 +39,6 @@ func (c *Client) validateDownload(ctx context.Context, format string) error {
 	if strings.TrimSpace(c.config.SecretKey) == "" {
 		return apperr.New(apperr.Config, "ANNAS_SECRET_KEY is required for downloads")
 	}
-	if strings.TrimSpace(c.config.AccountCookie) == "" {
-		return apperr.New(apperr.Config, "ANNAS_ACCOUNT_COOKIE is required for archive access")
-	}
 	return nil
 }
 

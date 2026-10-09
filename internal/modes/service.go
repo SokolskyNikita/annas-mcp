@@ -46,7 +46,7 @@ func loadService() (*service, error) {
 	return &service{archive: anna.NewClient(anna.Config{
 		BaseURL: cfg.AnnasBaseURL, AutoBaseURL: cfg.AutoBaseURL,
 		SecretKey: cfg.SecretKey, DownloadPath: cfg.DownloadPath,
-		AccountCookie: cfg.AccountCookie,
+		AccountCookie: cfg.AccountCookie, SessionFile: cfg.SessionFile,
 	})}, nil
 }
 

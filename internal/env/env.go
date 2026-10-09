@@ -1,8 +1,12 @@
-// Package env reads the ANNAS_* environment variables.
+// Package env reads the ANNAS_* environment variables and locates the file
+// that keeps the signed-in session between runs.
 package env
 
 import (
 	"os"
+	"os/user"
+	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -22,6 +26,7 @@ type Env struct {
 	SecretKey     string `json:"-"`
 	AccountCookie string `json:"-"`
 	DownloadPath  string `json:"-"`
+	SessionFile   string `json:"-"`
 }
 
 // Load reads and normalizes configuration without doing network work. Search
@@ -31,6 +36,7 @@ func Load() (*Env, error) {
 	config := &Env{
 		SecretKey:    os.Getenv("ANNAS_SECRET_KEY"),
 		DownloadPath: os.Getenv("ANNAS_DOWNLOAD_PATH"),
+		SessionFile:  sessionFile(),
 	}
 	var err error
 	if config.AnnasBaseURL, err = baseURLSetting(); err != nil {
@@ -69,6 +75,44 @@ func autoBaseURLSetting() (bool, error) {
 		return false, apperr.Wrap(apperr.Config, "invalid ANNAS_AUTO_BASE_URL", err)
 	}
 	return enabled, nil
+}
+
+// sessionFile is where the signed-in session is kept between runs. It sits in
+// the npx launcher's cache directory, so ANNAS_MCP_CACHE_DIR moves both, and
+// is empty when no directory can be determined.
+func sessionFile() string {
+	dir := os.Getenv("ANNAS_MCP_CACHE_DIR")
+	if dir == "" {
+		base, fallback := os.Getenv("XDG_CACHE_HOME"), ".cache"
+		if runtime.GOOS == "windows" {
+			base, fallback = os.Getenv("LOCALAPPDATA"), filepath.Join("AppData", "Local")
+		}
+		if base == "" {
+			home := homeDir()
+			if home == "" {
+				return ""
+			}
+			base = filepath.Join(home, fallback)
+		}
+		dir = filepath.Join(base, "annas-mcp")
+	}
+	dir, err := filepath.Abs(dir)
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(dir, "session.json")
+}
+
+// homeDir falls back to the account database like Node's os.homedir(),
+// because MCP clients may start servers without HOME.
+func homeDir() string {
+	if home, err := os.UserHomeDir(); err == nil {
+		return home
+	}
+	if current, err := user.Current(); err == nil {
+		return current.HomeDir
+	}
+	return ""
 }
 
 const accountCookieName = "aa_account_id2"

@@ -14,9 +14,9 @@ import (
 
 func newSearchCommand(options *cliOptions, article bool) *cobra.Command {
 	params := SearchParams{}
-	name, description := "book-search", "Search by title, author, or topic"
+	name, description := "book-search", "Search by title, author or topic"
 	if article {
-		name, description = "article-search", "Find an article by DOI, DOI URL, or keywords"
+		name, description = "article-search", "Find an article by DOI, DOI URL or keywords"
 	}
 	cmd := &cobra.Command{Use: name + " [query]", Short: description, Args: argumentCount(1, 1)}
 	cmd.Flags().IntVar(&params.Page, "page", 1, "Result page starting at 1")
@@ -61,7 +61,7 @@ func newBookDownloadCommand(options *cliOptions) *cobra.Command {
 
 func newArticleDownloadCommand(options *cliOptions) *cobra.Command {
 	var params ArticleDownloadParams
-	cmd := &cobra.Command{Use: "article-download [doi]", Short: "Download an article by DOI, DOI URL, or --hash", Args: argumentCount(0, 1), RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "article-download [doi]", Short: "Download an article by DOI, DOI URL or --hash", Args: argumentCount(0, 1), RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
 			params.DOI = args[0]
 		}

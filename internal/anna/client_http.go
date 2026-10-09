@@ -25,7 +25,7 @@ func (c *Client) fetchDocument(ctx context.Context, rawURL string) (*goquery.Doc
 		finalURL = response.Request.URL
 	}
 	if response.StatusCode == http.StatusForbidden {
-		return nil, finalURL, apperr.New(apperr.UpstreamBlocked, "Anna's Archive returned 403; check the mirror and refresh ANNAS_ACCOUNT_COOKIE if the browser session has expired")
+		return nil, finalURL, apperr.New(apperr.UpstreamBlocked, c.forbiddenMessage())
 	}
 	if response.StatusCode == http.StatusNotFound {
 		return nil, finalURL, apperr.New(apperr.NotFound, "archive record was not found")
@@ -51,32 +51,53 @@ func (c *Client) doGet(ctx context.Context, client *http.Client, rawURL string) 
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	if request.URL.Scheme != "https" || request.URL.Host == "" || request.URL.User != nil {
-		return nil, apperr.New(apperr.Upstream, "upstream URL must be HTTPS without credentials")
-	}
-	request.Header.Set("User-Agent", BrowserUserAgent)
-	c.baseMu.Lock()
-	base := c.baseURL
-	c.baseMu.Unlock()
-	baseURL, _ := url.Parse(base)
-	if sameOrigin(request.URL, baseURL) && c.config.AccountCookie != "" {
-		request.Header.Set("Cookie", c.config.AccountCookie)
-	}
-	response, err := client.Do(request)
-	if err != nil {
-		if ctx.Err() == nil {
+	for renewed := false; ; renewed = true {
+		request, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+		if err != nil {
+			return nil, err
+		}
+		if request.URL.Scheme != "https" || request.URL.Host == "" || request.URL.User != nil {
+			return nil, apperr.New(apperr.Upstream, "upstream URL must be HTTPS without credentials")
+		}
+		request.Header.Set("User-Agent", BrowserUserAgent)
+		c.baseMu.Lock()
+		base := c.baseURL
+		c.baseMu.Unlock()
+		baseURL, _ := url.Parse(base)
+		archive := sameOrigin(request.URL, baseURL)
+		cookie := ""
+		if archive {
+			cookie = c.sessionCookie()
+		}
+		if cookie != "" {
+			request.Header.Set("Cookie", cookie)
+		}
+		response, err := client.Do(request)
+		if err != nil {
+			if ctx.Err() == nil {
+				c.invalidateMirror(rawURL)
+			}
+			return nil, redactErr(err, c.config.SecretKey)
+		}
+		// An expired session ends in a 403 from DDoS-Guard. Sign in again
+		// and repeat the request once before treating the mirror as bad.
+		// The fast download API authenticates with its key parameter
+		// instead, so its 403s say nothing about the session.
+		if archive && !renewed && response.StatusCode == http.StatusForbidden && !request.URL.Query().Has("key") {
+			retry, err := c.signIn(ctx, cookie)
+			if err != nil || retry {
+				response.Body.Close()
+				if err != nil {
+					return nil, err
+				}
+				continue
+			}
+		}
+		if response.StatusCode == http.StatusForbidden || response.StatusCode >= 500 {
 			c.invalidateMirror(rawURL)
 		}
-		return nil, redactErr(err, c.config.SecretKey)
+		return response, nil
 	}
-	if response.StatusCode == http.StatusForbidden || response.StatusCode >= 500 {
-		c.invalidateMirror(rawURL)
-	}
-	return response, nil
 }
 
 func (c *Client) requestClient(timeout time.Duration) *http.Client {

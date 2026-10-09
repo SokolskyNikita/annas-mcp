@@ -1,20 +1,27 @@
 package env
 
-import "testing"
+import (
+	"path/filepath"
+	"runtime"
+	"testing"
+)
 
 // setEnv sets every ANNAS_* variable Load reads, so a test never inherits
-// values from the developer's shell.
-func setEnv(t *testing.T, secret, downloads, baseURL, auto, cookie string) {
+// values from the developer's shell. It returns the session file path.
+func setEnv(t *testing.T, secret, downloads, baseURL, auto, cookie string) string {
 	t.Helper()
+	cacheDir := t.TempDir()
 	for name, value := range map[string]string{
 		"ANNAS_SECRET_KEY":     secret,
 		"ANNAS_DOWNLOAD_PATH":  downloads,
 		"ANNAS_BASE_URL":       baseURL,
 		"ANNAS_AUTO_BASE_URL":  auto,
 		"ANNAS_ACCOUNT_COOKIE": cookie,
+		"ANNAS_MCP_CACHE_DIR":  cacheDir,
 	} {
 		t.Setenv(name, value)
 	}
+	return filepath.Join(cacheDir, "session.json")
 }
 
 func TestLoadNormalizesSettings(t *testing.T) {
@@ -37,7 +44,7 @@ func TestLoadNormalizesSettings(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			setEnv(t, tc.secret, tc.downloads, tc.base, tc.auto, tc.cookie)
+			tc.want.SessionFile = setEnv(t, tc.secret, tc.downloads, tc.base, tc.auto, tc.cookie)
 			got, err := Load()
 			if err != nil {
 				t.Fatalf("Load: %v", err)
@@ -116,5 +123,29 @@ func TestCookieValueDoesNotConfuseSimilarNames(t *testing.T) {
 	}
 	if _, ok := cookieValue("aa_account_id2=", accountCookieName); ok {
 		t.Fatal("accepted empty account cookie")
+	}
+}
+
+func TestSessionFileFollowsTheLauncherCacheDirectory(t *testing.T) {
+	setEnv(t, "", "", "", "", "")
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("ANNAS_MCP_CACHE_DIR", "")
+	t.Setenv("XDG_CACHE_HOME", "")
+	t.Setenv("LOCALAPPDATA", "")
+	want := filepath.Join(home, ".cache", "annas-mcp", "session.json")
+	if runtime.GOOS == "windows" {
+		want = filepath.Join(home, "AppData", "Local", "annas-mcp", "session.json")
+	}
+	if got := sessionFile(); got != want {
+		t.Fatalf("default session file = %q, want %q", got, want)
+	}
+
+	cache := t.TempDir()
+	t.Setenv("XDG_CACHE_HOME", cache)
+	t.Setenv("LOCALAPPDATA", cache)
+	if got, want := sessionFile(), filepath.Join(cache, "annas-mcp", "session.json"); got != want {
+		t.Fatalf("platform cache session file = %q, want %q", got, want)
 	}
 }

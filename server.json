@@ -8,7 +8,7 @@
     "url": "https://github.com/SokolskyNikita/annas-mcp",
     "source": "github"
   },
-  "version": "0.1.2",
+  "version": "0.2.0",
   "icons": [
     {
       "src": "https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.png",
@@ -26,21 +26,15 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "annas-mcp",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
-          "name": "ANNAS_ACCOUNT_COOKIE",
-          "description": "Your aa_account_id2 cookie from a signed-in Anna's Archive session. Needed for everything.",
-          "isRequired": true,
-          "isSecret": true
-        },
-        {
           "name": "ANNAS_SECRET_KEY",
-          "description": "Your Anna's Archive API key. Needed for downloads.",
-          "isRequired": false,
+          "description": "The secret key you log in to Anna's Archive with. The server signs in with it and uses it for downloads.",
+          "isRequired": true,
           "isSecret": true
         },
         {
@@ -48,6 +42,12 @@
           "description": "Absolute folder for downloaded files. Needed for downloads.",
           "isRequired": false,
           "format": "filepath"
+        },
+        {
+          "name": "ANNAS_ACCOUNT_COOKIE",
+          "description": "Optional aa_account_id2 cookie from a signed-in browser, for when signing in with the secret key fails.",
+          "isRequired": false,
+          "isSecret": true
         }
       ]
     }

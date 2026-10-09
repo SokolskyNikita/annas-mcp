@@ -3,9 +3,9 @@
   "manifest_version": "0.3",
   "name": "annas-mcp",
   "display_name": "Anna's Archive",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Search Anna's Archive for books and papers and download the file you pick.",
-  "long_description": "Search Anna's Archive for books, textbooks, manuals, standards and journal articles by title, author, topic or DOI, then download the copy you pick into a local folder. Requires an Anna's Archive membership. On first run the bundle downloads the matching annas-mcp release binary from GitHub, verifies its SHA-256 checksum and caches it.",
+  "long_description": "Search Anna's Archive for books, textbooks, manuals, standards and journal articles by title, author, topic or DOI, then download the copy you pick into a local folder. Requires an Anna's Archive membership: the server signs in with your account's secret key and renews the session by itself. On first run the bundle downloads the matching annas-mcp release binary from GitHub, verifies its SHA-256 checksum and caches it; the signed-in session is saved in the same cache folder.",
   "author": {
     "name": "Nikita Sokolsky",
     "url": "https://github.com/SokolskyNikita"
@@ -27,9 +27,9 @@
       "command": "node",
       "args": ["${__dirname}/bin/annas-mcp.js", "mcp"],
       "env": {
-        "ANNAS_ACCOUNT_COOKIE": "${user_config.account_cookie}",
         "ANNAS_SECRET_KEY": "${user_config.secret_key}",
-        "ANNAS_DOWNLOAD_PATH": "${user_config.download_path}"
+        "ANNAS_DOWNLOAD_PATH": "${user_config.download_path}",
+        "ANNAS_ACCOUNT_COOKIE": "${user_config.account_cookie}"
       }
     }
   },
@@ -52,25 +52,25 @@
     }
   ],
   "user_config": {
-    "account_cookie": {
-      "type": "string",
-      "title": "Account cookie (aa_account_id2)",
-      "description": "The aa_account_id2 cookie from a signed-in Anna's Archive browser session. It expires weekly.",
-      "sensitive": true,
-      "required": true
-    },
     "secret_key": {
       "type": "string",
-      "title": "API key",
-      "description": "Your Anna's Archive API key, from your account page. Needed for downloads.",
+      "title": "Secret key",
+      "description": "The secret key you log in to Anna's Archive with, from your account page. The server signs in with it and uses it for downloads.",
       "sensitive": true,
-      "required": false
+      "required": true
     },
     "download_path": {
       "type": "directory",
       "title": "Download folder",
       "description": "Where downloaded files are saved.",
       "default": "${DOWNLOADS}",
+      "required": false
+    },
+    "account_cookie": {
+      "type": "string",
+      "title": "Account cookie (optional)",
+      "description": "Leave empty. Only needed if signing in with the secret key fails: the aa_account_id2 cookie from a signed-in browser.",
+      "sensitive": true,
       "required": false
     }
   },

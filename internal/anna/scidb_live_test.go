@@ -17,26 +17,27 @@ import (
 
 // Opt-in integration check: exercises real SciDB HTML and PDF bytes while
 // deliberately disabling the fast API so that a working API cannot mask a
-// broken fallback. Uses the account cookie on the official mirror only.
+// broken fallback. Signs in on the official mirror only, with the secret key
+// or a configured account cookie.
 func TestLiveSciDBFallback(t *testing.T) {
 	if os.Getenv("ANNAS_MCP_TEST_SCIDB_LIVE") != "1" {
 		t.Skip("set ANNAS_MCP_TEST_SCIDB_LIVE=1 to test the real SciDB fallback")
 	}
-	cookie := os.Getenv("ANNAS_ACCOUNT_COOKIE")
-	if cookie == "" {
-		values, err := godotenv.Read("../../.env")
-		if err != nil {
-			t.Fatal("provide ANNAS_ACCOUNT_COOKIE or a repository .env for the live check")
+	dotenv, _ := godotenv.Read("../../.env")
+	setting := func(name string) string {
+		if value := os.Getenv(name); value != "" {
+			return value
 		}
-		cookie = values["ANNAS_ACCOUNT_COOKIE"]
+		return dotenv[name]
 	}
-	if cookie == "" {
-		t.Fatal("ANNAS_ACCOUNT_COOKIE is required for the live check")
+	key, cookie := setting("ANNAS_SECRET_KEY"), setting("ANNAS_ACCOUNT_COOKIE")
+	if key == "" {
+		t.Fatal("provide ANNAS_SECRET_KEY, in the environment or the repository .env, for the live check")
 	}
 	apiCalls, pdfCalls := 0, 0
 	client := NewClient(Config{
 		BaseURL: "https://annas-archive.gl", AccountCookie: cookie,
-		SecretKey: "disabled-for-live-fallback-test", DownloadPath: t.TempDir(),
+		SecretKey: key, DownloadPath: t.TempDir(),
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.URL.Path == "/dyn/api/fast_download.json" {
 				apiCalls++

@@ -57,7 +57,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 		Instructions: serverInstructions,
 		Capabilities: &mcp.ServerCapabilities{},
 	})
-	mcp.AddTool(server, tool("book_search", "Search books", "Search books, textbooks, manuals, and standards by title, author, or topic. Returns one page with hash, format, metadata, and description when available. Pass a selected hash to book_download.", true),
+	mcp.AddTool(server, tool("book_search", "Search books", "Search books, textbooks, manuals and standards by title, author or topic. Returns one page with hash, format, metadata and description when available. Pass a selected hash to book_download.", true),
 		func(ctx context.Context, req *mcp.CallToolRequest, params SearchParams) (*mcp.CallToolResult, searchResult[*anna.Book], error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, searchTimeout)
 			if err != nil {

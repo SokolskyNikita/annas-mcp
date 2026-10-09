@@ -19,8 +19,10 @@ func (r *Resolver) defaultProbe(ctx context.Context, baseURL string) error {
 		return err
 	}
 	req.Header.Set("User-Agent", browserUserAgent)
-	if r.accountCookie != "" {
-		req.Header.Set("Cookie", r.accountCookie)
+	if r.accountCookie != nil {
+		if cookie := strings.TrimSpace(r.accountCookie()); cookie != "" {
+			req.Header.Set("Cookie", cookie)
+		}
 	}
 
 	resp, err := r.do(req, true)
