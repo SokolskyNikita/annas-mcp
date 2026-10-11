@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/internal/logger"
 	"github.com/SokolskyNikita/annas-mcp/internal/mirror"
+	"go.uber.org/zap"
 )
 
 // BaseURLResolver resolves an Anna mirror. It is deliberately a small
@@ -50,9 +52,12 @@ type Client struct {
 	baseMu      sync.Mutex
 	baseURL     string
 	baseExpires time.Time
-	resolving   chan struct{}
-	sessionMu   sync.Mutex
-	cookie      string
+	// baseFallback is set while the configured mirror stands in for a
+	// failed selection, which failed requests must not cut short.
+	baseFallback bool
+	resolving    chan struct{}
+	sessionMu    sync.Mutex
+	cookie       string
 	// configuredCookie is ANNAS_ACCOUNT_COOKIE, kept to recognize it later.
 	configuredCookie string
 	signingIn        chan struct{}
@@ -190,12 +195,14 @@ func (c *Client) baseURLFor(ctx context.Context) (string, error) {
 		}
 		c.baseMu.Lock()
 		if ctx.Err() == nil {
+			c.baseFallback = err != nil
 			if err == nil {
 				c.baseURL = resolved
 				c.baseExpires = time.Now().Add(mirrorCacheTTL)
 			} else {
 				c.baseURL = fallback
 				c.baseExpires = time.Now().Add(mirrorFailureTTL)
+				logger.GetLogger().Warn("Automatic mirror selection failed; using the configured mirror", zap.String("baseURL", fallback), zap.Duration("retryAfter", mirrorFailureTTL), zap.Error(err))
 			}
 		}
 		base := c.baseURL
@@ -211,6 +218,8 @@ func (c *Client) baseURLFor(ctx context.Context) (string, error) {
 
 // Failed archive requests invalidate only the matching selection; another
 // concurrent request may already have moved the client to a healthy mirror.
+// The fallback after a failed selection keeps its retry delay, so requests
+// do not select again one after another while every mirror is failing.
 func (c *Client) invalidateMirror(rawURL string) {
 	if !c.config.AutoBaseURL {
 		return
@@ -222,7 +231,7 @@ func (c *Client) invalidateMirror(rawURL string) {
 	c.baseMu.Lock()
 	defer c.baseMu.Unlock()
 	current, _ := url.Parse(c.baseURL)
-	if sameOrigin(target, current) {
+	if !c.baseFallback && sameOrigin(target, current) {
 		c.baseExpires = time.Time{}
 	}
 }

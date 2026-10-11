@@ -67,6 +67,7 @@ These use real credentials from your environment or `.env`.
 - `node scripts/smoke-mcp.mjs ./annas-mcp` exercises all four MCP tools against the live archive, including real downloads (so it uses download quota), and verifies sizes and checksums. It ignores `ANNAS_ACCOUNT_COOKIE` and saves the session in a temporary folder, so it always tests signing in with `ANNAS_SECRET_KEY`.
 - `scripts/healthcheck.sh --live` runs real searches without downloading anything.
 - `ANNAS_MCP_TEST_SCIDB_LIVE=1 go test ./internal/anna -run '^TestLiveSciDBFallback$' -count=1 -v` tests the SciDB PDF fallback on its own.
+- `ANNAS_MCP_TEST_MIRROR_LIVE=1 go test ./internal/mirror -run '^TestLiveResolve$' -count=1 -v` selects a mirror the way a first run does, then probes each official mirror and logs how long it took. It needs no credentials.
 
 ## Releasing
 

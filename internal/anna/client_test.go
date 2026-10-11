@@ -30,6 +30,9 @@ func TestAutomaticMirrorDiscoveryIsLazyAndUsesInjectedTransport(t *testing.T) {
 		if req.Header.Get("Cookie") != "aa_account_id2=test" {
 			t.Error("missing cookie on archive request")
 		}
+		if req.URL.Path == "/dyn/up/" {
+			return fixtureResponse(t, req, http.StatusOK, "mirror_up.json", "text/json", nil), nil
+		}
 		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
 	})}})
 	if calls.Load() != 0 {
@@ -234,5 +237,12 @@ func TestMirrorFailureFallsBackToConfiguredOrigin(t *testing.T) {
 	base, err = client.baseURLFor(context.Background())
 	if err != nil || base != "https://configured.example" {
 		t.Fatalf("fallback: %s %v", base, err)
+	}
+	// A failing fallback waits out mirrorFailureTTL instead of selecting
+	// again on every request while the mirrors are down.
+	client.invalidateMirror(base)
+	base, err = client.baseURLFor(context.Background())
+	if err != nil || base != "https://configured.example" || resolves != 2 {
+		t.Fatalf("fallback after a failed request: %s %v, %d selections", base, err, resolves)
 	}
 }

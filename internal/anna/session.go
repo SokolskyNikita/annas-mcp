@@ -42,7 +42,7 @@ func (c *Client) sessionCookie() string {
 }
 
 // ensureSession signs in before the first archive request when no cookie was
-// configured. Mirror probes need the session too, so it runs before them.
+// configured. Mirror probes send the session too, so it runs before them.
 func (c *Client) ensureSession(ctx context.Context) error {
 	if c.sessionCookie() != "" {
 		return nil

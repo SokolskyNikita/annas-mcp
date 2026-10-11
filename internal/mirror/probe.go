@@ -2,6 +2,7 @@ package mirror
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -9,12 +10,18 @@ import (
 	"strings"
 )
 
+// probePath is Anna's uptime endpoint. It answers from the archive's own
+// servers with a few bytes of JSON and, unlike /search, is not behind the
+// DDoS-Guard browser check for anonymous requests. A real search takes
+// seconds and returns hundreds of kilobytes, which made probes time out.
+const probePath = "/dyn/up/"
+
 func (r *Resolver) defaultProbe(ctx context.Context, baseURL string) error {
 	host, err := ParseCandidateURL(baseURL)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://"+host+"/search?q=test", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://"+host+probePath, nil)
 	if err != nil {
 		return err
 	}
@@ -33,15 +40,12 @@ func (r *Resolver) defaultProbe(ctx context.Context, baseURL string) error {
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		return fmt.Errorf("probe failed with status %d", resp.StatusCode)
 	}
-	// Search pages can be much larger than the probe needs to inspect. Read a
-	// bounded prefix and look for the stable Anna marker without rejecting a
-	// healthy response merely because it contains many search results.
 	body, err := io.ReadAll(io.LimitReader(resp.Body, maxProbeBodyBytes))
 	if err != nil {
 		return err
 	}
-	if !probeResponseHasAnnaMarker(body) {
-		return errors.New("probe response did not contain the Anna's Archive marker")
+	if !isAnnaUpResponse(body) {
+		return errors.New("probe response was not Anna's Archive uptime status")
 	}
 	return nil
 }
@@ -96,7 +100,13 @@ func (r *Resolver) do(req *http.Request, sameOriginOnly bool) (*http.Response, e
 	return client.Do(req)
 }
 
-func probeResponseHasAnnaMarker(body []byte) bool {
-	normalized := strings.ToLower(strings.ReplaceAll(string(body), "’", "'"))
-	return strings.Contains(normalized, "anna's archive") || strings.Contains(normalized, "in one place - anna")
+// isAnnaUpResponse accepts the uptime endpoint's JSON object, such as
+// {"aa_logged_in":0}. A DDoS-Guard page or another site's response fails.
+func isAnnaUpResponse(body []byte) bool {
+	var status map[string]json.RawMessage
+	if err := json.Unmarshal(body, &status); err != nil {
+		return false
+	}
+	_, ok := status["aa_logged_in"]
+	return ok
 }

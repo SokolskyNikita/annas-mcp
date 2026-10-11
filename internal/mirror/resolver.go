@@ -22,7 +22,7 @@ const (
 	defaultProbeTimeout = 5 * time.Second
 	maxMirrorCandidates = 8
 	maxStatusPageBytes  = 2 << 20
-	maxProbeBodyBytes   = 512 << 10
+	maxProbeBodyBytes   = 64 << 10
 	browserUserAgent    = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 
@@ -44,7 +44,7 @@ type ResolveOptions struct {
 type ProbeFunc func(ctx context.Context, baseURL string) error
 
 // Resolver discovers official mirrors from a status page and returns the
-// first one that passes its probe.
+// first one to pass its probe.
 type Resolver struct {
 	client        *http.Client
 	statusPageURL string
@@ -76,10 +76,10 @@ func (r *Resolver) SetAccountCookie(cookieHeader func() string) {
 	r.accountCookie = cookieHeader
 }
 
-// Resolve returns the first reachable official mirror, trying the best-ranked
-// candidates first. Discovery and probing share one deadline. When they fail,
-// the validated fallback is returned instead, unless the caller's own context
-// was cancelled.
+// Resolve probes the best-ranked official mirrors at the same time and returns
+// the first to pass, so a slow or hanging mirror does not hold up selection.
+// Discovery and probing share one deadline. When they fail, the validated
+// fallback is returned instead, unless the caller's own context was cancelled.
 func (r *Resolver) Resolve(ctx context.Context, opts ResolveOptions) (string, error) {
 	if ctx == nil {
 		ctx = context.Background()
@@ -96,23 +96,33 @@ func (r *Resolver) Resolve(ctx context.Context, opts ResolveOptions) (string, er
 
 	candidates, err := r.discover(attemptCtx, candidateLimit(opts.MaxCandidates))
 	if err != nil {
-		log.Warn("Mirror discovery failed", zap.String("statusPageURL", r.statusPageURL), zap.String("fallbackBaseURL", fb.baseURL), zap.Error(err))
+		log.Warn("Mirror discovery failed", zap.String("statusPageURL", r.statusPageURL), fb.field(), zap.Error(err))
 		return fb.use(err)
 	}
 	log.Info("Discovered Anna mirror candidates", zap.Int("candidates", len(candidates)))
 
+	// Returning cancels attemptCtx and with it the probes still running. The
+	// channel is buffered so they can still report and exit.
+	type result struct {
+		baseURL string
+		err     error
+	}
+	results := make(chan result, len(candidates))
 	for _, candidate := range candidates {
-		if err := attemptCtx.Err(); err != nil {
-			return fb.use(err)
-		}
-		if err := r.probe(attemptCtx, candidate.BaseURL); err != nil {
-			log.Warn("Anna mirror probe failed", zap.String("baseURL", candidate.BaseURL), zap.Error(err))
+		go func() {
+			results <- result{candidate.BaseURL, r.probe(attemptCtx, candidate.BaseURL)}
+		}()
+	}
+	for range candidates {
+		probed := <-results
+		if probed.err != nil {
+			log.Warn("Anna mirror probe failed", zap.String("baseURL", probed.baseURL), zap.Error(probed.err))
 			continue
 		}
-		log.Info("Selected Anna mirror automatically", zap.String("baseURL", candidate.BaseURL))
-		return candidate.BaseURL, nil
+		log.Info("Selected Anna mirror automatically", zap.String("baseURL", probed.baseURL))
+		return probed.baseURL, nil
 	}
-	log.Warn("No Anna mirror passed its probe", zap.String("fallbackBaseURL", fb.baseURL))
+	log.Warn("No Anna mirror passed its probe", fb.field())
 	return fb.use(errNoReachable)
 }
 
@@ -156,6 +166,15 @@ func newFallback(caller, attempt context.Context, raw string) fallback {
 		baseURL = ""
 	}
 	return fallback{caller: caller, attempt: attempt, baseURL: baseURL}
+}
+
+// field names the fallback in log entries, and is omitted when there is
+// none: the caller then picks its own mirror.
+func (f fallback) field() zap.Field {
+	if f.baseURL == "" {
+		return zap.Skip()
+	}
+	return zap.String("fallbackBaseURL", f.baseURL)
 }
 
 // use gives precedence to the caller's cancellation, then the configured

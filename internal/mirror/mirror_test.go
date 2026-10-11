@@ -6,13 +6,18 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
 
 //go:embed testdata/*.html
 var testPages embed.FS
+
+// upResponse is what a mirror's uptime endpoint returns to a signed-in probe.
+const upResponse = `{"aa_logged_in":1}`
 
 func page(t *testing.T, name string) string {
 	t.Helper()
@@ -160,6 +165,12 @@ func TestResolveSelection(t *testing.T) {
 	t.Parallel()
 
 	accept := func(context.Context, string) error { return nil }
+	onlyPK := func(_ context.Context, baseURL string) error {
+		if baseURL != "annas-archive.pk" {
+			return errors.New("mirror unavailable")
+		}
+		return nil
+	}
 	cases := []struct {
 		name     string
 		client   *http.Client
@@ -168,18 +179,21 @@ func TestResolveSelection(t *testing.T) {
 		want     string
 		wantErr  bool
 	}{
-		{name: "prefers the up mirror", client: statusPage(t, "status_resolve.html"), probe: accept, fallback: "fallback.example", want: "annas-archive.pk"},
+		{name: "selects the mirror that passes its probe", client: statusPage(t, "status_resolve.html"), probe: onlyPK, fallback: "fallback.example", want: "annas-archive.pk"},
 		{name: "status page unreachable uses fallback", client: offline(), probe: accept, fallback: "https://fallback.example/", want: "fallback.example"},
 		{name: "insecure fallback is ignored", client: offline(), fallback: "http://fallback.example", wantErr: true},
 		{name: "no fallback reports the failure", client: offline(), wantErr: true},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			var mu sync.Mutex
 			var probed []string
 			probe := tc.probe
 			if probe != nil {
 				probe = func(ctx context.Context, baseURL string) error {
+					mu.Lock()
 					probed = append(probed, baseURL)
+					mu.Unlock()
 					return tc.probe(ctx, baseURL)
 				}
 			}
@@ -193,10 +207,50 @@ func TestResolveSelection(t *testing.T) {
 			if err != nil || got != tc.want {
 				t.Fatalf("Resolve = %q, %v; want %q", got, err, tc.want)
 			}
-			if tc.want == "annas-archive.pk" && (len(probed) != 1 || probed[0] != tc.want) {
-				t.Fatalf("probed %v; the first healthy candidate should end the search", probed)
+			mu.Lock()
+			defer mu.Unlock()
+			if slices.Contains(probed, "annas-archive.gd") {
+				t.Fatalf("probed %v; a mirror SLUM reports down should be skipped", probed)
 			}
 		})
+	}
+}
+
+func TestResolveProbesInParallelAndCancelsTheRest(t *testing.T) {
+	t.Parallel()
+
+	var started, finished sync.WaitGroup
+	started.Add(3)
+	finished.Add(3)
+	allStarted := make(chan struct{})
+	go func() { started.Wait(); close(allStarted) }()
+	resolver := NewResolver(statusPage(t, "current_slum.html"), "https://status.example/", func(ctx context.Context, baseURL string) error {
+		defer finished.Done()
+		started.Done()
+		// The worst-ranked mirror answers once every probe is running, which
+		// probing one mirror at a time would never reach. The others hang.
+		if baseURL == "annas-archive.gd" {
+			select {
+			case <-allStarted:
+				return nil
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+		<-ctx.Done()
+		return ctx.Err()
+	})
+
+	got, err := resolver.Resolve(context.Background(), ResolveOptions{Timeout: time.Minute})
+	if err != nil || got != "annas-archive.gd" {
+		t.Fatalf("Resolve = %q, %v; want annas-archive.gd", got, err)
+	}
+	done := make(chan struct{})
+	go func() { finished.Wait(); close(done) }()
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("probes still running after a mirror was selected")
 	}
 }
 
@@ -216,7 +270,7 @@ func TestResolveNeverProbesFraudulentSLUMCandidates(t *testing.T) {
 		if req.URL.Host != "annas-archive.gl" {
 			t.Errorf("unexpected mirror probe to %q", req.URL.Host)
 		}
-		return serve(req, http.StatusOK, page(t, "probe_valid.html")), nil
+		return serve(req, http.StatusOK, upResponse), nil
 	})}
 	resolver := NewResolver(client, "https://status.example/", nil)
 	resolver.SetAccountCookie(func() string { return "aa_account_id2=token" })
@@ -303,36 +357,39 @@ func TestResolvePropagatesCallerCancellation(t *testing.T) {
 	}
 }
 
-func TestDefaultProbeRequiresAnnaMarkerAndSendsCookie(t *testing.T) {
+func TestDefaultProbeChecksUptimeEndpointAndSendsCookie(t *testing.T) {
 	t.Parallel()
 
 	var seen *http.Request
 	client := &http.Client{Transport: transport(func(req *http.Request) (*http.Response, error) {
 		seen = req
-		return serve(req, http.StatusOK, page(t, "probe_valid.html")), nil
+		return serve(req, http.StatusOK, upResponse), nil
 	})}
 	resolver := NewResolver(client, "https://status.example/", nil)
 	resolver.SetAccountCookie(func() string { return "aa_account_id2=token" })
 	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err != nil {
 		t.Fatalf("defaultProbe returned error: %v", err)
 	}
-	if seen == nil || seen.Header.Get("Cookie") != "aa_account_id2=token" {
-		t.Fatalf("expected account cookie on probe request, got %#v", seen)
+	if seen == nil || seen.URL.String() != "https://annas-archive.gl/dyn/up/" {
+		t.Fatalf("probe requested %v, want the uptime endpoint", seen)
+	}
+	if seen.Header.Get("Cookie") != "aa_account_id2=token" {
+		t.Fatalf("expected account cookie on probe request, got %q", seen.Header.Get("Cookie"))
 	}
 
-	client.Transport = transport(func(req *http.Request) (*http.Response, error) {
-		return serve(req, http.StatusOK, page(t, "probe_challenge.html")), nil
-	})
-	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err == nil {
-		t.Fatal("expected a response without the Anna marker to fail")
+	rejected := map[string]string{
+		"challenge page":          page(t, "probe_challenge.html"),
+		"archive HTML page":       "<html><head><title>Anna's Archive</title></head></html>",
+		"JSON without the status": `{"status":"ok"}`,
+		"oversized response":      `{"aa_logged_in":1,"padding":"` + strings.Repeat("x", maxProbeBodyBytes) + `"}`,
 	}
-
-	client.Transport = transport(func(req *http.Request) (*http.Response, error) {
-		body := page(t, "probe_valid.html") + strings.Repeat("result ", maxProbeBodyBytes)
-		return serve(req, http.StatusOK, body), nil
-	})
-	if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err != nil {
-		t.Fatalf("expected a large response with an early Anna marker to pass: %v", err)
+	for name, body := range rejected {
+		client.Transport = transport(func(req *http.Request) (*http.Response, error) {
+			return serve(req, http.StatusOK, body), nil
+		})
+		if err := resolver.defaultProbe(context.Background(), "annas-archive.gl"); err == nil {
+			t.Errorf("%s: probe passed, want an error", name)
+		}
 	}
 }
 
