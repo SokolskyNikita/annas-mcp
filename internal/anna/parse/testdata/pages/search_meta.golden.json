@@ -1,4 +1,855 @@
 {
+  "cards": [
+    {
+      "prefix": "trantor",
+      "id": "IbzIqFBQUoexmxMZ",
+      "href": "/trantor/IbzIqFBQUoexmxMZ",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Boldrin, Michele; Levine, David K.",
+      "publisher": "Cambridge University Press",
+      "description": "\"Intellectual property\"—patents and copyrights—have become controversial. We witness teenagers being sued for \"pirating\" music, and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation—do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "3.9MB",
+        "content": "book_unknown",
+        "sources": [
+          "trantor"
+        ]
+      }
+    },
+    {
+      "prefix": "isbndb",
+      "id": "9780511415449",
+      "href": "/isbndb/9780511415449",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Boldrin, Michele, Levine, David",
+      "publisher": "Cambridge University Press",
+      "meta": {
+        "language": "English",
+        "content": "book_unknown",
+        "sources": [
+          "isbndb"
+        ]
+      }
+    },
+    {
+      "prefix": "isbndb",
+      "id": "9780511410840",
+      "href": "/isbndb/9780511410840",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "isbndb"
+        ]
+      }
+    },
+    {
+      "prefix": "isbndb",
+      "id": "9780521127264",
+      "href": "/isbndb/9780521127264",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Boldrin, Michele, Levine, David K.",
+      "publisher": "Cambridge University Press",
+      "edition": "Illustrated, 2010",
+      "description": "“Intellectual property” – patents and copyrights – have become controversial. We witness teenagers being sued for “pirating” music – and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation – do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No.",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "isbndb"
+        ]
+      }
+    },
+    {
+      "prefix": "isbndb",
+      "id": "9780521879286",
+      "href": "/isbndb/9780521879286",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Boldrin, Michele, Levine, David K.",
+      "publisher": "Cambridge University Press",
+      "edition": "1, 2008",
+      "description": "A Primer On Ugaritic Is An Introduction To The Language Of The Ancient City Of Ugarit, A City That Flourished In The Second Millennium Bce On The Lebanese Coast, Placed In The Context Of The Culture, Literature, And Religion Of This Ancient Semitic Culture. The Ugaritic Language And Literature Were A Precursor To Canaanite And Serve As Our Most Important Resources For Understanding The Old Testament And The Hebrew Language. Special Emphasis Is Placed On The Contextualization",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "isbndb"
+        ]
+      }
+    },
+    {
+      "prefix": "gbooks",
+      "id": "liUlyQEACAAJ",
+      "href": "/gbooks/liUlyQEACAAJ",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin",
+      "meta": {
+        "language": "English",
+        "content": "book_unknown",
+        "sources": [
+          "gbooks"
+        ]
+      }
+    },
+    {
+      "prefix": "gbooks",
+      "id": "X4VFtQEACAAJ",
+      "href": "/gbooks/X4VFtQEACAAJ",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin; David K. Levine",
+      "meta": {
+        "language": "English",
+        "content": "book_unknown",
+        "sources": [
+          "gbooks"
+        ]
+      }
+    },
+    {
+      "prefix": "gbooks",
+      "id": "kJtoDeh3P0sC",
+      "href": "/gbooks/kJtoDeh3P0sC",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin; David K. Levine",
+      "meta": {
+        "language": "English",
+        "content": "book_unknown",
+        "sources": [
+          "gbooks"
+        ]
+      }
+    },
+    {
+      "prefix": "gbooks",
+      "id": "6_66tQEACAAJ",
+      "href": "/gbooks/6_66tQEACAAJ",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin; David K. Levine",
+      "meta": {
+        "language": "English",
+        "content": "book_unknown",
+        "sources": [
+          "gbooks"
+        ]
+      }
+    },
+    {
+      "prefix": "gbooks",
+      "id": "ltFytAEACAAJ",
+      "href": "/gbooks/ltFytAEACAAJ",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin; David K. Levine",
+      "meta": {
+        "language": "English",
+        "content": "book_unknown",
+        "sources": [
+          "gbooks"
+        ]
+      }
+    },
+    {
+      "prefix": "gbooks",
+      "id": "kciNtQEACAAJ",
+      "href": "/gbooks/kciNtQEACAAJ",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin; David K. Levine",
+      "meta": {
+        "language": "English",
+        "content": "book_unknown",
+        "sources": [
+          "gbooks"
+        ]
+      }
+    },
+    {
+      "prefix": "gbooks",
+      "id": "W8ZOGpud3N4C",
+      "href": "/gbooks/W8ZOGpud3N4C",
+      "title": "IER Lawrence Klein Lecture",
+      "authors": "Michele Boldrin; David K. Levine",
+      "meta": {
+        "language": "English",
+        "content": "book_unknown",
+        "sources": [
+          "gbooks"
+        ]
+      }
+    },
+    {
+      "prefix": "ol",
+      "id": "OL34441693M",
+      "href": "/ol/OL34441693M",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin, David K. Levine",
+      "publisher": "Cambridge University Press",
+      "edition": "2009",
+      "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2009",
+        "content": "book_unknown",
+        "sources": [
+          "ol"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "933276406",
+      "href": "/oclc/933276406",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2008",
+      "description": "\"A Primer on Ugaritic is an introduction to the language of the ancient city of Ugarit, a city that flourished in the second millennium BCE on the Lebanese coast, placed in the context of the culture, literature, and religion of this ancient Semitic culture. The Ugaritic language and literature were a precursor to Canaanite and serve as our most important resources for understanding the Old Testament and the Hebrew language. Special emphasis is placed on the",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "goodreads",
+      "id": "3770306",
+      "href": "/goodreads/3770306",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin; David K. Levine",
+      "publisher": "Cambridge University Press",
+      "edition": "1, PS, 2008",
+      "description": "\"Intellectual property\"patents and copyrightshave become controversial. We witness teenagers being sued for \"pirating\" music, and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovationdo we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called intellectual",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "goodreads"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1342206911",
+      "href": "/oclc/1342206911",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2010",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "gbooks",
+      "id": "jfDgzwEACAAJ",
+      "href": "/gbooks/jfDgzwEACAAJ",
+      "title": "Imitation Is the Sincerest Form of Flattery",
+      "authors": "Daniel Rothschild",
+      "meta": {
+        "language": "English",
+        "content": "book_unknown",
+        "sources": [
+          "gbooks"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "800168821",
+      "href": "/oclc/800168821",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2010",
+      "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "ol",
+      "id": "OL40893930M",
+      "href": "/ol/OL40893930M",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin, David K. Levine",
+      "publisher": "Cambridge University Press",
+      "edition": "2008",
+      "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "ol"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1160482852",
+      "href": "/oclc/1160482852",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2008",
+      "description": "'Intellectual property' - patents and copyrights - have become controversial. We witness teenagers being sued for 'pirating' music - and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation - do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1291952801",
+      "href": "/oclc/1291952801",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2010",
+      "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "804851652",
+      "href": "/oclc/804851652",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2008",
+      "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1375340524",
+      "href": "/oclc/1375340524",
+      "title": "2003 Lawrence R. Klein Lecture The Case Against Intellectual Monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "SSRN",
+      "edition": "S.l, 2015",
+      "description": "In the modern theory of growth, monopoly plays a crucial role both as a cause and an effect of innovation. Innovative firms, it is argued, would have insufficient incentive to innovate should the prospect of monopoly power not be present. This theme of monopoly runs throughout the theory of growth, international trade, and industrial organization. We argue that monopoly is neither needed for, nor a necessary consequence of innovation. In particular, intellectual property is",
+      "meta": {
+        "language": "English",
+        "year": "2015",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "473735451",
+      "href": "/oclc/473735451",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "885425689",
+      "href": "/oclc/885425689",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1158889753",
+      "href": "/oclc/1158889753",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2010",
+      "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "libby",
+      "id": "179447",
+      "href": "/libby/179447",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin; David K. Levine",
+      "publisher": "Cambridge University Press",
+      "edition": "2008",
+      "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "libby"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "849025577",
+      "href": "/oclc/849025577",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "682202497",
+      "href": "/oclc/682202497",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin",
+      "edition": "2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "755934156",
+      "href": "/oclc/755934156",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2010",
+      "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "751229319",
+      "href": "/oclc/751229319",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2010",
+      "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1256884212",
+      "href": "/oclc/1256884212",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2010, c2008",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "ol",
+      "id": "OL40469443M",
+      "href": "/ol/OL40469443M",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin, David K. Levine",
+      "publisher": "Cambridge University Press",
+      "edition": "2008",
+      "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "ol"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "443115037",
+      "href": "/oclc/443115037",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1375526958",
+      "href": "/oclc/1375526958",
+      "title": "Imitation Is the Sincerest Form of Flattery A Critical Analysis of Against Intellectual Monopoly",
+      "authors": "Daniel Rothschild",
+      "publisher": "SSRN",
+      "edition": "S.l, 2018",
+      "description": "Against Intellectual Monopoly by Boldrin and Levine (“B\u0026L”) makes the case that intellectual property does not promote innovation or lead to greater economic growth, by highlighting numerous examples from industries in which innovation increased without patent or copyright protection. The authors also argue that companies only try to obtain an intellectual monopoly after the well runs dry as a way to sit on their laurels and profit from past inventions by prohibiting",
+      "meta": {
+        "language": "English",
+        "year": "2018",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "ol",
+      "id": "OL40480832M",
+      "href": "/ol/OL40480832M",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin, David K. Levine",
+      "publisher": "Cambridge University Press",
+      "edition": "2008",
+      "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "ol"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "9471920917",
+      "href": "/oclc/9471920917",
+      "title": "IER Lawrence Klein Lecture: The Case Against Intellectual Monopoly",
+      "authors": "Boldrin, Michele; Levine, David K; Federal Reserve Bank of Minneapolis Research Department",
+      "publisher": "Federal Reserve Bank of Minneapolis",
+      "edition": "2004-06",
+      "description": "In the modern theory of growth, monopoly plays a crucial role both as a cause and an effect of innovation. Innovative firms, it is argued, would have insufficient incentive to innovate should the prospect of monopoly power not be present. This theme of monopoly runs throughout the theory of growth, international trade, and industrial organization. We argue that monopoly is neither needed for, nor a necessary consequence of, innovation. In particular, intellectual property is",
+      "meta": {
+        "language": "English",
+        "year": "2004",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "495338034",
+      "href": "/oclc/495338034",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, ©2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "612217568",
+      "href": "/oclc/612217568",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "863381420",
+      "href": "/oclc/863381420",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "1st published, New York, 2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1127453797",
+      "href": "/oclc/1127453797",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2008",
+      "description": "\"Intellectual property\"--Patents and copyrights - have become controversial. We witness teenagers being sued for \"pirating\" music - and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation - do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "760904793",
+      "href": "/oclc/760904793",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, N.Y, 2010",
+      "description": "\"Intellectual property\"--Patents and copyrights - have become controversial. We witness teenagers being sued for 'pirating' music - and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation - do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "ol",
+      "id": "OL28454993M",
+      "href": "/ol/OL28454993M",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin, David K. Levine",
+      "publisher": "Cambridge University Press",
+      "edition": "2010",
+      "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "ol"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "922981251",
+      "href": "/oclc/922981251",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin; David K Levine",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1261985191",
+      "href": "/oclc/1261985191",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin; David K Levine; ProQuest (Firm)",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "750855959",
+      "href": "/oclc/750855959",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2008",
+      "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "699654164",
+      "href": "/oclc/699654164",
+      "title": "Against intellectual monopoly",
+      "publisher": "Cambridge University Press",
+      "edition": "Cambridge, 2010",
+      "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
+      "meta": {
+        "language": "English",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "ol",
+      "id": "OL24299484M",
+      "href": "/ol/OL24299484M",
+      "title": "Against Intellectual Monopoly",
+      "authors": "Michele Boldrin, David K. Levine",
+      "publisher": "Cambridge University Press",
+      "edition": "New York State, 2008",
+      "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "ol"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "590674230",
+      "href": "/oclc/590674230",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2008",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    },
+    {
+      "prefix": "oclc",
+      "id": "1259138129",
+      "href": "/oclc/1259138129",
+      "title": "Against intellectual monopoly",
+      "authors": "Michele Boldrin",
+      "publisher": "Cambridge University Press",
+      "edition": "New York, 2008",
+      "description": "This book argues that patents and copyrights are not necessary for innovation and overall do not serve the public good",
+      "meta": {
+        "language": "English",
+        "year": "2008",
+        "content": "book_unknown",
+        "sources": [
+          "oclc"
+        ]
+      }
+    }
+  ],
   "facets": {
     "content": [
       "book_nonfiction",
@@ -46,519 +897,10 @@
       "chinese_architecture"
     ]
   },
-  "page": {
-    "Results": [
-      {
-        "id": "trantor:IbzIqFBQUoexmxMZ",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Boldrin, Michele; Levine, David K.",
-        "publisher": "Cambridge University Press",
-        "language": "English",
-        "description": "\"Intellectual property\"—patents and copyrights—have become controversial. We witness teenagers being sued for \"pirating\" music, and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation—do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/trantor/IbzIqFBQUoexmxMZ"
-      },
-      {
-        "id": "isbndb:9780511415449",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Boldrin, Michele, Levine, David",
-        "publisher": "Cambridge University Press",
-        "language": "English",
-        "url": "https://annas-archive.gl/isbndb/9780511415449"
-      },
-      {
-        "id": "isbndb:9780511410840",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/isbndb/9780511410840"
-      },
-      {
-        "id": "isbndb:9780521127264",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Boldrin, Michele, Levine, David K.",
-        "publisher": "Cambridge University Press",
-        "edition": "Illustrated, 2010",
-        "language": "English",
-        "year": "2010",
-        "description": "“Intellectual property” – patents and copyrights – have become controversial. We witness teenagers being sued for “pirating” music – and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation – do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No.",
-        "url": "https://annas-archive.gl/isbndb/9780521127264"
-      },
-      {
-        "id": "isbndb:9780521879286",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Boldrin, Michele, Levine, David K.",
-        "publisher": "Cambridge University Press",
-        "edition": "1, 2008",
-        "language": "English",
-        "year": "2008",
-        "description": "A Primer On Ugaritic Is An Introduction To The Language Of The Ancient City Of Ugarit, A City That Flourished In The Second Millennium Bce On The Lebanese Coast, Placed In The Context Of The Culture, Literature, And Religion Of This Ancient Semitic Culture. The Ugaritic Language And Literature Were A Precursor To Canaanite And Serve As Our Most Important Resources For Understanding The Old Testament And The Hebrew Language. Special Emphasis Is Placed On The Contextualization",
-        "url": "https://annas-archive.gl/isbndb/9780521879286"
-      },
-      {
-        "id": "gbooks:liUlyQEACAAJ",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "",
-        "language": "English",
-        "url": "https://annas-archive.gl/gbooks/liUlyQEACAAJ"
-      },
-      {
-        "id": "gbooks:X4VFtQEACAAJ",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin; David K. Levine",
-        "publisher": "",
-        "language": "English",
-        "url": "https://annas-archive.gl/gbooks/X4VFtQEACAAJ"
-      },
-      {
-        "id": "gbooks:kJtoDeh3P0sC",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin; David K. Levine",
-        "publisher": "",
-        "language": "English",
-        "url": "https://annas-archive.gl/gbooks/kJtoDeh3P0sC"
-      },
-      {
-        "id": "gbooks:6_66tQEACAAJ",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin; David K. Levine",
-        "publisher": "",
-        "language": "English",
-        "url": "https://annas-archive.gl/gbooks/6_66tQEACAAJ"
-      },
-      {
-        "id": "gbooks:ltFytAEACAAJ",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin; David K. Levine",
-        "publisher": "",
-        "language": "English",
-        "url": "https://annas-archive.gl/gbooks/ltFytAEACAAJ"
-      },
-      {
-        "id": "gbooks:kciNtQEACAAJ",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin; David K. Levine",
-        "publisher": "",
-        "language": "English",
-        "url": "https://annas-archive.gl/gbooks/kciNtQEACAAJ"
-      },
-      {
-        "id": "gbooks:W8ZOGpud3N4C",
-        "title": "IER Lawrence Klein Lecture",
-        "authors": "Michele Boldrin; David K. Levine",
-        "publisher": "",
-        "language": "English",
-        "url": "https://annas-archive.gl/gbooks/W8ZOGpud3N4C"
-      },
-      {
-        "id": "ol:OL34441693M",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin, David K. Levine",
-        "publisher": "Cambridge University Press",
-        "edition": "2009",
-        "language": "English",
-        "year": "2009",
-        "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/ol/OL34441693M"
-      },
-      {
-        "id": "oclc:933276406",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "description": "\"A Primer on Ugaritic is an introduction to the language of the ancient city of Ugarit, a city that flourished in the second millennium BCE on the Lebanese coast, placed in the context of the culture, literature, and religion of this ancient Semitic culture. The Ugaritic language and literature were a precursor to Canaanite and serve as our most important resources for understanding the Old Testament and the Hebrew language. Special emphasis is placed on the",
-        "url": "https://annas-archive.gl/oclc/933276406"
-      },
-      {
-        "id": "goodreads:3770306",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin; David K. Levine",
-        "publisher": "Cambridge University Press",
-        "edition": "1, PS, 2008",
-        "language": "English",
-        "year": "2008",
-        "description": "\"Intellectual property\"patents and copyrightshave become controversial. We witness teenagers being sued for \"pirating\" music, and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovationdo we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called intellectual",
-        "url": "https://annas-archive.gl/goodreads/3770306"
-      },
-      {
-        "id": "oclc:1342206911",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2010",
-        "language": "English",
-        "year": "2010",
-        "url": "https://annas-archive.gl/oclc/1342206911"
-      },
-      {
-        "id": "gbooks:jfDgzwEACAAJ",
-        "title": "Imitation Is the Sincerest Form of Flattery",
-        "authors": "Daniel Rothschild",
-        "publisher": "",
-        "language": "English",
-        "url": "https://annas-archive.gl/gbooks/jfDgzwEACAAJ"
-      },
-      {
-        "id": "oclc:800168821",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2010",
-        "language": "English",
-        "year": "2010",
-        "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
-        "url": "https://annas-archive.gl/oclc/800168821"
-      },
-      {
-        "id": "ol:OL40893930M",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin, David K. Levine",
-        "publisher": "Cambridge University Press",
-        "edition": "2008",
-        "language": "English",
-        "year": "2008",
-        "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/ol/OL40893930M"
-      },
-      {
-        "id": "oclc:1160482852",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2008",
-        "language": "English",
-        "year": "2008",
-        "description": "'Intellectual property' - patents and copyrights - have become controversial. We witness teenagers being sued for 'pirating' music - and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation - do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/oclc/1160482852"
-      },
-      {
-        "id": "oclc:1291952801",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2010",
-        "language": "English",
-        "year": "2010",
-        "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples",
-        "url": "https://annas-archive.gl/oclc/1291952801"
-      },
-      {
-        "id": "oclc:804851652",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2008",
-        "language": "English",
-        "year": "2008",
-        "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
-        "url": "https://annas-archive.gl/oclc/804851652"
-      },
-      {
-        "id": "oclc:1375340524",
-        "title": "2003 Lawrence R. Klein Lecture The Case Against Intellectual Monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "SSRN",
-        "edition": "S.l, 2015",
-        "language": "English",
-        "year": "2015",
-        "description": "In the modern theory of growth, monopoly plays a crucial role both as a cause and an effect of innovation. Innovative firms, it is argued, would have insufficient incentive to innovate should the prospect of monopoly power not be present. This theme of monopoly runs throughout the theory of growth, international trade, and industrial organization. We argue that monopoly is neither needed for, nor a necessary consequence of innovation. In particular, intellectual property is",
-        "url": "https://annas-archive.gl/oclc/1375340524"
-      },
-      {
-        "id": "oclc:473735451",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/473735451"
-      },
-      {
-        "id": "oclc:885425689",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/885425689"
-      },
-      {
-        "id": "oclc:1158889753",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2010",
-        "language": "English",
-        "year": "2010",
-        "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples",
-        "url": "https://annas-archive.gl/oclc/1158889753"
-      },
-      {
-        "id": "libby:179447",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin; David K. Levine",
-        "publisher": "Cambridge University Press",
-        "edition": "2008",
-        "language": "English",
-        "year": "2008",
-        "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/libby/179447"
-      },
-      {
-        "id": "oclc:849025577",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/849025577"
-      },
-      {
-        "id": "oclc:682202497",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "",
-        "edition": "2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/682202497"
-      },
-      {
-        "id": "oclc:755934156",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2010",
-        "language": "English",
-        "year": "2010",
-        "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
-        "url": "https://annas-archive.gl/oclc/755934156"
-      },
-      {
-        "id": "oclc:751229319",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2010",
-        "language": "English",
-        "year": "2010",
-        "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
-        "url": "https://annas-archive.gl/oclc/751229319"
-      },
-      {
-        "id": "oclc:1256884212",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2010, c2008",
-        "language": "English",
-        "year": "2010",
-        "url": "https://annas-archive.gl/oclc/1256884212"
-      },
-      {
-        "id": "ol:OL40469443M",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin, David K. Levine",
-        "publisher": "Cambridge University Press",
-        "edition": "2008",
-        "language": "English",
-        "year": "2008",
-        "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/ol/OL40469443M"
-      },
-      {
-        "id": "oclc:443115037",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/443115037"
-      },
-      {
-        "id": "oclc:1375526958",
-        "title": "Imitation Is the Sincerest Form of Flattery A Critical Analysis of Against Intellectual Monopoly",
-        "authors": "Daniel Rothschild",
-        "publisher": "SSRN",
-        "edition": "S.l, 2018",
-        "language": "English",
-        "year": "2018",
-        "description": "Against Intellectual Monopoly by Boldrin and Levine (“B\u0026L”) makes the case that intellectual property does not promote innovation or lead to greater economic growth, by highlighting numerous examples from industries in which innovation increased without patent or copyright protection. The authors also argue that companies only try to obtain an intellectual monopoly after the well runs dry as a way to sit on their laurels and profit from past inventions by prohibiting",
-        "url": "https://annas-archive.gl/oclc/1375526958"
-      },
-      {
-        "id": "ol:OL40480832M",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin, David K. Levine",
-        "publisher": "Cambridge University Press",
-        "edition": "2008",
-        "language": "English",
-        "year": "2008",
-        "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/ol/OL40480832M"
-      },
-      {
-        "id": "oclc:9471920917",
-        "title": "IER Lawrence Klein Lecture: The Case Against Intellectual Monopoly",
-        "authors": "Boldrin, Michele; Levine, David K; Federal Reserve Bank of Minneapolis Research Department",
-        "publisher": "Federal Reserve Bank of Minneapolis",
-        "edition": "2004-06",
-        "language": "English",
-        "year": "2004",
-        "description": "In the modern theory of growth, monopoly plays a crucial role both as a cause and an effect of innovation. Innovative firms, it is argued, would have insufficient incentive to innovate should the prospect of monopoly power not be present. This theme of monopoly runs throughout the theory of growth, international trade, and industrial organization. We argue that monopoly is neither needed for, nor a necessary consequence of, innovation. In particular, intellectual property is",
-        "url": "https://annas-archive.gl/oclc/9471920917"
-      },
-      {
-        "id": "oclc:495338034",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, ©2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/495338034"
-      },
-      {
-        "id": "oclc:612217568",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/612217568"
-      },
-      {
-        "id": "oclc:863381420",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "1st published, New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/863381420"
-      },
-      {
-        "id": "oclc:1127453797",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "description": "\"Intellectual property\"--Patents and copyrights - have become controversial. We witness teenagers being sued for \"pirating\" music - and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation - do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/oclc/1127453797"
-      },
-      {
-        "id": "oclc:760904793",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, N.Y, 2010",
-        "language": "English",
-        "year": "2010",
-        "description": "\"Intellectual property\"--Patents and copyrights - have become controversial. We witness teenagers being sued for 'pirating' music - and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation - do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/oclc/760904793"
-      },
-      {
-        "id": "ol:OL28454993M",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin, David K. Levine",
-        "publisher": "Cambridge University Press",
-        "edition": "2010",
-        "language": "English",
-        "year": "2010",
-        "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/ol/OL28454993M"
-      },
-      {
-        "id": "oclc:922981251",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin; David K Levine",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/922981251"
-      },
-      {
-        "id": "oclc:1261985191",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin; David K Levine; ProQuest (Firm)",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/1261985191"
-      },
-      {
-        "id": "oclc:750855959",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2008",
-        "language": "English",
-        "year": "2008",
-        "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
-        "url": "https://annas-archive.gl/oclc/750855959"
-      },
-      {
-        "id": "oclc:699654164",
-        "title": "Against intellectual monopoly",
-        "authors": "",
-        "publisher": "Cambridge University Press",
-        "edition": "Cambridge, 2010",
-        "language": "English",
-        "year": "2010",
-        "description": "This book examines patents and copyrights. It argues that these are not necessary for innovation and are detrimental to the common good, rather than beneficial. Unlike competing titles, the book has broad coverage of both copyrights and patents and is designed for a general audience, focusing on simple examples.",
-        "url": "https://annas-archive.gl/oclc/699654164"
-      },
-      {
-        "id": "ol:OL24299484M",
-        "title": "Against Intellectual Monopoly",
-        "authors": "Michele Boldrin, David K. Levine",
-        "publisher": "Cambridge University Press",
-        "edition": "New York State, 2008",
-        "language": "English",
-        "year": "2008",
-        "description": "'Intellectual property' — patents and copyrights — have become controversial. We witness teenagers being sued for 'pirating' music — and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essential to thriving creation and innovation — do we need them so that we all may enjoy fine music and good health? Across time and space the resounding answer is: No. So-called",
-        "url": "https://annas-archive.gl/ol/OL24299484M"
-      },
-      {
-        "id": "oclc:590674230",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "url": "https://annas-archive.gl/oclc/590674230"
-      },
-      {
-        "id": "oclc:1259138129",
-        "title": "Against intellectual monopoly",
-        "authors": "Michele Boldrin",
-        "publisher": "Cambridge University Press",
-        "edition": "New York, 2008",
-        "language": "English",
-        "year": "2008",
-        "description": "This book argues that patents and copyrights are not necessary for innovation and overall do not serve the public good",
-        "url": "https://annas-archive.gl/oclc/1259138129"
-      }
-    ],
-    "Partial": null,
-    "Total": 158,
-    "TotalIsLowerBound": false,
-    "MorePages": true
+  "shows_results": true,
+  "total": {
+    "found": true,
+    "lower_bound": false,
+    "total": 158
   }
 }

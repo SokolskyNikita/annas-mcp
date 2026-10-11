@@ -80,3 +80,23 @@ func TestNormalizeArxivIDStripsOnlyExplicitNumericVersion(t *testing.T) {
 		}
 	}
 }
+
+func TestValidDOI(t *testing.T) {
+	t.Parallel()
+
+	for doi, want := range map[string]bool{
+		"10.1000/example": true, "10.48550/arXiv.1706.03762": true, "10.123/short-registrant": false,
+		"10.1000/": false, "11.1000/x": false, "10.1000/with space": false, "": false,
+	} {
+		if got := ValidDOI(doi); got != want {
+			t.Errorf("ValidDOI(%q) = %v, want %v", doi, got, want)
+		}
+	}
+	// A DOI URL that does not parse still loses its prefix.
+	if got := NormalizeDOI("https://doi.org/10.1000/%zz"); got != "10.1000/%zz" {
+		t.Errorf("NormalizeDOI kept the prefix: %q", got)
+	}
+	if got := NormalizeArxivID("arxiv.1706.03762v1"); got != "1706.03762" {
+		t.Errorf("NormalizeArxivID = %q", got)
+	}
+}

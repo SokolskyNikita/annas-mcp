@@ -217,6 +217,22 @@ func TestFindMetadataReturnsCatalogRecords(t *testing.T) {
 	}
 }
 
+func TestPageTotalsPastTheLastPage(t *testing.T) {
+	t.Parallel()
+
+	// Anna shows "No files found" and no count past the last page.
+	page := SearchPage[int]{Results: []int{}}
+	pageTotals(&page, fixtureDocument(t, "pages/search_past_end.html.gz"), 3)
+	if page.Total != 0 || !page.TotalIsLowerBound || page.MorePages {
+		t.Fatalf("a page past the end should report an unknown total and no more pages: %+v", page)
+	}
+	first := SearchPage[int]{Results: []int{}}
+	pageTotals(&first, fixtureDocument(t, "pages/search_empty.html.gz"), 1)
+	if first.Total != 0 || first.TotalIsLowerBound || first.MorePages {
+		t.Fatalf("an empty first page has no results at all: %+v", first)
+	}
+}
+
 func TestPageTotalsWithoutResultsLine(t *testing.T) {
 	t.Parallel()
 

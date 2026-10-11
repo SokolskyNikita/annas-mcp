@@ -65,3 +65,60 @@ func TestRecordIdentityReadsStructuredDOIAndDetectsConflict(t *testing.T) {
 		})
 	}
 }
+
+func TestRecordIdentityFallbacks(t *testing.T) {
+	t.Parallel()
+
+	if identity := RecordIdentity(nil); !reflect.DeepEqual(identity, Identity{}) {
+		t.Fatalf("no page: %+v", identity)
+	}
+	meta := RecordIdentity(htmlDocument(t, `<meta name="citation_title" content="Meta Title"><meta name="citation_author" content="A Author">
+		<meta name="citation_doi" content="10.1000/meta"><meta name="citation_doi" content="10.0000/0123456789abcdef0123456789abcdef"><meta name="citation_publication_date" content="2001-02-03">`))
+	if meta.Title != "Meta Title" || !reflect.DeepEqual(meta.Authors, []string{"A Author"}) || meta.DOI != "10.1000/meta" || meta.Year != "2001" || meta.DOIConflict {
+		t.Fatalf("meta fallbacks: %+v", meta)
+	}
+	heading := RecordIdentity(htmlDocument(t, `<h1>Heading</h1><a href="/search?q=x"><span class="icon-[mdi--user-edit]"></span> Link Author</a><time datetime="1999-01-01"></time>`))
+	if heading.Title != "Heading" || !reflect.DeepEqual(heading.Authors, []string{"Link Author"}) || heading.Year != "1999" {
+		t.Fatalf("heading fallbacks: %+v", heading)
+	}
+	titled := RecordIdentity(htmlDocument(t, `<title>Page Title - Anna’s Archive</title>`))
+	if titled.Title != "Page Title" {
+		t.Fatalf("title fallback: %+v", titled)
+	}
+	codes := RecordIdentity(htmlDocument(t, `<div class="js-md5-codes-container">
+		<a href='/search?q="arxiv:1706.03762v2"'>arxiv</a><a href='/search?q="year:2017"'>year</a>
+		<a href="/search?q=%zz">bad</a><a href="/search?q=nokey">bad</a><a href="/search?q=doi:">empty</a>
+		<a href='/search?q="doi:10.0000/0123456789abcdef0123456789abcdef"'>placeholder</a></div>`))
+	if codes.ArxivID != "1706.03762" || codes.Year != "2017" || codes.DOI != "" {
+		t.Fatalf("codes: %+v", codes)
+	}
+	panel := RecordIdentity(htmlDocument(t, `<div class="js-md5-codes-container"><div id="md5-codes-panel-3">Year: <span class="bg-gray-200">abc</span><span class="bg-gray-200">1987</span></div><div id="md5-codes-panel-4">ISBN</div></div>`))
+	if panel.Year != "1987" {
+		t.Fatalf("year panel: %+v", panel)
+	}
+}
+
+func TestYearValue(t *testing.T) {
+	t.Parallel()
+
+	for value, want := range map[string]string{"2017": "2017", " 2017-06-12 ": "2017", "17": "", "3000": "", "20a7": "", "": ""} {
+		if got := yearValue(value); got != want {
+			t.Errorf("yearValue(%q) = %q, want %q", value, got, want)
+		}
+	}
+}
+
+func TestReadRecordDetails(t *testing.T) {
+	t.Parallel()
+
+	details := ReadRecordDetails(pageDocument(t, "record_equity_premium.html.gz"))
+	if details.Title != "Equity-premium prediction: attention is all you need." || details.Authors != "Luiz Renato Lima; Lucas Lúcio Godeiro" || details.Journal != "Wiley" {
+		t.Fatalf("details = %+v", details)
+	}
+	for description, journal := range map[string]string{"Only": "Only", "Author&#10;&#10;Publisher": "Publisher", "A&#10;&#10;B&#10;&#10;C": "C"} {
+		got := ReadRecordDetails(htmlDocument(t, `<title>No suffix</title><meta name="description" content="`+description+`"><div class="text-gray-500">path</div><div class="text-gray-500">2.0MB</div>`))
+		if got.Journal != journal || got.Title != "" || got.Size != "2.0MB" {
+			t.Errorf("%q: %+v", description, got)
+		}
+	}
+}

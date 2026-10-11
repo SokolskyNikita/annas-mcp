@@ -33,10 +33,18 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
 
+// unzipped caches captured pages once unzipped: tests with short request
+// deadlines serve them from fake mirrors, which must answer at once.
+var unzipped sync.Map
+
 // readFixture returns a fixture's contents, unzipping .gz files. name is
-// relative to testdata or, for captured pages, parse/testdata.
+// relative to testdata or, for captured pages, parse/testdata. Callers must
+// not modify the result.
 func readFixture(t testing.TB, name string) []byte {
 	t.Helper()
+	if data, ok := unzipped.Load(name); ok {
+		return data.([]byte)
+	}
 	data, err := testdataFS.ReadFile("testdata/" + name)
 	if errors.Is(err, fs.ErrNotExist) {
 		data, err = testdataFS.ReadFile("parse/testdata/" + name)
@@ -52,6 +60,7 @@ func readFixture(t testing.TB, name string) []byte {
 		if err != nil {
 			t.Fatalf("unzip fixture %q: %v", name, err)
 		}
+		unzipped.Store(name, data)
 	}
 	return data
 }
@@ -84,18 +93,6 @@ func readManifest(t testing.TB) []capturedPage {
 		t.Fatalf("read manifest: %v", err)
 	}
 	return manifest.Pages
-}
-
-// capturedPageNamed returns the manifest entry called name.
-func capturedPageNamed(t testing.TB, name string) capturedPage {
-	t.Helper()
-	for _, page := range readManifest(t) {
-		if page.Name == name {
-			return page
-		}
-	}
-	t.Fatalf("no captured page %q", name)
-	return capturedPage{}
 }
 
 func fixtureText(t testing.TB, name string) string {
@@ -185,6 +182,10 @@ func capturedCard(t testing.TB, page, hash string) string {
 // cards and its partial matches removed.
 func searchPageWith(t testing.TB, cards ...string) string {
 	t.Helper()
+	key := "with#" + strings.Join(cards, "\x00")
+	if page, ok := capturedHTML.Load(key); ok {
+		return page.(string)
+	}
 	doc := fixtureDocument(t, searchAttentionPage)
 	doc.Find(".js-aarecord-list-outer").First().SetHtml(strings.Join(cards, "\n"))
 	doc.Find(".js-partial-matches-show, .js-partial-matches-remove").Remove()
@@ -192,6 +193,7 @@ func searchPageWith(t testing.TB, cards ...string) string {
 	if err != nil {
 		t.Fatal(err)
 	}
+	capturedHTML.Store(key, page)
 	return page
 }
 

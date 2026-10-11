@@ -65,3 +65,16 @@ func TestLooksLikeHTML(t *testing.T) {
 		t.Fatal("a PDF was taken for HTML")
 	}
 }
+
+func TestExtensionFromMediaType(t *testing.T) {
+	t.Parallel()
+
+	for contentType, want := range map[string]string{
+		"application/pdf": "pdf", "application/octet-stream": "", "binary/octet-stream": "",
+		"application/x-not-a-real-type": "", "invalid;;": "", "": "",
+	} {
+		if got := extensionFromMediaType(contentType); got != want {
+			t.Errorf("extensionFromMediaType(%q) = %q, want %q", contentType, got, want)
+		}
+	}
+}

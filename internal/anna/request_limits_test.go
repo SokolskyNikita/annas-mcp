@@ -55,6 +55,7 @@ func TestQuietMirrorFailsBeforeTheDeadline(t *testing.T) {
 func TestQuietMirrorIsReplacedWithinTheCall(t *testing.T) {
 	t.Parallel()
 	var glQuiet atomic.Bool
+	page := fixtureText(t, noResultsPage)
 	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		if req.URL.Path == "/dyn/up/" {
 			return mirrorUp(t, req, func(host string) bool {
@@ -65,7 +66,7 @@ func TestQuietMirrorIsReplacedWithinTheCall(t *testing.T) {
 			glQuiet.Store(true)
 			return hang(req)
 		}
-		return fixtureResponse(t, req, http.StatusOK, noResultsPage, "text/html", nil), nil
+		return htmlResponse(req, http.StatusOK, page), nil
 	})}})
 	client.headerTimeout = 50 * time.Millisecond
 

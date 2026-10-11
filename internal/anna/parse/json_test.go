@@ -78,3 +78,19 @@ func TestParseCitationReadsEveryShape(t *testing.T) {
 		t.Fatalf("malformed authors or date were read: %+v", citation)
 	}
 }
+
+func TestLooseJSONValuesRejectMalformedStrings(t *testing.T) {
+	t.Parallel()
+
+	var value LooseString
+	if err := value.UnmarshalJSON([]byte(`"\q"`)); err == nil {
+		t.Error("an invalid string escape was accepted")
+	}
+	var values LooseStrings
+	if err := values.UnmarshalJSON([]byte(`"\q"`)); err == nil {
+		t.Error("an invalid single value was accepted")
+	}
+	if err := values.UnmarshalJSON([]byte(`null`)); err != nil || values != nil {
+		t.Errorf("null: %v %v", values, err)
+	}
+}

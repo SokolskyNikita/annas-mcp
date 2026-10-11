@@ -97,13 +97,6 @@ func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi,
 	return paper, nil
 }
 
-// addRecordDetails fills in a SciDB paper's title, journal, authors and size
-// from its record page.
-func addRecordDetails(paper *Paper, detail *goquery.Document) {
-	details := parse.ReadRecordDetails(detail)
-	paper.Title, paper.Journal, paper.Authors, paper.Size = details.Title, details.Journal, details.Authors, details.Size
-}
-
 // pageTotals fills in totals for a parsed page. Without Anna's count, a
 // full page is taken to mean that more results may follow. A page past the
 // last result shows no count either; the total is then unknown, so it is

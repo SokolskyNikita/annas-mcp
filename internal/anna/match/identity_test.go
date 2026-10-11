@@ -116,3 +116,61 @@ func TestSameWorkKeepsDOISuffixPunctuation(t *testing.T) {
 		}
 	}
 }
+
+func TestSameWorkWithTheRecordsOwnIdentifiers(t *testing.T) {
+	t.Parallel()
+
+	const doi = "10.48550/arXiv.1706.03762"
+	citation := parse.Citation{Title: "Attention Is All You Need", Authors: []string{"Ashish Vaswani"}, Year: "2017"}
+	own := parse.Identity{ArxivID: "1706.03762", Title: "Attention is all you need", Authors: []string{"A. Vaswani"}, Year: "2017"}
+	if !SameWork(doi, citation, own) {
+		t.Fatal("a record with the arXiv id was rejected")
+	}
+	for name, change := range map[string]func(*parse.Identity){
+		"another arXiv id": func(r *parse.Identity) { r.ArxivID = "1706.99999" },
+		"another title":    func(r *parse.Identity) { r.Title = "Attention Is Not All You Need" },
+		"other authors":    func(r *parse.Identity) { r.Authors = []string{"Someone Else"} },
+		"another year":     func(r *parse.Identity) { r.Year = "2020" },
+	} {
+		record := own
+		change(&record)
+		if SameWork(doi, citation, record) {
+			t.Errorf("%s was accepted", name)
+		}
+	}
+	// Without DOI.org's data, the record's own identifier decides.
+	if !SameWork(doi, parse.Citation{}, parse.Identity{ArxivID: "1706.03762"}) {
+		t.Error("the arXiv id alone was rejected")
+	}
+	// Without an identifier, the record must match on title and authors.
+	if SameWork(doi, parse.Citation{Title: "Attention Is All You Need"}, parse.Identity{Title: "Attention Is All You Need"}) {
+		t.Error("a title alone was accepted")
+	}
+}
+
+func TestSameYear(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		doi, want, got string
+		same           bool
+	}{
+		{"10.1000/x", "2017", "2017", true},
+		{"10.1000/x", "2017", "2018", false},
+		{"10.48550/arXiv.1706.03762", "2017", "2018", true},
+		{"10.48550/arXiv.1706.03762", "2017", "2019", false},
+		{"10.48550/arXiv.1706.03762", "c. 2017", "2018", false},
+	} {
+		if got := sameYear(tc.doi, tc.want, tc.got); got != tc.same {
+			t.Errorf("sameYear(%q, %q, %q) = %v", tc.doi, tc.want, tc.got, got)
+		}
+	}
+}
+
+func TestNormalizeTitle(t *testing.T) {
+	t.Parallel()
+
+	if got := NormalizeTitle("  Adam:  A Method—for Stochastic Optimization! "); got != "adam a method for stochastic optimization" {
+		t.Fatalf("NormalizeTitle = %q", got)
+	}
+}

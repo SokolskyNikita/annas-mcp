@@ -1,4 +1,938 @@
 {
+  "cards": [
+    {
+      "prefix": "md5",
+      "id": "18e1b007a1dab45b30cc861ba2dfda25",
+      "href": "/md5/18e1b007a1dab45b30cc861ba2dfda25",
+      "title": "Attention Is All You Need",
+      "authors": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin",
+      "edition": "2017 jun 12",
+      "description": "reproduce the tables and figures in this paper solely for use in journalistic orscholarly works.Attention Is All You NeedarXiv:1706.03762v7 [cs.CL] 2 Aug 2023Ashish Vaswani∗Noam Shazeer∗Niki Parmar∗Jakob Uszkoreit∗Google BrainGoogle BrainGoogle ResearchGoogle Researchavaswani@google.comnoam@google.comnikip@google.comusz@google.comAidan N. Gomez∗ †Llion Jones∗Łukasz Kaiser∗Google ResearchUniversity of TorontoGoogle",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "2.2MB",
+        "year": "2017",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "7a2ec199ef4dd30d82cbe53d5bfc8f88",
+      "href": "/md5/7a2ec199ef4dd30d82cbe53d5bfc8f88",
+      "title": "Attention is All You Need",
+      "authors": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Łukasz Kaiser, Illia Polosukhin",
+      "edition": "None",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.5MB",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "290754a9b1fa76f65ddfb75826b83dfe",
+      "href": "/md5/290754a9b1fa76f65ddfb75826b83dfe",
+      "title": "Attention Is All You Need 中文翻译",
+      "authors": "it-ebooks",
+      "publisher": "iBooker it-ebooks",
+      "edition": "it-ebooks-2018, 2018",
+      "meta": {
+        "language": "Chinese",
+        "format": "PDF",
+        "size": "1.4MB",
+        "year": "2018",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "cc18ec6776a03537ad988eeccc102147",
+      "href": "/md5/cc18ec6776a03537ad988eeccc102147",
+      "title": "[ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)(Toronto, ON, Canada 2021.6.6-2021.6.11)] ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) || Attention Is All You Need In Speech Separation",
+      "authors": "Subakan, Cem (author); Ravanelli, Mirco (author); Cornell, Samuele (author); Bronzi, Mirko (author); Zhong, Jianyuan (author)",
+      "publisher": "IEEE",
+      "edition": "pages 21-25, 2021 jun 6",
+      "meta": {
+        "format": "PDF",
+        "size": "1.9MB",
+        "year": "2021",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "scihub"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "4b886fa81176717c1ec8c92fb442d59f",
+      "href": "/md5/4b886fa81176717c1ec8c92fb442d59f",
+      "title": "Attention Is All You Need",
+      "authors": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin",
+      "edition": "2017 jun 12",
+      "meta": {
+        "format": "GZ",
+        "size": "1.2MB",
+        "year": "2017",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli"
+        ]
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "95696659f48cdfc9f00067666189c993",
+      "href": "/md5/95696659f48cdfc9f00067666189c993",
+      "title": "ADHD \u0026 Sex: What You Need to Know",
+      "authors": "Gina Pera; Russell A Barkley",
+      "publisher": "1201 Alarm Press",
+      "edition": "2, 2023",
+      "description": "REVISED October 2023 From award-winning author and Adult ADHD expert Gina Pera, the first guide to understanding how unrecognized or poorly managed ADHD could be interfering with sexual intimacy. Newly revised. \"Gina, sex is difficult for people with ADHD; it's tough to stay focused!\" says a female friend who has ADHD. Staying focused during intimacy is only one issue that challenges couples affected by adult ADHD. Yet, strangely enough, even many mental-healthcare",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "3.3MB",
+        "year": "2023",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "673e512fe831bf4f286f732a8030649e",
+      "href": "/md5/673e512fe831bf4f286f732a8030649e",
+      "title": "[SIGIR '21: The 44th International ACM SIGIR Conference on Research and Development in Information Retrieval(Virtual Event Canada ..-..)] Proceedings of the 44th International ACM SIGIR Conference on Research and Development in Information Retrieval || Looking at CTR Prediction Again: Is Attention All You Need?",
+      "authors": "Cheng, Yuan (author); Xue, Yanbo (author)",
+      "publisher": "ACM",
+      "edition": "pages 1279-1287, 2021 jul 11",
+      "description": "- Information systems -\u003e Personalization.Recommender systems. Abstract 1 1 Introduction 1 2 Related work 2 3 Model 2 3.1 Problem Formulation 2 3.2 Discrete Choice Model 2 3.3 A General Neural Network Framework 3 3.4 Feature Interaction in CTR Models 4 3.5 Self-Attention Feature Interaction 5 3.6 Extension to CTR Models 5 4 Mathematical Analysis of SAM 6 4.1 Expressive Power 6 4.2 Model Complexity 6 5 Experiments 6 5.1 Experiment Setup 6 5.2 Performance Comparison 7 6",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.5MB",
+        "year": "2021",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "scihub",
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "22c8d239644423af133715f9fd69d8e3",
+      "href": "/md5/22c8d239644423af133715f9fd69d8e3",
+      "title": "attention is all you need.pdf",
+      "authors": "LaTeX with hyperref package",
+      "description": "1 Introduction 1 2 Background 2 3 Model Architecture 2 3.1 Encoder and Decoder Stacks 3 3.2 Attention 3 3.2.1 Scaled Dot-Product Attention 4 3.2.2 Multi-Head Attention 4 3.2.3 Applications of Attention in our Model 5 3.3 Position-wise Feed-Forward Networks 5 3.4 Embeddings and Softmax 5 3.5 Positional Encoding 5 4 Why Self-Attention 6 5 Training 7 5.1 Training Data and Batching 7 5.2 Hardware and Schedule 7 5.3 Optimizer 7 5.4 Regularization 7 6 Results 8 6.1 Machine",
+      "meta": {
+        "format": "PDF",
+        "size": "2.2MB",
+        "content": "book_unknown",
+        "sources": [
+          "duxiu",
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "fd060e64ce40d621a8435e852c6ef432",
+      "href": "/md5/fd060e64ce40d621a8435e852c6ef432",
+      "title": "._A Balanced, Everyday Approach to All-Band Bliss, Feed lines, antenna tuners, baluns, RFI, computer noise and all-band antennas — no there's a snake pit of potential conflict_Kirk A. Kleinschmidt_2002-04_621.382_32230_.pdf",
+      "meta": {
+        "format": "PDF",
+        "size": "0.1MB",
+        "content": "book_unknown",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "b7d72a159433ebb98f957d5bf5a457b8",
+      "href": "/md5/b7d72a159433ebb98f957d5bf5a457b8",
+      "title": "Attention Is Not What You Need",
+      "authors": "Zhang Chong",
+      "edition": "None",
+      "meta": {
+        "format": "PDF",
+        "size": "0.3MB",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "7494b4acc29a56b4683b5b1fabd6897a",
+      "href": "/md5/7494b4acc29a56b4683b5b1fabd6897a",
+      "title": "TIME MANAGEMENT ESSENTIALS : the tools you need to maximize your attention, energy, and productivity",
+      "authors": "Anna Dearmon Kornick",
+      "publisher": "McGraw-Hill Companies",
+      "edition": "1, PS, 2023",
+      "description": "Must-know concepts and smart strategies for values-based time management—from the new Business Essentials Series Time management is an essential skill that every professional needs, no matter the industry. With ever-evolving flexible workplaces, so many collaboration apps to manage, and more, the tools and strategies needed to manage your time effectively have changed. Whether you're just starting out or looking to update your understanding of best practices, you'll find",
+      "meta": {
+        "language": "English",
+        "format": "MOBI",
+        "size": "4.1MB",
+        "year": "2023",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "b5db178fb92b9f02a74c914f4361dcc5",
+      "href": "/md5/b5db178fb92b9f02a74c914f4361dcc5",
+      "title": "You Need Better Attention Priors",
+      "authors": "Elon Litman \u0026 Gabe Guo",
+      "edition": "2026",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "6.0MB",
+        "year": "2026",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "4fbe1eae610f50c0ecfe53ebfe662a2e",
+      "href": "/md5/4fbe1eae610f50c0ecfe53ebfe662a2e",
+      "title": "Everything you need to know about ADD/ADHD (Attention deficit disorder/ Attention deficit hyperactivity disorder)",
+      "authors": "Beal, Eileen",
+      "publisher": "New York : Rosen Pub. Group",
+      "edition": "The need to know library, Need to know library, 1st ed., New York, New York State, 1998",
+      "description": "Includes bibliographical references (p. 61-62) and index, Defines both attention deficit disorder and attention deficit hyperactivity disorder and discusses what can be done to treat these conditions, including medication, behavior modification, and counseling, What is ADD/ADHD? -- Medication : the first step -- Counseling and behavior modification -- Sucess strategies at home and school -- Getting a life (back) -- Career choices",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "3.4MB",
+        "year": "1998",
+        "content": "book_unknown",
+        "sources": [
+          "ia",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "ee44011107440a7ca0d448271175ab9c",
+      "href": "/md5/ee44011107440a7ca0d448271175ab9c",
+      "title": "All I Want Is You",
+      "authors": "Neicy, Ms",
+      "publisher": "Shan Presents, LLC",
+      "edition": "All I Need Is You, 2016",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.2MB",
+        "year": "2016",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "908a020d830b67c12de47c836754db61",
+      "href": "/md5/908a020d830b67c12de47c836754db61",
+      "title": "All You Need Is Macchiato (The Coffee Loft Series: Mountain Brew Collection)",
+      "authors": "Susanne Ash",
+      "publisher": "null",
+      "edition": "null, null, 2025",
+      "description": "null",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "1.2MB",
+        "year": "2025",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "81eba2b1752e94c2b2fec11de657b564",
+      "href": "/md5/81eba2b1752e94c2b2fec11de657b564",
+      "title": "Wedding Survivor (All I Need is You)",
+      "authors": "London, Julia",
+      "edition": "Thrillseekers Anonymous 1, 0",
+      "meta": {
+        "language": "English",
+        "format": "RAR",
+        "size": "0.3MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "1c49cf44f28847a06533bfad62fc7a72",
+      "href": "/md5/1c49cf44f28847a06533bfad62fc7a72",
+      "title": "All I Need is You",
+      "authors": "Cross, Cassie",
+      "edition": "All 2, 2018",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.3MB",
+        "year": "2018",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "79ec18d88710119c7e09233f3d15a951",
+      "href": "/md5/79ec18d88710119c7e09233f3d15a951",
+      "title": "All You Need Is Space (2013) (European Commission) (c2c) (PDFRip) (UberSoldier-DCP).cbr",
+      "publisher": "European Commission",
+      "edition": "All You Need Is Space, 2013",
+      "meta": {
+        "format": "CBR",
+        "size": "39.9MB",
+        "year": "2013",
+        "content": "book_comic",
+        "sources": [
+          "lgli"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "0c4b9288e182f21ce6eb232e96497c1b",
+      "href": "/md5/0c4b9288e182f21ce6eb232e96497c1b",
+      "title": "TIME MANAGEMENT ESSENTIALS : the tools you need to maximize your attention, energy, and productivity",
+      "authors": "Anna Dearmon Kornick",
+      "publisher": "McGraw Hill LLC",
+      "edition": "1, PS, 2023",
+      "description": "Must-know concepts and smart strategies for values-based time management―from the new Business Essentials Series Time management is an essential skill that every professional needs, no matter the industry. With ever-evolving flexible workplaces, so many collaboration apps to manage, and more, the tools and strategies needed to manage your time effectively have changed. Whether you're just starting out or looking to update your understanding of best practices, you'll find",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "3.4MB",
+        "year": "2023",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "4d4f7bfc6277c5d6811030a720c30f97",
+      "href": "/md5/4d4f7bfc6277c5d6811030a720c30f97",
+      "title": "All You Need Is Kill",
+      "authors": "Hiroshi Sakurazaka",
+      "publisher": "ePubLibre",
+      "edition": "2004",
+      "description": "There’s one thing worse than dying. It’s coming back to do it again and again... When the alien Gitai invade, Keiji Kiriya is just one of many raw recruits shoved into a suit of battle armor and sent out to kill. Keiji dies on the battlefield, only to find himself reborn each morning to fight and die again and again. On the 158th iteration though, he sees something different, something out of place: the female soldier known as the Bitch of War. Is the Bitch the key to",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.4MB",
+        "year": "2004",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "5fb88f33f08ab58e9ce8556a72f44c64",
+      "href": "/md5/5fb88f33f08ab58e9ce8556a72f44c64",
+      "title": "All You Need Is Love Vol. 2",
+      "authors": "Jinko Fuyuno",
+      "publisher": "Digital Manga Publishing",
+      "edition": "All You Need Is Love 2, Illustrated",
+      "description": "Now reunited after an eight-year separation, Junya Sawa, a young bank executive, and Uzuki Kobayakawa, heir to a yakuza gang leader, have resumed their relationship in Tokyo. After betraying Uzuki's trust when they were teenagers, Junya swears never to make the same mistake again. Unknown to them both, however, shadowy forces are at work in the Koryu Alliance, the yakuza gang run by Uzuki's father. When Junya is kidnapped, will Uzuki be able to save him?",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "8.0MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "efca86220db07118f17600786c56d49b",
+      "href": "/md5/efca86220db07118f17600786c56d49b",
+      "title": "All You Need Is Kill",
+      "authors": "Hiroshi Sakurazaka",
+      "publisher": "ePubLibre",
+      "edition": "2004",
+      "description": "There’s one thing worse than dying. It’s coming back to do it again and again… When the alien Gitai invade, Keiji Kiriya is just one of many raw recruits shoved into a suit of battle armor and sent out to kill. Keiji dies on the battlefield, only to find himself reborn each morning to fight and die again and again. On the 158th iteration though, he sees something different, something out of place: the female soldier known as the Bitch of War. Is the Bitch the key to",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.4MB",
+        "year": "2004",
+        "content": "book_unknown",
+        "sources": [
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "bb85cee56d2bda43ca1a1c0daa7c35cb",
+      "href": "/md5/bb85cee56d2bda43ca1a1c0daa7c35cb",
+      "title": "All You Need is Kill-Terra Formars - Free Comic Book Day Edition (FCBD 2014) (c2c) (Rasputin-Novus).cbr",
+      "edition": "All You Need is Kill-Terra Formars Edition, 2014",
+      "meta": {
+        "format": "CBR",
+        "size": "45.6MB",
+        "year": "2014",
+        "content": "book_comic",
+        "sources": [
+          "lgli"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "a34d466731f2634fd2f9f943f9e162b0",
+      "href": "/md5/a34d466731f2634fd2f9f943f9e162b0",
+      "title": "All You Need Is Kill GN (2014) (Digital) (BlurPixel-Empire).cbr",
+      "authors": "Fajar Buana (colorist), Hiroshi Sakurazaka (writer), Joel Enos (editor), Lee Ferguson (artist, cover), Nick Mamatas (other), Rebecca Downer (other), Sam Elzway (other), Zack Turner (letterer)",
+      "publisher": "VIZ media",
+      "edition": "All You Need Is Kill, 2014 may",
+      "meta": {
+        "format": "CBR",
+        "size": "55.6MB",
+        "year": "2014",
+        "content": "book_comic",
+        "sources": [
+          "lgli"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "d84a7b66a4afa0ec99a08f4e57245f1f",
+      "href": "/md5/d84a7b66a4afa0ec99a08f4e57245f1f",
+      "title": "All You Need is Love and Coffee",
+      "authors": "Belle, Kasey",
+      "publisher": "Kasey Belle Romance",
+      "edition": "2017",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.3MB",
+        "year": "2017",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "96684a7c746460dc7c9d7ca41907d6b3",
+      "href": "/md5/96684a7c746460dc7c9d7ca41907d6b3",
+      "title": "All I Need is You",
+      "authors": "Cross, Cassie",
+      "edition": "All 2, 2018",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.3MB",
+        "year": "2018",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "50e8ccf706f07fb80605cff38915ec5c",
+      "href": "/md5/50e8ccf706f07fb80605cff38915ec5c",
+      "title": "Wedding Survivor (All I Need is You)",
+      "authors": "London, Julia",
+      "edition": "Thrillseekers Anonymous 1",
+      "meta": {
+        "language": "English",
+        "format": "RAR",
+        "size": "0.3MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "c0bab547169ed2df840647e01c6ebcb4",
+      "href": "/md5/c0bab547169ed2df840647e01c6ebcb4",
+      "title": "All I Need Is You",
+      "authors": "Shanice, B",
+      "publisher": "Shanice B. Presents",
+      "edition": "All 2, 2018",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.7MB",
+        "year": "2018",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "6a5f7322af4d4d65ce2692dae00492a4",
+      "href": "/md5/6a5f7322af4d4d65ce2692dae00492a4",
+      "title": "The Distraction Addiction : Getting the Information You Need and the Communication You Want, Without Enraging Your Family, Annoying Your Colleagues, and Destroying Your Soul",
+      "authors": "Pang, Alex, Soojung-Kim",
+      "publisher": "Little, Brown and Company",
+      "edition": "Hachette Book Group, New York, 2013",
+      "description": "The question of our time: can we reclaim our lives in an age that feels busier and more distracting by the day? We've all found ourselves checking email at the dinner table, holding our breath while waiting for Outlook to load, or sitting hunched in front of a screen for an hour longer than we intended. Mobile devices and the web have invaded our lives, and this is a big idea book that addresses one of the biggest questions of our age: can we stay connected without",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "2.2MB",
+        "year": "2013",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "c87e6e20001197db514426870f49f1d8",
+      "href": "/md5/c87e6e20001197db514426870f49f1d8",
+      "title": "Love Is All You Need",
+      "authors": "A, John",
+      "edition": "0",
+      "meta": {
+        "language": "English",
+        "format": "TXT",
+        "size": "0.2MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "94cbe6627a8b9f4f293aff2b19495b21",
+      "href": "/md5/94cbe6627a8b9f4f293aff2b19495b21",
+      "title": "All you need is an Earl",
+      "authors": "Ella Edon",
+      "edition": "Lords of Pleasure 02, 2021",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.7MB",
+        "year": "2021",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "5af95220207a385cb11aaa3df85b582b",
+      "href": "/md5/5af95220207a385cb11aaa3df85b582b",
+      "title": "all you need is a little love-3 lesbian highschool",
+      "authors": "shadow_angel223",
+      "publisher": "Nifty Erotic Fiction Archive",
+      "edition": "all you need is a little love-",
+      "meta": {
+        "language": "English",
+        "format": "TXT",
+        "size": "0.1MB",
+        "year": "2007",
+        "content": "book_unknown",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "88a878e5d5e2a244c00b7030714d3838",
+      "href": "/md5/88a878e5d5e2a244c00b7030714d3838",
+      "title": "All I Ever Need Is You",
+      "authors": "Andre, Bella",
+      "edition": "Sullivans 14; Seattle Sullivans 5, 2015",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.3MB",
+        "year": "2015",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "0404bd700a3de8d54191f3a9cb53001c",
+      "href": "/md5/0404bd700a3de8d54191f3a9cb53001c",
+      "title": "All You Need Is Me",
+      "authors": "A.H. Winter",
+      "publisher": "Green\u0026Grey",
+      "edition": "2015",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.2MB",
+        "year": "2015",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "03223763b62f27a945d8c81396718b48",
+      "href": "/md5/03223763b62f27a945d8c81396718b48",
+      "title": "All You Need Is Love",
+      "authors": "Amy Lillard",
+      "publisher": "A Squared Books",
+      "edition": "Oklahoma City, 2014",
+      "description": "Three months to get married. It’s every bachelor’s nightmare, especially when there’s millions at stake. Thanks to his aunt’s kooky will, that’s exactly where Tristan McFarland finds himself: get a wife or lose it all. At least he only has to stay married for a year.Small town girl, Claire Campbell is struggling to make it in big city Dallas. So when Tristan proposes what choice does she have? She has no place to live and no more money put aside. As Tristan’s",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.2MB",
+        "year": "2014",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "96be42a2ae2b6912dc6e0a6c9b657ea6",
+      "href": "/md5/96be42a2ae2b6912dc6e0a6c9b657ea6",
+      "title": "All you need is love: L'economia spiegata con le canzoni dei Beatles (Italian Edition)",
+      "authors": "Rampini, Federico",
+      "publisher": "Oscar Mondadori",
+      "edition": "2015",
+      "meta": {
+        "language": "Italian",
+        "format": "EPUB",
+        "size": "3.5MB",
+        "year": "2015",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "a505be29ea8afc05b3b0ff40eced37b1",
+      "href": "/md5/a505be29ea8afc05b3b0ff40eced37b1",
+      "title": "All you need is love",
+      "authors": "Federico Rampini [Rampini, Federico]",
+      "publisher": "Edizioni Mondadori",
+      "edition": "2014",
+      "description": "«Il mio modello di business? I Beatles.» Così parlò Steve Jobs, il fondatore di Apple, uno che di business qualcosa capiva. A intrigarlo era soprattutto la formula del collettivo: vedeva i Beatles come un prodigioso moltiplicatore dei talenti individuali. L'indimenticabile quartetto della cultura pop, infatti, fu anche una start-up di successo. Proiettò quattro ragazzi cresciuti nella Liverpool del primo dopoguerra, in una miseria da Terzo mondo, verso la stratosfera",
+      "meta": {
+        "language": "Italian",
+        "format": "EPUB",
+        "size": "0.3MB",
+        "year": "2014",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "8a97d414f76498a87efbdff0884f2f54",
+      "href": "/md5/8a97d414f76498a87efbdff0884f2f54",
+      "title": "All You Need Is Love",
+      "authors": "Lindsay Harrel",
+      "publisher": "Blue Aster Press",
+      "edition": "None",
+      "description": "Shannon Baker likes the one man she can't have. To be fair, the day she meets her sister's boyfriend on the California beach, she thinks he's a tourist—a really charming tourist who understands more of her heart than people she's known her whole life. But Marshall has a secret. He's actually single. He's only pretending to date Shannon's sister—his co-worker—because her ex dumped her hours before a family reunion. In return, she's promised to recommend Marshall for a",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.5MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "65c477227f97e6731bd5f4a75bcd6b23",
+      "href": "/md5/65c477227f97e6731bd5f4a75bcd6b23",
+      "title": "All You Need Is Kill",
+      "authors": "Sakurazaka, Hiroshi; Sakurazaka, Hiroshi",
+      "publisher": "Haikasoru/VIZ Media",
+      "edition": "2011",
+      "description": "When the alien Mimics invade, Keiji Kiriya is just one of many recruits shoved into a suit of battle armor called a Jacket and sent out to kill. Keiji dies on the battlefield, only to be reborn each morning to fight and die again and again. On his 158th iteration, he gets a message from a mysterious ally--the female soldier known as the Full Metal Bitch. Is she the key to Keiji's escape or his final death?Now a major motion picture starring Tom Cruise!“Science fiction for",
+      "meta": {
+        "language": "English",
+        "format": "MOBI",
+        "size": "1.2MB",
+        "year": "2011",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "02fb1ff956ad11256755125013ec9e45",
+      "href": "/md5/02fb1ff956ad11256755125013ec9e45",
+      "title": "The Edge of the Sky: All You Need to Know About the All-There-Is",
+      "authors": "Trotta, Roberto",
+      "publisher": "Basic Books",
+      "edition": "2014",
+      "meta": {
+        "language": "English",
+        "format": "AZW3",
+        "size": "0.7MB",
+        "year": "2014",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "959528d020d857c97352e6c93c043b3e",
+      "href": "/md5/959528d020d857c97352e6c93c043b3e",
+      "title": "All you need is you",
+      "authors": "Алиса Мартынова",
+      "publisher": "SelfPub",
+      "edition": "2019",
+      "description": "Удивительно, что название книги написано на английском, а сама книга на русском, но не спешите с выводами. Как бы нам не хотелось, но воспринимаем мы всё же \"по одёжке\", поэтому вот мой посыл: \"Развивайтесь! Для этого нужен только ТЫ!\"В данной электронной книге",
+      "meta": {
+        "language": "Russian",
+        "format": "EPUB",
+        "size": "1.1MB",
+        "year": "2019",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "47be5cbd5830dbc95536ebf1d1b8c03d",
+      "href": "/md5/47be5cbd5830dbc95536ebf1d1b8c03d",
+      "title": "All I Need Is You",
+      "authors": "Monica Walters; T. Key",
+      "edition": "2020",
+      "meta": {
+        "language": "English",
+        "format": "EPUB",
+        "size": "0.2MB",
+        "year": "2020",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "3af50bc9ca1610a1a2c5c63215fe672e",
+      "href": "/md5/3af50bc9ca1610a1a2c5c63215fe672e",
+      "title": "All you need is less",
+      "authors": "Manfred Folkers, Niko Paech",
+      "meta": {
+        "format": "MOBI",
+        "size": "2.0MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli"
+        ]
+      },
+      "partial": true
+    }
+  ],
   "facets": {
     "content": [
       "book_nonfiction",
@@ -27,685 +961,10 @@
       "cqvip"
     ]
   },
-  "page": {
-    "Results": [
-      {
-        "title": "Attention Is All You Need",
-        "authors": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin",
-        "journal": "2017 jun 12",
-        "year": "2017",
-        "format": "PDF",
-        "size": "2.2MB",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "18e1b007a1dab45b30cc861ba2dfda25",
-        "description": "reproduce the tables and figures in this paper solely for use in journalistic orscholarly works.Attention Is All You NeedarXiv:1706.03762v7 [cs.CL] 2 Aug 2023Ashish Vaswani∗Noam Shazeer∗Niki Parmar∗Jakob Uszkoreit∗Google BrainGoogle BrainGoogle ResearchGoogle Researchavaswani@google.comnoam@google.comnikip@google.comusz@google.comAidan N. Gomez∗ †Llion Jones∗Łukasz Kaiser∗Google ResearchUniversity of TorontoGoogle",
-        "page_url": "https://annas-archive.gl/md5/18e1b007a1dab45b30cc861ba2dfda25"
-      },
-      {
-        "title": "Attention is All You Need",
-        "authors": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Łukasz Kaiser, Illia Polosukhin",
-        "journal": "None",
-        "format": "PDF",
-        "size": "1.5MB",
-        "sources": [
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "7a2ec199ef4dd30d82cbe53d5bfc8f88",
-        "page_url": "https://annas-archive.gl/md5/7a2ec199ef4dd30d82cbe53d5bfc8f88"
-      },
-      {
-        "title": "Attention Is All You Need 中文翻译",
-        "authors": "it-ebooks",
-        "journal": "iBooker it-ebooks, it-ebooks-2018, 2018",
-        "year": "2018",
-        "format": "PDF",
-        "size": "1.4MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "290754a9b1fa76f65ddfb75826b83dfe",
-        "page_url": "https://annas-archive.gl/md5/290754a9b1fa76f65ddfb75826b83dfe"
-      },
-      {
-        "title": "[ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)(Toronto, ON, Canada 2021.6.6-2021.6.11)] ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) || Attention Is All You Need In Speech Separation",
-        "authors": "Subakan, Cem (author); Ravanelli, Mirco (author); Cornell, Samuele (author); Bronzi, Mirko (author); Zhong, Jianyuan (author)",
-        "journal": "IEEE, pages 21-25, 2021 jun 6",
-        "year": "2021",
-        "format": "PDF",
-        "size": "1.9MB",
-        "sources": [
-          "lgli",
-          "scihub"
-        ],
-        "fast_download": true,
-        "hash": "cc18ec6776a03537ad988eeccc102147",
-        "page_url": "https://annas-archive.gl/md5/cc18ec6776a03537ad988eeccc102147"
-      },
-      {
-        "title": "Attention Is All You Need",
-        "authors": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin",
-        "journal": "2017 jun 12",
-        "year": "2017",
-        "format": "GZ",
-        "size": "1.2MB",
-        "sources": [
-          "lgli"
-        ],
-        "hash": "4b886fa81176717c1ec8c92fb442d59f",
-        "page_url": "https://annas-archive.gl/md5/4b886fa81176717c1ec8c92fb442d59f"
-      },
-      {
-        "title": "ADHD \u0026 Sex: What You Need to Know",
-        "authors": "Gina Pera; Russell A Barkley",
-        "journal": "1201 Alarm Press, 2, 2023",
-        "year": "2023",
-        "format": "EPUB",
-        "size": "3.3MB",
-        "sources": [
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "95696659f48cdfc9f00067666189c993",
-        "description": "REVISED October 2023 From award-winning author and Adult ADHD expert Gina Pera, the first guide to understanding how unrecognized or poorly managed ADHD could be interfering with sexual intimacy. Newly revised. \"Gina, sex is difficult for people with ADHD; it's tough to stay focused!\" says a female friend who has ADHD. Staying focused during intimacy is only one issue that challenges couples affected by adult ADHD. Yet, strangely enough, even many mental-healthcare",
-        "page_url": "https://annas-archive.gl/md5/95696659f48cdfc9f00067666189c993"
-      },
-      {
-        "title": "[SIGIR '21: The 44th International ACM SIGIR Conference on Research and Development in Information Retrieval(Virtual Event Canada ..-..)] Proceedings of the 44th International ACM SIGIR Conference on Research and Development in Information Retrieval || Looking at CTR Prediction Again: Is Attention All You Need?",
-        "authors": "Cheng, Yuan (author); Xue, Yanbo (author)",
-        "journal": "ACM, pages 1279-1287, 2021 jul 11",
-        "year": "2021",
-        "format": "PDF",
-        "size": "1.5MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "673e512fe831bf4f286f732a8030649e",
-        "description": "- Information systems -\u003e Personalization.Recommender systems. Abstract 1 1 Introduction 1 2 Related work 2 3 Model 2 3.1 Problem Formulation 2 3.2 Discrete Choice Model 2 3.3 A General Neural Network Framework 3 3.4 Feature Interaction in CTR Models 4 3.5 Self-Attention Feature Interaction 5 3.6 Extension to CTR Models 5 4 Mathematical Analysis of SAM 6 4.1 Expressive Power 6 4.2 Model Complexity 6 5 Experiments 6 5.1 Experiment Setup 6 5.2 Performance Comparison 7 6",
-        "page_url": "https://annas-archive.gl/md5/673e512fe831bf4f286f732a8030649e"
-      },
-      {
-        "title": "attention is all you need.pdf",
-        "authors": "LaTeX with hyperref package",
-        "journal": "",
-        "format": "PDF",
-        "size": "2.2MB",
-        "sources": [
-          "duxiu",
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "22c8d239644423af133715f9fd69d8e3",
-        "description": "1 Introduction 1 2 Background 2 3 Model Architecture 2 3.1 Encoder and Decoder Stacks 3 3.2 Attention 3 3.2.1 Scaled Dot-Product Attention 4 3.2.2 Multi-Head Attention 4 3.2.3 Applications of Attention in our Model 5 3.3 Position-wise Feed-Forward Networks 5 3.4 Embeddings and Softmax 5 3.5 Positional Encoding 5 4 Why Self-Attention 6 5 Training 7 5.1 Training Data and Batching 7 5.2 Hardware and Schedule 7 5.3 Optimizer 7 5.4 Regularization 7 6 Results 8 6.1 Machine",
-        "page_url": "https://annas-archive.gl/md5/22c8d239644423af133715f9fd69d8e3"
-      },
-      {
-        "title": "._A Balanced, Everyday Approach to All-Band Bliss, Feed lines, antenna tuners, baluns, RFI, computer noise and all-band antennas — no there's a snake pit of potential conflict_Kirk A. Kleinschmidt_2002-04_621.382_32230_.pdf",
-        "authors": "",
-        "journal": "",
-        "format": "PDF",
-        "size": "0.1MB",
-        "sources": [
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "fd060e64ce40d621a8435e852c6ef432",
-        "page_url": "https://annas-archive.gl/md5/fd060e64ce40d621a8435e852c6ef432"
-      }
-    ],
-    "Partial": [
-      {
-        "title": "Attention Is Not What You Need",
-        "authors": "Zhang Chong",
-        "journal": "None",
-        "format": "PDF",
-        "size": "0.3MB",
-        "sources": [
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "b7d72a159433ebb98f957d5bf5a457b8",
-        "page_url": "https://annas-archive.gl/md5/b7d72a159433ebb98f957d5bf5a457b8"
-      },
-      {
-        "title": "TIME MANAGEMENT ESSENTIALS : the tools you need to maximize your attention, energy, and productivity",
-        "authors": "Anna Dearmon Kornick",
-        "journal": "McGraw-Hill Companies, 1, PS, 2023",
-        "year": "2023",
-        "format": "MOBI",
-        "size": "4.1MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "7494b4acc29a56b4683b5b1fabd6897a",
-        "description": "Must-know concepts and smart strategies for values-based time management—from the new Business Essentials Series Time management is an essential skill that every professional needs, no matter the industry. With ever-evolving flexible workplaces, so many collaboration apps to manage, and more, the tools and strategies needed to manage your time effectively have changed. Whether you're just starting out or looking to update your understanding of best practices, you'll find",
-        "page_url": "https://annas-archive.gl/md5/7494b4acc29a56b4683b5b1fabd6897a"
-      },
-      {
-        "title": "You Need Better Attention Priors",
-        "authors": "Elon Litman \u0026 Gabe Guo",
-        "journal": "2026",
-        "year": "2026",
-        "format": "PDF",
-        "size": "6.0MB",
-        "sources": [
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "b5db178fb92b9f02a74c914f4361dcc5",
-        "page_url": "https://annas-archive.gl/md5/b5db178fb92b9f02a74c914f4361dcc5"
-      },
-      {
-        "title": "Everything you need to know about ADD/ADHD (Attention deficit disorder/ Attention deficit hyperactivity disorder)",
-        "authors": "Beal, Eileen",
-        "journal": "New York : Rosen Pub. Group, The need to know library, Need to know library, 1st ed., New York, New York State, 1998",
-        "year": "1998",
-        "format": "PDF",
-        "size": "3.4MB",
-        "sources": [
-          "ia",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "4fbe1eae610f50c0ecfe53ebfe662a2e",
-        "description": "Includes bibliographical references (p. 61-62) and index, Defines both attention deficit disorder and attention deficit hyperactivity disorder and discusses what can be done to treat these conditions, including medication, behavior modification, and counseling, What is ADD/ADHD? -- Medication : the first step -- Counseling and behavior modification -- Sucess strategies at home and school -- Getting a life (back) -- Career choices",
-        "page_url": "https://annas-archive.gl/md5/4fbe1eae610f50c0ecfe53ebfe662a2e"
-      },
-      {
-        "title": "All I Want Is You",
-        "authors": "Neicy, Ms",
-        "journal": "Shan Presents, LLC, All I Need Is You, 2016",
-        "year": "2016",
-        "format": "EPUB",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "ee44011107440a7ca0d448271175ab9c",
-        "page_url": "https://annas-archive.gl/md5/ee44011107440a7ca0d448271175ab9c"
-      },
-      {
-        "title": "All You Need Is Macchiato (The Coffee Loft Series: Mountain Brew Collection)",
-        "authors": "Susanne Ash",
-        "journal": "null, null, null, 2025",
-        "year": "2025",
-        "format": "EPUB",
-        "size": "1.2MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "908a020d830b67c12de47c836754db61",
-        "description": "null",
-        "page_url": "https://annas-archive.gl/md5/908a020d830b67c12de47c836754db61"
-      },
-      {
-        "title": "Wedding Survivor (All I Need is You)",
-        "authors": "London, Julia",
-        "journal": "Thrillseekers Anonymous 1, 0",
-        "format": "RAR",
-        "size": "0.3MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "81eba2b1752e94c2b2fec11de657b564",
-        "page_url": "https://annas-archive.gl/md5/81eba2b1752e94c2b2fec11de657b564"
-      },
-      {
-        "title": "All I Need is You",
-        "authors": "Cross, Cassie",
-        "journal": "All 2, 2018",
-        "year": "2018",
-        "format": "EPUB",
-        "size": "0.3MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "1c49cf44f28847a06533bfad62fc7a72",
-        "page_url": "https://annas-archive.gl/md5/1c49cf44f28847a06533bfad62fc7a72"
-      },
-      {
-        "title": "All You Need Is Space (2013) (European Commission) (c2c) (PDFRip) (UberSoldier-DCP).cbr",
-        "authors": "",
-        "journal": "European Commission, All You Need Is Space, 2013",
-        "year": "2013",
-        "format": "CBR",
-        "size": "39.9MB",
-        "sources": [
-          "lgli"
-        ],
-        "fast_download": true,
-        "hash": "79ec18d88710119c7e09233f3d15a951",
-        "page_url": "https://annas-archive.gl/md5/79ec18d88710119c7e09233f3d15a951"
-      },
-      {
-        "title": "TIME MANAGEMENT ESSENTIALS : the tools you need to maximize your attention, energy, and productivity",
-        "authors": "Anna Dearmon Kornick",
-        "journal": "McGraw Hill LLC, 1, PS, 2023",
-        "year": "2023",
-        "format": "EPUB",
-        "size": "3.4MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "0c4b9288e182f21ce6eb232e96497c1b",
-        "description": "Must-know concepts and smart strategies for values-based time management―from the new Business Essentials Series Time management is an essential skill that every professional needs, no matter the industry. With ever-evolving flexible workplaces, so many collaboration apps to manage, and more, the tools and strategies needed to manage your time effectively have changed. Whether you're just starting out or looking to update your understanding of best practices, you'll find",
-        "page_url": "https://annas-archive.gl/md5/0c4b9288e182f21ce6eb232e96497c1b"
-      },
-      {
-        "title": "All You Need Is Kill",
-        "authors": "Hiroshi Sakurazaka",
-        "journal": "ePubLibre, 2004",
-        "year": "2004",
-        "format": "EPUB",
-        "size": "0.4MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "4d4f7bfc6277c5d6811030a720c30f97",
-        "description": "There’s one thing worse than dying. It’s coming back to do it again and again... When the alien Gitai invade, Keiji Kiriya is just one of many raw recruits shoved into a suit of battle armor and sent out to kill. Keiji dies on the battlefield, only to find himself reborn each morning to fight and die again and again. On the 158th iteration though, he sees something different, something out of place: the female soldier known as the Bitch of War. Is the Bitch the key to",
-        "page_url": "https://annas-archive.gl/md5/4d4f7bfc6277c5d6811030a720c30f97"
-      },
-      {
-        "title": "All You Need Is Love Vol. 2",
-        "authors": "Jinko Fuyuno",
-        "journal": "Digital Manga Publishing, All You Need Is Love 2, Illustrated",
-        "format": "PDF",
-        "size": "8.0MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "5fb88f33f08ab58e9ce8556a72f44c64",
-        "description": "Now reunited after an eight-year separation, Junya Sawa, a young bank executive, and Uzuki Kobayakawa, heir to a yakuza gang leader, have resumed their relationship in Tokyo. After betraying Uzuki's trust when they were teenagers, Junya swears never to make the same mistake again. Unknown to them both, however, shadowy forces are at work in the Koryu Alliance, the yakuza gang run by Uzuki's father. When Junya is kidnapped, will Uzuki be able to save him?",
-        "page_url": "https://annas-archive.gl/md5/5fb88f33f08ab58e9ce8556a72f44c64"
-      },
-      {
-        "title": "All You Need Is Kill",
-        "authors": "Hiroshi Sakurazaka",
-        "journal": "ePubLibre, 2004",
-        "year": "2004",
-        "format": "EPUB",
-        "size": "0.4MB",
-        "sources": [
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "efca86220db07118f17600786c56d49b",
-        "description": "There’s one thing worse than dying. It’s coming back to do it again and again… When the alien Gitai invade, Keiji Kiriya is just one of many raw recruits shoved into a suit of battle armor and sent out to kill. Keiji dies on the battlefield, only to find himself reborn each morning to fight and die again and again. On the 158th iteration though, he sees something different, something out of place: the female soldier known as the Bitch of War. Is the Bitch the key to",
-        "page_url": "https://annas-archive.gl/md5/efca86220db07118f17600786c56d49b"
-      },
-      {
-        "title": "All You Need is Kill-Terra Formars - Free Comic Book Day Edition (FCBD 2014) (c2c) (Rasputin-Novus).cbr",
-        "authors": "",
-        "journal": "All You Need is Kill-Terra Formars Edition, 2014",
-        "year": "2014",
-        "format": "CBR",
-        "size": "45.6MB",
-        "sources": [
-          "lgli"
-        ],
-        "fast_download": true,
-        "hash": "bb85cee56d2bda43ca1a1c0daa7c35cb",
-        "page_url": "https://annas-archive.gl/md5/bb85cee56d2bda43ca1a1c0daa7c35cb"
-      },
-      {
-        "title": "All You Need Is Kill GN (2014) (Digital) (BlurPixel-Empire).cbr",
-        "authors": "Fajar Buana (colorist), Hiroshi Sakurazaka (writer), Joel Enos (editor), Lee Ferguson (artist, cover), Nick Mamatas (other), Rebecca Downer (other), Sam Elzway (other), Zack Turner (letterer)",
-        "journal": "VIZ media, All You Need Is Kill, 2014 may",
-        "year": "2014",
-        "format": "CBR",
-        "size": "55.6MB",
-        "sources": [
-          "lgli"
-        ],
-        "fast_download": true,
-        "hash": "a34d466731f2634fd2f9f943f9e162b0",
-        "page_url": "https://annas-archive.gl/md5/a34d466731f2634fd2f9f943f9e162b0"
-      },
-      {
-        "title": "All You Need is Love and Coffee",
-        "authors": "Belle, Kasey",
-        "journal": "Kasey Belle Romance, 2017",
-        "year": "2017",
-        "format": "EPUB",
-        "size": "0.3MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "d84a7b66a4afa0ec99a08f4e57245f1f",
-        "page_url": "https://annas-archive.gl/md5/d84a7b66a4afa0ec99a08f4e57245f1f"
-      },
-      {
-        "title": "All I Need is You",
-        "authors": "Cross, Cassie",
-        "journal": "All 2, 2018",
-        "year": "2018",
-        "format": "EPUB",
-        "size": "0.3MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "96684a7c746460dc7c9d7ca41907d6b3",
-        "page_url": "https://annas-archive.gl/md5/96684a7c746460dc7c9d7ca41907d6b3"
-      },
-      {
-        "title": "Wedding Survivor (All I Need is You)",
-        "authors": "London, Julia",
-        "journal": "Thrillseekers Anonymous 1",
-        "format": "RAR",
-        "size": "0.3MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "50e8ccf706f07fb80605cff38915ec5c",
-        "page_url": "https://annas-archive.gl/md5/50e8ccf706f07fb80605cff38915ec5c"
-      },
-      {
-        "title": "All I Need Is You",
-        "authors": "Shanice, B",
-        "journal": "Shanice B. Presents, All 2, 2018",
-        "year": "2018",
-        "format": "EPUB",
-        "size": "0.7MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "c0bab547169ed2df840647e01c6ebcb4",
-        "page_url": "https://annas-archive.gl/md5/c0bab547169ed2df840647e01c6ebcb4"
-      },
-      {
-        "title": "The Distraction Addiction : Getting the Information You Need and the Communication You Want, Without Enraging Your Family, Annoying Your Colleagues, and Destroying Your Soul",
-        "authors": "Pang, Alex, Soojung-Kim",
-        "journal": "Little, Brown and Company, Hachette Book Group, New York, 2013",
-        "year": "2013",
-        "format": "EPUB",
-        "size": "2.2MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "6a5f7322af4d4d65ce2692dae00492a4",
-        "description": "The question of our time: can we reclaim our lives in an age that feels busier and more distracting by the day? We've all found ourselves checking email at the dinner table, holding our breath while waiting for Outlook to load, or sitting hunched in front of a screen for an hour longer than we intended. Mobile devices and the web have invaded our lives, and this is a big idea book that addresses one of the biggest questions of our age: can we stay connected without",
-        "page_url": "https://annas-archive.gl/md5/6a5f7322af4d4d65ce2692dae00492a4"
-      },
-      {
-        "title": "Love Is All You Need",
-        "authors": "A, John",
-        "journal": "0",
-        "format": "TXT",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "c87e6e20001197db514426870f49f1d8",
-        "page_url": "https://annas-archive.gl/md5/c87e6e20001197db514426870f49f1d8"
-      },
-      {
-        "title": "All you need is an Earl",
-        "authors": "Ella Edon",
-        "journal": "Lords of Pleasure 02, 2021",
-        "year": "2021",
-        "format": "EPUB",
-        "size": "0.7MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "94cbe6627a8b9f4f293aff2b19495b21",
-        "page_url": "https://annas-archive.gl/md5/94cbe6627a8b9f4f293aff2b19495b21"
-      },
-      {
-        "title": "all you need is a little love-3 lesbian highschool",
-        "authors": "shadow_angel223",
-        "journal": "Nifty Erotic Fiction Archive, all you need is a little love-",
-        "year": "2007",
-        "format": "TXT",
-        "size": "0.1MB",
-        "sources": [
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "5af95220207a385cb11aaa3df85b582b",
-        "page_url": "https://annas-archive.gl/md5/5af95220207a385cb11aaa3df85b582b"
-      },
-      {
-        "title": "All I Ever Need Is You",
-        "authors": "Andre, Bella",
-        "journal": "Sullivans 14; Seattle Sullivans 5, 2015",
-        "year": "2015",
-        "format": "EPUB",
-        "size": "0.3MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "88a878e5d5e2a244c00b7030714d3838",
-        "page_url": "https://annas-archive.gl/md5/88a878e5d5e2a244c00b7030714d3838"
-      },
-      {
-        "title": "All You Need Is Me",
-        "authors": "A.H. Winter",
-        "journal": "Green\u0026Grey, 2015",
-        "year": "2015",
-        "format": "EPUB",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "0404bd700a3de8d54191f3a9cb53001c",
-        "page_url": "https://annas-archive.gl/md5/0404bd700a3de8d54191f3a9cb53001c"
-      },
-      {
-        "title": "All You Need Is Love",
-        "authors": "Amy Lillard",
-        "journal": "A Squared Books, Oklahoma City, 2014",
-        "year": "2014",
-        "format": "EPUB",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "03223763b62f27a945d8c81396718b48",
-        "description": "Three months to get married. It’s every bachelor’s nightmare, especially when there’s millions at stake. Thanks to his aunt’s kooky will, that’s exactly where Tristan McFarland finds himself: get a wife or lose it all. At least he only has to stay married for a year.Small town girl, Claire Campbell is struggling to make it in big city Dallas. So when Tristan proposes what choice does she have? She has no place to live and no more money put aside. As Tristan’s",
-        "page_url": "https://annas-archive.gl/md5/03223763b62f27a945d8c81396718b48"
-      },
-      {
-        "title": "All you need is love: L'economia spiegata con le canzoni dei Beatles (Italian Edition)",
-        "authors": "Rampini, Federico",
-        "journal": "Oscar Mondadori, 2015",
-        "year": "2015",
-        "format": "EPUB",
-        "size": "3.5MB",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "96be42a2ae2b6912dc6e0a6c9b657ea6",
-        "page_url": "https://annas-archive.gl/md5/96be42a2ae2b6912dc6e0a6c9b657ea6"
-      },
-      {
-        "title": "All you need is love",
-        "authors": "Federico Rampini [Rampini, Federico]",
-        "journal": "Edizioni Mondadori, 2014",
-        "year": "2014",
-        "format": "EPUB",
-        "size": "0.3MB",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "a505be29ea8afc05b3b0ff40eced37b1",
-        "description": "«Il mio modello di business? I Beatles.» Così parlò Steve Jobs, il fondatore di Apple, uno che di business qualcosa capiva. A intrigarlo era soprattutto la formula del collettivo: vedeva i Beatles come un prodigioso moltiplicatore dei talenti individuali. L'indimenticabile quartetto della cultura pop, infatti, fu anche una start-up di successo. Proiettò quattro ragazzi cresciuti nella Liverpool del primo dopoguerra, in una miseria da Terzo mondo, verso la stratosfera",
-        "page_url": "https://annas-archive.gl/md5/a505be29ea8afc05b3b0ff40eced37b1"
-      },
-      {
-        "title": "All You Need Is Love",
-        "authors": "Lindsay Harrel",
-        "journal": "Blue Aster Press, None",
-        "format": "EPUB",
-        "size": "0.5MB",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "8a97d414f76498a87efbdff0884f2f54",
-        "description": "Shannon Baker likes the one man she can't have. To be fair, the day she meets her sister's boyfriend on the California beach, she thinks he's a tourist—a really charming tourist who understands more of her heart than people she's known her whole life. But Marshall has a secret. He's actually single. He's only pretending to date Shannon's sister—his co-worker—because her ex dumped her hours before a family reunion. In return, she's promised to recommend Marshall for a",
-        "page_url": "https://annas-archive.gl/md5/8a97d414f76498a87efbdff0884f2f54"
-      },
-      {
-        "title": "All You Need Is Kill",
-        "authors": "Sakurazaka, Hiroshi; Sakurazaka, Hiroshi",
-        "journal": "Haikasoru/VIZ Media, 2011",
-        "year": "2011",
-        "format": "MOBI",
-        "size": "1.2MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "65c477227f97e6731bd5f4a75bcd6b23",
-        "description": "When the alien Mimics invade, Keiji Kiriya is just one of many recruits shoved into a suit of battle armor called a Jacket and sent out to kill. Keiji dies on the battlefield, only to be reborn each morning to fight and die again and again. On his 158th iteration, he gets a message from a mysterious ally--the female soldier known as the Full Metal Bitch. Is she the key to Keiji's escape or his final death?Now a major motion picture starring Tom Cruise!“Science fiction for",
-        "page_url": "https://annas-archive.gl/md5/65c477227f97e6731bd5f4a75bcd6b23"
-      },
-      {
-        "title": "The Edge of the Sky: All You Need to Know About the All-There-Is",
-        "authors": "Trotta, Roberto",
-        "journal": "Basic Books, 2014",
-        "year": "2014",
-        "format": "AZW3",
-        "size": "0.7MB",
-        "sources": [
-          "lgli",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "02fb1ff956ad11256755125013ec9e45",
-        "page_url": "https://annas-archive.gl/md5/02fb1ff956ad11256755125013ec9e45"
-      },
-      {
-        "title": "All you need is you",
-        "authors": "Алиса Мартынова",
-        "journal": "SelfPub, 2019",
-        "year": "2019",
-        "format": "EPUB",
-        "size": "1.1MB",
-        "sources": [
-          "lgli",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "959528d020d857c97352e6c93c043b3e",
-        "description": "Удивительно, что название книги написано на английском, а сама книга на русском, но не спешите с выводами. Как бы нам не хотелось, но воспринимаем мы всё же \"по одёжке\", поэтому вот мой посыл: \"Развивайтесь! Для этого нужен только ТЫ!\"В данной электронной книге",
-        "page_url": "https://annas-archive.gl/md5/959528d020d857c97352e6c93c043b3e"
-      },
-      {
-        "title": "All I Need Is You",
-        "authors": "Monica Walters; T. Key",
-        "journal": "2020",
-        "year": "2020",
-        "format": "EPUB",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "47be5cbd5830dbc95536ebf1d1b8c03d",
-        "page_url": "https://annas-archive.gl/md5/47be5cbd5830dbc95536ebf1d1b8c03d"
-      },
-      {
-        "title": "All you need is less",
-        "authors": "Manfred Folkers, Niko Paech",
-        "journal": "",
-        "format": "MOBI",
-        "size": "2.0MB",
-        "sources": [
-          "lgli"
-        ],
-        "hash": "3af50bc9ca1610a1a2c5c63215fe672e",
-        "page_url": "https://annas-archive.gl/md5/3af50bc9ca1610a1a2c5c63215fe672e"
-      }
-    ],
-    "Total": 9,
-    "TotalIsLowerBound": false,
-    "MorePages": false
+  "shows_results": true,
+  "total": {
+    "found": true,
+    "lower_bound": false,
+    "total": 9
   }
 }

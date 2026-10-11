@@ -1,4 +1,10 @@
 {
+  "details": {
+    "title": "Attention Is All You Need",
+    "authors": "Liang, Deqiang; Li, Xiangguang; Zhang, Wanshun; Li, Yanni; Zhang, Mi; Cheng, Ping",
+    "journal": "John Wiley and Sons; Wiley (John Wiley \u0026 Sons); Wiley (ISSN 0931-7597)",
+    "size": ""
+  },
   "identity": {
     "doi": "10.1002/chin.201627137",
     "doi_conflict": false,
@@ -13,12 +19,5 @@
       "Ping Cheng"
     ],
     "year": "2016"
-  },
-  "scidb_details": {
-    "title": "Attention Is All You Need",
-    "authors": "Liang, Deqiang; Li, Xiangguang; Zhang, Wanshun; Li, Yanni; Zhang, Mi; Cheng, Ping",
-    "journal": "John Wiley and Sons; Wiley (John Wiley \u0026 Sons); Wiley (ISSN 0931-7597)",
-    "size": "",
-    "page_url": ""
   }
 }

@@ -1,4 +1,1064 @@
 {
+  "cards": [
+    {
+      "prefix": "md5",
+      "id": "eff1d22d32721d0fcc05d6c7e332bf54",
+      "href": "/md5/eff1d22d32721d0fcc05d6c7e332bf54",
+      "title": "Equity-premium prediction: attention is all you need.",
+      "authors": "Luiz Renato Lima; Lucas Lúcio Godeiro",
+      "publisher": "Wiley",
+      "edition": "Journal of Applied Econometrics, 38, 2022",
+      "description": "## Summary Predictions of stock returns are greatly improved relative to low‐dimensional forecasting regressions when the forecasts are based on the estimated factor of large data sets, also known as the diffusion index (DI) model. However, when applied to text data, DI models do not perform well. This paper shows that by simply using text data in a DI model does not improve equity‐premium forecasts over the naive historical‐average model, but substantial gains are",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.4MB",
+        "year": "2022",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc",
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "e5f076649401b36deec21040b80d31c3",
+      "href": "/md5/e5f076649401b36deec21040b80d31c3",
+      "title": "Attention is all you need: utilizing attention in AI-enabled drug discovery",
+      "authors": "Yang Zhang; Caiqi Liu; Mujiexin Liu; Tianyuan Liu; Hao Lin; Cheng-Bing Huang; Lin Ning",
+      "publisher": "Briefings in Bioinformatics",
+      "edition": "No.1, Vol.25",
+      "description": "AcademicSubjects/SCI01060, DOI: 10.1093/bib/bbad467, Briefings in Bioinformatics, 25(1), 00, 06 12 2023. Abstract: Recently, attention mechanism and derived models have gained significant traction in drug development due to their outstanding performance and interpretability in handling complex data structures. This review offers an in-depth exploration of the principles underlying attention-based models and their advantages in drug discovery. We further elaborate on their",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.6MB",
+        "year": "2024",
+        "content": "journal_article",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "0029d5735c9b47b2f62be9f8f3d16cf5",
+      "href": "/md5/0029d5735c9b47b2f62be9f8f3d16cf5",
+      "title": "Attention Is All You Need",
+      "authors": "Liang, Deqiang; Li, Xiangguang; Zhang, Wanshun; Li, Yanni; Zhang, Mi; Cheng, Ping",
+      "publisher": "John Wiley and Sons; Wiley (John Wiley \u0026 Sons); Wiley (ISSN 0931-7597)",
+      "edition": "ChemInform, #27, 47, 2016 jun 16",
+      "description": "... Datenschutzregimes. Während einige technikkritische Stimmen laut applaudieren, prügeln andere auf...",
+      "meta": {
+        "language": "German",
+        "format": "PDF",
+        "size": "0.1MB",
+        "year": "2016",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "141fe51b90bf1e7fb65397e217213fa4",
+      "href": "/md5/141fe51b90bf1e7fb65397e217213fa4",
+      "title": "Is attention all you need for intraday Forex trading?",
+      "authors": "Przemysław Grądzki; Piotr Wójcik",
+      "publisher": "Wiley",
+      "edition": "Expert Systems, 2023",
+      "description": "The main objective of this paper is to analyse whether the Transformer neural network, which has become one of the most influential algorithms in Artificial Intelligence over the last few years, exhibits predictive capabilities for high-frequency Forex data. The prediction task is to classify short-term Forex movements for six currency pairs and five different time intervals from 60 to 720 min. We find that the Transformer exhibits high predictive power in the context of",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "2.4MB",
+        "year": "2023",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc"
+        ]
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "1c7e07f0a168850642afb1ce65c027bc",
+      "href": "/md5/1c7e07f0a168850642afb1ce65c027bc",
+      "title": "Is attention all you need in medical image analysis? A review.",
+      "authors": "Giorgos Papanastasiou, Nikolaos Dikaios, Jiahao Huang, Chengjia Wang, Guang Yang",
+      "publisher": "IEEE",
+      "description": "IEEE Journal of Biomedical and Health Informatics; ;PP;99;10.1109/JBHI.2023.3348436 Attention,Computed tomography,Convolutional neural networks,Magnetic resonance imaging,Medical image analysis,Positron emission tomography,Retinal imaging,Transformers",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.0MB",
+        "content": "journal_article",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "41a3675419548790ced515d8b467661f",
+      "href": "/md5/41a3675419548790ced515d8b467661f",
+      "title": "Pose is all you need: the pose only group activity recognition system (POGARS)",
+      "authors": "Haritha Thilakarathne; Aiden Nibali; Zhen He; Stuart Morgan",
+      "publisher": "Machine Vision and Applications",
+      "edition": "No.6, Vol.33",
+      "description": "We introduce a novel deep learning-based group activity recognition approach called the Pose...",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.5MB",
+        "year": "2022",
+        "content": "journal_article",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "5e085b48c1b9035e5840a2ca3b6f04aa",
+      "href": "/md5/5e085b48c1b9035e5840a2ca3b6f04aa",
+      "title": "Attention All Surveyors: Our Schools Need You",
+      "authors": "Davies, Hilary; Jones, Brenda",
+      "publisher": "Emerald Group Publishing Limited; Emerald (MCB UP ); Emerald Group Publishing Ltd.; Emerald (ISSN 0263-080X)",
+      "edition": "Structural Survey, #5, 12, pages 31-34, 1994 oct",
+      "description": "Individual schools may now elect to operate their own budget for alltheir basic running costs...",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.1MB",
+        "year": "1994",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "53d9767a1652078a1e94ceb3aefeddca",
+      "href": "/md5/53d9767a1652078a1e94ceb3aefeddca",
+      "title": "Response to M. Trengove \u0026 coll regarding “Attention is not all you need: the complicated case of ethically using large language models in healthcare and medicine”",
+      "authors": "Stefan Harrer",
+      "publisher": "eBioMedicine",
+      "edition": "suppl-C, Vol.93",
+      "description": "Trengove and colleagues have made a valuable contribution to a debate that currently dominates...",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.2MB",
+        "year": "2023",
+        "content": "journal_article",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "c3287b2945807fbd898603874c9a174a",
+      "href": "/md5/c3287b2945807fbd898603874c9a174a",
+      "title": "‘All You Need Is Love, Love... Love Is All You Need’",
+      "authors": "Storrs, Elisabeth",
+      "publisher": "Taylor and Francis Group; Informa UK (Taylor \u0026 Francis); Routledge; Informa UK Limited (ISSN 1475-5610)",
+      "edition": "Culture and Religion, #3, 7, pages 291-310, 2006 nov",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.2MB",
+        "year": "2006",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "3f866f12ed29dc7647ee39d2165c2c77",
+      "href": "/md5/3f866f12ed29dc7647ee39d2165c2c77",
+      "title": "Image Generation is May All You Need for VQA",
+      "authors": "Kyungho Kim; Junseo Lee; Jihwa Lee",
+      "publisher": "IEEE",
+      "edition": "ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), Rhodes Island, Greece, 2023",
+      "description": "Visual Question Answering (VQA) stands to benefit from the boost of increasingly sophisticated Pretrained Language Model (PLM) and Computer Vision-based models. In particular, many language modality studies have been conducted using image captioning or question generation with the knowledge ground of PLM in terms of data augmentation. However, image generation of VQA has been implemented in a limited way to modify only certain parts of the original image in order to control",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "2.4MB",
+        "year": "2023",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc"
+        ]
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "c3da8f61cc2a5ab3ec8dba2fbe7ac981",
+      "href": "/md5/c3da8f61cc2a5ab3ec8dba2fbe7ac981",
+      "title": "Optimizing Apache Kafka Deployments - Configuration customization is all you need",
+      "authors": "Swarnabha Das; Sujay Goswami; Subalalitha C N",
+      "publisher": "IEEE",
+      "edition": "2023 14th International Conference on Computing Communication and Networking Technologies (ICCCNT), 2023 14th International Conference on Computing Communication and Networking Technologies (ICCCNT), Delhi, India, 2023",
+      "description": "Apache Kafka is an open source publish-subscribe message broker and distributed logging tool that has a widespread adoption in the modern world by companies like Uber, Airbnb, Linkedin and many more. Delivering extreme high volume event data to diverse consumers via a publish-subscribe messaging system with several out of the box optimizations on the 4 major pillars of latency, throughput, durability and availability makes this tool so much popular in the IT landscape. Kafka",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.5MB",
+        "year": "2023",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc"
+        ]
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "8a33a93b017b9f593acb9a6500d5e8c3",
+      "href": "/md5/8a33a93b017b9f593acb9a6500d5e8c3",
+      "title": "AI Regulation Is (not) All You Need",
+      "authors": "Laura Lucaj; Patrick van der Smagt; Djalel Benbouzid",
+      "publisher": "ACM",
+      "edition": "2023 ACM Conference on Fairness, Accountability, and Transparency, FAccT '23, FAccT '23: the 2023 ACM Conference on Fairness, Accountability, and Transparency, Chicago IL USA, 2023",
+      "description": "The development of processes and tools for ethical, trustworthy, and legal AI is only beginning. At the same time, legal requirements are emerging in various jurisdictions, following a deluge of ethical guidelines. It is therefore key to explore the necessary practices that must be adopted to ensure the quality of AI systems, mitigate their potential risks and enable legal compliance. Ensuring that the potential negative impacts of AI on individuals, society, and the",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.7MB",
+        "year": "2023",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc"
+        ]
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "614b526158bca8597a5a0503a16d0dc6",
+      "href": "/md5/614b526158bca8597a5a0503a16d0dc6",
+      "title": "Filter-enhanced MLP is All You Need for Sequential Recommendation",
+      "authors": "Kun Zhou; Hui Yu; Wayne Xin Zhao; Ji-Rong Wen",
+      "publisher": "ACM",
+      "edition": "Proceedings of the ACM Web Conference 2022, WWW '22, WWW '22: The ACM Web Conference 2022, Virtual Event, Lyon France, 2022",
+      "description": "Recently, deep neural networks such as RNN, CNN and Transformer have been applied in the task of sequential recommendation, which aims to capture the dynamic preference characteristics from logged user behavior data for accurate recommendation. However, in online platforms, logged user behavior data is inevitable to contain noise, and deep recommendation models are easy to overfit on these logged data. To tackle this problem, we borrow the idea of filtering algorithms from",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.9MB",
+        "year": "2022",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc"
+        ]
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "51a1ffb44c7894a1736dd9bfeb5a35d8",
+      "href": "/md5/51a1ffb44c7894a1736dd9bfeb5a35d8",
+      "title": "Bandwidth Extension is All You Need",
+      "authors": "Jiaqi Su; Yunyun Wang; Adam Finkelstein; Zeyu Jin",
+      "publisher": "IEEE",
+      "edition": "ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), Toronto, ON, Canada, 2021",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "2.0MB",
+        "year": "2021",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc",
+          "scihub"
+        ]
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "a4ee7e34483cc93bdeffa591337e6f41",
+      "href": "/md5/a4ee7e34483cc93bdeffa591337e6f41",
+      "title": "Sampling Is All You Need on Modeling Long-Term User Behaviors for CTR Prediction",
+      "authors": "Yue Cao; Xiaojiang Zhou; Jiaqi Feng; Peihao Huang; Yao Xiao; Dayao Chen; Sheng Chen",
+      "publisher": "ACM",
+      "edition": "Proceedings of the 31st ACM International Conference on Information \u0026 Knowledge Management, CIKM '22, CIKM '22: The 31st ACM International Conference on Information and Knowledge Management, Atlanta GA USA, 2022",
+      "description": "Rich user behavior data has been proven to be of great value for Click-Through Rate (CTR) prediction applications, especially in industrial recommender, search, or advertising systems. However, it's non-trivial for real-world systems to make full use of long-term user behaviors due to the strict requirements of online serving time. Most previous works adopt the retrieval-based strategy, where a small number of user behaviors are retrieved first for subsequent attention.",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.4MB",
+        "year": "2022",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc"
+        ]
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "0bf290e0284210420a5e2df9dcc6ec53",
+      "href": "/md5/0bf290e0284210420a5e2df9dcc6ec53",
+      "title": "All you need is logs: improving code completion by learning from anonymous IDE usage logs",
+      "authors": "Vitaliy Bibaev; Alexey Kalina; Vadim Lomshakov; Yaroslav Golubev; Alexander Bezzubov; Nikita Povarov; Timofey Bryksin",
+      "publisher": "ACM",
+      "edition": "Proceedings of the 30th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering, ESEC/FSE '22, ESEC/FSE '22: 30th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering, Singapore Singapore, 2022",
+      "description": "In this work, we propose an approach for collecting completion usage logs from the users in an IDE and using them to train a machine learning based model for ranking completion candidates. We developed a set of features that describe completion candidates and their context, and deployed their anonymized collection in the Early Access Program of IntelliJ-based IDEs. We used the logs to collect a dataset of code completions from users, and employed it to train a ranking",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.2MB",
+        "year": "2022",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc"
+        ]
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "db73bb4c8c0a4b178ef3018fc13563ef",
+      "href": "/md5/db73bb4c8c0a4b178ef3018fc13563ef",
+      "title": "Evaluating biomarkers as predictors of cancer therapy cardiotoxicity: all you need is a meta‐analysis?. Letter regarding the article ‘Troponins and brain natriuretic peptides for the prediction of cardiotoxicity in cancer patients: a meta‐analysis.’",
+      "authors": "Aimo, Alberto; Fabiani, Iacopo; Emdin, Michele",
+      "publisher": "Oxford University Press; Wiley (John Wiley \u0026 Sons); Wiley-Blackwell; Wiley; Elsevier BV (ISSN 1388-9842)",
+      "edition": "European Journal of Heart Failure, #7, 22, pages 1284-1285, 2020 apr 15",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.5MB",
+        "year": "2020",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "nexusstc",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "e998d7a4e0380a3a2c8d455a3c82aa92",
+      "href": "/md5/e998d7a4e0380a3a2c8d455a3c82aa92",
+      "title": "All You Need to Know About Electron Backscatter Diffraction: Orientation is Only the Tip of the Iceberg",
+      "authors": "Michael, J. R.",
+      "publisher": "Oxford University Press (OUP)",
+      "edition": "Microscopy and Microanalysis, #S2, 3, pages 387-388, 1997 aug",
+      "description": "This tutorial will describe the technique of electron backscattered diffraction (EBSD) in the scanning electron microscope (SEM). To properly exploit EBSD in the SEM it is important to understand how these patterns are formed. This discussion will be followed by a description of the hardware required for the collection of electron backscatter patterns (EBSP). We will then discuss the methods used to extract the appropriate crystallographic information from the patterns for",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.4MB",
+        "year": "1997",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "nexusstc",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "520949546613c78772c10017197d660f",
+      "href": "/md5/520949546613c78772c10017197d660f",
+      "title": "The Edge of the Sky: All You Need to Know about the All-There-Is",
+      "publisher": "Nature Publishing Group; Springer Science and Business Media LLC; Scientific American Inc. (ISSN 0036-8733)",
+      "edition": "Scientific American, #3, 311, pages 92-92, 2014 aug 19",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "2.2MB",
+        "year": "2014",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "d95c000315b131e3a9144ce94d27aab6",
+      "href": "/md5/d95c000315b131e3a9144ce94d27aab6",
+      "title": "Remembering Popular Music, Documentary Style: Tony Palmer's History in All You Need Is Love",
+      "authors": "Alison Huber",
+      "publisher": "SAGE Publications (ISSN 1527-4764)",
+      "edition": "Television \u0026 New Media, #6, 12, pages 513-530, 2011 mar 10",
+      "description": "... mid-1970s installment in this tradition: Tony Palmer’s epic seventeen-part narrative, All You...",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.2MB",
+        "year": "2011",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "d35d002fee2e3f23547caac1a413a2f2",
+      "href": "/md5/d35d002fee2e3f23547caac1a413a2f2",
+      "title": "AC Detective: All you need is sound",
+      "authors": "DiGregorio, Barry E.",
+      "publisher": "American Chemical Society; American Chemical Society (ACS) (ISSN 0003-2700)",
+      "edition": "Analytical Chemistry, #19, 79, pages 7236-7236, 2007 oct",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.1MB",
+        "year": "2007",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "581e9427e38657e947c6502f072c7d88",
+      "href": "/md5/581e9427e38657e947c6502f072c7d88",
+      "title": "All You Need is Litigation: THE BEATLES PLAY TO WIN",
+      "authors": "BRUCE C. PILATO",
+      "publisher": "American Bar Association (ISSN 0747-0088)",
+      "edition": "ABA Journal, #7, 76, pages 54-59, 1990 jul",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "3.4MB",
+        "year": "1990",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "b7a4aeb95899fa39eff8b36add5befe9",
+      "href": "/md5/b7a4aeb95899fa39eff8b36add5befe9",
+      "title": "All You Need Is Love",
+      "authors": "Review by: Midge Quandt",
+      "publisher": "JSTOR (ISSN 0738-1433)",
+      "edition": "The Women's Review of Books, #8, 4, pages 17-18, 1987 may",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.1MB",
+        "year": "1987",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "fd2c7cb8e1565c9d0bc637f5365e0035",
+      "href": "/md5/fd2c7cb8e1565c9d0bc637f5365e0035",
+      "title": "All You Need Is ... Meat!",
+      "authors": "Roger Taylor and Robert Whitaker",
+      "publisher": "JSTOR; Australian Institute of Political Science (ISSN 1443-3605)",
+      "edition": "AQ Australian Quarterly, #3, 70, pages 44-47, 1998",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "2.8MB",
+        "year": "1998",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "591d69ee4499e606d3ed2e790f0dacf2",
+      "href": "/md5/591d69ee4499e606d3ed2e790f0dacf2",
+      "title": "All You Need Is What?",
+      "authors": "Review by: Lee T. Lemon",
+      "publisher": "Project MUSE (ISSN 0032-6682)",
+      "edition": "Prairie Schooner, #4, 48, pages 366-367, 1974-1975 win",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.3MB",
+        "year": "1974",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "46915b27ef1d395189ac8da906028135",
+      "href": "/md5/46915b27ef1d395189ac8da906028135",
+      "title": "The Universe of Literature || All You Need Is Love: Using Shakespeare to Build Community",
+      "authors": "Karen Marcus",
+      "publisher": "National Council of Teachers of English; JSTOR (ISSN 0013-8274)",
+      "edition": "The English Journal, #3, 85, pages 58-60, 1996 mar",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.5MB",
+        "year": "1996",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "df19aa094e8e45b7629d2a4f45a740f8",
+      "href": "/md5/df19aa094e8e45b7629d2a4f45a740f8",
+      "title": "Protein structure prediction by AlphaFold2: are attention and symmetries all you need?",
+      "authors": "Bouatta, Nazim (author); Sorger, Peter (author); AlQuraishi, Mohammed (author)",
+      "publisher": "International Union of Crystallography (IUCr)",
+      "edition": "Acta Crystallographica Section D Structural Biology, #8, 77, pages 982-991, 2021 aug 1",
+      "description": "This review discusses the __AlphaFold__2 system for protein structure prediction, including its conceptual and methodological advances, its amenability to interpretation and its achievements in the last Critical Assessment of protein Structure Prediction (CASP14) experiment.",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.4MB",
+        "year": "2021",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "nexusstc",
+          "upload"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "12a75ca42307e3fc8e97749c0ffab5d1",
+      "href": "/md5/12a75ca42307e3fc8e97749c0ffab5d1",
+      "title": "All You Need Is LAV: Madonna and Postmodern Kabbalah",
+      "authors": "Boaz Huss",
+      "publisher": "JSTOR; Project MUSE; Dropsie College for Hebrew and Cognate Learning (ISSN 1553-0604)",
+      "edition": "Jewish Quarterly Review, #4, 95, pages 611-624, 2005 fal",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.1MB",
+        "year": "2005",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "d9cc5d95d52e1d28e02ad00b118f4d65",
+      "href": "/md5/d9cc5d95d52e1d28e02ad00b118f4d65",
+      "title": "All You Need Is Low (Rank): Defending Against Adversarial Attacks on Graphs",
+      "authors": "Entezari, Negin; Al-Sayouri, Saba A.; Darvishzadeh, Amirali; Papalexakis, Evangelos E.",
+      "publisher": "ACM",
+      "edition": "Proceedings of the 13th International Conference on Web Search and Data Mining, WSDM '20, WSDM '20: The Thirteenth ACM International Conference on Web Search and Data Mining, Houston TX USA, 2020",
+      "description": "Recent studies have demonstrated that machine learning approaches like deep learning methods are easily fooled by adversarial attacks. Recently, a highly-influential study examined the impact of adversarial attacks on graph data and demonstrated that graph embedding techniques are also vulnerable to adversarial attacks. Fake users on social media and fake product reviews are examples of perturbations in graph data that are realistic counterparts of the adversarial models",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "7.7MB",
+        "year": "2020",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "nexusstc",
+          "scihub"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "0e1f74605db5addde6dda3fefc62e24b",
+      "href": "/md5/0e1f74605db5addde6dda3fefc62e24b",
+      "title": "All You Need Is Love: Paul Ramsey's \"Basic Christian Ethics\" and the Dilemma of Protestant Antilegalism",
+      "authors": "Robert W. Tuttle",
+      "publisher": "Cambridge University Press; Cambridge University Press (CUP); JSTOR (ISSN 0748-0814)",
+      "edition": "Journal of Law and Religion, #2, 18, pages 427-457, 2002",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "4.1MB",
+        "year": "2002",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "f0893ee1774db44cf0f301f8cd026194",
+      "href": "/md5/f0893ee1774db44cf0f301f8cd026194",
+      "title": "Harm is all you need? Best interests and disputes about parental decision-making",
+      "authors": "Birchley, Giles",
+      "publisher": "BMJ Publishing Group; BMJ (ISSN 0306-6800)",
+      "edition": "Journal of Medical Ethics, #2, 42, pages 111-115, 2015 sep 23",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.2MB",
+        "year": "2015",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "5c6af9712c70f6b059854097016c070e",
+      "href": "/md5/5c6af9712c70f6b059854097016c070e",
+      "title": "All You Need Is Theory? The Beatles' 'Sgt. Pepper'",
+      "authors": "Review by: Kenneth Gloag",
+      "publisher": "Oxford University Press; Oxford University Press (OUP) (ISSN 0027-4224)",
+      "edition": "Music and Letters, #4, 79, pages 577-583, 1998 nov",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.2MB",
+        "year": "1998",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "dd630aa8adaeee3ee924f1afa237690e",
+      "href": "/md5/dd630aa8adaeee3ee924f1afa237690e",
+      "title": "All you need is love: feminist pedagogy for empowerment and emotional labour in the academy",
+      "authors": "Morley, Louise",
+      "publisher": "Taylor and Francis Group; Informa UK (Taylor \u0026 Francis); Taylor \u0026 Francis; Informa UK Limited (ISSN 1360-3116)",
+      "edition": "International Journal of Inclusive Education, #1, 2, pages 15-27, 1998 jan",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.0MB",
+        "year": "1998",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "a65fd3d7ffe3594748a6f915d9073e4f",
+      "href": "/md5/a65fd3d7ffe3594748a6f915d9073e4f",
+      "title": "Attention And Positional Encoding Are (Almost) All You Need For Shape Matching",
+      "authors": "Alessandro Raganato; Gabriella Pasi; Simone Melzi",
+      "publisher": "Wiley",
+      "edition": "Computer Graphics Forum, 42, 2023",
+      "description": "## Abstract The fast development of novel approaches derived from the Transformers architecture has led to outstanding performance in different scenarios, from Natural Language Processing to Computer Vision. Recently, they achieved impressive results even in the challenging task of non‐rigid shape matching. However, little is known about the capability of the Transformer‐encoder architecture for the shape matching task, and its performances still remained largely",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "13.6MB",
+        "year": "2023",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc"
+        ]
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "392ee175430802a5d9dad38cb516be33",
+      "href": "/md5/392ee175430802a5d9dad38cb516be33",
+      "title": "Trust is All You Need: An Empirical Exploration of Initial Coin Offerings (ICOs) and ICO Reputation Scores",
+      "authors": "Rhue, Lauren A.",
+      "publisher": "Social Science Electronic Publishing; Publons; Research Square; Elsevier BV (ISSN 1556-5068)",
+      "edition": "SSRN Electronic Journal, 2018",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.7MB",
+        "year": "2018",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "65e952ec04b9279d28271a98823d08bf",
+      "href": "/md5/65e952ec04b9279d28271a98823d08bf",
+      "title": "All You Need Is Love: The Peace Corps and the Spirit of the 1960sby Elizabeth Cobbs Hoffman",
+      "authors": "Review by: Thomas Borstelmann",
+      "publisher": "American Historical Association; Oxford University Press; Oxford University Press (OUP); JSTOR; Test accounts (ISSN 0002-8762)",
+      "edition": "The American Historical Review, #1, 104, pages 222-223, 1999 feb",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.2MB",
+        "year": "1999",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "83014fbe6397688b580f6891ef00cdf4",
+      "href": "/md5/83014fbe6397688b580f6891ef00cdf4",
+      "title": "Depthwise Convolution Is All You Need for Learning Multiple Visual Domains",
+      "authors": "Guo, Yunhui; Li, Yandong; Wang, Liqiang; Rosing, Tajana",
+      "publisher": "Association for the Advancement of Artificial Intelligence (AAAI) (ISSN 2159-5399)",
+      "edition": "Proceedings of the AAAI Conference on Artificial Intelligence, 33, pages 8368-8375, 2019 jul 17",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "3.2MB",
+        "year": "2019",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "faec0b16c99f28cb3a4cad87ee29a58f",
+      "href": "/md5/faec0b16c99f28cb3a4cad87ee29a58f",
+      "title": "Love is all you need? Focusing on adolescents' life concerns from an ecological point of view",
+      "authors": "Marion Kloep",
+      "publisher": "Elsevier Science; Elsevier ; Elsevier Inc.; Elsevier BV (ISSN 0140-1971)",
+      "edition": "Journal of Adolescence, #1, 22, pages 49-63, 1999 feb",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.2MB",
+        "year": "1999",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "189060e634298fd89f720cbdbabe2f24",
+      "href": "/md5/189060e634298fd89f720cbdbabe2f24",
+      "title": "All You Need Is Love: The Peace Corps and the Spirit of the 1960sby Elizabeth Cobbs Hoffman",
+      "authors": "Review by: Jonathan S. Russ",
+      "publisher": "Taylor and Francis Group; Informa UK (Taylor \u0026 Francis); Taylor \u0026 Francis; Informa UK Limited (ISSN 0707-5332)",
+      "edition": "The International History Review, #2, 22, pages 486-487, 2000 jun",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.4MB",
+        "year": "2000",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "de08bbfb4b04e800aeeb4980323545cf",
+      "href": "/md5/de08bbfb4b04e800aeeb4980323545cf",
+      "title": "Is attention all geosciences need? Advancing quantitative petrography with attention-based deep learning",
+      "authors": "Ardiansyah Koeshidayatullah; Ivan Ferreira-Chacua; Weichang Li",
+      "publisher": "Elsevier BV",
+      "edition": "Computers \u0026 Geosciences, 181, 2023",
+      "description": "Recent advances in deep learning have transformed data-driven geoscientific analysis. In particular, the adoption of attention mechanism in deep learning has received considerable interest and shown impressive results that can surpass traditional convolutional neural networks (CNN) in image analysis. The application of attention-based algorithms has been fairly limited in geosciences, hence the actual value and potential of the attention mechanism to perform image analysis",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "8.9MB",
+        "year": "2023",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc"
+        ]
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "d376259dd53316563a7acd188f233282",
+      "href": "/md5/d376259dd53316563a7acd188f233282",
+      "title": "All you need is cognitive behaviour therapy? Commentary: Benevolent scepticism is just what the doctor ordered Commentary: Yes, cognitive behaviour therapy may well be all you need Commentary: Symptoms or relationships Commentary: The \"evidence\" is weaker than claimed",
+      "authors": "Jeremy Holmes, Roger Neighbour, Nicholas Tarrier, R D Hinshelwood, and Nick Bolsover",
+      "publisher": "BMJ : British medical journal / British Medical Association",
+      "edition": "BMJ: British Medical Journal, #7332, 324, pages 288-294, 2002 feb 02",
+      "description": "Discusses psychotherapy and the recommendation of cognitive behavior therapy for the treatment...",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.2MB",
+        "year": "2002",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "88354e00adf4f819fe7edb22e3aa9c16",
+      "href": "/md5/88354e00adf4f819fe7edb22e3aa9c16",
+      "title": "All you need is love: Is the sociometer especially sensitive to one's mating capacity?",
+      "authors": "Jessica A. Pass; Siegwart M. Lindenberg; Justin H. Park",
+      "publisher": "John Wiley and Sons; Wiley (John Wiley \u0026 Sons); John Wiley \u0026 Sons Inc.; Wiley (ISSN 0046-2772)",
+      "edition": "European Journal of Social Psychology, #2, 40, pages 221-234, 2009 mar 18",
+      "description": "## Abstract Self‐esteem has been proposed to serve as a sociometer, a gauge of one's value as a relationship partner. Based on evolutionary reasoning, we hypothesized that the sociometer is particularly sensitive to “capacity rejection” in the mating domain. Capacity rejection implies that one has low potential to be an acceptable mate now and in the future. In Study 1, participants received no feedback or negative feedback regarding their capacity for being an",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.2MB",
+        "year": "2009",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "nexusstc",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "08ec7c9cc0b14b2a77b6c8fe9b259da8",
+      "href": "/md5/08ec7c9cc0b14b2a77b6c8fe9b259da8",
+      "title": "Text is all You Need: Personalizing ASR Models Using Controllable Speech Synthesis",
+      "authors": "Karren Yang; Ting-Yao Hu; Jen-Hao Rick Chang; Hema Swetha Koppula; Oncel Tuzel",
+      "publisher": "IEEE",
+      "edition": "ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), Rhodes Island, Greece, 2023",
+      "description": "Adapting generic speech recognition models to specific individuals is a challenging problem due to the scarcity of personalized data. Recent works have proposed boosting the amount of training data using personalized text-to-speech synthesis. Here, we ask two fundamental questions about this strategy: when is synthetic data effective for personalization, and why is it effective in those cases? To address the first question, we adapt a state-of-the-art automatic speech",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.1MB",
+        "year": "2023",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc",
+          "upload"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "156c7faa70da0360a231238c02d175f4",
+      "href": "/md5/156c7faa70da0360a231238c02d175f4",
+      "title": "Video is All You Need: Attacking PPG-based Biometric Authentication",
+      "authors": "Lin Li; Chao Chen; Lei Pan; Jun Zhang; Yang Xiang",
+      "publisher": "ACM",
+      "edition": "Proceedings of the 15th ACM Workshop on Artificial Intelligence and Security, CCS '22, CCS '22: 2022 ACM SIGSAC Conference on Computer and Communications Security, Los Angeles CA USA, 2022",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "5.4MB",
+        "year": "2022",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc",
+          "upload"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "cfb39b44dd13bcc4d5357a517a00a841",
+      "href": "/md5/cfb39b44dd13bcc4d5357a517a00a841",
+      "title": "Depth is all you Need: Single-Stage Weakly Supervised Semantic Segmentation From Image-Level Supervision",
+      "authors": "Mustafa Ergul; Aydin Alatan",
+      "publisher": "IEEE",
+      "edition": "2022 IEEE International Conference on Image Processing (ICIP), 2022 IEEE International Conference on Image Processing (ICIP), Bordeaux, France, 2022",
+      "description": "The costly process of obtaining semantic segmentation labels has driven research towards to weakly supervised semantic segmentation (WSSS) methods, with only image-level labels available for training. The lack of dense semantic scene representation requires methods to increase complexity to obtain additional semantic information (i.e. object/stuff extent and boundary) about the scene. This is often done though increased model complexity and sophisticated multi-stage",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "1.0MB",
+        "year": "2022",
+        "content": "journal_article",
+        "sources": [
+          "nexusstc",
+          "upload"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "b0d7022960d24166b48147165a86e1b2",
+      "href": "/md5/b0d7022960d24166b48147165a86e1b2",
+      "title": "The Edge of the Sky: All You Need to Know about the All-There-Is",
+      "authors": "Hubisz, John L.",
+      "publisher": "American Association of Physics Teachers; American Institute of Physics; American Association of Physics Teachers (AAPT) (ISSN 0031-921X)",
+      "edition": "The Physcis Teacher, #8, 52, pages 510-510, 2014 nov",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.3MB",
+        "year": "2014",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    },
+    {
+      "prefix": "md5",
+      "id": "79e8b110eeb2287deeb6c4210806d005",
+      "href": "/md5/79e8b110eeb2287deeb6c4210806d005",
+      "title": "All You Need is LOS: Effects of Acute and Post-Acute Lengths of Stay on Patient Outcomes",
+      "authors": "Jarvis, Jessica; Malagaris, Ioannis; Graham, James; Lin, Yu-Li",
+      "publisher": "Elsevier Science; Elsevier ; W. B. Saunders Co., Ltd.; Elsevier BV (ISSN 1532-821X)",
+      "edition": "Archives of Physical Medicine and Rehabilitation, #10, 96, pages e45-, 2015 oct",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "0.1MB",
+        "year": "2015",
+        "content": "journal_article",
+        "sources": [
+          "lgli",
+          "scihub",
+          "zlib"
+        ],
+        "fast_download": true
+      },
+      "partial": true
+    }
+  ],
   "facets": {
     "content": [
       "journal_article"
@@ -15,752 +1075,10 @@
       "ia"
     ]
   },
-  "page": {
-    "Results": [
-      {
-        "title": "Equity-premium prediction: attention is all you need.",
-        "authors": "Luiz Renato Lima; Lucas Lúcio Godeiro",
-        "journal": "Wiley, Journal of Applied Econometrics, 38, 2022",
-        "year": "2022",
-        "format": "PDF",
-        "size": "1.4MB",
-        "sources": [
-          "nexusstc",
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "eff1d22d32721d0fcc05d6c7e332bf54",
-        "description": "## Summary Predictions of stock returns are greatly improved relative to low‐dimensional forecasting regressions when the forecasts are based on the estimated factor of large data sets, also known as the diffusion index (DI) model. However, when applied to text data, DI models do not perform well. This paper shows that by simply using text data in a DI model does not improve equity‐premium forecasts over the naive historical‐average model, but substantial gains are",
-        "page_url": "https://annas-archive.gl/md5/eff1d22d32721d0fcc05d6c7e332bf54"
-      },
-      {
-        "title": "Attention is all you need: utilizing attention in AI-enabled drug discovery",
-        "authors": "Yang Zhang; Caiqi Liu; Mujiexin Liu; Tianyuan Liu; Hao Lin; Cheng-Bing Huang; Lin Ning",
-        "journal": "Briefings in Bioinformatics, No.1, Vol.25",
-        "year": "2024",
-        "format": "PDF",
-        "size": "1.6MB",
-        "sources": [
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "e5f076649401b36deec21040b80d31c3",
-        "description": "AcademicSubjects/SCI01060, DOI: 10.1093/bib/bbad467, Briefings in Bioinformatics, 25(1), 00, 06 12 2023. Abstract: Recently, attention mechanism and derived models have gained significant traction in drug development due to their outstanding performance and interpretability in handling complex data structures. This review offers an in-depth exploration of the principles underlying attention-based models and their advantages in drug discovery. We further elaborate on their",
-        "page_url": "https://annas-archive.gl/md5/e5f076649401b36deec21040b80d31c3"
-      },
-      {
-        "title": "Attention Is All You Need",
-        "authors": "Liang, Deqiang; Li, Xiangguang; Zhang, Wanshun; Li, Yanni; Zhang, Mi; Cheng, Ping",
-        "journal": "John Wiley and Sons; Wiley (John Wiley \u0026 Sons); Wiley (ISSN 0931-7597), ChemInform, #27, 47, 2016 jun 16",
-        "year": "2016",
-        "format": "PDF",
-        "size": "0.1MB",
-        "sources": [
-          "lgli",
-          "scihub"
-        ],
-        "fast_download": true,
-        "hash": "0029d5735c9b47b2f62be9f8f3d16cf5",
-        "description": "... Datenschutzregimes. Während einige technikkritische Stimmen laut applaudieren, prügeln andere auf...",
-        "page_url": "https://annas-archive.gl/md5/0029d5735c9b47b2f62be9f8f3d16cf5"
-      },
-      {
-        "title": "Is attention all you need for intraday Forex trading?",
-        "authors": "Przemysław Grądzki; Piotr Wójcik",
-        "journal": "Wiley, Expert Systems, 2023",
-        "year": "2023",
-        "format": "PDF",
-        "size": "2.4MB",
-        "sources": [
-          "nexusstc"
-        ],
-        "hash": "141fe51b90bf1e7fb65397e217213fa4",
-        "description": "The main objective of this paper is to analyse whether the Transformer neural network, which has become one of the most influential algorithms in Artificial Intelligence over the last few years, exhibits predictive capabilities for high-frequency Forex data. The prediction task is to classify short-term Forex movements for six currency pairs and five different time intervals from 60 to 720 min. We find that the Transformer exhibits high predictive power in the context of",
-        "page_url": "https://annas-archive.gl/md5/141fe51b90bf1e7fb65397e217213fa4"
-      },
-      {
-        "title": "Is attention all you need in medical image analysis? A review.",
-        "authors": "Giorgos Papanastasiou, Nikolaos Dikaios, Jiahao Huang, Chengjia Wang, Guang Yang",
-        "journal": "IEEE",
-        "format": "PDF",
-        "size": "1.0MB",
-        "sources": [
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "1c7e07f0a168850642afb1ce65c027bc",
-        "description": "IEEE Journal of Biomedical and Health Informatics; ;PP;99;10.1109/JBHI.2023.3348436 Attention,Computed tomography,Convolutional neural networks,Magnetic resonance imaging,Medical image analysis,Positron emission tomography,Retinal imaging,Transformers",
-        "page_url": "https://annas-archive.gl/md5/1c7e07f0a168850642afb1ce65c027bc"
-      },
-      {
-        "title": "Pose is all you need: the pose only group activity recognition system (POGARS)",
-        "authors": "Haritha Thilakarathne; Aiden Nibali; Zhen He; Stuart Morgan",
-        "journal": "Machine Vision and Applications, No.6, Vol.33",
-        "year": "2022",
-        "format": "PDF",
-        "size": "1.5MB",
-        "sources": [
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "41a3675419548790ced515d8b467661f",
-        "description": "We introduce a novel deep learning-based group activity recognition approach called the Pose...",
-        "page_url": "https://annas-archive.gl/md5/41a3675419548790ced515d8b467661f"
-      },
-      {
-        "title": "Attention All Surveyors: Our Schools Need You",
-        "authors": "Davies, Hilary; Jones, Brenda",
-        "journal": "Emerald Group Publishing Limited; Emerald (MCB UP ); Emerald Group Publishing Ltd.; Emerald (ISSN 0263-080X), Structural Survey, #5, 12, pages 31-34, 1994 oct",
-        "year": "1994",
-        "format": "PDF",
-        "size": "0.1MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "5e085b48c1b9035e5840a2ca3b6f04aa",
-        "description": "Individual schools may now elect to operate their own budget for alltheir basic running costs...",
-        "page_url": "https://annas-archive.gl/md5/5e085b48c1b9035e5840a2ca3b6f04aa"
-      },
-      {
-        "title": "Response to M. Trengove \u0026 coll regarding “Attention is not all you need: the complicated case of ethically using large language models in healthcare and medicine”",
-        "authors": "Stefan Harrer",
-        "journal": "eBioMedicine, suppl-C, Vol.93",
-        "year": "2023",
-        "format": "PDF",
-        "size": "0.2MB",
-        "sources": [
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "53d9767a1652078a1e94ceb3aefeddca",
-        "description": "Trengove and colleagues have made a valuable contribution to a debate that currently dominates...",
-        "page_url": "https://annas-archive.gl/md5/53d9767a1652078a1e94ceb3aefeddca"
-      }
-    ],
-    "Partial": [
-      {
-        "title": "‘All You Need Is Love, Love... Love Is All You Need’",
-        "authors": "Storrs, Elisabeth",
-        "journal": "Taylor and Francis Group; Informa UK (Taylor \u0026 Francis); Routledge; Informa UK Limited (ISSN 1475-5610), Culture and Religion, #3, 7, pages 291-310, 2006 nov",
-        "year": "2006",
-        "format": "PDF",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "c3287b2945807fbd898603874c9a174a",
-        "page_url": "https://annas-archive.gl/md5/c3287b2945807fbd898603874c9a174a"
-      },
-      {
-        "title": "Image Generation is May All You Need for VQA",
-        "authors": "Kyungho Kim; Junseo Lee; Jihwa Lee",
-        "journal": "IEEE, ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), Rhodes Island, Greece, 2023",
-        "year": "2023",
-        "format": "PDF",
-        "size": "2.4MB",
-        "sources": [
-          "nexusstc"
-        ],
-        "hash": "3f866f12ed29dc7647ee39d2165c2c77",
-        "description": "Visual Question Answering (VQA) stands to benefit from the boost of increasingly sophisticated Pretrained Language Model (PLM) and Computer Vision-based models. In particular, many language modality studies have been conducted using image captioning or question generation with the knowledge ground of PLM in terms of data augmentation. However, image generation of VQA has been implemented in a limited way to modify only certain parts of the original image in order to control",
-        "page_url": "https://annas-archive.gl/md5/3f866f12ed29dc7647ee39d2165c2c77"
-      },
-      {
-        "title": "Optimizing Apache Kafka Deployments - Configuration customization is all you need",
-        "authors": "Swarnabha Das; Sujay Goswami; Subalalitha C N",
-        "journal": "IEEE, 2023 14th International Conference on Computing Communication and Networking Technologies (ICCCNT), 2023 14th International Conference on Computing Communication and Networking Technologies (ICCCNT), Delhi, India, 2023",
-        "year": "2023",
-        "format": "PDF",
-        "size": "1.5MB",
-        "sources": [
-          "nexusstc"
-        ],
-        "hash": "c3da8f61cc2a5ab3ec8dba2fbe7ac981",
-        "description": "Apache Kafka is an open source publish-subscribe message broker and distributed logging tool that has a widespread adoption in the modern world by companies like Uber, Airbnb, Linkedin and many more. Delivering extreme high volume event data to diverse consumers via a publish-subscribe messaging system with several out of the box optimizations on the 4 major pillars of latency, throughput, durability and availability makes this tool so much popular in the IT landscape. Kafka",
-        "page_url": "https://annas-archive.gl/md5/c3da8f61cc2a5ab3ec8dba2fbe7ac981"
-      },
-      {
-        "title": "AI Regulation Is (not) All You Need",
-        "authors": "Laura Lucaj; Patrick van der Smagt; Djalel Benbouzid",
-        "journal": "ACM, 2023 ACM Conference on Fairness, Accountability, and Transparency, FAccT '23, FAccT '23: the 2023 ACM Conference on Fairness, Accountability, and Transparency, Chicago IL USA, 2023",
-        "year": "2023",
-        "format": "PDF",
-        "size": "0.7MB",
-        "sources": [
-          "nexusstc"
-        ],
-        "hash": "8a33a93b017b9f593acb9a6500d5e8c3",
-        "description": "The development of processes and tools for ethical, trustworthy, and legal AI is only beginning. At the same time, legal requirements are emerging in various jurisdictions, following a deluge of ethical guidelines. It is therefore key to explore the necessary practices that must be adopted to ensure the quality of AI systems, mitigate their potential risks and enable legal compliance. Ensuring that the potential negative impacts of AI on individuals, society, and the",
-        "page_url": "https://annas-archive.gl/md5/8a33a93b017b9f593acb9a6500d5e8c3"
-      },
-      {
-        "title": "Filter-enhanced MLP is All You Need for Sequential Recommendation",
-        "authors": "Kun Zhou; Hui Yu; Wayne Xin Zhao; Ji-Rong Wen",
-        "journal": "ACM, Proceedings of the ACM Web Conference 2022, WWW '22, WWW '22: The ACM Web Conference 2022, Virtual Event, Lyon France, 2022",
-        "year": "2022",
-        "format": "PDF",
-        "size": "1.9MB",
-        "sources": [
-          "nexusstc"
-        ],
-        "hash": "614b526158bca8597a5a0503a16d0dc6",
-        "description": "Recently, deep neural networks such as RNN, CNN and Transformer have been applied in the task of sequential recommendation, which aims to capture the dynamic preference characteristics from logged user behavior data for accurate recommendation. However, in online platforms, logged user behavior data is inevitable to contain noise, and deep recommendation models are easy to overfit on these logged data. To tackle this problem, we borrow the idea of filtering algorithms from",
-        "page_url": "https://annas-archive.gl/md5/614b526158bca8597a5a0503a16d0dc6"
-      },
-      {
-        "title": "Bandwidth Extension is All You Need",
-        "authors": "Jiaqi Su; Yunyun Wang; Adam Finkelstein; Zeyu Jin",
-        "journal": "IEEE, ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), Toronto, ON, Canada, 2021",
-        "year": "2021",
-        "format": "PDF",
-        "size": "2.0MB",
-        "sources": [
-          "nexusstc",
-          "scihub"
-        ],
-        "hash": "51a1ffb44c7894a1736dd9bfeb5a35d8",
-        "page_url": "https://annas-archive.gl/md5/51a1ffb44c7894a1736dd9bfeb5a35d8"
-      },
-      {
-        "title": "Sampling Is All You Need on Modeling Long-Term User Behaviors for CTR Prediction",
-        "authors": "Yue Cao; Xiaojiang Zhou; Jiaqi Feng; Peihao Huang; Yao Xiao; Dayao Chen; Sheng Chen",
-        "journal": "ACM, Proceedings of the 31st ACM International Conference on Information \u0026 Knowledge Management, CIKM '22, CIKM '22: The 31st ACM International Conference on Information and Knowledge Management, Atlanta GA USA, 2022",
-        "year": "2022",
-        "format": "PDF",
-        "size": "1.4MB",
-        "sources": [
-          "nexusstc"
-        ],
-        "hash": "a4ee7e34483cc93bdeffa591337e6f41",
-        "description": "Rich user behavior data has been proven to be of great value for Click-Through Rate (CTR) prediction applications, especially in industrial recommender, search, or advertising systems. However, it's non-trivial for real-world systems to make full use of long-term user behaviors due to the strict requirements of online serving time. Most previous works adopt the retrieval-based strategy, where a small number of user behaviors are retrieved first for subsequent attention.",
-        "page_url": "https://annas-archive.gl/md5/a4ee7e34483cc93bdeffa591337e6f41"
-      },
-      {
-        "title": "All you need is logs: improving code completion by learning from anonymous IDE usage logs",
-        "authors": "Vitaliy Bibaev; Alexey Kalina; Vadim Lomshakov; Yaroslav Golubev; Alexander Bezzubov; Nikita Povarov; Timofey Bryksin",
-        "journal": "ACM, Proceedings of the 30th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering, ESEC/FSE '22, ESEC/FSE '22: 30th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering, Singapore Singapore, 2022",
-        "year": "2022",
-        "format": "PDF",
-        "size": "1.2MB",
-        "sources": [
-          "nexusstc"
-        ],
-        "hash": "0bf290e0284210420a5e2df9dcc6ec53",
-        "description": "In this work, we propose an approach for collecting completion usage logs from the users in an IDE and using them to train a machine learning based model for ranking completion candidates. We developed a set of features that describe completion candidates and their context, and deployed their anonymized collection in the Early Access Program of IntelliJ-based IDEs. We used the logs to collect a dataset of code completions from users, and employed it to train a ranking",
-        "page_url": "https://annas-archive.gl/md5/0bf290e0284210420a5e2df9dcc6ec53"
-      },
-      {
-        "title": "Evaluating biomarkers as predictors of cancer therapy cardiotoxicity: all you need is a meta‐analysis?. Letter regarding the article ‘Troponins and brain natriuretic peptides for the prediction of cardiotoxicity in cancer patients: a meta‐analysis.’",
-        "authors": "Aimo, Alberto; Fabiani, Iacopo; Emdin, Michele",
-        "journal": "Oxford University Press; Wiley (John Wiley \u0026 Sons); Wiley-Blackwell; Wiley; Elsevier BV (ISSN 1388-9842), European Journal of Heart Failure, #7, 22, pages 1284-1285, 2020 apr 15",
-        "year": "2020",
-        "format": "PDF",
-        "size": "0.5MB",
-        "sources": [
-          "lgli",
-          "nexusstc",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "db73bb4c8c0a4b178ef3018fc13563ef",
-        "page_url": "https://annas-archive.gl/md5/db73bb4c8c0a4b178ef3018fc13563ef"
-      },
-      {
-        "title": "All You Need to Know About Electron Backscatter Diffraction: Orientation is Only the Tip of the Iceberg",
-        "authors": "Michael, J. R.",
-        "journal": "Oxford University Press (OUP), Microscopy and Microanalysis, #S2, 3, pages 387-388, 1997 aug",
-        "year": "1997",
-        "format": "PDF",
-        "size": "1.4MB",
-        "sources": [
-          "lgli",
-          "nexusstc",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "e998d7a4e0380a3a2c8d455a3c82aa92",
-        "description": "This tutorial will describe the technique of electron backscattered diffraction (EBSD) in the scanning electron microscope (SEM). To properly exploit EBSD in the SEM it is important to understand how these patterns are formed. This discussion will be followed by a description of the hardware required for the collection of electron backscatter patterns (EBSP). We will then discuss the methods used to extract the appropriate crystallographic information from the patterns for",
-        "page_url": "https://annas-archive.gl/md5/e998d7a4e0380a3a2c8d455a3c82aa92"
-      },
-      {
-        "title": "The Edge of the Sky: All You Need to Know about the All-There-Is",
-        "authors": "",
-        "journal": "Nature Publishing Group; Springer Science and Business Media LLC; Scientific American Inc. (ISSN 0036-8733), Scientific American, #3, 311, pages 92-92, 2014 aug 19",
-        "year": "2014",
-        "format": "PDF",
-        "size": "2.2MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "520949546613c78772c10017197d660f",
-        "page_url": "https://annas-archive.gl/md5/520949546613c78772c10017197d660f"
-      },
-      {
-        "title": "Remembering Popular Music, Documentary Style: Tony Palmer's History in All You Need Is Love",
-        "authors": "Alison Huber",
-        "journal": "SAGE Publications (ISSN 1527-4764), Television \u0026 New Media, #6, 12, pages 513-530, 2011 mar 10",
-        "year": "2011",
-        "format": "PDF",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "d95c000315b131e3a9144ce94d27aab6",
-        "description": "... mid-1970s installment in this tradition: Tony Palmer’s epic seventeen-part narrative, All You...",
-        "page_url": "https://annas-archive.gl/md5/d95c000315b131e3a9144ce94d27aab6"
-      },
-      {
-        "title": "AC Detective: All you need is sound",
-        "authors": "DiGregorio, Barry E.",
-        "journal": "American Chemical Society; American Chemical Society (ACS) (ISSN 0003-2700), Analytical Chemistry, #19, 79, pages 7236-7236, 2007 oct",
-        "year": "2007",
-        "format": "PDF",
-        "size": "0.1MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "d35d002fee2e3f23547caac1a413a2f2",
-        "page_url": "https://annas-archive.gl/md5/d35d002fee2e3f23547caac1a413a2f2"
-      },
-      {
-        "title": "All You Need is Litigation: THE BEATLES PLAY TO WIN",
-        "authors": "BRUCE C. PILATO",
-        "journal": "American Bar Association (ISSN 0747-0088), ABA Journal, #7, 76, pages 54-59, 1990 jul",
-        "year": "1990",
-        "format": "PDF",
-        "size": "3.4MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "581e9427e38657e947c6502f072c7d88",
-        "page_url": "https://annas-archive.gl/md5/581e9427e38657e947c6502f072c7d88"
-      },
-      {
-        "title": "All You Need Is Love",
-        "authors": "Review by: Midge Quandt",
-        "journal": "JSTOR (ISSN 0738-1433), The Women's Review of Books, #8, 4, pages 17-18, 1987 may",
-        "year": "1987",
-        "format": "PDF",
-        "size": "1.1MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "b7a4aeb95899fa39eff8b36add5befe9",
-        "page_url": "https://annas-archive.gl/md5/b7a4aeb95899fa39eff8b36add5befe9"
-      },
-      {
-        "title": "All You Need Is ... Meat!",
-        "authors": "Roger Taylor and Robert Whitaker",
-        "journal": "JSTOR; Australian Institute of Political Science (ISSN 1443-3605), AQ Australian Quarterly, #3, 70, pages 44-47, 1998",
-        "year": "1998",
-        "format": "PDF",
-        "size": "2.8MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "fd2c7cb8e1565c9d0bc637f5365e0035",
-        "page_url": "https://annas-archive.gl/md5/fd2c7cb8e1565c9d0bc637f5365e0035"
-      },
-      {
-        "title": "All You Need Is What?",
-        "authors": "Review by: Lee T. Lemon",
-        "journal": "Project MUSE (ISSN 0032-6682), Prairie Schooner, #4, 48, pages 366-367, 1974-1975 win",
-        "year": "1974",
-        "format": "PDF",
-        "size": "0.3MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "591d69ee4499e606d3ed2e790f0dacf2",
-        "page_url": "https://annas-archive.gl/md5/591d69ee4499e606d3ed2e790f0dacf2"
-      },
-      {
-        "title": "The Universe of Literature || All You Need Is Love: Using Shakespeare to Build Community",
-        "authors": "Karen Marcus",
-        "journal": "National Council of Teachers of English; JSTOR (ISSN 0013-8274), The English Journal, #3, 85, pages 58-60, 1996 mar",
-        "year": "1996",
-        "format": "PDF",
-        "size": "0.5MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "46915b27ef1d395189ac8da906028135",
-        "page_url": "https://annas-archive.gl/md5/46915b27ef1d395189ac8da906028135"
-      },
-      {
-        "title": "Protein structure prediction by AlphaFold2: are attention and symmetries all you need?",
-        "authors": "Bouatta, Nazim (author); Sorger, Peter (author); AlQuraishi, Mohammed (author)",
-        "journal": "International Union of Crystallography (IUCr), Acta Crystallographica Section D Structural Biology, #8, 77, pages 982-991, 2021 aug 1",
-        "year": "2021",
-        "format": "PDF",
-        "size": "0.4MB",
-        "sources": [
-          "lgli",
-          "nexusstc",
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "df19aa094e8e45b7629d2a4f45a740f8",
-        "description": "This review discusses the __AlphaFold__2 system for protein structure prediction, including its conceptual and methodological advances, its amenability to interpretation and its achievements in the last Critical Assessment of protein Structure Prediction (CASP14) experiment.",
-        "page_url": "https://annas-archive.gl/md5/df19aa094e8e45b7629d2a4f45a740f8"
-      },
-      {
-        "title": "All You Need Is LAV: Madonna and Postmodern Kabbalah",
-        "authors": "Boaz Huss",
-        "journal": "JSTOR; Project MUSE; Dropsie College for Hebrew and Cognate Learning (ISSN 1553-0604), Jewish Quarterly Review, #4, 95, pages 611-624, 2005 fal",
-        "year": "2005",
-        "format": "PDF",
-        "size": "1.1MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "12a75ca42307e3fc8e97749c0ffab5d1",
-        "page_url": "https://annas-archive.gl/md5/12a75ca42307e3fc8e97749c0ffab5d1"
-      },
-      {
-        "title": "All You Need Is Low (Rank): Defending Against Adversarial Attacks on Graphs",
-        "authors": "Entezari, Negin; Al-Sayouri, Saba A.; Darvishzadeh, Amirali; Papalexakis, Evangelos E.",
-        "journal": "ACM, Proceedings of the 13th International Conference on Web Search and Data Mining, WSDM '20, WSDM '20: The Thirteenth ACM International Conference on Web Search and Data Mining, Houston TX USA, 2020",
-        "year": "2020",
-        "format": "PDF",
-        "size": "7.7MB",
-        "sources": [
-          "lgli",
-          "nexusstc",
-          "scihub"
-        ],
-        "fast_download": true,
-        "hash": "d9cc5d95d52e1d28e02ad00b118f4d65",
-        "description": "Recent studies have demonstrated that machine learning approaches like deep learning methods are easily fooled by adversarial attacks. Recently, a highly-influential study examined the impact of adversarial attacks on graph data and demonstrated that graph embedding techniques are also vulnerable to adversarial attacks. Fake users on social media and fake product reviews are examples of perturbations in graph data that are realistic counterparts of the adversarial models",
-        "page_url": "https://annas-archive.gl/md5/d9cc5d95d52e1d28e02ad00b118f4d65"
-      },
-      {
-        "title": "All You Need Is Love: Paul Ramsey's \"Basic Christian Ethics\" and the Dilemma of Protestant Antilegalism",
-        "authors": "Robert W. Tuttle",
-        "journal": "Cambridge University Press; Cambridge University Press (CUP); JSTOR (ISSN 0748-0814), Journal of Law and Religion, #2, 18, pages 427-457, 2002",
-        "year": "2002",
-        "format": "PDF",
-        "size": "4.1MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "0e1f74605db5addde6dda3fefc62e24b",
-        "page_url": "https://annas-archive.gl/md5/0e1f74605db5addde6dda3fefc62e24b"
-      },
-      {
-        "title": "Harm is all you need? Best interests and disputes about parental decision-making",
-        "authors": "Birchley, Giles",
-        "journal": "BMJ Publishing Group; BMJ (ISSN 0306-6800), Journal of Medical Ethics, #2, 42, pages 111-115, 2015 sep 23",
-        "year": "2015",
-        "format": "PDF",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "f0893ee1774db44cf0f301f8cd026194",
-        "page_url": "https://annas-archive.gl/md5/f0893ee1774db44cf0f301f8cd026194"
-      },
-      {
-        "title": "All You Need Is Theory? The Beatles' 'Sgt. Pepper'",
-        "authors": "Review by: Kenneth Gloag",
-        "journal": "Oxford University Press; Oxford University Press (OUP) (ISSN 0027-4224), Music and Letters, #4, 79, pages 577-583, 1998 nov",
-        "year": "1998",
-        "format": "PDF",
-        "size": "1.2MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "5c6af9712c70f6b059854097016c070e",
-        "page_url": "https://annas-archive.gl/md5/5c6af9712c70f6b059854097016c070e"
-      },
-      {
-        "title": "All you need is love: feminist pedagogy for empowerment and emotional labour in the academy",
-        "authors": "Morley, Louise",
-        "journal": "Taylor and Francis Group; Informa UK (Taylor \u0026 Francis); Taylor \u0026 Francis; Informa UK Limited (ISSN 1360-3116), International Journal of Inclusive Education, #1, 2, pages 15-27, 1998 jan",
-        "year": "1998",
-        "format": "PDF",
-        "size": "1.0MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "dd630aa8adaeee3ee924f1afa237690e",
-        "page_url": "https://annas-archive.gl/md5/dd630aa8adaeee3ee924f1afa237690e"
-      },
-      {
-        "title": "Attention And Positional Encoding Are (Almost) All You Need For Shape Matching",
-        "authors": "Alessandro Raganato; Gabriella Pasi; Simone Melzi",
-        "journal": "Wiley, Computer Graphics Forum, 42, 2023",
-        "year": "2023",
-        "format": "PDF",
-        "size": "13.6MB",
-        "sources": [
-          "nexusstc"
-        ],
-        "hash": "a65fd3d7ffe3594748a6f915d9073e4f",
-        "description": "## Abstract The fast development of novel approaches derived from the Transformers architecture has led to outstanding performance in different scenarios, from Natural Language Processing to Computer Vision. Recently, they achieved impressive results even in the challenging task of non‐rigid shape matching. However, little is known about the capability of the Transformer‐encoder architecture for the shape matching task, and its performances still remained largely",
-        "page_url": "https://annas-archive.gl/md5/a65fd3d7ffe3594748a6f915d9073e4f"
-      },
-      {
-        "title": "Trust is All You Need: An Empirical Exploration of Initial Coin Offerings (ICOs) and ICO Reputation Scores",
-        "authors": "Rhue, Lauren A.",
-        "journal": "Social Science Electronic Publishing; Publons; Research Square; Elsevier BV (ISSN 1556-5068), SSRN Electronic Journal, 2018",
-        "year": "2018",
-        "format": "PDF",
-        "size": "0.7MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "392ee175430802a5d9dad38cb516be33",
-        "page_url": "https://annas-archive.gl/md5/392ee175430802a5d9dad38cb516be33"
-      },
-      {
-        "title": "All You Need Is Love: The Peace Corps and the Spirit of the 1960sby Elizabeth Cobbs Hoffman",
-        "authors": "Review by: Thomas Borstelmann",
-        "journal": "American Historical Association; Oxford University Press; Oxford University Press (OUP); JSTOR; Test accounts (ISSN 0002-8762), The American Historical Review, #1, 104, pages 222-223, 1999 feb",
-        "year": "1999",
-        "format": "PDF",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "65e952ec04b9279d28271a98823d08bf",
-        "page_url": "https://annas-archive.gl/md5/65e952ec04b9279d28271a98823d08bf"
-      },
-      {
-        "title": "Depthwise Convolution Is All You Need for Learning Multiple Visual Domains",
-        "authors": "Guo, Yunhui; Li, Yandong; Wang, Liqiang; Rosing, Tajana",
-        "journal": "Association for the Advancement of Artificial Intelligence (AAAI) (ISSN 2159-5399), Proceedings of the AAAI Conference on Artificial Intelligence, 33, pages 8368-8375, 2019 jul 17",
-        "year": "2019",
-        "format": "PDF",
-        "size": "3.2MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "83014fbe6397688b580f6891ef00cdf4",
-        "page_url": "https://annas-archive.gl/md5/83014fbe6397688b580f6891ef00cdf4"
-      },
-      {
-        "title": "Love is all you need? Focusing on adolescents' life concerns from an ecological point of view",
-        "authors": "Marion Kloep",
-        "journal": "Elsevier Science; Elsevier ; Elsevier Inc.; Elsevier BV (ISSN 0140-1971), Journal of Adolescence, #1, 22, pages 49-63, 1999 feb",
-        "year": "1999",
-        "format": "PDF",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "faec0b16c99f28cb3a4cad87ee29a58f",
-        "page_url": "https://annas-archive.gl/md5/faec0b16c99f28cb3a4cad87ee29a58f"
-      },
-      {
-        "title": "All You Need Is Love: The Peace Corps and the Spirit of the 1960sby Elizabeth Cobbs Hoffman",
-        "authors": "Review by: Jonathan S. Russ",
-        "journal": "Taylor and Francis Group; Informa UK (Taylor \u0026 Francis); Taylor \u0026 Francis; Informa UK Limited (ISSN 0707-5332), The International History Review, #2, 22, pages 486-487, 2000 jun",
-        "year": "2000",
-        "format": "PDF",
-        "size": "0.4MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "189060e634298fd89f720cbdbabe2f24",
-        "page_url": "https://annas-archive.gl/md5/189060e634298fd89f720cbdbabe2f24"
-      },
-      {
-        "title": "Is attention all geosciences need? Advancing quantitative petrography with attention-based deep learning",
-        "authors": "Ardiansyah Koeshidayatullah; Ivan Ferreira-Chacua; Weichang Li",
-        "journal": "Elsevier BV, Computers \u0026 Geosciences, 181, 2023",
-        "year": "2023",
-        "format": "PDF",
-        "size": "8.9MB",
-        "sources": [
-          "nexusstc"
-        ],
-        "hash": "de08bbfb4b04e800aeeb4980323545cf",
-        "description": "Recent advances in deep learning have transformed data-driven geoscientific analysis. In particular, the adoption of attention mechanism in deep learning has received considerable interest and shown impressive results that can surpass traditional convolutional neural networks (CNN) in image analysis. The application of attention-based algorithms has been fairly limited in geosciences, hence the actual value and potential of the attention mechanism to perform image analysis",
-        "page_url": "https://annas-archive.gl/md5/de08bbfb4b04e800aeeb4980323545cf"
-      },
-      {
-        "title": "All you need is cognitive behaviour therapy? Commentary: Benevolent scepticism is just what the doctor ordered Commentary: Yes, cognitive behaviour therapy may well be all you need Commentary: Symptoms or relationships Commentary: The \"evidence\" is weaker than claimed",
-        "authors": "Jeremy Holmes, Roger Neighbour, Nicholas Tarrier, R D Hinshelwood, and Nick Bolsover",
-        "journal": "BMJ : British medical journal / British Medical Association, BMJ: British Medical Journal, #7332, 324, pages 288-294, 2002 feb 02",
-        "year": "2002",
-        "format": "PDF",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "d376259dd53316563a7acd188f233282",
-        "description": "Discusses psychotherapy and the recommendation of cognitive behavior therapy for the treatment...",
-        "page_url": "https://annas-archive.gl/md5/d376259dd53316563a7acd188f233282"
-      },
-      {
-        "title": "All you need is love: Is the sociometer especially sensitive to one's mating capacity?",
-        "authors": "Jessica A. Pass; Siegwart M. Lindenberg; Justin H. Park",
-        "journal": "John Wiley and Sons; Wiley (John Wiley \u0026 Sons); John Wiley \u0026 Sons Inc.; Wiley (ISSN 0046-2772), European Journal of Social Psychology, #2, 40, pages 221-234, 2009 mar 18",
-        "year": "2009",
-        "format": "PDF",
-        "size": "0.2MB",
-        "sources": [
-          "lgli",
-          "nexusstc",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "88354e00adf4f819fe7edb22e3aa9c16",
-        "description": "## Abstract Self‐esteem has been proposed to serve as a sociometer, a gauge of one's value as a relationship partner. Based on evolutionary reasoning, we hypothesized that the sociometer is particularly sensitive to “capacity rejection” in the mating domain. Capacity rejection implies that one has low potential to be an acceptable mate now and in the future. In Study 1, participants received no feedback or negative feedback regarding their capacity for being an",
-        "page_url": "https://annas-archive.gl/md5/88354e00adf4f819fe7edb22e3aa9c16"
-      },
-      {
-        "title": "Text is all You Need: Personalizing ASR Models Using Controllable Speech Synthesis",
-        "authors": "Karren Yang; Ting-Yao Hu; Jen-Hao Rick Chang; Hema Swetha Koppula; Oncel Tuzel",
-        "journal": "IEEE, ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), Rhodes Island, Greece, 2023",
-        "year": "2023",
-        "format": "PDF",
-        "size": "1.1MB",
-        "sources": [
-          "nexusstc",
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "08ec7c9cc0b14b2a77b6c8fe9b259da8",
-        "description": "Adapting generic speech recognition models to specific individuals is a challenging problem due to the scarcity of personalized data. Recent works have proposed boosting the amount of training data using personalized text-to-speech synthesis. Here, we ask two fundamental questions about this strategy: when is synthetic data effective for personalization, and why is it effective in those cases? To address the first question, we adapt a state-of-the-art automatic speech",
-        "page_url": "https://annas-archive.gl/md5/08ec7c9cc0b14b2a77b6c8fe9b259da8"
-      },
-      {
-        "title": "Video is All You Need: Attacking PPG-based Biometric Authentication",
-        "authors": "Lin Li; Chao Chen; Lei Pan; Jun Zhang; Yang Xiang",
-        "journal": "ACM, Proceedings of the 15th ACM Workshop on Artificial Intelligence and Security, CCS '22, CCS '22: 2022 ACM SIGSAC Conference on Computer and Communications Security, Los Angeles CA USA, 2022",
-        "year": "2022",
-        "format": "PDF",
-        "size": "5.4MB",
-        "sources": [
-          "nexusstc",
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "156c7faa70da0360a231238c02d175f4",
-        "page_url": "https://annas-archive.gl/md5/156c7faa70da0360a231238c02d175f4"
-      },
-      {
-        "title": "Depth is all you Need: Single-Stage Weakly Supervised Semantic Segmentation From Image-Level Supervision",
-        "authors": "Mustafa Ergul; Aydin Alatan",
-        "journal": "IEEE, 2022 IEEE International Conference on Image Processing (ICIP), 2022 IEEE International Conference on Image Processing (ICIP), Bordeaux, France, 2022",
-        "year": "2022",
-        "format": "PDF",
-        "size": "1.0MB",
-        "sources": [
-          "nexusstc",
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "cfb39b44dd13bcc4d5357a517a00a841",
-        "description": "The costly process of obtaining semantic segmentation labels has driven research towards to weakly supervised semantic segmentation (WSSS) methods, with only image-level labels available for training. The lack of dense semantic scene representation requires methods to increase complexity to obtain additional semantic information (i.e. object/stuff extent and boundary) about the scene. This is often done though increased model complexity and sophisticated multi-stage",
-        "page_url": "https://annas-archive.gl/md5/cfb39b44dd13bcc4d5357a517a00a841"
-      },
-      {
-        "title": "The Edge of the Sky: All You Need to Know about the All-There-Is",
-        "authors": "Hubisz, John L.",
-        "journal": "American Association of Physics Teachers; American Institute of Physics; American Association of Physics Teachers (AAPT) (ISSN 0031-921X), The Physcis Teacher, #8, 52, pages 510-510, 2014 nov",
-        "year": "2014",
-        "format": "PDF",
-        "size": "0.3MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "b0d7022960d24166b48147165a86e1b2",
-        "page_url": "https://annas-archive.gl/md5/b0d7022960d24166b48147165a86e1b2"
-      },
-      {
-        "title": "All You Need is LOS: Effects of Acute and Post-Acute Lengths of Stay on Patient Outcomes",
-        "authors": "Jarvis, Jessica; Malagaris, Ioannis; Graham, James; Lin, Yu-Li",
-        "journal": "Elsevier Science; Elsevier ; W. B. Saunders Co., Ltd.; Elsevier BV (ISSN 1532-821X), Archives of Physical Medicine and Rehabilitation, #10, 96, pages e45-, 2015 oct",
-        "year": "2015",
-        "format": "PDF",
-        "size": "0.1MB",
-        "sources": [
-          "lgli",
-          "scihub",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "79e8b110eeb2287deeb6c4210806d005",
-        "page_url": "https://annas-archive.gl/md5/79e8b110eeb2287deeb6c4210806d005"
-      }
-    ],
-    "Total": 8,
-    "TotalIsLowerBound": false,
-    "MorePages": false
+  "shows_results": true,
+  "total": {
+    "found": true,
+    "lower_bound": false,
+    "total": 8
   }
 }

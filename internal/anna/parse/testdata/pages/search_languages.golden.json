@@ -1,4 +1,1067 @@
 {
+  "cards": [
+    {
+      "prefix": "md5",
+      "id": "80962e22d8db57ddcc69b0c5caf7eb1b",
+      "href": "/md5/80962e22d8db57ddcc69b0c5caf7eb1b",
+      "title": "Несколько слов по поводу книги «Война и мир»",
+      "authors": "Толстой Л.Н.",
+      "publisher": "Издательство \"Лань\" (мировое наследие)",
+      "edition": "2017",
+      "meta": {
+        "format": "PDF",
+        "size": "0.2MB",
+        "year": "2017",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "d3969fe277a9bfce9a7b43ce4d393d16",
+      "href": "/md5/d3969fe277a9bfce9a7b43ce4d393d16",
+      "title": "Война и мир. Том 3",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "Москва, Художественная литература, 1978-1985",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "1.0MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "9754e02e926076c0e57a85360b776386",
+      "href": "/md5/9754e02e926076c0e57a85360b776386",
+      "title": "Война и мир. Том 1",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "Москва, Художественная литература, 1978-1985",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "0.9MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "17a96f2c0762a6366faededf62898120",
+      "href": "/md5/17a96f2c0762a6366faededf62898120",
+      "title": "Война и мир. Том 2",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "Москва, Художественная литература, 1978-1985",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "1.0MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "a6d09418a9092ab05ff718c54a1af3ea",
+      "href": "/md5/a6d09418a9092ab05ff718c54a1af3ea",
+      "title": "Война и мир. Том 4",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "Москва, Художественная литература, 1978-1985",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "1.0MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "3d44bfe579f51e411962fae1b564cd1e",
+      "href": "/md5/3d44bfe579f51e411962fae1b564cd1e",
+      "title": "Лев Толстой. Собрание сочинений в 20 т. Том 4 : Война и мир. Том 1",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "ГИХЛ",
+      "edition": "Собрание сочинений в двадцати томах, 1961",
+      "description": "Лев Толстой. Собрание сочинений в 20 т. Том 4 : Война и мир. Том 1 / Подготовка текста и текстологические примечания Э. Е. Зайденшнур; Примечания Л. Д. Опульской. — М.: Государственное издательство художественной литературы, 1961. — Формат 84х108/32. Тираж 298 000 экз. Цена 1 р. 10",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "11.5MB",
+        "year": "1961",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "b0ca94d779007c7e959c07bed8cf3c1b",
+      "href": "/md5/b0ca94d779007c7e959c07bed8cf3c1b",
+      "title": "Лев Толстой. Собрание сочинений в 20 т. Том 5 : Война и мир. Том 2",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "ГИХЛ",
+      "edition": "Собрание сочинений в двадцати томах, 1962",
+      "description": "Лев Толстой. Собрание сочинений в 20 т. Том 5 : Война и мир. Том 2 / Подготовка текста и текстологические примечания Э. Е. Зайденшнур; Примечания Л. Д. Опульской. — М.: Государственное издательство художественной литературы, 1962. — Формат 84х108/32. Тираж 297 000 экз. Цена 1 р.",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "9.4MB",
+        "year": "1962",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "42359c3705560abb1ed106c281117aa3",
+      "href": "/md5/42359c3705560abb1ed106c281117aa3",
+      "title": "Лев Толстой. Собрание сочинений в 20 т. Том 6 : Война и мир. Том 3",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "ГИХЛ",
+      "edition": "Собрание сочинений в двадцати томах, 1962",
+      "description": "Лев Толстой. Собрание сочинений в 20 т. Том 6 : Война и мир. Том 3 / Подготовка текста и текстологические примечания Э. Е. Зайденшнур; Примечания Л. Д. Опульской. — М.: Государственное издательство художественной литературы, 1962. — Формат 84х108/32. Тираж 297 000 экз. Цена 1 р. 10",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "11.6MB",
+        "year": "1962",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "c8955d0d19e6f384c30d70369e794b53",
+      "href": "/md5/c8955d0d19e6f384c30d70369e794b53",
+      "title": "Лев Толстой. Собрание сочинений в 20 т. Том 7 : Война и мир. Том 4",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "ГИХЛ",
+      "edition": "Собрание сочинений в двадцати томах, 1963",
+      "description": "Лев Толстой. Собрание сочинений в 20 т. Том 7 : Война и мир. Том 4 / Подготовка текста и текстологические примечания Э. Е. Зайденшнур; Примечания Л. Д. Опульской. — М.: Государственное издательство художественной литературы, 1963. — Формат 84х108/32. Тираж 297 000 экз. Цена 1 р. 10",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "13.0MB",
+        "year": "1963",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "59a96e7923b54d9d7c44e8b699a39c82",
+      "href": "/md5/59a96e7923b54d9d7c44e8b699a39c82",
+      "title": "Война и мир. Книга 2",
+      "meta": {
+        "format": "FB2",
+        "size": "3.0MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "d580f6f4c1b3813f3737b385a0688676",
+      "href": "/md5/d580f6f4c1b3813f3737b385a0688676",
+      "title": "Война и мир",
+      "authors": "Толстой Л.Н.",
+      "publisher": "СЗКЭО",
+      "edition": "Библиотека мировой литературы, 12, 2021",
+      "description": "BML_War\u0026Peace_1-271 2 BML_War\u0026Peace_272-544 273 BML_War\u0026Peace_545-846 546 BML_War\u0026Peace_847-1120 848",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "110.9MB",
+        "year": "2021",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "7dd4418c6d9725d0a04752f25ffe7895",
+      "href": "/md5/7dd4418c6d9725d0a04752f25ffe7895",
+      "title": "Война и мир. Книга 1",
+      "meta": {
+        "format": "FB2",
+        "size": "2.9MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "a029304ece00cc1fe8bc79db427a004f",
+      "href": "/md5/a029304ece00cc1fe8bc79db427a004f",
+      "title": "Война и мир",
+      "authors": "Толстой Л.Н.",
+      "publisher": "СЗКЭО",
+      "edition": "Библиотека мировой литературы, 12, 2021",
+      "description": "BML_War\u0026Peace_1-271 BML_War\u0026Peace_272-544 BML_War\u0026Peace_545-846 BML_War\u0026Peace_847-1120",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "332.2MB",
+        "year": "2021",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "853fbe82d3542d5c5b71c7d779107420",
+      "href": "/md5/853fbe82d3542d5c5b71c7d779107420",
+      "title": "Полное собрание сочинений : в ста томах: Том 25.1 : Война и мир. Редакция 1873 года. Книга 1",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "Наука",
+      "edition": "Полное собрание сочинений в ста томах, 2003",
+      "description": "ISBN 5-02-006376-2",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "27.7MB",
+        "year": "2003",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ]
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "fc929b03f740468be54f3fc9137d1b33",
+      "href": "/md5/fc929b03f740468be54f3fc9137d1b33",
+      "title": "Война и мир — Първи и втори том",
+      "authors": "Лев Толстой, Иван Цветков",
+      "publisher": "Моята библиотека (http://chitanka.info)",
+      "description": "Епически роман,Исторически роман,Реализъм,Реалистичен роман,Човек и бунт",
+      "meta": {
+        "language": "Bulgarian",
+        "format": "EPUB",
+        "size": "1.1MB",
+        "content": "book_unknown",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "3bc9d20ef1422e38aefb6b09e68b81a8",
+      "href": "/md5/3bc9d20ef1422e38aefb6b09e68b81a8",
+      "title": "Война и мир — Трети и четвърти том",
+      "authors": "Лев Толстой",
+      "publisher": "Моята библиотека (http://chitanka.info)",
+      "description": "Епически роман,Исторически роман,Реализъм,Реалистичен роман,Човек и бунт",
+      "meta": {
+        "language": "Bulgarian",
+        "format": "EPUB",
+        "size": "1.2MB",
+        "content": "book_unknown",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "1234324b1216423cb27ab7c127131f33",
+      "href": "/md5/1234324b1216423cb27ab7c127131f33",
+      "title": "Война и мир. Часть 3",
+      "authors": "Толстой Лев.",
+      "description": "Всемирно известный роман-эпопея Льва Толстого ни по своим масштабам, ни по своей структуре не похож на классический роман. В нем нет традиционного любовного треугольника, любовного или социального конфликта как основы сюжета. В романе уравнены в своем значении",
+      "meta": {
+        "language": "English, Russian",
+        "format": "PDF",
+        "size": "1.0MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "1f235f81df567d483c229132e405c0bb",
+      "href": "/md5/1f235f81df567d483c229132e405c0bb",
+      "title": "Война и мир. Часть 1",
+      "authors": "Толстой Лев.",
+      "description": "Всемирно известный роман-эпопея Льва Толстого ни по своим масштабам, ни по своей структуре не похож на классический роман. В нем нет традиционного любовного треугольника, любовного или социального конфликта как основы сюжета. В романе уравнены в своем значении",
+      "meta": {
+        "language": "English, Russian",
+        "format": "PDF",
+        "size": "1.2MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "93bc9ffc3e327a00df949b0eea612f63",
+      "href": "/md5/93bc9ffc3e327a00df949b0eea612f63",
+      "title": "Война и мир. Часть 2",
+      "authors": "Толстой Лев.",
+      "description": "Всемирно известный роман-эпопея Льва Толстого ни по своим масштабам, ни по своей структуре не похож на классический роман. В нем нет традиционного любовного треугольника, любовного или социального конфликта как основы сюжета. В романе уравнены в своем значении",
+      "meta": {
+        "language": "English, Russian",
+        "format": "PDF",
+        "size": "1.0MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "d5f013d1bcf22204d3d68a6c493569bc",
+      "href": "/md5/d5f013d1bcf22204d3d68a6c493569bc",
+      "title": "unknown",
+      "authors": "Various",
+      "publisher": "Издательство \"Э\"",
+      "edition": "2017",
+      "meta": {
+        "language": "Russian, Latin, English",
+        "format": "PDF",
+        "size": "37.9MB",
+        "year": "2017",
+        "content": "book_unknown",
+        "sources": [
+          "ia",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "ffceb549242b895935b047e21092072f",
+      "href": "/md5/ffceb549242b895935b047e21092072f",
+      "title": "ВОЙНА И МИР ТОМ 1-3",
+      "authors": "ЛЕВО ТОЛСТОЙ",
+      "publisher": "ГОСУДАРСТВЕННОЕ ИЗДАТЕЛЬСТВО ХУДОЖЕСТВЕННОЙ ЛИТЕРАТУРЫ",
+      "edition": "1960, 1960",
+      "meta": {
+        "language": "English",
+        "format": "PDF",
+        "size": "27.8MB",
+        "year": "1960",
+        "content": "book_unknown",
+        "sources": [
+          "duxiu",
+          "zlibzh"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "aa0efd2bdd0034c172055527b67c813d",
+      "href": "/md5/aa0efd2bdd0034c172055527b67c813d",
+      "title": "War and Peace. Volume III-IV / Voyna i mir. Tom III-IV",
+      "authors": "Tolstoy Lev Nikolaevich",
+      "publisher": "Exmo",
+      "edition": "Russkai︠a︡ klassika (ĖKSMO-Press (Firm)), Moskva, 2010",
+      "description": "\"Voina i mir\", samyi izvestnyi roman L.N. Tolstogo, kak nikakoe drugoe proizvedenie pisatelia, otrazhaet glubinu ego mirooshchushcheniia i filosofii. eta kniga iz razriada vechnykh, potomu chto ona obo vsem - o zhizni i smerti, o liubvi i chesti, o muzhestve i geroizme, o slave i podvige, o voine i mire.",
+      "meta": {
+        "language": "Russian, English, Kinyarwanda",
+        "format": "PDF",
+        "size": "40.2MB",
+        "year": "2010",
+        "content": "book_unknown",
+        "sources": [
+          "ia",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "d9a0786caa418132d05492dcfa565476",
+      "href": "/md5/d9a0786caa418132d05492dcfa565476",
+      "title": "Полное собрание сочинений. Война и мир. Черновые редакции и варианты. Часть 2-я Том 14",
+      "authors": "Л.Н. Толстой",
+      "publisher": "«Художественная литература»",
+      "edition": "Том 14, 1953",
+      "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "35.8MB",
+        "year": "1953",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "68bb4fc948174e3941fe3f9618ece314",
+      "href": "/md5/68bb4fc948174e3941fe3f9618ece314",
+      "title": "Полное собрание сочинений. Том 12. Война и мир. Том четвертый",
+      "authors": "Лев Николаевич Толстой",
+      "edition": "1937",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "3.3MB",
+        "year": "1937",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "c1e8fee7f7b7bfe7787ab0b190f17781",
+      "href": "/md5/c1e8fee7f7b7bfe7787ab0b190f17781",
+      "title": "Война и мир. Том 4",
+      "authors": "Лев Николаевич Толстой",
+      "edition": "Война и мир #4",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "1.3MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "254b0e6460c4cd6d61f2201014859828",
+      "href": "/md5/254b0e6460c4cd6d61f2201014859828",
+      "title": "Война и мир — Трети и четвърти том",
+      "authors": "Лев Толстой",
+      "publisher": "Моята библиотека (http://chitanka.info)",
+      "edition": "1970",
+      "meta": {
+        "language": "Bulgarian",
+        "format": "EPUB",
+        "size": "1.5MB",
+        "year": "1970",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "82ecb4afd6ef86c187daeef4416cab20",
+      "href": "/md5/82ecb4afd6ef86c187daeef4416cab20",
+      "title": "Война и мир. В четырёх томах. Том 4",
+      "authors": "Лев Николаевич Толстой",
+      "publisher": "Детская литература",
+      "edition": "2010",
+      "description": "В книгу входит четвертый том романа-эпопеи «Война и мир». Для старшего школьного возраста.",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "2.2MB",
+        "year": "2010",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "01ef82b7b26eaac745a94b25af6fe0f5",
+      "href": "/md5/01ef82b7b26eaac745a94b25af6fe0f5",
+      "title": "Полное собрание сочинений. Том 12. Война и мир. Том четвертый",
+      "authors": "Лев Николаевич Толстой",
+      "edition": "1937",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "2.4MB",
+        "year": "1937",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "fbba06a8004fe475cbf27f994c82e8a9",
+      "href": "/md5/fbba06a8004fe475cbf27f994c82e8a9",
+      "title": "Война и мир. Том IV",
+      "authors": "Лев Николаевич Толстой",
+      "publisher": "Художественная литература",
+      "edition": "null, null, 101",
+      "description": "Книга содержит четвертый том романа «Война и мир» и статью «Несколько слов по поводу книги \"Война и мир\"».",
+      "meta": {
+        "language": "Russian",
+        "format": "EPUB",
+        "size": "1.4MB",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "6b85714667fe5adf0622bafb796de6aa",
+      "href": "/md5/6b85714667fe5adf0622bafb796de6aa",
+      "title": "Война и мир. В четырёх томах. Том 3",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "Детская литература",
+      "edition": "2010",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "2.7MB",
+        "year": "2010",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "3cf0aa44509907d2b646018163de7f91",
+      "href": "/md5/3cf0aa44509907d2b646018163de7f91",
+      "title": "Война и мир (Трети и четвърти том)",
+      "authors": "Лев Толстой",
+      "meta": {
+        "language": "Bulgarian",
+        "format": "FB2",
+        "size": "3.5MB",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "bdbae7c34abd9578f5b628a38513e403",
+      "href": "/md5/bdbae7c34abd9578f5b628a38513e403",
+      "title": "Война и Мир",
+      "authors": "Лев Толстой",
+      "publisher": "Интернет-издание (компиляция)",
+      "edition": "2018",
+      "description": "История войны и мира, пронизанная множеством сюжетных линий, — это пронзительный, точный, панорамный и обстоятельный взгляд мудрого художника на вечные проблемы бытия. «Война и мир» — роман-эпопея Льва Николаевича Толстого, по глубине и охвату событий до сих",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "7.0MB",
+        "year": "2018",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "c560c6818a5438014199af2b1d4dcfad",
+      "href": "/md5/c560c6818a5438014199af2b1d4dcfad",
+      "title": "Война и мир Л.Н.Толстого. Создание великой книги",
+      "authors": "Зайденшнур Э.Е.",
+      "publisher": "Книга",
+      "edition": "1966",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "53.6MB",
+        "year": "1966",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "1099d1ac11a08a104df0d848d180ea07",
+      "href": "/md5/1099d1ac11a08a104df0d848d180ea07",
+      "title": "Война и мир. Том 1",
+      "authors": "Лев Николаевич Толстой",
+      "publisher": "Художественная литература",
+      "edition": "1979",
+      "description": "Книга содержит первый том романа «Война и мир».",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "0.9MB",
+        "year": "1979",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "be0548e068bdfcccd803e3669a9771df",
+      "href": "/md5/be0548e068bdfcccd803e3669a9771df",
+      "title": "Роман-эпопея Л.Н. Толстого Война и мир: Кн. для учителя",
+      "authors": "Опульская Л.Д.",
+      "description": "М.: Просвещение, 1987. — 176 с. В книге содержится богатый, ценный материал, который поможет преподавателю литературы вести уроки по теме «Л. Н. Толстой» и в первую очередь по «Войне и миру». В центре внимания автора — философские, идейные, художественные проблемы",
+      "meta": {
+        "language": "Russian",
+        "format": "DJVU",
+        "size": "3.3MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "f4467f80a9c177784fe256f2351f0cf5",
+      "href": "/md5/f4467f80a9c177784fe256f2351f0cf5",
+      "title": "Война и мир. Том 3 и 4",
+      "authors": "Лев Николаевич Толстой",
+      "publisher": "Художественная литература",
+      "edition": "1968",
+      "description": "«Война и мир» — это не роман, описывающий, какие происходили события с людьми, как они боролись за счастье, как они интриговали, совершали действия, — это рассказ о том, что случилось с народом. Единство «Войны и мира» — это единство рассказа о народном",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "5.5MB",
+        "year": "1968",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "c720dddc56027205ce201a8ec84de2ab",
+      "href": "/md5/c720dddc56027205ce201a8ec84de2ab",
+      "title": "Полное собрание сочинений. Война и мир. Т.4 Том 12",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "«Художественная литература»",
+      "edition": "Том 12, 1940",
+      "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "28.0MB",
+        "year": "1940",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "5cae30b6c822da74eb8e6da9f94bd934",
+      "href": "/md5/5cae30b6c822da74eb8e6da9f94bd934",
+      "title": "Полное собрание сочинений. Война и мир. Черновые редакции и варианты Том 13",
+      "authors": "Л.Н. Толстой",
+      "publisher": "«Художественная литература»",
+      "edition": "Том 13, 1949",
+      "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "77.4MB",
+        "year": "1949",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "3f4f2e6b6c8ebf1d76fb6a7700544abf",
+      "href": "/md5/3f4f2e6b6c8ebf1d76fb6a7700544abf",
+      "title": "Полное собрание сочинений. Война и мир. Черновые редакции и варианты. Часть 3-я Том 15",
+      "authors": "Л.Н. Толстой",
+      "publisher": "«Художественная литература»",
+      "edition": "Том 15, 1955",
+      "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "27.8MB",
+        "year": "1955",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "9b7d5b152eea483969b819496fba7d1a",
+      "href": "/md5/9b7d5b152eea483969b819496fba7d1a",
+      "title": "Полное собрание сочинений. Война и мир. Т.2 Том 10",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "«Художественная литература»",
+      "edition": "Том 10, 1938",
+      "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "43.8MB",
+        "year": "1938",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "78f996ba33b9148ef9b96814fb2d3a23",
+      "href": "/md5/78f996ba33b9148ef9b96814fb2d3a23",
+      "title": "Полное собрание сочинений. Том 15. Война и мир. Черновые редакции и варианты. Часть третья",
+      "authors": "Лев Николаевич Толстой",
+      "publisher": "Государственное издательство \"Художественная литература\"",
+      "edition": "1955",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "6.2MB",
+        "year": "1955",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "b897c1fae5a81cc8f954f509449f50f4",
+      "href": "/md5/b897c1fae5a81cc8f954f509449f50f4",
+      "title": "Война и мир. Тома 3–4",
+      "authors": "Толстой Л.Н.",
+      "publisher": "Художественная литература",
+      "edition": "Библиотека всемирной литературы, Том 114, Том 3—4, 1968",
+      "meta": {
+        "language": "Russian",
+        "format": "DJVU",
+        "size": "18.4MB",
+        "year": "1968",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "abf3108fb8af691dd2d0a9506236d919",
+      "href": "/md5/abf3108fb8af691dd2d0a9506236d919",
+      "title": "Полное собрание сочинений. Том 14. Война и мир. Черновые редакции и варианты. Часть вторая",
+      "authors": "Лев Николаевич Толстой",
+      "edition": "1958",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "3.8MB",
+        "year": "1958",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "4dda1445baad25df8eee0778dfe1ebeb",
+      "href": "/md5/4dda1445baad25df8eee0778dfe1ebeb",
+      "title": "Полное собрание сочинений. Война и мир. Т.1 Том 9",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "«Художественная литература»",
+      "edition": "Том 9, 1937",
+      "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "37.9MB",
+        "year": "1937",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "d409f0ee658f2aa8864bd698ab886d20",
+      "href": "/md5/d409f0ee658f2aa8864bd698ab886d20",
+      "title": "Полное собрание сочинений. Том 13. Война и мир. Черновые редакции и варианты",
+      "authors": "Лев Николаевич Толстой",
+      "publisher": "Государственное издательство \"Художественная литература\"",
+      "edition": "1949",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "8.8MB",
+        "year": "1949",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "9b9c1798a51706069371c0fde6485556",
+      "href": "/md5/9b9c1798a51706069371c0fde6485556",
+      "title": "Полное собрание сочинений. Том 11. Война и мир. Том третий",
+      "authors": "Лев Николаевич Толстой",
+      "edition": "1937",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "4.5MB",
+        "year": "1937",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "9dc25841c64c3f6e71e046efe83f979b",
+      "href": "/md5/9dc25841c64c3f6e71e046efe83f979b",
+      "title": "Полное собрание сочинений. Том 10. Война и мир. Том второй",
+      "authors": "Лев Николаевич Толстой",
+      "publisher": "Государственное издательство",
+      "edition": "1938",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "4.0MB",
+        "year": "1938",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "ab41023d17ce951bd3aea626eb29976d",
+      "href": "/md5/ab41023d17ce951bd3aea626eb29976d",
+      "title": "Полное собрание сочинений. Война и мир. Т.3 Том 11",
+      "authors": "Толстой Лев Николаевич",
+      "publisher": "«Художественная литература»",
+      "edition": "Том 11, 1940",
+      "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "36.3MB",
+        "year": "1940",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "6ea761d0ec8bb7eb7b00d2a80598a183",
+      "href": "/md5/6ea761d0ec8bb7eb7b00d2a80598a183",
+      "title": "Полное собрание сочинений. Том 9. Война и мир. Том первый",
+      "authors": "Лев Николаевич Толстой",
+      "publisher": "Государственное издательство",
+      "edition": "1937",
+      "meta": {
+        "language": "Russian",
+        "format": "FB2",
+        "size": "4.0MB",
+        "year": "1937",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    },
+    {
+      "prefix": "md5",
+      "id": "cff4a3aff158239637df36a3bcd228df",
+      "href": "/md5/cff4a3aff158239637df36a3bcd228df",
+      "title": "Полное собрание сочинений. Несколько слов по поводу книги «Война и мир» Том 16",
+      "authors": "Л.Н. Толстой",
+      "publisher": "«Художественная литература»",
+      "edition": "Том 16, 1955",
+      "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий",
+      "meta": {
+        "language": "Russian",
+        "format": "PDF",
+        "size": "23.7MB",
+        "year": "1955",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true
+      }
+    }
+  ],
   "facets": {
     "content": [
       "book_nonfiction",
@@ -27,941 +1090,10 @@
       "cqvip"
     ]
   },
-  "page": {
-    "Results": [
-      {
-        "title": "Несколько слов по поводу книги «Война и мир»",
-        "authors": "Толстой Л.Н.",
-        "publisher": "Издательство \"Лань\" (мировое наследие)",
-        "edition": "2017",
-        "language": "",
-        "format": "PDF",
-        "size": "0.2MB",
-        "year": "2017",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli"
-        ],
-        "fast_download": true,
-        "hash": "80962e22d8db57ddcc69b0c5caf7eb1b",
-        "url": "https://annas-archive.gl/md5/80962e22d8db57ddcc69b0c5caf7eb1b"
-      },
-      {
-        "title": "Война и мир. Том 3",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "Москва, Художественная литература, 1978-1985",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "1.0MB",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "d3969fe277a9bfce9a7b43ce4d393d16",
-        "url": "https://annas-archive.gl/md5/d3969fe277a9bfce9a7b43ce4d393d16"
-      },
-      {
-        "title": "Война и мир. Том 1",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "Москва, Художественная литература, 1978-1985",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "0.9MB",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "9754e02e926076c0e57a85360b776386",
-        "url": "https://annas-archive.gl/md5/9754e02e926076c0e57a85360b776386"
-      },
-      {
-        "title": "Война и мир. Том 2",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "Москва, Художественная литература, 1978-1985",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "1.0MB",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "17a96f2c0762a6366faededf62898120",
-        "url": "https://annas-archive.gl/md5/17a96f2c0762a6366faededf62898120"
-      },
-      {
-        "title": "Война и мир. Том 4",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "Москва, Художественная литература, 1978-1985",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "1.0MB",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "a6d09418a9092ab05ff718c54a1af3ea",
-        "url": "https://annas-archive.gl/md5/a6d09418a9092ab05ff718c54a1af3ea"
-      },
-      {
-        "title": "Лев Толстой. Собрание сочинений в 20 т. Том 4 : Война и мир. Том 1",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "ГИХЛ",
-        "edition": "Собрание сочинений в двадцати томах, 1961",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "11.5MB",
-        "year": "1961",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "3d44bfe579f51e411962fae1b564cd1e",
-        "url": "https://annas-archive.gl/md5/3d44bfe579f51e411962fae1b564cd1e",
-        "description": "Лев Толстой. Собрание сочинений в 20 т. Том 4 : Война и мир. Том 1 / Подготовка текста и текстологические примечания Э. Е. Зайденшнур; Примечания Л. Д. Опульской. — М.: Государственное издательство художественной литературы, 1961. — Формат 84х108/32. Тираж 298 000 экз. Цена 1 р. 10"
-      },
-      {
-        "title": "Лев Толстой. Собрание сочинений в 20 т. Том 5 : Война и мир. Том 2",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "ГИХЛ",
-        "edition": "Собрание сочинений в двадцати томах, 1962",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "9.4MB",
-        "year": "1962",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "b0ca94d779007c7e959c07bed8cf3c1b",
-        "url": "https://annas-archive.gl/md5/b0ca94d779007c7e959c07bed8cf3c1b",
-        "description": "Лев Толстой. Собрание сочинений в 20 т. Том 5 : Война и мир. Том 2 / Подготовка текста и текстологические примечания Э. Е. Зайденшнур; Примечания Л. Д. Опульской. — М.: Государственное издательство художественной литературы, 1962. — Формат 84х108/32. Тираж 297 000 экз. Цена 1 р."
-      },
-      {
-        "title": "Лев Толстой. Собрание сочинений в 20 т. Том 6 : Война и мир. Том 3",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "ГИХЛ",
-        "edition": "Собрание сочинений в двадцати томах, 1962",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "11.6MB",
-        "year": "1962",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "42359c3705560abb1ed106c281117aa3",
-        "url": "https://annas-archive.gl/md5/42359c3705560abb1ed106c281117aa3",
-        "description": "Лев Толстой. Собрание сочинений в 20 т. Том 6 : Война и мир. Том 3 / Подготовка текста и текстологические примечания Э. Е. Зайденшнур; Примечания Л. Д. Опульской. — М.: Государственное издательство художественной литературы, 1962. — Формат 84х108/32. Тираж 297 000 экз. Цена 1 р. 10"
-      },
-      {
-        "title": "Лев Толстой. Собрание сочинений в 20 т. Том 7 : Война и мир. Том 4",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "ГИХЛ",
-        "edition": "Собрание сочинений в двадцати томах, 1963",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "13.0MB",
-        "year": "1963",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "c8955d0d19e6f384c30d70369e794b53",
-        "url": "https://annas-archive.gl/md5/c8955d0d19e6f384c30d70369e794b53",
-        "description": "Лев Толстой. Собрание сочинений в 20 т. Том 7 : Война и мир. Том 4 / Подготовка текста и текстологические примечания Э. Е. Зайденшнур; Примечания Л. Д. Опульской. — М.: Государственное издательство художественной литературы, 1963. — Формат 84х108/32. Тираж 297 000 экз. Цена 1 р. 10"
-      },
-      {
-        "title": "Война и мир. Книга 2",
-        "authors": "",
-        "publisher": "",
-        "language": "",
-        "format": "FB2",
-        "size": "3.0MB",
-        "content": "book_fiction",
-        "sources": [
-          "lgli"
-        ],
-        "fast_download": true,
-        "hash": "59a96e7923b54d9d7c44e8b699a39c82",
-        "url": "https://annas-archive.gl/md5/59a96e7923b54d9d7c44e8b699a39c82"
-      },
-      {
-        "title": "Война и мир",
-        "authors": "Толстой Л.Н.",
-        "publisher": "СЗКЭО",
-        "edition": "Библиотека мировой литературы, 12, 2021",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "110.9MB",
-        "year": "2021",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "d580f6f4c1b3813f3737b385a0688676",
-        "url": "https://annas-archive.gl/md5/d580f6f4c1b3813f3737b385a0688676",
-        "description": "BML_War\u0026Peace_1-271 2 BML_War\u0026Peace_272-544 273 BML_War\u0026Peace_545-846 546 BML_War\u0026Peace_847-1120 848"
-      },
-      {
-        "title": "Война и мир. Книга 1",
-        "authors": "",
-        "publisher": "",
-        "language": "",
-        "format": "FB2",
-        "size": "2.9MB",
-        "content": "book_fiction",
-        "sources": [
-          "lgli"
-        ],
-        "fast_download": true,
-        "hash": "7dd4418c6d9725d0a04752f25ffe7895",
-        "url": "https://annas-archive.gl/md5/7dd4418c6d9725d0a04752f25ffe7895"
-      },
-      {
-        "title": "Война и мир",
-        "authors": "Толстой Л.Н.",
-        "publisher": "СЗКЭО",
-        "edition": "Библиотека мировой литературы, 12, 2021",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "332.2MB",
-        "year": "2021",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "a029304ece00cc1fe8bc79db427a004f",
-        "url": "https://annas-archive.gl/md5/a029304ece00cc1fe8bc79db427a004f",
-        "description": "BML_War\u0026Peace_1-271 BML_War\u0026Peace_272-544 BML_War\u0026Peace_545-846 BML_War\u0026Peace_847-1120"
-      },
-      {
-        "title": "Полное собрание сочинений : в ста томах: Том 25.1 : Война и мир. Редакция 1873 года. Книга 1",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "Наука",
-        "edition": "Полное собрание сочинений в ста томах, 2003",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "27.7MB",
-        "year": "2003",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": false,
-        "hash": "853fbe82d3542d5c5b71c7d779107420",
-        "url": "https://annas-archive.gl/md5/853fbe82d3542d5c5b71c7d779107420",
-        "description": "ISBN 5-02-006376-2"
-      },
-      {
-        "title": "Война и мир — Първи и втори том",
-        "authors": "Лев Толстой, Иван Цветков",
-        "publisher": "Моята библиотека (http://chitanka.info)",
-        "language": "Bulgarian",
-        "format": "EPUB",
-        "size": "1.1MB",
-        "content": "book_unknown",
-        "sources": [
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "fc929b03f740468be54f3fc9137d1b33",
-        "url": "https://annas-archive.gl/md5/fc929b03f740468be54f3fc9137d1b33",
-        "description": "Епически роман,Исторически роман,Реализъм,Реалистичен роман,Човек и бунт"
-      },
-      {
-        "title": "Война и мир — Трети и четвърти том",
-        "authors": "Лев Толстой",
-        "publisher": "Моята библиотека (http://chitanka.info)",
-        "language": "Bulgarian",
-        "format": "EPUB",
-        "size": "1.2MB",
-        "content": "book_unknown",
-        "sources": [
-          "upload"
-        ],
-        "fast_download": true,
-        "hash": "3bc9d20ef1422e38aefb6b09e68b81a8",
-        "url": "https://annas-archive.gl/md5/3bc9d20ef1422e38aefb6b09e68b81a8",
-        "description": "Епически роман,Исторически роман,Реализъм,Реалистичен роман,Човек и бунт"
-      },
-      {
-        "title": "Война и мир. Часть 3",
-        "authors": "Толстой Лев.",
-        "publisher": "",
-        "language": "English, Russian",
-        "format": "PDF",
-        "size": "1.0MB",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "1234324b1216423cb27ab7c127131f33",
-        "url": "https://annas-archive.gl/md5/1234324b1216423cb27ab7c127131f33",
-        "description": "Всемирно известный роман-эпопея Льва Толстого ни по своим масштабам, ни по своей структуре не похож на классический роман. В нем нет традиционного любовного треугольника, любовного или социального конфликта как основы сюжета. В романе уравнены в своем значении"
-      },
-      {
-        "title": "Война и мир. Часть 1",
-        "authors": "Толстой Лев.",
-        "publisher": "",
-        "language": "English, Russian",
-        "format": "PDF",
-        "size": "1.2MB",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "1f235f81df567d483c229132e405c0bb",
-        "url": "https://annas-archive.gl/md5/1f235f81df567d483c229132e405c0bb",
-        "description": "Всемирно известный роман-эпопея Льва Толстого ни по своим масштабам, ни по своей структуре не похож на классический роман. В нем нет традиционного любовного треугольника, любовного или социального конфликта как основы сюжета. В романе уравнены в своем значении"
-      },
-      {
-        "title": "Война и мир. Часть 2",
-        "authors": "Толстой Лев.",
-        "publisher": "",
-        "language": "English, Russian",
-        "format": "PDF",
-        "size": "1.0MB",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "93bc9ffc3e327a00df949b0eea612f63",
-        "url": "https://annas-archive.gl/md5/93bc9ffc3e327a00df949b0eea612f63",
-        "description": "Всемирно известный роман-эпопея Льва Толстого ни по своим масштабам, ни по своей структуре не похож на классический роман. В нем нет традиционного любовного треугольника, любовного или социального конфликта как основы сюжета. В романе уравнены в своем значении"
-      },
-      {
-        "title": "unknown",
-        "authors": "Various",
-        "publisher": "Издательство \"Э\"",
-        "edition": "2017",
-        "language": "Russian, Latin, English",
-        "format": "PDF",
-        "size": "37.9MB",
-        "year": "2017",
-        "content": "book_unknown",
-        "sources": [
-          "ia",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "d5f013d1bcf22204d3d68a6c493569bc",
-        "url": "https://annas-archive.gl/md5/d5f013d1bcf22204d3d68a6c493569bc"
-      },
-      {
-        "title": "ВОЙНА И МИР ТОМ 1-3",
-        "authors": "ЛЕВО ТОЛСТОЙ",
-        "publisher": "ГОСУДАРСТВЕННОЕ ИЗДАТЕЛЬСТВО ХУДОЖЕСТВЕННОЙ ЛИТЕРАТУРЫ",
-        "edition": "1960, 1960",
-        "language": "English",
-        "format": "PDF",
-        "size": "27.8MB",
-        "year": "1960",
-        "content": "book_unknown",
-        "sources": [
-          "duxiu",
-          "zlibzh"
-        ],
-        "fast_download": true,
-        "hash": "ffceb549242b895935b047e21092072f",
-        "url": "https://annas-archive.gl/md5/ffceb549242b895935b047e21092072f"
-      },
-      {
-        "title": "War and Peace. Volume III-IV / Voyna i mir. Tom III-IV",
-        "authors": "Tolstoy Lev Nikolaevich",
-        "publisher": "Exmo",
-        "edition": "Russkai︠a︡ klassika (ĖKSMO-Press (Firm)), Moskva, 2010",
-        "language": "Russian, English, Kinyarwanda",
-        "format": "PDF",
-        "size": "40.2MB",
-        "year": "2010",
-        "content": "book_unknown",
-        "sources": [
-          "ia",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "aa0efd2bdd0034c172055527b67c813d",
-        "url": "https://annas-archive.gl/md5/aa0efd2bdd0034c172055527b67c813d",
-        "description": "\"Voina i mir\", samyi izvestnyi roman L.N. Tolstogo, kak nikakoe drugoe proizvedenie pisatelia, otrazhaet glubinu ego mirooshchushcheniia i filosofii. eta kniga iz razriada vechnykh, potomu chto ona obo vsem - o zhizni i smerti, o liubvi i chesti, o muzhestve i geroizme, o slave i podvige, o voine i mire."
-      },
-      {
-        "title": "Полное собрание сочинений. Война и мир. Черновые редакции и варианты. Часть 2-я Том 14",
-        "authors": "Л.Н. Толстой",
-        "publisher": "«Художественная литература»",
-        "edition": "Том 14, 1953",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "35.8MB",
-        "year": "1953",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "d9a0786caa418132d05492dcfa565476",
-        "url": "https://annas-archive.gl/md5/d9a0786caa418132d05492dcfa565476",
-        "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий"
-      },
-      {
-        "title": "Полное собрание сочинений. Том 12. Война и мир. Том четвертый",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "",
-        "edition": "1937",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "3.3MB",
-        "year": "1937",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "68bb4fc948174e3941fe3f9618ece314",
-        "url": "https://annas-archive.gl/md5/68bb4fc948174e3941fe3f9618ece314"
-      },
-      {
-        "title": "Война и мир. Том 4",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "",
-        "edition": "Война и мир #4",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "1.3MB",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "c1e8fee7f7b7bfe7787ab0b190f17781",
-        "url": "https://annas-archive.gl/md5/c1e8fee7f7b7bfe7787ab0b190f17781"
-      },
-      {
-        "title": "Война и мир — Трети и четвърти том",
-        "authors": "Лев Толстой",
-        "publisher": "Моята библиотека (http://chitanka.info)",
-        "edition": "1970",
-        "language": "Bulgarian",
-        "format": "EPUB",
-        "size": "1.5MB",
-        "year": "1970",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "254b0e6460c4cd6d61f2201014859828",
-        "url": "https://annas-archive.gl/md5/254b0e6460c4cd6d61f2201014859828"
-      },
-      {
-        "title": "Война и мир. В четырёх томах. Том 4",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "Детская литература",
-        "edition": "2010",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "2.2MB",
-        "year": "2010",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "82ecb4afd6ef86c187daeef4416cab20",
-        "url": "https://annas-archive.gl/md5/82ecb4afd6ef86c187daeef4416cab20",
-        "description": "В книгу входит четвертый том романа-эпопеи «Война и мир». Для старшего школьного возраста."
-      },
-      {
-        "title": "Полное собрание сочинений. Том 12. Война и мир. Том четвертый",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "",
-        "edition": "1937",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "2.4MB",
-        "year": "1937",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "01ef82b7b26eaac745a94b25af6fe0f5",
-        "url": "https://annas-archive.gl/md5/01ef82b7b26eaac745a94b25af6fe0f5"
-      },
-      {
-        "title": "Война и мир. Том IV",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "Художественная литература",
-        "edition": "null, null, 101",
-        "language": "Russian",
-        "format": "EPUB",
-        "size": "1.4MB",
-        "content": "book_unknown",
-        "sources": [
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "fbba06a8004fe475cbf27f994c82e8a9",
-        "url": "https://annas-archive.gl/md5/fbba06a8004fe475cbf27f994c82e8a9",
-        "description": "Книга содержит четвертый том романа «Война и мир» и статью «Несколько слов по поводу книги \"Война и мир\"»."
-      },
-      {
-        "title": "Война и мир. В четырёх томах. Том 3",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "Детская литература",
-        "edition": "2010",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "2.7MB",
-        "year": "2010",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "6b85714667fe5adf0622bafb796de6aa",
-        "url": "https://annas-archive.gl/md5/6b85714667fe5adf0622bafb796de6aa"
-      },
-      {
-        "title": "Война и мир (Трети и четвърти том)",
-        "authors": "Лев Толстой",
-        "publisher": "",
-        "language": "Bulgarian",
-        "format": "FB2",
-        "size": "3.5MB",
-        "content": "book_unknown",
-        "sources": [
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "3cf0aa44509907d2b646018163de7f91",
-        "url": "https://annas-archive.gl/md5/3cf0aa44509907d2b646018163de7f91"
-      },
-      {
-        "title": "Война и Мир",
-        "authors": "Лев Толстой",
-        "publisher": "Интернет-издание (компиляция)",
-        "edition": "2018",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "7.0MB",
-        "year": "2018",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "bdbae7c34abd9578f5b628a38513e403",
-        "url": "https://annas-archive.gl/md5/bdbae7c34abd9578f5b628a38513e403",
-        "description": "История войны и мира, пронизанная множеством сюжетных линий, — это пронзительный, точный, панорамный и обстоятельный взгляд мудрого художника на вечные проблемы бытия. «Война и мир» — роман-эпопея Льва Николаевича Толстого, по глубине и охвату событий до сих"
-      },
-      {
-        "title": "Война и мир Л.Н.Толстого. Создание великой книги",
-        "authors": "Зайденшнур Э.Е.",
-        "publisher": "Книга",
-        "edition": "1966",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "53.6MB",
-        "year": "1966",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "c560c6818a5438014199af2b1d4dcfad",
-        "url": "https://annas-archive.gl/md5/c560c6818a5438014199af2b1d4dcfad"
-      },
-      {
-        "title": "Война и мир. Том 1",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "Художественная литература",
-        "edition": "1979",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "0.9MB",
-        "year": "1979",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "1099d1ac11a08a104df0d848d180ea07",
-        "url": "https://annas-archive.gl/md5/1099d1ac11a08a104df0d848d180ea07",
-        "description": "Книга содержит первый том романа «Война и мир»."
-      },
-      {
-        "title": "Роман-эпопея Л.Н. Толстого Война и мир: Кн. для учителя",
-        "authors": "Опульская Л.Д.",
-        "publisher": "",
-        "language": "Russian",
-        "format": "DJVU",
-        "size": "3.3MB",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "be0548e068bdfcccd803e3669a9771df",
-        "url": "https://annas-archive.gl/md5/be0548e068bdfcccd803e3669a9771df",
-        "description": "М.: Просвещение, 1987. — 176 с. В книге содержится богатый, ценный материал, который поможет преподавателю литературы вести уроки по теме «Л. Н. Толстой» и в первую очередь по «Войне и миру». В центре внимания автора — философские, идейные, художественные проблемы"
-      },
-      {
-        "title": "Война и мир. Том 3 и 4",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "Художественная литература",
-        "edition": "1968",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "5.5MB",
-        "year": "1968",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "f4467f80a9c177784fe256f2351f0cf5",
-        "url": "https://annas-archive.gl/md5/f4467f80a9c177784fe256f2351f0cf5",
-        "description": "«Война и мир» — это не роман, описывающий, какие происходили события с людьми, как они боролись за счастье, как они интриговали, совершали действия, — это рассказ о том, что случилось с народом. Единство «Войны и мира» — это единство рассказа о народном"
-      },
-      {
-        "title": "Полное собрание сочинений. Война и мир. Т.4 Том 12",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "«Художественная литература»",
-        "edition": "Том 12, 1940",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "28.0MB",
-        "year": "1940",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "c720dddc56027205ce201a8ec84de2ab",
-        "url": "https://annas-archive.gl/md5/c720dddc56027205ce201a8ec84de2ab",
-        "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий"
-      },
-      {
-        "title": "Полное собрание сочинений. Война и мир. Черновые редакции и варианты Том 13",
-        "authors": "Л.Н. Толстой",
-        "publisher": "«Художественная литература»",
-        "edition": "Том 13, 1949",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "77.4MB",
-        "year": "1949",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "5cae30b6c822da74eb8e6da9f94bd934",
-        "url": "https://annas-archive.gl/md5/5cae30b6c822da74eb8e6da9f94bd934",
-        "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий"
-      },
-      {
-        "title": "Полное собрание сочинений. Война и мир. Черновые редакции и варианты. Часть 3-я Том 15",
-        "authors": "Л.Н. Толстой",
-        "publisher": "«Художественная литература»",
-        "edition": "Том 15, 1955",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "27.8MB",
-        "year": "1955",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "3f4f2e6b6c8ebf1d76fb6a7700544abf",
-        "url": "https://annas-archive.gl/md5/3f4f2e6b6c8ebf1d76fb6a7700544abf",
-        "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий"
-      },
-      {
-        "title": "Полное собрание сочинений. Война и мир. Т.2 Том 10",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "«Художественная литература»",
-        "edition": "Том 10, 1938",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "43.8MB",
-        "year": "1938",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "9b7d5b152eea483969b819496fba7d1a",
-        "url": "https://annas-archive.gl/md5/9b7d5b152eea483969b819496fba7d1a",
-        "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий"
-      },
-      {
-        "title": "Полное собрание сочинений. Том 15. Война и мир. Черновые редакции и варианты. Часть третья",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "Государственное издательство \"Художественная литература\"",
-        "edition": "1955",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "6.2MB",
-        "year": "1955",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "78f996ba33b9148ef9b96814fb2d3a23",
-        "url": "https://annas-archive.gl/md5/78f996ba33b9148ef9b96814fb2d3a23"
-      },
-      {
-        "title": "Война и мир. Тома 3–4",
-        "authors": "Толстой Л.Н.",
-        "publisher": "Художественная литература",
-        "edition": "Библиотека всемирной литературы, Том 114, Том 3—4, 1968",
-        "language": "Russian",
-        "format": "DJVU",
-        "size": "18.4MB",
-        "year": "1968",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "b897c1fae5a81cc8f954f509449f50f4",
-        "url": "https://annas-archive.gl/md5/b897c1fae5a81cc8f954f509449f50f4"
-      },
-      {
-        "title": "Полное собрание сочинений. Том 14. Война и мир. Черновые редакции и варианты. Часть вторая",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "",
-        "edition": "1958",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "3.8MB",
-        "year": "1958",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "abf3108fb8af691dd2d0a9506236d919",
-        "url": "https://annas-archive.gl/md5/abf3108fb8af691dd2d0a9506236d919"
-      },
-      {
-        "title": "Полное собрание сочинений. Война и мир. Т.1 Том 9",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "«Художественная литература»",
-        "edition": "Том 9, 1937",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "37.9MB",
-        "year": "1937",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "4dda1445baad25df8eee0778dfe1ebeb",
-        "url": "https://annas-archive.gl/md5/4dda1445baad25df8eee0778dfe1ebeb",
-        "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий"
-      },
-      {
-        "title": "Полное собрание сочинений. Том 13. Война и мир. Черновые редакции и варианты",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "Государственное издательство \"Художественная литература\"",
-        "edition": "1949",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "8.8MB",
-        "year": "1949",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "d409f0ee658f2aa8864bd698ab886d20",
-        "url": "https://annas-archive.gl/md5/d409f0ee658f2aa8864bd698ab886d20"
-      },
-      {
-        "title": "Полное собрание сочинений. Том 11. Война и мир. Том третий",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "",
-        "edition": "1937",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "4.5MB",
-        "year": "1937",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "9b9c1798a51706069371c0fde6485556",
-        "url": "https://annas-archive.gl/md5/9b9c1798a51706069371c0fde6485556"
-      },
-      {
-        "title": "Полное собрание сочинений. Том 10. Война и мир. Том второй",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "Государственное издательство",
-        "edition": "1938",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "4.0MB",
-        "year": "1938",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "9dc25841c64c3f6e71e046efe83f979b",
-        "url": "https://annas-archive.gl/md5/9dc25841c64c3f6e71e046efe83f979b"
-      },
-      {
-        "title": "Полное собрание сочинений. Война и мир. Т.3 Том 11",
-        "authors": "Толстой Лев Николаевич",
-        "publisher": "«Художественная литература»",
-        "edition": "Том 11, 1940",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "36.3MB",
-        "year": "1940",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "upload",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "ab41023d17ce951bd3aea626eb29976d",
-        "url": "https://annas-archive.gl/md5/ab41023d17ce951bd3aea626eb29976d",
-        "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий"
-      },
-      {
-        "title": "Полное собрание сочинений. Том 9. Война и мир. Том первый",
-        "authors": "Лев Николаевич Толстой",
-        "publisher": "Государственное издательство",
-        "edition": "1937",
-        "language": "Russian",
-        "format": "FB2",
-        "size": "4.0MB",
-        "year": "1937",
-        "content": "book_fiction",
-        "sources": [
-          "lgli",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "6ea761d0ec8bb7eb7b00d2a80598a183",
-        "url": "https://annas-archive.gl/md5/6ea761d0ec8bb7eb7b00d2a80598a183"
-      },
-      {
-        "title": "Полное собрание сочинений. Несколько слов по поводу книги «Война и мир» Том 16",
-        "authors": "Л.Н. Толстой",
-        "publisher": "«Художественная литература»",
-        "edition": "Том 16, 1955",
-        "language": "Russian",
-        "format": "PDF",
-        "size": "23.7MB",
-        "year": "1955",
-        "content": "book_nonfiction",
-        "sources": [
-          "lgli",
-          "lgrs",
-          "nexusstc",
-          "zlib"
-        ],
-        "fast_download": true,
-        "hash": "cff4a3aff158239637df36a3bcd228df",
-        "url": "https://annas-archive.gl/md5/cff4a3aff158239637df36a3bcd228df",
-        "description": "В 1928 году, когда отмечался столетний юбилей Л.Н. Толстого, было начато сразу три издания: Полное собрание художественных произведений в 12-ти томах Полное собрание художественных произведений в 15-ти томах Полное собрание сочинений в 91 томе, давшее исчерпывающий"
-      }
-    ],
-    "Partial": null,
-    "Total": 300,
-    "TotalIsLowerBound": false,
-    "MorePages": true
+  "shows_results": true,
+  "total": {
+    "found": true,
+    "lower_bound": false,
+    "total": 300
   }
 }

@@ -68,3 +68,12 @@ func TestParseCardMetaAndSnippetNormalize(t *testing.T) {
 	}
 
 }
+
+func TestParseCardMetaIgnoresLabelsThatAreNotSources(t *testing.T) {
+	t.Parallel()
+
+	meta := ParseCardMeta("English [en] · PDF · 1MB · 📘 Book (non-fiction) · lgli/Some Label")
+	if meta.Sources != nil || meta.FastDownload || meta.Content != "book_nonfiction" {
+		t.Fatalf("meta = %+v", meta)
+	}
+}

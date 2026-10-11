@@ -201,7 +201,10 @@ func attr(node *goquery.Selection, name string) string {
 // RecordDetails is what DOI lookup reports of a SciDB paper, read from its
 // record page.
 type RecordDetails struct {
-	Title, Authors, Journal, Size string
+	Title   string `json:"title"`
+	Authors string `json:"authors"`
+	Journal string `json:"journal"`
+	Size    string `json:"size"`
 }
 
 // ReadRecordDetails reads a SciDB paper's title, journal, authors and size

@@ -3,54 +3,12 @@ package anna
 import (
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
-const (
-	DefaultSearchTimeout   = 60 * time.Second
-	DefaultDownloadTimeout = 30 * time.Minute
-	BrowserUserAgent       = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-)
-
-// ResolveSearch applies legacy content values and the default for a search.
-// book_any is not a current Anna filter and makes later pages empty, so it is dropped.
-// journal is the old article default and maps to the journals index, as does
-// journal_article outside the metadata index: that tab holds only articles.
-func ResolveSearch(options SearchOptions, defaultContent string) SearchOptions {
-	options.Index = strings.ToLower(strings.TrimSpace(options.Index))
-	if options.Page < 1 {
-		options.Page = 1
-	}
-	content := make([]string, 0, len(options.Content))
-	for _, value := range options.Content {
-		switch value = strings.ToLower(strings.TrimSpace(value)); value {
-		case "", "book_any":
-		case "journal", "journal_article":
-			if options.Index == "" {
-				options.Index = "journals"
-			}
-			if value == "journal_article" && options.Index != "journals" {
-				content = append(content, value)
-			}
-		default:
-			content = append(content, value)
-		}
-	}
-	options.Content = content
-	if len(options.Content) == 0 && options.Index == "" {
-		switch defaultContent {
-		case "journal", "journals":
-			options.Index = "journals"
-		case "", "book_any":
-		default:
-			options.Content = []string{defaultContent}
-		}
-	}
-	return options
-}
+// Conversions from what package parse reads to the results the tools return.
 
 // parseBooks returns every file card on a search page, partial matches included.
 func parseBooks(doc *goquery.Document, pageURL string) []*Book {
@@ -154,4 +112,11 @@ func joinNonEmpty(separator string, values ...string) string {
 		}
 	}
 	return strings.Join(kept, separator)
+}
+
+// addRecordDetails fills in a SciDB paper's title, journal, authors and size
+// from its record page.
+func addRecordDetails(paper *Paper, detail *goquery.Document) {
+	details := parse.ReadRecordDetails(detail)
+	paper.Title, paper.Journal, paper.Authors, paper.Size = details.Title, details.Journal, details.Authors, details.Size
 }

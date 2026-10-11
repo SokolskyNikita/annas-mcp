@@ -10,9 +10,13 @@ import (
 // names, most likely first; Content is a content type such as
 // book_nonfiction; FastDownload marks files on Anna's fast download servers.
 type CardMeta struct {
-	Language, Format, Size, Year, Content string
-	Sources                               []string
-	FastDownload                          bool
+	Language     string   `json:"language,omitempty"`
+	Format       string   `json:"format,omitempty"`
+	Size         string   `json:"size,omitempty"`
+	Year         string   `json:"year,omitempty"`
+	Content      string   `json:"content,omitempty"`
+	Sources      []string `json:"sources,omitempty"`
+	FastDownload bool     `json:"fast_download,omitempty"`
 }
 
 // The content label is translated, but its emoji is not.

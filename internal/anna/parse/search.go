@@ -32,13 +32,17 @@ const (
 // page's filters.
 type Card struct {
 	// Prefix and ID name the record, as in /md5/<hash> or /isbndb/<isbn>.
-	Prefix, ID                         string
-	Href                               string
-	Title, Authors, Publisher, Edition string
-	Description                        string
-	Meta                               CardMeta
-	PossibleIssues                     bool
-	Partial                            bool
+	Prefix         string   `json:"prefix"`
+	ID             string   `json:"id"`
+	Href           string   `json:"href"`
+	Title          string   `json:"title"`
+	Authors        string   `json:"authors,omitempty"`
+	Publisher      string   `json:"publisher,omitempty"`
+	Edition        string   `json:"edition,omitempty"`
+	Description    string   `json:"description,omitempty"`
+	Meta           CardMeta `json:"meta"`
+	PossibleIssues bool     `json:"possible_issues,omitempty"`
+	Partial        bool     `json:"partial,omitempty"`
 }
 
 var (

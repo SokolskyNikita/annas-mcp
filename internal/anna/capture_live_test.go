@@ -21,12 +21,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// TestCapturePages refreshes parse/testdata/pages from the live archive. It signs
-// in with ANNAS_SECRET_KEY and reads search, record and SciDB pages as that
-// account, but downloads no files, so it uses no fast downloads.
+// TestCapturePages refreshes parse/testdata/pages from the live archive. It
+// signs in with ANNAS_SECRET_KEY and reads search, record and SciDB pages as
+// that account, but downloads no files, so it uses no fast downloads.
 // ANNAS_MCP_CAPTURE=1 captures every page in the manifest; a comma-separated
-// list of names captures only those. Afterwards, run the golden tests with
-// -update and review what changed.
+// list of names captures only those. Afterwards, run TestCapturedPages in
+// package parse with -update and review what changed.
 func TestCapturePages(t *testing.T) {
 	selection := os.Getenv("ANNAS_MCP_CAPTURE")
 	if selection == "" {

@@ -9,52 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
-
-func TestSciDBViewerExtraction(t *testing.T) {
-	t.Parallel()
-	const page = "https://annas.test/scidb/10.1000/example/"
-	const hash = "0123456789abcdef0123456789abcdef"
-	const file = "https://downloads.example/paper%20name.pdf?token=a%2Bb&part=1"
-	frame := `<iframe src="/pdfjs/web/viewer.html?file=` + url.QueryEscape(file) + `"></iframe>`
-	link := `<a href="/md5/` + hash + `">Archive record</a>`
-	for _, test := range []struct {
-		name, html string
-		valid      bool
-	}{
-		{"current viewer", frame + link, true},
-		{"duplicate links", frame + frame + link + link, true},
-		{"unrelated PDF anchor", `<a href="` + file + `">PDF</a>` + link, false},
-		{"foreign viewer", strings.Replace(frame, `src="/pdfjs`, `src="https://evil.example/pdfjs`, 1) + link, false},
-		{"HTTP PDF", strings.Replace(frame, url.QueryEscape(file), url.QueryEscape("http://downloads.example/paper.pdf"), 1) + link, false},
-		{"credential-bearing PDF", strings.Replace(frame, url.QueryEscape(file), url.QueryEscape("https://secret@downloads.example/paper.pdf"), 1) + link, false},
-		{"protocol relative foreign PDF", strings.Replace(frame, url.QueryEscape(file), url.QueryEscape("//downloads.example/paper.pdf"), 1) + link, false},
-		{"ambiguous PDFs", frame + strings.Replace(frame, "part%3D1", "part%3D2", 1) + link, false},
-		{"missing checksum", frame, false},
-		{"invalid checksum", frame + `<a href="/md5/not-a-hash">Record</a>`, false},
-		{"ambiguous checksums", frame + link + strings.ReplaceAll(link, hash, "abcdef0123456789abcdef0123456789"), false},
-		{"missing PDF", link, false},
-	} {
-		t.Run(test.name, func(t *testing.T) {
-			doc, err := goquery.NewDocumentFromReader(strings.NewReader(test.html))
-			if err != nil {
-				t.Fatal(err)
-			}
-			got, md5, err := sciDBFile(doc, page)
-			if !test.valid {
-				if err == nil {
-					t.Fatalf("accepted invalid SciDB page: %q, %q", got, md5)
-				}
-				return
-			}
-			if err != nil || got != file || md5 != hash {
-				t.Fatalf("got %q, %q, %v; want exactly one query decode", got, md5, err)
-			}
-		})
-	}
-}
 
 func TestSciDBDOIURLPreservesSuffix(t *testing.T) {
 	t.Parallel()

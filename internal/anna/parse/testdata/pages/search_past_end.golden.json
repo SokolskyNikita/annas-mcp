@@ -1,4 +1,5 @@
 {
+  "cards": null,
   "facets": {
     "content": [
       "book_nonfiction",
@@ -27,11 +28,10 @@
       "cqvip"
     ]
   },
-  "page": {
-    "Results": [],
-    "Partial": null,
-    "Total": 0,
-    "TotalIsLowerBound": true,
-    "MorePages": false
+  "shows_results": false,
+  "total": {
+    "found": false,
+    "lower_bound": false,
+    "total": 0
   }
 }

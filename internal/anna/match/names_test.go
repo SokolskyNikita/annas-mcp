@@ -28,3 +28,50 @@ func TestAuthorNamesPreservesDistinctLetters(t *testing.T) {
 		}
 	}
 }
+
+func TestPersonKey(t *testing.T) {
+	t.Parallel()
+
+	for name, want := range map[string]string{
+		"Diederik P. Kingma":     "kingma d",
+		"Martin Luther King Jr.": "king m",
+		"John Smith III":         "smith j",
+		"Plato":                  "plato",
+		"Jr":                     "jr",
+		"  ":                     "",
+		"Łukasz Kaiser":          "kaiser l",
+	} {
+		if got := personKey(name); got != want {
+			t.Errorf("personKey(%q) = %q, want %q", name, got, want)
+		}
+	}
+}
+
+func TestFoldNameRune(t *testing.T) {
+	t.Parallel()
+
+	if got := normalizePersonName("Łø Đð Àé Íò Ùý Ćś Ńź Řď Ť"); got != "lo dd ae io uy cs nz rd t" {
+		t.Fatalf("normalizePersonName = %q", got)
+	}
+}
+
+func TestSameAuthorSet(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		expected, actual []string
+		want             bool
+	}{
+		{[]string{"Ada Lovelace", "Charles Babbage"}, []string{"Charles Babbage", "Ada Lovelace"}, true},
+		{[]string{"Ada Lovelace", "Ada Lovelace"}, []string{"Ada Lovelace", "Alan Lovelace"}, true},
+		{[]string{"Ada Lovelace", "Ada Lovelace"}, []string{"Ada Lovelace", "Bob Lovelace"}, false},
+		{[]string{"Ada Lovelace"}, []string{"Ada Lovelace", "Charles Babbage"}, false},
+		{nil, nil, false},
+		{[]string{"..."}, []string{"Ada Lovelace"}, false},
+		{[]string{"Ada Lovelace"}, []string{"..."}, false},
+	} {
+		if got := sameAuthorSet(tc.expected, tc.actual); got != tc.want {
+			t.Errorf("sameAuthorSet(%q, %q) = %v, want %v", tc.expected, tc.actual, got, tc.want)
+		}
+	}
+}
