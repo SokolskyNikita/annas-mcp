@@ -67,6 +67,15 @@ func filePage[T any](results searchResults, convert func(*Book) T) SearchPage[T]
 	return page
 }
 
+// metadataPage builds a page of catalog records.
+func metadataPage(results searchResults) SearchPage[*MetadataRecord] {
+	page := splitPage(results.cards,
+		func(card searchCard) bool { return card.prefix != "md5" },
+		func(card searchCard) *MetadataRecord { return metadataFromCard(card, results.pageURL) })
+	pageTotals(&page, results.doc, results.page)
+	return page
+}
+
 func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi, scidbURL, base string) (*Paper, error) {
 	downloadURL, hash, err := parseSciDBFile(doc, scidbURL)
 	if err != nil {
@@ -81,6 +90,13 @@ func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi,
 		}
 		return paper, nil
 	}
+	addRecordDetails(paper, detail)
+	return paper, nil
+}
+
+// addRecordDetails fills in a SciDB paper's title, journal, authors and size
+// from its record page.
+func addRecordDetails(paper *Paper, detail *goquery.Document) {
 	if title := strings.TrimSpace(detail.Find("title").First().Text()); title != "" {
 		if idx := strings.Index(title, " - Anna"); idx > 0 {
 			paper.Title = strings.TrimSpace(title[:idx])
@@ -109,5 +125,4 @@ func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi,
 		}
 		return true
 	})
-	return paper, nil
 }

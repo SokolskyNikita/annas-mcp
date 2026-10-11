@@ -2,11 +2,14 @@ package anna
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/md5"
 	"embed"
 	"encoding/hex"
+	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
@@ -25,13 +28,65 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
 
+// readFixture returns a fixture's contents, unzipping .gz files.
 func readFixture(t testing.TB, name string) []byte {
 	t.Helper()
 	data, err := testdataFS.ReadFile("testdata/" + name)
 	if err != nil {
 		t.Fatalf("read fixture %q: %v", name, err)
 	}
+	if strings.HasSuffix(name, ".gz") {
+		reader, err := gzip.NewReader(bytes.NewReader(data))
+		if err == nil {
+			data, err = io.ReadAll(reader)
+		}
+		if err != nil {
+			t.Fatalf("unzip fixture %q: %v", name, err)
+		}
+	}
 	return data
+}
+
+// capturedPage is one page in testdata/pages/manifest.json, captured from
+// the live archive by TestCapturePages.
+type capturedPage struct {
+	Name string `json:"name"`
+	Kind string `json:"kind"`
+	Path string `json:"path,omitempty"`
+	DOI  string `json:"doi,omitempty"`
+	Page int    `json:"page,omitempty"`
+	Note string `json:"note,omitempty"`
+}
+
+// file is the captured page's name under testdata/pages.
+func (p capturedPage) file() string {
+	if p.Kind == "csl" {
+		return p.Name + ".json"
+	}
+	return p.Name + ".html.gz"
+}
+
+func readManifest(t testing.TB) []capturedPage {
+	t.Helper()
+	var manifest struct {
+		Pages []capturedPage `json:"pages"`
+	}
+	if err := json.Unmarshal(readFixture(t, "pages/manifest.json"), &manifest); err != nil {
+		t.Fatalf("read manifest: %v", err)
+	}
+	return manifest.Pages
+}
+
+// capturedPageNamed returns the manifest entry called name.
+func capturedPageNamed(t testing.TB, name string) capturedPage {
+	t.Helper()
+	for _, page := range readManifest(t) {
+		if page.Name == name {
+			return page
+		}
+	}
+	t.Fatalf("no captured page %q", name)
+	return capturedPage{}
 }
 
 func fixtureText(t testing.TB, name string) string {

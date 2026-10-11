@@ -1,0 +1,976 @@
+{
+  "facets": {
+    "content": [
+      "book_nonfiction",
+      "book_fiction",
+      "book_unknown",
+      "magazine",
+      "book_comic",
+      "standards_document",
+      "musical_score",
+      "other"
+    ],
+    "src": [
+      "zlib",
+      "lgli",
+      "upload",
+      "ia",
+      "duxiu",
+      "hathi",
+      "lgrs",
+      "nexusstc",
+      "zlibzh",
+      "wikilib",
+      "magzdb",
+      "scihub",
+      "academia_edu",
+      "cqvip"
+    ]
+  },
+  "page": {
+    "Results": [
+      {
+        "title": "Computer Exercises To Accompany Structure And Interpretation Of Computer Programs ;: Version For Ibm Pc Compatible Machines (the Mit Electrical Engineering And Computer Science Series)",
+        "authors": "Abelson, Harold; Abelson, Harold. Structure and interpretation of computer programs; Sussman, Gerald Jay",
+        "publisher": "New York ; London : McGraw-Hill, New York [u.a, 1988",
+        "language": "English",
+        "format": "PDF",
+        "size": "7.0MB",
+        "year": "1988",
+        "content": "book_unknown",
+        "sources": [
+          "ia",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "66f9eb16f0c0278aaa36ef5fe2124e1c",
+        "url": "https://annas-archive.gl/md5/66f9eb16f0c0278aaa36ef5fe2124e1c",
+        "description": "125p. : 28cm Includes one 5.25\" diskette in pocket attached to inside back cover"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs, 2nd ed.",
+        "authors": "Harold Abelson, Gerald Jay Sussman, Julie Sussman [Harold Abelson, Gerald Jay Sussman, Julie Sussman]",
+        "publisher": "",
+        "language": "English",
+        "format": "PDF",
+        "size": "9.5MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "fa8138d55d11315fd054b7ee78b8c5ef",
+        "url": "https://annas-archive.gl/md5/fa8138d55d11315fd054b7ee78b8c5ef"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs (JavaScript Adaptation)",
+        "authors": "Harold Abelson and Gerald Jay Sussman with Julie Sussman adapted by Martin Henz and Tobias Wrigstad",
+        "publisher": "MIT Press, 2nd, 2019",
+        "language": "English",
+        "format": "PDF",
+        "size": "10.6MB",
+        "year": "2019",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "3e5baadb81f87f3594f64aa97fcc4f41",
+        "url": "https://annas-archive.gl/md5/3e5baadb81f87f3594f64aa97fcc4f41",
+        "description": "The JavaScript adaptation of SICP is an open-source community effort.The software and data required for making these web pages and the PDF edition are containedin the github repositorySource Academy / sicp,and improvements, extensions and discussions are handled in this repository using git.Martin Henz started translating SICP to JavaScript in 2008. He obtained the originalLaTeX sources of the second edition from Gerald Jay Sussman, and converted them toa custom-built XML"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs (JavaScript Adaptation)",
+        "authors": "Harold Abelson and Gerald Jay Sussman with Julie Sussman - authors. Martin Henz with Chan Ger Hean, Feng Piaopiao, Jolyn Tan, Liu Hang, and Tobias Wrigstad - adapters to JavaScript",
+        "publisher": "2019",
+        "language": "English",
+        "format": "EPUB",
+        "size": "4.0MB",
+        "year": "2019",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "cceac8cafda4bbcc65944404971ff779",
+        "url": "https://annas-archive.gl/md5/cceac8cafda4bbcc65944404971ff779"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs, 2nd ed.",
+        "authors": "Harold Abelson, Gerald Jay Sussman, Julie Sussman",
+        "publisher": "2nd ed",
+        "language": "English",
+        "format": "PDF",
+        "size": "7.4MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "2e3b2e0a5db090090dc4c1e1b3ae3c39",
+        "url": "https://annas-archive.gl/md5/2e3b2e0a5db090090dc4c1e1b3ae3c39",
+        "description": "Unofficial Texinfo Format 9 Dedication 12 Foreword 13 Preface to the Second Edition 19 Preface to the First Edition 21 Acknowledgments 25 Building Abstractions with Procedures 29 The Elements of Programming 34 Expressions 35 Naming and the Environment 38 Evaluating Combinations 40 Compound Procedures 43 The Substitution Model for Procedure Application 46 Conditional Expressions and Predicates 50 Example: Square Roots by Newton's Method 56 Procedures as Black-Box Abstractions"
+      },
+      {
+        "title": "6.001 Structure and Interpretation of Computer Programs. Copyright",
+        "authors": "",
+        "publisher": "Massachusetts Institute of Technology, 2004",
+        "language": "English",
+        "format": "ZIP",
+        "size": "24.4MB",
+        "year": "2004",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "47e1f996f4b2ad9e7c4812ed097a848b",
+        "url": "https://annas-archive.gl/md5/47e1f996f4b2ad9e7c4812ed097a848b"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs [Paperback] [Jan 01, 2005] Harold Abelson, Gerald Jay Sussman, Julie Sussman",
+        "authors": "Gerald Jay Sussman, Julie Sussman Harold Abelson, Harold Abelson, Gerald Jay Sussman, Julie Sussman",
+        "publisher": "Orient Black Swan, 1800",
+        "language": "English",
+        "format": "PDF",
+        "size": "33.7MB",
+        "year": "1800",
+        "content": "book_unknown",
+        "sources": [
+          "ia",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "158b6fd536060af99ef92d474a66e344",
+        "url": "https://annas-archive.gl/md5/158b6fd536060af99ef92d474a66e344",
+        "description": "\u003e **Wizard Book** n. Hal Abelson's, Jerry Sussman's and Julie Sussman's Structure and Interpretation of Computer Programs (MIT Press, 1984; ISBN 0-262-01077-1), an excellent computer science text used in introductory courses at MIT. So called because of the wizard on the jacket. One of the bibles of the LISP/Scheme world. Also, less commonly, known as the Purple Book. *from The New Hacker's Dictionary, 2nd edition (MIT Press, 1993)*"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs, 2nd ed",
+        "authors": "Harold Abelson and Gerald J. Sussman",
+        "publisher": "None",
+        "language": "English",
+        "format": "PDF",
+        "size": "2.3MB",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "fcbb4f24f4321b894fd65726a386a4c3",
+        "url": "https://annas-archive.gl/md5/fcbb4f24f4321b894fd65726a386a4c3"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs, 2nd ed.",
+        "authors": "Harold Abelson, Gerald Jay Sussman, Julie Sussman",
+        "publisher": "2nd, 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "7.4MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "2b56fbe9d5bac48ea5005066eab8b949",
+        "url": "https://annas-archive.gl/md5/2b56fbe9d5bac48ea5005066eab8b949",
+        "description": "Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published. A new theme"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "The MIT Press, 2010",
+        "language": "English",
+        "format": "MOBI",
+        "size": "1.5MB",
+        "year": "2010",
+        "content": "book_nonfiction",
+        "sources": [
+          "duxiu",
+          "lgli",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "f5e813f644364dde4e3dd473cc284508",
+        "url": "https://annas-archive.gl/md5/f5e813f644364dde4e3dd473cc284508",
+        "description": "\u003e **Wizard Book** n. Hal Abelson's, Jerry Sussman's and Julie Sussman's Structure and Interpretation of Computer Programs (MIT Press, 1984; ISBN 0-262-01077-1), an excellent computer science text used in introductory courses at MIT. So called because of the wizard on the jacket. One of the bibles of the LISP/Scheme world. Also, less commonly, known as the Purple Book. *from The New Hacker's Dictionary, 2nd edition (MIT Press, 1993)*"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2011",
+        "language": "English",
+        "format": "MOBI",
+        "size": "2.6MB",
+        "year": "2011",
+        "content": "book_nonfiction",
+        "sources": [
+          "duxiu",
+          "lgli",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "67726c9f72380c9ae38461ecd6f71c6f",
+        "url": "https://annas-archive.gl/md5/67726c9f72380c9ae38461ecd6f71c6f",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT Electrical Engineering and Computer Science, 2 (Unofficial LaTeX), 2016",
+        "language": "English",
+        "format": "PDF",
+        "size": "8.0MB",
+        "year": "2016",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "190ae73a822dcda6605a7a43af743733",
+        "url": "https://annas-archive.gl/md5/190ae73a822dcda6605a7a43af743733",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and interpretation of computer programs",
+        "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "2.6MB",
+        "year": "1996",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": false,
+        "hash": "7a39973fca92185bc7d23b05ed75d7e7",
+        "url": "https://annas-archive.gl/md5/7a39973fca92185bc7d23b05ed75d7e7",
+        "description": "With an analytical and rigorous approach to problem solving and programming techniques, this book is oriented toward engineering. Structure and Interpretation of Computer Programs emphasizes the central role played by different approaches to dealing with time in computational models. Its unique approach makes it appropriate for an introduction to computer science courses, as well as programming languages and program design., Edition: 2, Includes bibliographical references"
+      },
+      {
+        "title": "Structure and interpretation of computer programs",
+        "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "4.5MB",
+        "year": "1996",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": false,
+        "hash": "45c0a21aa439ba3d6ec7b5591d8e805c",
+        "url": "https://annas-archive.gl/md5/45c0a21aa439ba3d6ec7b5591d8e805c",
+        "description": "With an analytical and rigorous approach to problem solving and programming techniques, this book is oriented toward engineering. Structure and Interpretation of Computer Programs emphasizes the central role played by different approaches to dealing with time in computational models. Its unique approach makes it appropriate for an introduction to computer science courses, as well as programming languages and program design., Series: MIT Electrical Engineering and Computer"
+      },
+      {
+        "title": "Structure and interpretation of computer programs",
+        "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "9.4MB",
+        "year": "1996",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": false,
+        "hash": "10001540cf8bd7ca2a41ad8b766cea66",
+        "url": "https://annas-archive.gl/md5/10001540cf8bd7ca2a41ad8b766cea66",
+        "description": "Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published. A new theme"
+      },
+      {
+        "title": "Structure and interpretation of computer programs",
+        "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "1.9MB",
+        "year": "1996",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": false,
+        "hash": "ad12bdeaf9f2521a3cbafcd6baeeef2e",
+        "url": "https://annas-archive.gl/md5/ad12bdeaf9f2521a3cbafcd6baeeef2e",
+        "description": "Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published. A new theme"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs, second edition",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "language": "English",
+        "format": "EPUB",
+        "size": "3.3MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "79e3536224bccd15678d903bf4eb8f2e",
+        "url": "https://annas-archive.gl/md5/79e3536224bccd15678d903bf4eb8f2e",
+        "description": "This is the Unofficial Texinfo Format of SICP, which is the best pdf in the internet. You can find more size/format on https://github.com/sarabander/sicp-pdf has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs, 2e (JavaScript Edition)",
+        "authors": "Harold Abelson, Gerald Jay Sussman, Julie Sussman, Martin Henz, Tobias Wrigstad",
+        "publisher": "The MIT Press, 1, 2022",
+        "language": "English",
+        "format": "PDF",
+        "size": "9.4MB",
+        "year": "2022",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "2756ebfe02766b2d44eaf615013de897",
+        "url": "https://annas-archive.gl/md5/2756ebfe02766b2d44eaf615013de897",
+        "description": "Widely adopted as a textbook, this book has its origins in a popular entry-level computer science course taught by Harold Abelson and Gerald Jay Sussman at MIT.Earlier editions used the programming language Scheme in their program examples. This version of the second edition has been adapted for JavaScript.The first three chapters cover programming concepts that are common to all modern high-level programming languages.Chapters four and five, which used Scheme to formulate"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "The MIT Press, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "7.5MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "041a76457993eda5665c7851e9390c06",
+        "url": "https://annas-archive.gl/md5/041a76457993eda5665c7851e9390c06",
+        "description": "This is the Unofficial Texinfo Format of SICP, which is the best pdf in the internet. You can find more size/format on https://github.com/sarabander/sicp-pdf Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers,"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs: JavaScript Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson; Gerald Jay Sussman; Martin Henz; Tobias Wrigstad; Gerald Sussman; Martin Henz; Tobias Wrigstad",
+        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science Ser, JavaScript Edition, Cambridge, Massachusetts, 2022",
+        "language": "English",
+        "format": "EPUB",
+        "size": "8.4MB",
+        "year": "2022",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "a4c1000b19b2adb4ff81988e98739882",
+        "url": "https://annas-archive.gl/md5/a4c1000b19b2adb4ff81988e98739882",
+        "description": "A new version of the classic and widely used text adapted for the JavaScript programming language. Since the publication of its first edition in 1984 and its second edition in 1996, Structure and Interpretation of Computer Programs (SICP) has influenced computer science curricula around the world. Widely adopted as a textbook, the book has its origins in a popular entry-level computer science course taught by Harold Abelson and Gerald Jay Sussman at MIT. SICP introduces the"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs: JavaScript Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson; Gerald Jay Sussman; Martin Henz; Tobias Wrigstad; \u0026 Gerald Sussman \u0026 Martin Henz \u0026 Tobias Wrigstad",
+        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science Ser, JavaScript Edition, Cambridge, Massachusetts, 2022",
+        "language": "English",
+        "format": "EPUB",
+        "size": "8.4MB",
+        "year": "2022",
+        "content": "book_unknown",
+        "sources": [
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "61d25d4de1a51a4ab8fc0ad9d3f3922e",
+        "url": "https://annas-archive.gl/md5/61d25d4de1a51a4ab8fc0ad9d3f3922e",
+        "description": "A new version of the classic and widely used text adapted for the JavaScript programming language. Since the publication of its first edition in 1984 and its second edition in 1996, Structure and Interpretation of Computer Programs (SICP) has influenced computer science curricula around the world. Widely adopted as a textbook, the book has its origins in a popular entry-level computer science course taught by Harold Abelson and Gerald Jay Sussman at MIT. SICP introduces the"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs (Second Edition)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2, 2002",
+        "language": "English",
+        "format": "PDF",
+        "size": "7.4MB",
+        "year": "2002",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "effbd0d96e67eb7faadb9316fc34279b",
+        "url": "https://annas-archive.gl/md5/effbd0d96e67eb7faadb9316fc34279b",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs: JavaScript Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Abelson, Harold \u0026 Sussman, Gerald \u0026 Henz, Martin \u0026 Wrigstad, Tobias",
+        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science Ser, JavaScript Edition, Cambridge, Massachusetts, 2022",
+        "language": "English, Polish",
+        "format": "EPUB",
+        "size": "8.4MB",
+        "year": "2022",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "e3167a1deff818af5b2fbfb821c876fd",
+        "url": "https://annas-archive.gl/md5/e3167a1deff818af5b2fbfb821c876fd",
+        "description": "A new version of the classic and widely used text adapted for the JavaScript programming language. Since the publication of its first edition in 1984 and its second edition in 1996, Structure and Interpretation of Computer Programs (SICP) has influenced computer science curricula around the world. Widely adopted as a textbook, the book has its origins in a popular entry-level computer science course taught by Harold Abelson and Gerald Jay Sussman at MIT. SICP introduces the"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs",
+        "authors": "Unknown",
+        "publisher": "2002",
+        "language": "English",
+        "format": "PDF",
+        "size": "2.4MB",
+        "year": "2002",
+        "content": "book_unknown",
+        "sources": [
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "af37985c021100b4c82a3d4265e02f63",
+        "url": "https://annas-archive.gl/md5/af37985c021100b4c82a3d4265e02f63",
+        "description": "mit.edu -1 Structure and Interpretation of Computer Programs 1 Structure and Interpretation of Computer Programs 2 Structure and Interpretation of Computer Programs 3 Structure and Interpretation of Computer Programs 5 Structure and Interpretation of Computer Programs 6 Structure and Interpretation of Computer Programs 10 Structure and Interpretation of Computer Programs 13 Structure and Interpretation of Computer Programs 15 Structure and Interpretation of Computer Programs"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson \u0026 Gerald Jay Sussman \u0026 Julie Sussman [Abelson, Harold \u0026 Sussman, Gerald Jay \u0026 Sussman, Julie]",
+        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science, 2, 1996;2006",
+        "language": "English",
+        "format": "EPUB",
+        "size": "1.2MB",
+        "year": "2011",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "8cc0f63f8e6535fd23336dba36e25963",
+        "url": "https://annas-archive.gl/md5/8cc0f63f8e6535fd23336dba36e25963",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Sussman, Harold Abelson; Gerald Jay Sussman; Julie",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2012",
+        "language": "English",
+        "format": "EPUB",
+        "size": "1.7MB",
+        "year": "2012",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "f46c6cbc2be3d3eb4e257a668f886b97",
+        "url": "https://annas-archive.gl/md5/f46c6cbc2be3d3eb4e257a668f886b97",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "The MIT Press, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "language": "English",
+        "format": "CHM",
+        "size": "1.5MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "f8008c48de93647fcb8a4b3f9c6bab7c",
+        "url": "https://annas-archive.gl/md5/f8008c48de93647fcb8a4b3f9c6bab7c",
+        "description": "This is the Unofficial Texinfo Format of SICP, which is the best pdf in the internet. You can find more size/format on https://github.com/sarabander/sicp-pdf has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "The MIT Press, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "9.4MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "2e2d076c195f245eed60a5d3b00be993",
+        "url": "https://annas-archive.gl/md5/2e2d076c195f245eed60a5d3b00be993",
+        "description": "This is the Unofficial Texinfo Format of SICP, which is the best pdf in the internet. You can find more size/format on https://github.com/sarabander/sicp-pdf has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "language": "English",
+        "format": "MOBI",
+        "size": "2.0MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "696e16dc882bea6d2504b0b25e3c255a",
+        "url": "https://annas-archive.gl/md5/696e16dc882bea6d2504b0b25e3c255a",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs (The Mit Electrical Engineering and Computer Science Series)",
+        "authors": "Abelson, Harold, Sussman, Gerald Jay; Sussman, Julie",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, MIT electrical engineering and computer science series, Cambridge - Mass.a.o. MIT Press; New York a.o. McGraw-Hill, 1985",
+        "language": "English",
+        "format": "PDF",
+        "size": "27.3MB",
+        "year": "1985",
+        "content": "book_unknown",
+        "sources": [
+          "duxiu",
+          "ia",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "9118daa2bab2733085314a4d2de3a155",
+        "url": "https://annas-archive.gl/md5/9118daa2bab2733085314a4d2de3a155",
+        "description": "xx, 542 pages : 24 cm, Bibliography: p. [505]-509, Includes index"
+      },
+      {
+        "title": "Structure and interpretation of computer programs",
+        "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "4.5MB",
+        "year": "1996",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": false,
+        "hash": "8989157f0a0e9341c500cffd0736d7ef",
+        "url": "https://annas-archive.gl/md5/8989157f0a0e9341c500cffd0736d7ef",
+        "description": "With an analytical and rigorous approach to problem solving and programming techniques, this book is oriented toward engineering. Structure and Interpretation of Computer Programs emphasizes the central role played by different approaches to dealing with time in computational models. Its unique approach makes it appropriate for an introduction to computer science courses, as well as programming languages and program design. Amazon.com Review Abelson and Sussman's classic"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson, Gerald Jay Sussman, Julie Sussman",
+        "publisher": "MIT Press ; McGraw-Hill, New edition, 1985",
+        "language": "English",
+        "format": "MOBI",
+        "size": "1.6MB",
+        "year": "1985",
+        "content": "book_nonfiction",
+        "sources": [
+          "duxiu",
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "b6a92717b68fc9a59c0c7faad0b7c707",
+        "url": "https://annas-archive.gl/md5/b6a92717b68fc9a59c0c7faad0b7c707",
+        "description": "Designed for the introductory computer science subject at MIT, this book presents a unique conceptual introduction to programming that should make it required reading for every computer scientist. The authors' main concern is to give their readers command of the major techniques used to control the complexity of large software systems: building abstractions, establishing conventional interfaces, and establishing new descriptive languages. Structure and Interpretation of"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Abelson, Harold, Sussman, Gerald Jay",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 1996 Jul",
+        "language": "English",
+        "format": "EPUB",
+        "size": "1.3MB",
+        "year": "2005",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "1884f66a174284a2e754e8fec30e54c5",
+        "url": "https://annas-archive.gl/md5/1884f66a174284a2e754e8fec30e54c5",
+        "description": "Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.A new theme"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT Electrical Engineering and Computer Science, Second Edition, S. l, July 25th 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "4.7MB",
+        "year": "1996",
+        "content": "book_unknown",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "ad7438a5bd6066ce6dafa5303fb24109",
+        "url": "https://annas-archive.gl/md5/ad7438a5bd6066ce6dafa5303fb24109",
+        "description": "With an analytical and rigorous approach to problem solving and programming techniques, this book is oriented toward engineering. Structure and Interpretation of Computer Programs emphasizes the central role played by different approaches to dealing with time in computational models. Its unique approach makes it appropriate for an introduction to computer science courses, as well as programming languages and program design."
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2011",
+        "language": "English",
+        "format": "PDF",
+        "size": "6.0MB",
+        "year": "2011",
+        "content": "book_nonfiction",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "6da72fb68a6d70d06ca9d0f868129a40",
+        "url": "https://annas-archive.gl/md5/6da72fb68a6d70d06ca9d0f868129a40",
+        "description": "Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published. A new theme"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Abelson, Gerald Jay; Sussman, Harold; Sussman, Julie",
+        "publisher": "The MIT Press, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "language": "English",
+        "format": "EPUB",
+        "size": "1.2MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "0fac1755e3f1d75bf4c9d0fb0e2c98d0",
+        "url": "https://annas-archive.gl/md5/0fac1755e3f1d75bf4c9d0fb0e2c98d0",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, Second Edition, Cambridge, Mass, New York, Massachusetts, ©1996 by The Massachusetts Institute of Technology",
+        "language": "English",
+        "format": "EPUB",
+        "size": "1.2MB",
+        "year": "1996",
+        "content": "book_unknown",
+        "sources": [
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "5b6cf5578c7e271a10e92460a537908b",
+        "url": "https://annas-archive.gl/md5/5b6cf5578c7e271a10e92460a537908b",
+        "description": "SUMMARY: Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published. A"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs (The Mit Electrical Engineering and Computer Science Series)",
+        "authors": "Abelson, Harold; Sussman, Gerald Jay; Sussman, Julie",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, MIT electrical engineering and computer science series, Cambridge - Mass.a.o. MIT Press; New York a.o. McGraw-Hill, 1985",
+        "language": "English",
+        "format": "PDF",
+        "size": "39.8MB",
+        "year": "1985",
+        "content": "book_unknown",
+        "sources": [
+          "duxiu",
+          "ia",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "acbdc9d403eba28e68a75c5adeed294f",
+        "url": "https://annas-archive.gl/md5/acbdc9d403eba28e68a75c5adeed294f",
+        "description": "Bibliography: p. [505]-509, Includes index"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, Second Edition, Cambridge, Mass, New York, Massachusetts, ©1996 by The Massachusetts Institute of Technology",
+        "language": "English",
+        "format": "PDF",
+        "size": "2.6MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "d4956531f880ff64ccec69c9ccdfe1f1",
+        "url": "https://annas-archive.gl/md5/d4956531f880ff64ccec69c9ccdfe1f1",
+        "description": "Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.A new theme"
+      },
+      {
+        "title": "初等算法(算法新解)0.6180339887498949",
+        "authors": "it-ebooks",
+        "publisher": "iBooker it-ebooks, it-ebooks-2017, 2017",
+        "language": "English, Chinese",
+        "format": "PDF",
+        "size": "3.2MB",
+        "year": "2017",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "a35f36958d10dbadda4297da120ac23e",
+        "url": "https://annas-archive.gl/md5/a35f36958d10dbadda4297da120ac23e",
+        "description": "\u003cbr\u003e\u003ch3\u003e Chapter One \u003c/h3\u003e PART I. IN THE CLASSROOM \u003cp\u003e \u003cp\u003e PURPOSE \u003cp\u003e \u003cb\u003e1. Helping the student\u003c/b\u003e. One of the most important tasks of the teacher is to help his students. This task is not quite easy; it demands time, practice, devotion, and sound principles. \u003cp\u003e The student should acquire as much experience of independent work as possible. But if he is left alone with his problem without any help or with insufficient help, he may make no progress at all. If the teacher"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs",
+        "authors": "",
+        "publisher": "",
+        "language": "English",
+        "format": "PDF",
+        "size": "5.3MB",
+        "content": "book_unknown",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true,
+        "hash": "3bed4a05ae7fc66cd90c2e292c70d2b4",
+        "url": "https://annas-archive.gl/md5/3bed4a05ae7fc66cd90c2e292c70d2b4",
+        "description": "Contents 5 Foreword 8 Preface to the Second Edition 11 Preface to the First Edition 12 Acknowledgments 14 Chapter 1. Building Abstractions with Procedures 16 Chapter 2. Building Abstractions with Data 78 Chapter 3. Modularity, Objects, and State 190 Chapter 4. Metalinguistic Abstraction 304 Chapter 5. Computing with Register Machines 411 References 509 Index 516"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs",
+        "authors": "Harold Abelson \u0026 Gerald Sussman \u0026 Martin Henz \u0026 Tobias Wrigstad",
+        "publisher": "MIT Press",
+        "language": "English",
+        "format": "PDF",
+        "size": "8.5MB",
+        "content": "book_unknown",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true,
+        "hash": "a2465cc9678f438eac0eb79d9b7c4010",
+        "url": "https://annas-archive.gl/md5/a2465cc9678f438eac0eb79d9b7c4010",
+        "description": "A new version of the classic and widely used text adapted for the JavaScript programming language. Since the publication of its first edition in 1984 and its second edition in 1996, Structure and Interpretation of Computer Programs ( SICP ) has influenced computer science curricula around the world. Widely adopted as a textbook, the book has its origins in a popular entry-level computer science course taught by Harold Abelson and Gerald Jay Sussman at MIT. SICP introduces"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, Second Edition, Cambridge, Mass, New York, Massachusetts, ©1996 by The Massachusetts Institute of Technology",
+        "language": "English",
+        "format": "PDF",
+        "size": "4.3MB",
+        "year": "1996",
+        "content": "book_unknown",
+        "sources": [
+          "upload"
+        ],
+        "fast_download": true,
+        "hash": "23068dab551802ba9b19dcf0d78c6701",
+        "url": "https://annas-archive.gl/md5/23068dab551802ba9b19dcf0d78c6701",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Abelson, Harold; Sussman, Gerald Jay; Sussman, Julie",
+        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science, 2ed., 1996",
+        "language": "English",
+        "format": "DJVU",
+        "size": "4.7MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "possible_issues": true,
+        "hash": "d6ff202b668d37545b9c187ce35f5420",
+        "url": "https://annas-archive.gl/md5/d6ff202b668d37545b9c187ce35f5420",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Abelson, Harold; Sussman, Gerald Jay; Sussman, Julie",
+        "publisher": "TPB;The MIT Press, MIT Electrical Engineering and Computer Science, 2ed. free web version, 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "5.5MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "possible_issues": true,
+        "hash": "877612007da71fbc613259140895d5b6",
+        "url": "https://annas-archive.gl/md5/877612007da71fbc613259140895d5b6",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2nd Edition, US, 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "4.6MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "possible_issues": true,
+        "hash": "6a29dceff30e3a3a6d1fcdc92528fe68",
+        "url": "https://annas-archive.gl/md5/6a29dceff30e3a3a6d1fcdc92528fe68",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs, Second Edition",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "McGraw-Hill Science/Engineering/Math, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "3.1MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "possible_issues": true,
+        "hash": "b1a129b0172ccafa91494e2898a4012b",
+        "url": "https://annas-archive.gl/md5/b1a129b0172ccafa91494e2898a4012b",
+        "description": "With an analytical and rigorous approach to problem solving and programming techniques, this book is oriented toward engineering. Structure and Interpretation of Computer Programs emphasizes the central role played by different approaches to dealing with time in computational models. Its unique approach makes it appropriate for an introduction to computer science courses, as well as programming languages and program design."
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT Electrical Engineering and Computer Science, 2nd ed, 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "1.8MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "possible_issues": true,
+        "hash": "4a6093861a170eb8e500f3c25ba999d2",
+        "url": "https://annas-archive.gl/md5/4a6093861a170eb8e500f3c25ba999d2",
+        "description": "Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text. There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published. A new theme"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science, Second Edition, S. l, July 25th 1996",
+        "language": "English",
+        "format": "PDF",
+        "size": "1.4MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "possible_issues": true,
+        "hash": "f863251fda13ddd337e85b601a7a0436",
+        "url": "https://annas-archive.gl/md5/f863251fda13ddd337e85b601a7a0436",
+        "description": "\"Structure and Interpretation of Computer Programs has had a dramatic impact on computer science curricula over the past decade. This long-awaited revision contains changes throughout the text.\" \"There are new implementations of most of the major programming systems in the book, including the interpreters and compilers, and the authors have incorporated many small changes that reflect their experience teaching the course at MIT since the first edition was published.\" \"A new"
+      },
+      {
+        "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
+        "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
+        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science, 2, 1996;2006",
+        "language": "English",
+        "format": "PDF",
+        "size": "4.6MB",
+        "year": "2005",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "possible_issues": true,
+        "hash": "480fe74fe104d87fc504da0ef24d85af",
+        "url": "https://annas-archive.gl/md5/480fe74fe104d87fc504da0ef24d85af",
+        "description": "With an analytical and rigorous approach to problem solving and programming techniques, this book is oriented toward engineering. Structure and Interpretation of Computer Programs emphasizes the central role played by different approaches to dealing with time in computational models. Its unique approach makes it appropriate for an introduction to computer science courses, as well as programming languages and program design."
+      }
+    ],
+    "Partial": null,
+    "Total": 76,
+    "TotalIsLowerBound": false,
+    "MorePages": true
+  }
+}

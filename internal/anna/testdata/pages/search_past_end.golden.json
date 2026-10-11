@@ -1,0 +1,37 @@
+{
+  "facets": {
+    "content": [
+      "book_nonfiction",
+      "book_fiction",
+      "book_unknown",
+      "magazine",
+      "book_comic",
+      "standards_document",
+      "musical_score",
+      "other"
+    ],
+    "src": [
+      "zlib",
+      "lgli",
+      "upload",
+      "ia",
+      "duxiu",
+      "hathi",
+      "lgrs",
+      "nexusstc",
+      "zlibzh",
+      "wikilib",
+      "magzdb",
+      "scihub",
+      "academia_edu",
+      "cqvip"
+    ]
+  },
+  "page": {
+    "Results": [],
+    "Partial": null,
+    "Total": 100,
+    "TotalIsLowerBound": false,
+    "MorePages": false
+  }
+}

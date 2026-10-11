@@ -1,0 +1,24 @@
+{
+  "identity": {
+    "doi": "",
+    "doi_conflict": false,
+    "arxiv_id": "",
+    "title": "Attention Is All You Need",
+    "authors": [
+      "Deqiang Liang",
+      "Xiangguang Li",
+      "Wanshun Zhang",
+      "Yanni Li",
+      "Mi Zhang",
+      "Ping Cheng"
+    ],
+    "year": "2016"
+  },
+  "scidb_details": {
+    "title": "Attention Is All You Need",
+    "authors": "Liang, Deqiang; Li, Xiangguang; Zhang, Wanshun; Li, Yanni; Zhang, Mi; Cheng, Ping",
+    "journal": "John Wiley and Sons; Wiley (John Wiley \u0026 Sons); Wiley (ISSN 0931-7597)",
+    "size": "",
+    "page_url": ""
+  }
+}

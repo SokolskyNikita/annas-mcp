@@ -298,8 +298,13 @@ func (c *Client) fetchCitationMetadata(ctx context.Context, doi string) (doiMeta
 	if response.StatusCode != http.StatusOK {
 		return doiMetadata{}, fmt.Errorf("doi.org returned status %d", response.StatusCode)
 	}
+	return parseCitationMetadata(response.Body)
+}
+
+// parseCitationMetadata reads DOI.org's CSL JSON.
+func parseCitationMetadata(body io.Reader) (doiMetadata, error) {
 	var payload map[string]json.RawMessage
-	if err := json.NewDecoder(io.LimitReader(response.Body, 1<<20)).Decode(&payload); err != nil {
+	if err := json.NewDecoder(io.LimitReader(body, 1<<20)).Decode(&payload); err != nil {
 		return doiMetadata{}, err
 	}
 	metadata := doiMetadata{

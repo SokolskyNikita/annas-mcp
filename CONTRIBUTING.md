@@ -59,7 +59,15 @@ npm test                # version, launcher and stdio integration tests
 npm run coverage        # Go race tests; requires 80% total coverage
 ```
 
-CI runs the same checks on Linux, macOS and Windows. It also lints the workflows with actionlint, syntax-checks the shell scripts, builds a GoReleaser snapshot and builds the Docker image, checking its MCP handshake with `scripts/check-docker.mjs`.
+CI runs the same checks on Linux, macOS and Windows. It also lints the workflows with actionlint, syntax-checks the shell scripts, builds a GoReleaser snapshot and builds the Docker image, checking its MCP handshake with `scripts/check-docker.mjs`. `scripts/check-package-contents.mjs` checks that test data stays out of the binary, the npm package, the image, the release archives and the MCP Bundle.
+
+### Captured pages
+
+The parser tests read real pages from Anna's Archive and DOI.org, saved gzipped in `internal/anna/testdata/pages` and listed in its `manifest.json`. Each page's parsed output is kept beside it as `<name>.golden.json`, and `TestGoldenPages` fails when the parsers make anything else of it.
+
+- After changing a parser, run `go test ./internal/anna -run TestGoldenPages -update` and review the diff of the `.golden.json` files: every change in it should be one you meant.
+- To refresh the pages, or after adding one to the manifest, run `ANNAS_MCP_CAPTURE=1 go test ./internal/anna -run '^TestCapturePages$' -count=1 -v`, then update the outputs the same way. Capturing signs in with `ANNAS_SECRET_KEY` and reads pages without downloading files. It replaces the account's id, cookie and key, and SciDB's signed file links, and fails if any of them remains.
+- Check new outputs against the live pages before committing them, so the tests describe what the archive shows rather than what the parser happened to read.
 
 ### Live tests
 

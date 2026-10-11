@@ -1,0 +1,20 @@
+{
+  "identity": {
+    "doi": "",
+    "doi_conflict": false,
+    "arxiv_id": "",
+    "title": "Adam: A method for stochastic optimization",
+    "authors": [
+      "Diederik P. Kingma",
+      "Jimmy Lei Ba"
+    ],
+    "year": "2015"
+  },
+  "scidb_details": {
+    "title": "Adam: A method for stochastic optimization",
+    "authors": "Kingma, Diederik P. (author); Ba, Jimmy Lei (author)",
+    "journal": "2015",
+    "size": "",
+    "page_url": ""
+  }
+}

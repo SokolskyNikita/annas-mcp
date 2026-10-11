@@ -106,6 +106,10 @@ jobs:
         if: runner.os == 'Linux'
         run: node scripts/pack-mcpb.mjs
 
+      - name: Check that test data stays out of builds
+        if: runner.os == 'Linux'
+        run: node scripts/check-package-contents.mjs
+
   docker:
     name: Build the container image
     runs-on: ubuntu-latest

@@ -150,11 +150,7 @@ func (c *Client) FindMetadata(ctx context.Context, query string, options SearchO
 	if err != nil {
 		return SearchPage[*MetadataRecord]{}, err
 	}
-	page := splitPage(results.cards,
-		func(card searchCard) bool { return card.prefix != "md5" },
-		func(card searchCard) *MetadataRecord { return metadataFromCard(card, results.pageURL) })
-	pageTotals(&page, results.doc, results.page)
-	return page, nil
+	return metadataPage(results), nil
 }
 
 func (c *Client) LookupDOI(ctx context.Context, doi string, timeout time.Duration) (*Paper, error) {

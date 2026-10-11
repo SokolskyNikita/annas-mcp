@@ -1,0 +1,26 @@
+{
+  "identity": {
+    "doi": "",
+    "doi_conflict": false,
+    "arxiv_id": "",
+    "title": "Attention Is All You Need",
+    "authors": [
+      "Ashish Vaswani",
+      "Noam Shazeer",
+      "Niki Parmar",
+      "Jakob Uszkoreit",
+      "Llion Jones",
+      "Aidan N. Gomez",
+      "Lukasz Kaiser",
+      "Illia Polosukhin"
+    ],
+    "year": "2017"
+  },
+  "scidb_details": {
+    "title": "Attention Is All You Need",
+    "authors": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin",
+    "journal": "2017 jun 12",
+    "size": "",
+    "page_url": ""
+  }
+}

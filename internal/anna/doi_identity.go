@@ -12,19 +12,19 @@ import (
 )
 
 type doiMetadata struct {
-	DOI     string
-	Title   string
-	Authors []string
-	Year    string
+	DOI     string   `json:"doi"`
+	Title   string   `json:"title"`
+	Authors []string `json:"authors"`
+	Year    string   `json:"year"`
 }
 
 type archiveIdentity struct {
-	DOI         string
-	DOIConflict bool
-	ArxivID     string
-	Title       string
-	Authors     []string
-	Year        string
+	DOI         string   `json:"doi"`
+	DOIConflict bool     `json:"doi_conflict"`
+	ArxivID     string   `json:"arxiv_id"`
+	Title       string   `json:"title"`
+	Authors     []string `json:"authors"`
+	Year        string   `json:"year"`
 }
 
 // parseArchiveIdentity reads the selected MD5 record's own metadata. In

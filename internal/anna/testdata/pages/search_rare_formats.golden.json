@@ -1,0 +1,1000 @@
+{
+  "facets": {
+    "content": [
+      "book_nonfiction",
+      "book_fiction",
+      "book_unknown",
+      "magazine",
+      "book_comic",
+      "standards_document",
+      "musical_score",
+      "other"
+    ],
+    "src": [
+      "zlib",
+      "lgli",
+      "upload",
+      "ia",
+      "duxiu",
+      "hathi",
+      "lgrs",
+      "nexusstc",
+      "zlibzh",
+      "wikilib",
+      "magzdb",
+      "scihub",
+      "academia_edu",
+      "cqvip"
+    ]
+  },
+  "page": {
+    "Results": [
+      {
+        "title": "Encyclopedia of American Indian History",
+        "authors": "[edited by] Bruce E. Johansen, Barry M. Pritzker",
+        "publisher": "ABC-CLIO, Santa Barbara, Calif, California, 2008",
+        "language": "English",
+        "format": "DJVU",
+        "size": "26.6MB",
+        "year": "2008",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "a70fa231c2ad4090ad581c44fc5f00c7",
+        "url": "https://annas-archive.gl/md5/a70fa231c2ad4090ad581c44fc5f00c7",
+        "description": "Contains 450 entries by 110 contributors, organized by themes including issues, events, culture, government, people, and primary sources about American Indians."
+      },
+      {
+        "title": "Changes in the Land: Indians, Colonists, and the Ecology of New England",
+        "authors": "William Cronon; [with a foreword by John Demos and an afterword by the author]",
+        "publisher": "Hill and Wang, 1st rev. ed., 20th-anniversary ed., New York, New York State, 2003",
+        "language": "English",
+        "format": "ZIP",
+        "size": "0.4MB",
+        "year": "2003",
+        "content": "book_unknown",
+        "sources": [
+          "hathi"
+        ],
+        "fast_download": true,
+        "hash": "0d21ecac4c94b1e2a6ce0915f2465b35",
+        "url": "https://annas-archive.gl/md5/0d21ecac4c94b1e2a6ce0915f2465b35",
+        "description": "In this landmark work of environmental history, William Cronon offers an original and profound explanation of the effects European colonists' sense of property and their pursuit of capitalism had upon the ecosystems of New England. Reissued here with an updated afterword by the author and a new preface by the distinguished colonialist John Demos, Changes in the Land, provides a brilliant inter-disciplinary interpretation of how land and people influence one another. With its"
+      },
+      {
+        "title": "Changes in the Land: Indians, Colonists, and the Ecology of New England",
+        "authors": "William Cronon",
+        "publisher": "Hill and Wang, 1st ed., New York, New York State, 1983",
+        "language": "English",
+        "format": "ZIP",
+        "size": "0.4MB",
+        "year": "1983",
+        "content": "book_unknown",
+        "sources": [
+          "hathi"
+        ],
+        "fast_download": true,
+        "hash": "ef75865d87c32153fc7edd4b1fe49cc2",
+        "url": "https://annas-archive.gl/md5/ef75865d87c32153fc7edd4b1fe49cc2",
+        "description": "In this landmark work of environmental history, William Cronon offers an original and profound explanation of the effects European colonists' sense of property and their pursuit of capitalism had upon the ecosystems of New England. Reissued here with an updated afterword by the author and a new preface by the distinguished colonialist John Demos, Changes in the Land, provides a brilliant inter-disciplinary interpretation of how land and people influence one another. With its"
+      },
+      {
+        "title": "Voodoo Kiss",
+        "authors": "Scott, Jayde",
+        "publisher": "Scott Publishing, 2011",
+        "language": "English",
+        "format": "RAR",
+        "size": "0.3MB",
+        "year": "2011",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "c720265bfa88e5f7c6d642cbd48eef0b",
+        "url": "https://annas-archive.gl/md5/c720265bfa88e5f7c6d642cbd48eef0b",
+        "description": "This book examines early European American and African American gardening practices, social order, and material culture at the Wye House plantation. Located on the eastern shore of Maryland, this plantation housed the Welsh Lloyd family and hundreds of enslaved Africans and African Americans, including Frederick Douglass. Pruitt examines the different possible interactions and understandings of nature at the Wye House and their impact on the dynamic, culturally-based, and"
+      },
+      {
+        "title": "History of Physics",
+        "authors": "Laue M.V.",
+        "publisher": "AP, 1950",
+        "language": "English",
+        "format": "DJVU",
+        "size": "2.1MB",
+        "year": "1950",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "e3bca3cb4fbade4841e947f4f44d93df",
+        "url": "https://annas-archive.gl/md5/e3bca3cb4fbade4841e947f4f44d93df"
+      },
+      {
+        "title": "Fieseler Fi 156",
+        "authors": "",
+        "publisher": "schiffer, Aviation History",
+        "language": "English",
+        "format": "RAR",
+        "size": "17.5MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "adf6cbf57a07cfd26ba4d76812453049",
+        "url": "https://annas-archive.gl/md5/adf6cbf57a07cfd26ba4d76812453049"
+      },
+      {
+        "title": "BDP-Elective Course-Bachelor of Arts (BA)-History (English) Part-II",
+        "authors": "IGNOU",
+        "publisher": "Indira Gandhi National Open University (IGNOU), 2018",
+        "language": "English",
+        "format": "ZIP",
+        "size": "345.6MB",
+        "year": "2018",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "eaeb4ef2db5641b0b9c5df2b38ce49dd",
+        "url": "https://annas-archive.gl/md5/eaeb4ef2db5641b0b9c5df2b38ce49dd"
+      },
+      {
+        "title": "EUROPE -A HISTORY",
+        "authors": "F. J. Dennett",
+        "publisher": "Linehan \u0026 Shrimpton, 1, 1960",
+        "language": "English",
+        "format": "RAR",
+        "size": "1.9MB",
+        "year": "1960",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "271fa2d9719389672fd45246fb4299ff",
+        "url": "https://annas-archive.gl/md5/271fa2d9719389672fd45246fb4299ff"
+      },
+      {
+        "title": "War and the world : military power and the fate of the continents, 1450-2000",
+        "authors": "Jeremy Black",
+        "publisher": "Yale University Press, New Ed edition, April 1, 2000",
+        "language": "English",
+        "format": "CHM",
+        "size": "1.1MB",
+        "year": "2000",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "5b6e11ce6f17fb06a1db533f45a68db6",
+        "url": "https://annas-archive.gl/md5/5b6e11ce6f17fb06a1db533f45a68db6",
+        "description": "Annotation This brilliant history of warfare is the first to approach the modern era from a global perspective. Investigating both land and sea warfare, Jeremy Black examines weaponry, tactics, strategy, and resources as well as the political, social, and cultural impact of conflict"
+      },
+      {
+        "title": "The Roman history from the foundation of Rome to the Battle of Actium, that is, to the end of the Commonwealth 3",
+        "authors": "Charles Rollin, Jean Baptiste Louis Crevier",
+        "publisher": "3, 3, 1768",
+        "language": "English",
+        "format": "DJVU",
+        "size": "28.2MB",
+        "year": "1768",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "cf942f75f3a97fa27ff410ea63080964",
+        "url": "https://annas-archive.gl/md5/cf942f75f3a97fa27ff410ea63080964"
+      },
+      {
+        "title": "Primitive Shoes",
+        "authors": "Hald Margrethe.",
+        "publisher": "",
+        "language": "English",
+        "format": "ZIP",
+        "size": "75.0MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "0052d9bbb4d6ae2e7f24a05f8063c6b8",
+        "url": "https://annas-archive.gl/md5/0052d9bbb4d6ae2e7f24a05f8063c6b8",
+        "description": "Copenhagen, 1972. — 216 с. Классическая монография по истории, преимущественно, европейской архаичной обуви, написанная на материале археологических и этнографических источников. Содержит фотографии и реконструированные автором выкройки. Не потеряла своей"
+      },
+      {
+        "title": "History of the theory of numbers Volume 3",
+        "authors": "Dickson L.E.",
+        "publisher": "Chelsea, Volume 3, 1923",
+        "language": "English",
+        "format": "DJVU",
+        "size": "4.4MB",
+        "year": "1923",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "6d98fe640cc618c26e8eae4bd45029d2",
+        "url": "https://annas-archive.gl/md5/6d98fe640cc618c26e8eae4bd45029d2"
+      },
+      {
+        "title": "A History of the Crusades, Vol.3: The Kingdom of Acre and the Latin Crusades",
+        "authors": "Steven Runciman",
+        "publisher": "Cambridge University Press, A History of the Crusades, 3, 1995",
+        "language": "English",
+        "format": "DJVU",
+        "size": "5.2MB",
+        "year": "1995",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "1cde647141c3a73e20e49f5d28ab32e8",
+        "url": "https://annas-archive.gl/md5/1cde647141c3a73e20e49f5d28ab32e8"
+      },
+      {
+        "title": "Rune Cards [Cards]",
+        "authors": "Brian Partridge, Tony Linsell",
+        "publisher": "Anglo-Saxon Books, 1, 1992",
+        "language": "English",
+        "format": "CBR",
+        "size": "125.3MB",
+        "year": "1992",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "64cb2883051b2355235986339c518350",
+        "url": "https://annas-archive.gl/md5/64cb2883051b2355235986339c518350",
+        "description": "This package provides all that is needed for anyone to learn how to read runes. The enclosed 80 page book provides background information about runes and a guide to their interpretation. The cards, which are beautiful and fascinating items in their own right, were commissioned from Brian Partridge, and are the result of detailed research, and over two years work. The illustrations on the cards include prompts that will quickly enable the user to read the runes without"
+      },
+      {
+        "title": "History of creation vol 2",
+        "authors": "haeckel E",
+        "publisher": "D. APPLETON AND COMPANY, vol 2, 1887",
+        "language": "English",
+        "format": "DJVU",
+        "size": "36.2MB",
+        "year": "1887",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "832d3bb8cbc456b0d749437576ff4447",
+        "url": "https://annas-archive.gl/md5/832d3bb8cbc456b0d749437576ff4447"
+      },
+      {
+        "title": "The Gulag at War : Stalin's Forced Labour System in the Light of the Archives",
+        "authors": "Edwin Bacon",
+        "publisher": "Palgrave Macmillan, Studies in Russian and East European History and Society, 0",
+        "language": "English",
+        "format": "DJVU",
+        "size": "2.3MB",
+        "year": "1996",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "8d6bf2d7af89f5149272f0d578e0e2c0",
+        "url": "https://annas-archive.gl/md5/8d6bf2d7af89f5149272f0d578e0e2c0",
+        "description": "The Gulag at War reveals for the first time official documents kept in the archives of the Soviet forced labour system. An assessment of previous western and Russian studies of the Gulag is followed by a description of its origins. The bulk of the book then concentrates on the labour camps during the Second World War years. New information is revealed regarding prisoner numbers, living conditions, the organisation of forced labour, economic production, and rebellion in the"
+      },
+      {
+        "title": "Provional Regulations for saber exercise us army",
+        "authors": "",
+        "publisher": "1907",
+        "language": "English",
+        "format": "RAR",
+        "size": "2.6MB",
+        "year": "1907",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "d488fc283f2b6b2b210dbe27d12f9746",
+        "url": "https://annas-archive.gl/md5/d488fc283f2b6b2b210dbe27d12f9746"
+      },
+      {
+        "title": "The Village and the Class War: Anti-Kulak Campaign in Estonia 1944-49 (Historical Studies in Eastern Europe and Eurasia)",
+        "authors": "Anu Mai Kõll",
+        "publisher": "Central European University Press, CEU Oktatasi - Szolgaltato Nonprofit Kft., Budapest, 2013",
+        "language": "English",
+        "format": "DJVU",
+        "size": "20.4MB",
+        "year": "2013",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "dc9173c4693485c6b534543c80513f55",
+        "url": "https://annas-archive.gl/md5/dc9173c4693485c6b534543c80513f55",
+        "description": "Before collectivization of agriculture in Estonia, \"kulaks\" (better-off farmers) were persecuted and many of them were finally deported in March 1949. This book is situated on the local level; the aim is to understand what these processes meant from the perspective of the Estonian rural population, a kind of study that has been missing so far. Analyzes the mechanisms of repression, applying new aspects. Repression was mainly conducted through a bureaucratic process where"
+      },
+      {
+        "title": "Çatalhöyük Archive Report 2003-2010",
+        "authors": "Ian Hodder.",
+        "publisher": "",
+        "language": "English",
+        "format": "RAR",
+        "size": "141.5MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "f90e41f030088469ae04414bab5a8601",
+        "url": "https://annas-archive.gl/md5/f90e41f030088469ae04414bab5a8601",
+        "description": "Ian Hodder. Çatalhöyük Archive Report 2003-2010. Археологический отчеты о работах на памятнике эпохи неолита Чаталгуюк (Чатал-Хююк, Турция) 2003 - 2010 гг."
+      },
+      {
+        "title": "A History of Indian Philosophy (Volume IV)",
+        "authors": "Surendranath Dasgupta",
+        "publisher": "Cambridge University Press, Reprint., 1988",
+        "language": "English",
+        "format": "DJVU",
+        "size": "11.0MB",
+        "year": "1988",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "706bbc2cea5e5f99591897ea5adfc392",
+        "url": "https://annas-archive.gl/md5/706bbc2cea5e5f99591897ea5adfc392",
+        "description": "Paperback, 1988, Published by Montilal Banarsidass, 483 Pages, Volume Iv of V"
+      },
+      {
+        "title": "An outline of history of the V.L. Komarov Botanical Institute of the U.S.S.R. Academy of Sciences (1714-1961).",
+        "authors": "(Botanist) D. V. Lebedev; Botanicheskiĭ institut im. V.L. Komarova.",
+        "publisher": "Academy of Sciences of the U.S.S.R. Press, 1962",
+        "language": "English",
+        "format": "DJVU",
+        "size": "0.5MB",
+        "year": "1962",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "6d720c8377b2f068965fdbf7ce01cc51",
+        "url": "https://annas-archive.gl/md5/6d720c8377b2f068965fdbf7ce01cc51"
+      },
+      {
+        "title": "The 12-year Reich: A Social History of Nazi Germany, 1933–1945",
+        "authors": "Richard Grunberger",
+        "publisher": "Ballantine Books, 1972",
+        "language": "English",
+        "format": "DJVU",
+        "size": "10.0MB",
+        "year": "1972",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "903a5162f81c35e3f41d319a61bd3b53",
+        "url": "https://annas-archive.gl/md5/903a5162f81c35e3f41d319a61bd3b53",
+        "description": "How did people talk during the Third Reich? What films could they see? What political jokes did they tell? Did Nazi ranting about the role of women (no make-up, smoking, or dieting) correspond with reality? What was the effect of the regime on family life (where fathers were encouraged to inform on sons, and children on parents)? When the country embraced National Socialism in 1933, how did that acceptance impact the churches, the civil service, farmers, housewives,"
+      },
+      {
+        "title": "The Sutton Hoo Ship Burial. Vol. 3 book 2",
+        "authors": "Bruce-Mitford Myrtle, Bruce-Mitford Rupert.",
+        "publisher": "",
+        "language": "English",
+        "format": "DJVU",
+        "size": "13.0MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "93aa6450441a63974deb7916e8152802",
+        "url": "https://annas-archive.gl/md5/93aa6450441a63974deb7916e8152802",
+        "description": "London, The British Museum Press, 1978 - 122 p. В книге подробно описываются оружие, доспехи, регалии эпохи англосаксонского короля Редвальда на основании раскопок в кургане Саттон-Ху (Sutton Hoo), графство Саффолк, Великобритания"
+      },
+      {
+        "title": "Outline of the history of mathematics (Herbert Ellsworth Slaught memorial paper)",
+        "authors": "Raymond Clare Archibald",
+        "publisher": "Mathematical Association of America, 1949",
+        "language": "English",
+        "format": "DJVU",
+        "size": "5.6MB",
+        "year": "1949",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "a156a1f8fddc12f4549c0a506a107501",
+        "url": "https://annas-archive.gl/md5/a156a1f8fddc12f4549c0a506a107501"
+      },
+      {
+        "title": "Greco-Roman cities of Aegean Turkey : history, archaeology, architecture",
+        "authors": "Matthews Henry.",
+        "publisher": "Isd, Istanbul, Turkey, 2014",
+        "language": "English",
+        "format": "DJVU",
+        "size": "15.2MB",
+        "year": "2014",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "bb087cc6ec3abf8a8e097c5cfac3f38d",
+        "url": "https://annas-archive.gl/md5/bb087cc6ec3abf8a8e097c5cfac3f38d",
+        "description": "Istanbul: Ege Yayinlari, 2014. — 370 с.: ил. Качество: Сканированные страницы. Filling a gap in available literature, Professor Henry Matthews brings alive the ancient cities of Aegean Turkey. He passionately explores history from the Bronze Age to the Byzantine era while lucidly explaining architectural principles. He guides readers through rugged mountains and fertile river valleys to twenty-one sites, including Troy, where the walls still"
+      },
+      {
+        "title": "A Short History of the World",
+        "authors": "Wells, H G",
+        "publisher": "0",
+        "language": "English",
+        "format": "RAR",
+        "size": "9.4MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "cd47ecfc96178b4a2ac93c9914d2bb36",
+        "url": "https://annas-archive.gl/md5/cd47ecfc96178b4a2ac93c9914d2bb36"
+      },
+      {
+        "title": "The Greatest Bull Market In History",
+        "authors": "",
+        "publisher": "",
+        "language": "English",
+        "format": "ZIP",
+        "size": "8.5MB",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "d69a9564deff76faeb8be15c031b62ea",
+        "url": "https://annas-archive.gl/md5/d69a9564deff76faeb8be15c031b62ea"
+      },
+      {
+        "title": "John and Betty's History Visit",
+        "authors": "Williamson, Margaret",
+        "publisher": "0",
+        "language": "English",
+        "format": "RAR",
+        "size": "1.5MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "f3344a0c79c07a04dfb74051c9d670fa",
+        "url": "https://annas-archive.gl/md5/f3344a0c79c07a04dfb74051c9d670fa"
+      },
+      {
+        "title": "A Concise History of Mathematics Volume 1",
+        "authors": "Dirk J. Struik",
+        "publisher": "Dover, 1948",
+        "language": "English",
+        "format": "DJVU",
+        "size": "2.9MB",
+        "year": "1948",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "40271a45fdd2033e895508af128f662b",
+        "url": "https://annas-archive.gl/md5/40271a45fdd2033e895508af128f662b"
+      },
+      {
+        "title": "The Fortunes of War: Four Great Battles of World War II",
+        "authors": "Andrew A Rooney",
+        "publisher": "Little, Brown \u0026 Company, 1962",
+        "language": "English",
+        "format": "DJVU",
+        "size": "10.2MB",
+        "year": "1962",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "dc95a335a6e16fee59168df7626f7284",
+        "url": "https://annas-archive.gl/md5/dc95a335a6e16fee59168df7626f7284",
+        "description": "This work has been selected by scholars as being culturally important and is part of the knowledge base of civilization as we know it. This work is in the public domain in the United States of America, and possibly other nations. Within the United States, you may freely copy and distribute this work, as no entity (individual or corporate) has a copyright on the body of the work. Scholars believe, and we concur, that this work is important enough to be preserved, reproduced,"
+      },
+      {
+        "title": "Early Modern History 1500-1789",
+        "authors": "Black, Jeremy",
+        "publisher": "Palgrave Macmillan in Association with The Open University, Bloomsbury UK (Minor Textbooks), Basingstoke, 1999",
+        "language": "English",
+        "format": "CHM",
+        "size": "1.7MB",
+        "year": "1999",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "03f701d6b6f6f1ae3d7d8a8e1e3133ef",
+        "url": "https://annas-archive.gl/md5/03f701d6b6f6f1ae3d7d8a8e1e3133ef",
+        "description": "This new edition of this highly successful and influential work includes two entirely new chapters - on Europe and the wider world and on the Revolutionary crisis - and is extensively revised throughout. It offers a wide-ranging thematic account of the century, that explores social, cultural and economic topics, as well as giving a clear analysis of the political events. Filled with fascinating detail and unusual examples, this absorbing history of eighteenth-century Europe"
+      },
+      {
+        "title": "The Naval History of the United States",
+        "authors": "Abott, Willis J",
+        "publisher": "0",
+        "language": "English",
+        "format": "RAR",
+        "size": "4.1MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "429fc6c65f621ef3e92a15fb67da4212",
+        "url": "https://annas-archive.gl/md5/429fc6c65f621ef3e92a15fb67da4212"
+      },
+      {
+        "title": "A History of Sea Power",
+        "authors": "Stevens, William Oliver; Westcott, Allan",
+        "publisher": "0",
+        "language": "English",
+        "format": "RAR",
+        "size": "5.6MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "333712227bfffe94203d2e0fc970735e",
+        "url": "https://annas-archive.gl/md5/333712227bfffe94203d2e0fc970735e"
+      },
+      {
+        "title": "Судостроительный опыт Японии",
+        "authors": "Каминский В. Д.",
+        "publisher": "Brill Academic Publishers, 1979",
+        "language": "English, Russian",
+        "format": "DJVU",
+        "size": "4.9MB",
+        "year": "1979",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "7468c30eaf87f262a238f2f001b2bd6e",
+        "url": "https://annas-archive.gl/md5/7468c30eaf87f262a238f2f001b2bd6e",
+        "description": "В книге рассмотрены технико-экономические вопросы развития судостроительной промышленности Японии, которая с 1956 года заняла лидирующее положение в мировом судостроении. Значительное внимание уделено эффективности производства на крупнейших верфях страны,"
+      },
+      {
+        "title": "The Romance of Natural History, Second Series",
+        "authors": "Gosse, Philip Henry",
+        "publisher": "0",
+        "language": "English",
+        "format": "RAR",
+        "size": "3.8MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "9365e58e5d578492477939d9e35a958d",
+        "url": "https://annas-archive.gl/md5/9365e58e5d578492477939d9e35a958d"
+      },
+      {
+        "title": "The History and Antiquities of the Doric Race Vol. 1 of 2",
+        "authors": "Muller, Karl Otfried",
+        "publisher": "0",
+        "language": "English",
+        "format": "RAR",
+        "size": "1.7MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "01d05e5c29d86b5ca8fc33fa0e227e0d",
+        "url": "https://annas-archive.gl/md5/01d05e5c29d86b5ca8fc33fa0e227e0d"
+      },
+      {
+        "title": "Prices, Food and Wages in Scotland, 1550 - 1780",
+        "authors": "A. J. S. Gibson, T. C. Smout",
+        "publisher": "Cambridge University Press (Virtual Publishing), 1 edition, July 30, 2007",
+        "language": "English",
+        "format": "DJVU",
+        "size": "2.8MB",
+        "year": "2007",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "509863520b98d68796d780f62f2e2cb9",
+        "url": "https://annas-archive.gl/md5/509863520b98d68796d780f62f2e2cb9",
+        "description": "This 1994 book is a study of Scottish price history and a major contribution to the economic and social history of early modern and pre-industrial Britain. Using the remarkable series of 'fiars' prices for grains and other contemporary sources, Gibson and Smout focus, in particular, on the prices of grain, meal and animal products, and assess how Scots artisans and labourers could survive in an economy that could pay only very low money wages. The authors show how the"
+      },
+      {
+        "title": "Stonehenge and other British stone monuments astronomically considered",
+        "authors": "Norman Lockyer, Sir",
+        "publisher": "Macmillan, (Landmarks of science), 1906",
+        "language": "English",
+        "format": "DJVU",
+        "size": "10.3MB",
+        "year": "1906",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "3e764e77cd0f4158d7117bacd7f96f0e",
+        "url": "https://annas-archive.gl/md5/3e764e77cd0f4158d7117bacd7f96f0e"
+      },
+      {
+        "title": "Short History of the Middle East, from the Rise of Islam to Modern times",
+        "authors": "George E Kirk",
+        "publisher": "1954",
+        "language": "English",
+        "format": "DJVU",
+        "size": "23.7MB",
+        "year": "1954",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "3a500de12d3f935a383f78634e0c184d",
+        "url": "https://annas-archive.gl/md5/3a500de12d3f935a383f78634e0c184d"
+      },
+      {
+        "title": "Ancient India",
+        "authors": "Ramesh Chandra Majumdar (R. C. Majumdar)",
+        "publisher": "Motilal Banarsidass, 1977, 2007",
+        "language": "English",
+        "format": "DJVU",
+        "size": "243.2MB",
+        "year": "1977",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "74dee1c64a76f647f162bfcaacbf1911",
+        "url": "https://annas-archive.gl/md5/74dee1c64a76f647f162bfcaacbf1911",
+        "description": "This is a comprehensive, intelligible and interesting portrait of Ancient Indian History and Civilization from a national historical point of view. The work is divided into three broad divisions of the natural course of cultural development in Ancient India: (1) From the prehistoric age to 600 B.C., (2) From 600 B.C. to 300 A.D., (3) From 300 A.D. to 1200 A.D. The work describes the political, economic, religious and cultural conditions of the country, the expansionist"
+      },
+      {
+        "title": "Literacy and the social order : reading and writing in Tudor and Stuart England",
+        "authors": "David Cressy",
+        "publisher": "Cambridge University Press (Virtual Publishing), 1, 1980",
+        "language": "English",
+        "format": "DJVU",
+        "size": "1.7MB",
+        "year": "1980",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "12f5bc893ff62ae7bd17bce641af3fcc",
+        "url": "https://annas-archive.gl/md5/12f5bc893ff62ae7bd17bce641af3fcc",
+        "description": "\u003cp\u003eIn this exploration of the social context of reading and writing in pre-industrial England, David Cressy tackles important questions about the limits of participation in the mainstream of early modern society. To what extent could people at different social levels share in political, religious, literary and cultural life; how vital was the ability to read and write; and how widely distributed were these skills? Using a combination of humanist and social-scientific"
+      },
+      {
+        "title": "Собрание сочинений в 8 томах. том 6",
+        "authors": "А. Ф. Кони",
+        "publisher": "Юридическая литература, А. Ф. Кони. Собрание сочинений в 8 томах, 1968",
+        "language": "English, Russian",
+        "format": "DJVU",
+        "size": "11.0MB",
+        "year": "1968",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "2df119519f47a1a69b6e9363aa9990e4",
+        "url": "https://annas-archive.gl/md5/2df119519f47a1a69b6e9363aa9990e4",
+        "description": "Выдающийся судебный деятель и ученый-юрист, блестящий оратор и талантливый писатель-мемуарист, Анатолий Федорович Кони был одним из образованнейших людей своего времени.Его теоретические работы по вопросам права и судебные речи без преувеличения можно"
+      },
+      {
+        "title": "Panzer III",
+        "authors": "Horst Scheibert",
+        "publisher": "Schiffer Publishing, Limited, Schiffer military history, Atglen, PA, ©1994",
+        "language": "English, German",
+        "format": "RAR",
+        "size": "31.7MB",
+        "year": "1994",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "e5263d47b5938925d16a8144a4fe4fc8",
+        "url": "https://annas-archive.gl/md5/e5263d47b5938925d16a8144a4fe4fc8",
+        "description": "Covers the use and design of the Panzer III armored fighting vehicle."
+      },
+      {
+        "title": "The rulers of China : 221 B.C.- A.D. 1949",
+        "authors": "Arthur Christopher Moule",
+        "publisher": "Routledge and Paul, China : history, philosophy, economics, First publ. in 1957 /, London, 2005",
+        "language": "English",
+        "format": "DJVU",
+        "size": "53.5MB",
+        "year": "1957",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "70852a310cdce20c191b34ea23aa634a",
+        "url": "https://annas-archive.gl/md5/70852a310cdce20c191b34ea23aa634a",
+        "description": "Chronological tables. With an introd. section on the earlier rulers c. 2100 - 249 B.C. by W. Perceval Yetts. Reprint 2005: ISBN 041536163X"
+      },
+      {
+        "title": "Logics of History: Social Theory and Social Transformation (Chicago Studies in Practices of Meaning)",
+        "authors": "William H. Sewell Jr.; William Hamilton Sewell",
+        "publisher": "THE UNIVERSITY OF CHICAGO PRESS, University of Chicago Press, Chicago, 2005",
+        "language": "English",
+        "format": "DJVU",
+        "size": "5.1MB",
+        "year": "2005",
+        "content": "book_nonfiction",
+        "sources": [
+          "duxiu",
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "e2f84a98bd52bb9e33111b9aae52c501",
+        "url": "https://annas-archive.gl/md5/e2f84a98bd52bb9e33111b9aae52c501",
+        "description": "While Social Scientists And Historians Have Been Exchanging Ideas For A Long Time, They Have Never Developed A Proper Dialogue About Social Theory. William H. Sewell Jr. Observes That On Questions Of Theory The Communication Has Been Mostly One Way: From Social Science To History. Logics Of History Argues That Both History And The Social Sciences Have Something Crucial To Offer Each Other. While Historians Do Not Think Of Themselves As Theorists, They Know Something Social"
+      },
+      {
+        "title": "A Briefer History of Time",
+        "authors": "Hawking, Stephen William",
+        "publisher": "0",
+        "language": "English",
+        "format": "RAR",
+        "size": "2.4MB",
+        "content": "book_fiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "13a4ae4d2d3cf14b4ddf54384277a770",
+        "url": "https://annas-archive.gl/md5/13a4ae4d2d3cf14b4ddf54384277a770"
+      },
+      {
+        "title": "Siddham. an Essay on the History of Sanskrit Studies in China and Japan",
+        "authors": "Gulik",
+        "publisher": "Jayyed Press, Śata-pitaka Series. Indo-asian Literatures. Volume 247, 1980",
+        "language": "English",
+        "format": "DJVU",
+        "size": "13.1MB",
+        "year": "1980",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "7dcb746ea64de96ebc91365acf6ebc43",
+        "url": "https://annas-archive.gl/md5/7dcb746ea64de96ebc91365acf6ebc43",
+        "description": "The Siddham script owed its popularity in China and Japan especially to the rise of the Mantrayana, the esoteric School of the True Word, It was used in particular for writing d h ā r a ņ ī and mantra for the magic syllables known as bijāksara or germ-letters."
+      },
+      {
+        "title": "The New Jewish History. Book 3: From the Discovery of America to Our Own Day",
+        "authors": "Mamie G. Gamoran",
+        "publisher": "The Union Of American Hebrew Congregations, 1957",
+        "language": "English",
+        "format": "DJVU",
+        "size": "7.4MB",
+        "year": "1957",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "db8a5f2258f2d48b2b21b5fad4d592da",
+        "url": "https://annas-archive.gl/md5/db8a5f2258f2d48b2b21b5fad4d592da",
+        "description": "EDITOR’S INTRODUCTION. ACKNOWLEDGMENTS. READ THIS BEFORE YOU BEGIN THE BOOK. Unit 1. The World Grows Larger. 1. NEW HORIZONS. 2. THE JEWS OF ITALY. 3. UNDER THE CRESCENT AGAIN. 4. THE “LION” OF SAFED. Unit 2. In Eastern Europe. 5. AN INVITATION FROM THE KING. 6. THE COUNCIL OF FOUR LANDS. 7. THE HEROES. 8. THE FALSE MESSIAH. 9. TWO RELIGIOUS TEACHERS. Unit 3. Encouraging Developments. 10. RETURN TO JUDAISM. 11. SOME UNUSUAL PEOPLE. Unit 4. “We Hold These Truths!”"
+      },
+      {
+        "title": "Classics of mathematics",
+        "authors": "Calinger, Ronald (ed.)",
+        "publisher": "Pearson College Division, Englewood Cliffs, N.J, New Jersey, 1995",
+        "language": "English",
+        "format": "DJVU",
+        "size": "12.1MB",
+        "year": "1995",
+        "content": "book_nonfiction",
+        "sources": [
+          "duxiu",
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "0bb80fb4d3ec4d77c4ddb22d3423d156",
+        "url": "https://annas-archive.gl/md5/0bb80fb4d3ec4d77c4ddb22d3423d156",
+        "description": "\u003cp\u003e\u003cP\u003e\u003cb\u003eAppropriate for undergraduate and select graduate courses in the history of mathematics, and in the history of science. \u003c/b\u003e\u003cp\u003eThis edited volume of readings contains more than 130 selections from eminent mathematicians from A 'h-mose\u0026#39; to Hilbert and Noether. The chapter introductions comprise a concise history of mathematics based on critical textual analysis and the latest scholarship. Each reading is preceded by a substantial biography of its author.\u003cp\u003e\u003c/p\u003e"
+      },
+      {
+        "title": "The Delphic Oracle volume II: The Oracular Responses",
+        "authors": "Herbert William Parke, Donald Ernest Wilson Wormell",
+        "publisher": "Blackwell, Vol. 2. The oracular responses, 1956",
+        "language": "English",
+        "format": "DJVU",
+        "size": "14.3MB",
+        "year": "1956",
+        "content": "book_nonfiction",
+        "sources": [
+          "lgli",
+          "lgrs",
+          "nexusstc",
+          "upload",
+          "zlib"
+        ],
+        "fast_download": true,
+        "hash": "24a7edf5439517afb92cdc44893aa6dc",
+        "url": "https://annas-archive.gl/md5/24a7edf5439517afb92cdc44893aa6dc",
+        "description": "Prolegomena ......Page 5 First period ......Page 37 Second period ......Page 48 Third period ......Page 65 Fourth period ......Page 86 Fifth period ......Page 106 Sixth period ......Page 139 Seventh period ......Page 169 Eighth period ......Page 209 Ninth period ......Page 222 Appendix ......Page 265 Index ......Page 275"
+      }
+    ],
+    "Partial": null,
+    "Total": 500,
+    "TotalIsLowerBound": true,
+    "MorePages": true
+  }
+}
