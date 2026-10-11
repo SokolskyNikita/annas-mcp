@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 
@@ -88,7 +89,12 @@ func (c *Client) signIn(ctx context.Context, rejected string) (bool, error) {
 			if adopted {
 				c.cookie = cookie
 			}
-			c.signedInAt, c.signInErr = time.Now(), err
+			// A refused sign-in is remembered so it is not repeated on every
+			// request. Mirrors that could not be reached are held instead,
+			// so the next call signs in as soon as one is back.
+			if code := apperr.CodeOf(err); err == nil || code == apperr.Config || code == apperr.UpstreamBlocked {
+				c.signedInAt, c.signInErr = time.Now(), err
+			}
 		}
 		c.signingIn = nil
 		close(pending)
@@ -100,22 +106,13 @@ func (c *Client) signIn(ctx context.Context, rejected string) (bool, error) {
 	}
 }
 
-// signInAnyMirror tries the mirror in use first. With automatic mirror
-// selection the other mirrors are fallbacks, because sign-in runs before a
-// mirror has been selected.
+// signInAnyMirror tries the mirror in use first. Sign-in runs before a
+// mirror has been selected, so with automatic selection the other mirrors
+// are fallbacks.
 func (c *Client) signInAnyMirror(ctx context.Context) (string, error) {
-	origins := []string{c.baseURL}
-	if c.mirrors != nil {
-		current := c.mirrors.Current()
-		origins = origins[:0]
-		if current != "" {
-			origins = append(origins, "https://"+current)
-		}
-		for _, host := range c.mirrors.Hosts() {
-			if host != current {
-				origins = append(origins, "https://"+host)
-			}
-		}
+	origins, err := c.signInOrigins(ctx)
+	if err != nil {
+		return "", err
 	}
 	var reasons []string
 	code := apperr.Upstream
@@ -137,7 +134,36 @@ func (c *Client) signInAnyMirror(ctx context.Context) (string, error) {
 	return "", apperr.New(code, "automatic sign-in with ANNAS_SECRET_KEY failed ("+strings.Join(reasons, "; ")+"). If Anna's Archive works in your browser, set the cookie by hand: "+manualCookieSteps)
 }
 
+// signInOrigins lists the mirrors to sign in on: the one in use, then the
+// others, leaving out those on hold.
+func (c *Client) signInOrigins(ctx context.Context) ([]string, error) {
+	if c.mirrors == nil {
+		return []string{c.baseURL}, nil
+	}
+	var origins []string
+	for _, host := range append([]string{c.mirrors.Current()}, c.mirrors.Hosts()...) {
+		if origin := "https://" + host; host != "" && c.health.Eligible(host) && !slices.Contains(origins, origin) {
+			origins = append(origins, origin)
+		}
+	}
+	if len(origins) > 0 {
+		return origins, nil
+	}
+	// Every mirror is on hold. Select fails without contacting them unless
+	// the next round of checks is due.
+	host, err := c.mirrors.Select(ctx)
+	if err != nil {
+		return nil, mirrorUnavailable(err)
+	}
+	return []string{"https://" + host}, nil
+}
+
+// signInAt signs in on one mirror, giving it signInTimeout so a mirror that
+// does not answer leaves time for the others.
 func (c *Client) signInAt(ctx context.Context, origin string) (string, error) {
+	parent := ctx
+	ctx, cancel := context.WithTimeout(ctx, c.signInTimeout)
+	defer cancel()
 	accountURL := origin + "/account/"
 	form := url.Values{"key": {strings.TrimSpace(c.config.SecretKey)}}
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, accountURL, strings.NewReader(form.Encode()))
@@ -151,9 +177,19 @@ func (c *Client) signInAt(ctx context.Context, origin string) (string, error) {
 	client.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
 	response, err := client.Do(request)
 	if err != nil {
+		if parent.Err() != nil {
+			return "", parent.Err()
+		}
+		c.mirrorFailed(origin, unreachable(err))
+		if ctx.Err() != nil {
+			return "", &noResponseError{fmt.Sprintf("%s did not answer the sign-in form within %s", requestHost(origin), c.signInTimeout)}
+		}
 		return "", redactErr(requestFailure(err, accountURL), c.config.SecretKey)
 	}
 	defer response.Body.Close()
+	if failure := responseFailure(response); failure != nil {
+		c.mirrorFailed(origin, *failure)
+	}
 	for _, cookie := range response.Cookies() {
 		if cookie.Name == accountCookieName && cookie.Value != "" && cookie.MaxAge >= 0 {
 			return accountCookieName + "=" + cookie.Value, nil

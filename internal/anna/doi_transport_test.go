@@ -31,6 +31,9 @@ func TestDOILookupUsesCurrentMirrorForIdentity(t *testing.T) {
 				t.Fatal("archive request used a stale mirror without its cookie")
 			}
 			if strings.HasPrefix(req.URL.Path, "/scidb/") {
+				if req.URL.Host != "annas-archive.gl" {
+					return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
+				}
 				glFailed.Store(true)
 				return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
 			}

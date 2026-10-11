@@ -128,7 +128,14 @@ collections:
 				return DownloadResult{}, failedDownload(attempts, err)
 			}
 			server := fastServerLabel(pathIndex, domainIndex)
-			grant, err := c.resolveDownloadURL(ctx, client, base, hash, c.config.SecretKey, pathIndex, domainIndex)
+			// A mirror that fails here is retried on another mirror for
+			// the same server, so it does not use up one of the servers.
+			var grant fastDownloadGrant
+			err = c.onMirrorFrom(ctx, base, func(base string) error {
+				var err error
+				grant, err = c.resolveDownloadURL(ctx, client, base, hash, c.config.SecretKey, pathIndex, domainIndex)
+				return err
+			})
 			if errors.Is(err, errNoFastDownload) {
 				switch {
 				case pathIndex == 0 && domainIndex == 0:
@@ -150,7 +157,6 @@ collections:
 				continue
 			}
 			granted = true
-			c.mirrorSucceeded(base)
 			if grant.account != nil {
 				account = grant.account
 			}

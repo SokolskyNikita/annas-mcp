@@ -25,7 +25,7 @@ func (c *Client) fetchDocument(ctx context.Context, rawURL string) (*goquery.Doc
 		finalURL = response.Request.URL
 	}
 	if response.StatusCode == http.StatusForbidden {
-		return nil, finalURL, apperr.New(apperr.UpstreamBlocked, c.forbiddenMessage())
+		return nil, finalURL, &forbiddenError{c.forbiddenMessage()}
 	}
 	if response.StatusCode == http.StatusNotFound {
 		return nil, finalURL, apperr.New(apperr.NotFound, "archive record was not found")
@@ -91,7 +91,7 @@ func (c *Client) doGet(ctx context.Context, client *http.Client, rawURL string) 
 				continue
 			}
 		}
-		if failure := responseFailure(request, response); failure != nil {
+		if failure := responseFailure(response); failure != nil {
 			c.mirrorFailed(rawURL, *failure)
 		}
 		return response, nil

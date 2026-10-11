@@ -58,6 +58,7 @@ type Client struct {
 	headerTimeout time.Duration
 	idleTimeout   time.Duration
 	doiTimeout    time.Duration
+	signInTimeout time.Duration
 }
 
 const defaultClientBaseURL = "https://annas-archive.gl"
@@ -70,6 +71,7 @@ func NewClient(config Config) *Client {
 	c := &Client{
 		config: config, http: transport, baseURL: defaultClientBaseURL,
 		headerTimeout: responseHeaderTimeout, idleTimeout: bodyIdleTimeout, doiTimeout: doiMetadataTimeout,
+		signInTimeout: signInTimeout,
 	}
 	if config.BaseURL != "" {
 		host, err := mirror.ParseBaseURL(config.BaseURL)

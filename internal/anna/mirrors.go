@@ -51,20 +51,59 @@ func mirrorUnavailable(err error) error {
 	return apperr.Wrap(apperr.Upstream, "", err)
 }
 
-// onMirror runs fn against the selected mirror and records the mirror as
-// working when fn succeeds. Only a whole operation counts: a mirror that
-// answers requests with pages that are not what was asked for is failing.
+// onMirror runs fn against the selected mirror. See onMirrorFrom.
 func (c *Client) onMirror(ctx context.Context, fn func(base string) error) error {
 	base, err := c.baseURLFor(ctx)
 	if err != nil {
 		return err
 	}
-	if err := fn(base); err != nil {
+	return c.onMirrorFrom(ctx, base, fn)
+}
+
+// onMirrorFrom runs fn against base, and once more against another mirror
+// when base failed. fn must be safe to repeat: it only reads.
+//
+// Only a whole operation succeeding counts for a mirror, since a mirror that
+// answers with pages that are not what was asked for is failing too. A 403
+// that a fresh session did not fix is held against the mirror only when
+// another mirror then works; the same answer from two mirrors is about the
+// account, and neither is held.
+func (c *Client) onMirrorFrom(ctx context.Context, base string, fn func(base string) error) error {
+	err := fn(base)
+	if err == nil {
+		c.mirrorSucceeded(base)
+		return nil
+	}
+	host, tracked := c.trackedHost(base)
+	if !tracked || ctx.Err() != nil {
 		return err
 	}
-	c.mirrorSucceeded(base)
+	var forbidden *forbiddenError
+	refused := errors.As(err, &forbidden)
+	if !refused && c.health.Eligible(host) {
+		// Not the mirror's failure, such as a record that does not exist.
+		return err
+	}
+	next, selectErr := c.mirrors.Select(ctx, host)
+	if selectErr != nil {
+		return err
+	}
+	logger.GetLogger().Info("Retrying on another Anna mirror", zap.String("failed", host), zap.String("mirror", next))
+	if err := fn("https://" + next); err != nil {
+		return err
+	}
+	if refused {
+		c.mirrorFailed(base, mirror.Failure{Reason: "refused access (HTTP 403)", Blocked: true})
+	}
+	c.mirrorSucceeded(next)
 	return nil
 }
+
+// forbiddenError is a 403 from a mirror that a fresh session did not fix.
+type forbiddenError struct{ message string }
+
+func (e *forbiddenError) Error() string     { return e.message }
+func (e *forbiddenError) ErrorCode() string { return apperr.UpstreamBlocked }
 
 // archiveHost returns the host of u when it is one of the archive's
 // mirrors. Only these receive the session cookie.
@@ -108,16 +147,14 @@ func (c *Client) mirrorFailed(rawURL string, failure mirror.Failure) {
 }
 
 // responseFailure says how an archive response shows its mirror failing, or
-// returns nil when it does not. The fast download API answers 403 about the
-// account, not the mirror.
-func responseFailure(request *http.Request, response *http.Response) *mirror.Failure {
+// returns nil when it does not. A 403 may be about the account rather than
+// the mirror, so onMirrorFrom decides that one.
+func responseFailure(response *http.Response) *mirror.Failure {
 	switch status := response.StatusCode; {
 	case status >= 500:
 		return &mirror.Failure{Reason: fmt.Sprintf("answered HTTP %d", status)}
 	case status == http.StatusTooManyRequests:
 		return &mirror.Failure{Reason: "rate-limited requests (HTTP 429)", RetryAfter: retryAfter(response.Header.Get("Retry-After"))}
-	case status == http.StatusForbidden && !request.URL.Query().Has("key"):
-		return &mirror.Failure{Reason: "refused access (HTTP 403)", Blocked: true}
 	}
 	return nil
 }

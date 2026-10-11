@@ -238,7 +238,7 @@ func (c *Client) fetchJSON(ctx context.Context, rawURL string, target any, what 
 	case http.StatusNotFound:
 		return apperr.New(apperr.NotFound, what+" not found")
 	case http.StatusForbidden:
-		return apperr.New(apperr.UpstreamBlocked, "Anna's Archive refused "+what+"; it shows them to signed-in members only, so check that your membership is active")
+		return &forbiddenError{"Anna's Archive refused " + what + "; it shows them to signed-in members only, so check that your membership is active"}
 	default:
 		return httpResponseError(response, rawURL)
 	}

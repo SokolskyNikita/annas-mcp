@@ -19,6 +19,7 @@ const (
 	responseHeaderTimeout = 30 * time.Second
 	bodyIdleTimeout       = 60 * time.Second
 	doiMetadataTimeout    = 10 * time.Second
+	signInTimeout         = 15 * time.Second
 )
 
 // newTransport is http.DefaultTransport with shorter limits, so a server

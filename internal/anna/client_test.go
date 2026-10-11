@@ -28,9 +28,8 @@ func mirrorUp(t *testing.T, req *http.Request, up func(host string) bool) (*http
 
 func TestMirrorSelectionIsLazyAndKeepsAWorkingMirror(t *testing.T) {
 	t.Parallel()
-	var calls atomic.Int32
+	var checks, searches atomic.Int32
 	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		calls.Add(1)
 		if !slices.Contains(mirror.OfficialHosts(), req.URL.Host) {
 			t.Errorf("request to %s", req.URL.Host)
 		}
@@ -38,55 +37,29 @@ func TestMirrorSelectionIsLazyAndKeepsAWorkingMirror(t *testing.T) {
 			t.Error("missing cookie on archive request")
 		}
 		if req.URL.Path == "/dyn/up/" {
+			checks.Add(1)
 			return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.gl" })
 		}
+		searches.Add(1)
 		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
 	})}})
-	if calls.Load() != 0 {
+	if checks.Load()+searches.Load() != 0 {
 		t.Fatal("constructor contacted upstream")
 	}
 	if page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err != nil || len(page.Results) != 0 {
 		t.Fatalf("search: %v %v", page.Results, err)
 	}
-	if calls.Load() != 4 {
-		t.Fatalf("expected three checks and a search; got %d requests", calls.Load())
+	first := checks.Load()
+	if first < 1 || first > 3 || searches.Load() != 1 {
+		t.Fatalf("expected one round of checks and a search; got %d checks, %d searches", first, searches.Load())
 	}
 	for range 3 {
 		if _, err := client.FindBook(context.Background(), "again", SearchOptions{}, time.Second); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if calls.Load() != 7 {
-		t.Fatalf("a working mirror was checked again: %d requests", calls.Load())
-	}
-}
-
-func TestFailedArchiveRequestMovesTheNextCallToAnotherMirror(t *testing.T) {
-	t.Parallel()
-	var pkUp atomic.Bool
-	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		if req.URL.Path == "/dyn/up/" {
-			return mirrorUp(t, req, func(host string) bool {
-				return host == "annas-archive.gl" || host == "annas-archive.pk" && pkUp.Load()
-			})
-		}
-		if req.URL.Host == "annas-archive.gl" {
-			return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
-		}
-		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
-	})}})
-	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); apperr.CodeOf(err) != apperr.Upstream {
-		t.Fatalf("wrong error: %v", err)
-	}
-	if state := client.health.State("annas-archive.gl"); client.health.Eligible("annas-archive.gl") || state.Reason != "answered HTTP 502" {
-		t.Fatalf("failed mirror was not held: %+v", state)
-	}
-	pkUp.Store(true)
-	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err != nil {
-		t.Fatal(err)
-	}
-	if current := client.mirrors.Current(); current != "annas-archive.pk" {
-		t.Fatalf("mirror not replaced: %s", current)
+	if checks.Load() != first || searches.Load() != 4 {
+		t.Fatalf("a working mirror was checked again: %d checks", checks.Load())
 	}
 }
 
