@@ -1,0 +1,45 @@
+name: upstream watch
+
+# Once a week, checks whether Anna's Archive changed code that the parsers in
+# internal/anna/parse depend on, and opens or updates an issue when it did.
+# It reads Anna's public source repository only, never the archive itself.
+on:
+  schedule:
+    - cron: '17 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: upstream-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    name: Check Anna's Archive's source
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Restore the clone of Anna's Archive's source
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/annas-mcp/annas-archive.git
+          key: annas-archive-source-${{ github.run_id }}
+          restore-keys: annas-archive-source-
+
+      - name: Check for changes and update the issue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/check-upstream.mjs --update-issue

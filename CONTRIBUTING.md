@@ -72,6 +72,14 @@ The parser tests read real pages, saved gzipped in `internal/anna/parse/testdata
 - Check new outputs against the live pages before committing them, so the tests describe what the archive shows rather than what the parser happened to read.
 - The client's tests serve the same pages from fake mirrors, so they exercise the client against the markup the archive really serves.
 
+### Watching Anna's Archive's source
+
+`npm run check:upstream` lists the commits to Anna's Archive's source that may break the parsers: changes near the hooks listed in `scripts/upstream-watch.json` to the templates and code that render search results, record pages, SciDB pages and the account page. It keeps a partial clone of Anna's repository in `~/.cache/annas-mcp` (`--repo` sets another folder) and needs no credentials. Changes to whitespace, comments, scripts, styles, classes the parsers do not use, Python formatting and translation placeholders are left out; the remaining commits that touch no hook are still listed, since a hook list can miss things.
+
+After checking each relevant commit against `internal/anna/parse`, and recapturing affected pages, run `npm run check:upstream -- --accept` and commit `scripts/upstream-watch.json`. When a parser starts relying on a new part of Anna's markup, add it to `hooks` in `internal/anna/parse/hooks.go`; `TestUpstreamWatchCoversHooks` then fails until `upstream-watch.json` watches it.
+
+A workflow runs the same check every Monday and opens an issue labelled `upstream-change` for relevant commits, adds later ones to it, and closes it once everything is accepted. It reads Anna's public source repository only, never the archive.
+
 ### Live tests
 
 These use real credentials from your environment or `.env`.
@@ -85,7 +93,7 @@ These use real credentials from your environment or `.env`.
 ## Releasing
 
 1. Run `npm run bump patch` (or `minor`, `major` or an explicit `X.Y.Z`). It sets the version in `internal/version/version.txt`, `package.json`, `server.json` and `manifest.json`, and adds the release's heading to [CHANGELOG.md](CHANGELOG.md). Write the release notes under that heading.
-2. Run the checks above, `goreleaser check -f .goreleaser` and the live smoke test.
+2. Run the checks above, `goreleaser check -f .goreleaser`, `npm run check:upstream` and the live smoke test.
 3. Commit, push to `main` and wait for CI to pass.
 4. Run `scripts/manage-tag.sh add` to create and push the annotated tag.
 
