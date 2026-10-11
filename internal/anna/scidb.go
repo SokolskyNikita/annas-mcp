@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -18,7 +19,7 @@ import (
 // redirects, each of which takes the archive seconds to answer.
 func buildSciDBURL(base, doi string) string {
 	u, _ := url.Parse(buildPathURL(base, "/scidb"))
-	u.Path += "/" + strings.ToLower(NormalizeDOI(doi)) + "/"
+	u.Path += "/" + strings.ToLower(parse.NormalizeDOI(doi)) + "/"
 	u.RawPath, u.RawQuery, u.Fragment = "", "", ""
 	return u.String()
 }

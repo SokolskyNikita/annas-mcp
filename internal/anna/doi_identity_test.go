@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
 func TestParseArchiveIdentityUsesRecordFieldsNotCitations(t *testing.T) {
@@ -125,7 +126,7 @@ func TestBuildSciDBURLPreservesBalancedDOISuffix(t *testing.T) {
 	t.Parallel()
 
 	input := "https://doi.org/10.1000/example(suffix)"
-	doi := NormalizeDOI(input)
+	doi := parse.NormalizeDOI(input)
 	if doi != "10.1000/example(suffix)" {
 		t.Fatalf("normalized DOI suffix = %q", doi)
 	}
@@ -135,41 +136,6 @@ func TestBuildSciDBURLPreservesBalancedDOISuffix(t *testing.T) {
 	}
 	if page.Path != "/scidb/10.1000/example(suffix)/" || page.RawQuery != "" || page.Fragment != "" {
 		t.Fatalf("SciDB URL corrupted DOI suffix: %s", page.String())
-	}
-}
-
-func TestArxivIDRequiresCanonicalDOIPrefixAndPreservesSuffix(t *testing.T) {
-	t.Parallel()
-
-	for _, test := range []struct {
-		doi, want string
-	}{
-		{"10.48550/arXiv.1706.03762", "1706.03762"},
-		{"https://doi.org/10.48550/arXiv.1706.03762v3", "1706.03762"},
-		{"10.48550/arXiv.1706.03762.", "1706.03762."},
-		{"10.1234/example.arxiv.1706.03762", ""},
-		{"10.48550/other.1706.03762", ""},
-		{"prefix-10.48550/arxiv.1706.03762", ""},
-		{"10.48550/arxiv.", ""},
-	} {
-		if got := arxivID(test.doi); got != test.want {
-			t.Errorf("arxivID(%q) = %q, want %q", test.doi, got, test.want)
-		}
-	}
-}
-
-func TestNormalizeArxivIDStripsOnlyExplicitNumericVersion(t *testing.T) {
-	t.Parallel()
-
-	for input, want := range map[string]string{
-		"arxiv:1706.03762v2":       "1706.03762",
-		"1706.03762.":              "1706.03762.",
-		"notarxiv.1706.03762":      "notarxiv.1706.03762",
-		"10.1234/arxiv.1706.03762": "10.1234/arxiv.1706.03762",
-	} {
-		if got := normalizeArxivID(input); got != want {
-			t.Errorf("normalizeArxivID(%q) = %q, want %q", input, got, want)
-		}
 	}
 }
 
@@ -214,5 +180,15 @@ func TestVerifyDOIIdentityAcceptsThePublishedVersionOfAnArxivPreprint(t *testing
 	journal := record
 	if verifyDOIIdentity("10.1000/journal", doiMetadata{Title: metadata.Title, Authors: metadata.Authors, Year: "2014"}, journal) {
 		t.Error("a journal DOI accepted a record from the following year")
+	}
+}
+
+func TestVerifyDOIIdentityKeepsDOISuffixPunctuation(t *testing.T) {
+	t.Parallel()
+
+	for _, suffix := range []string{"(02)", "(02).", ").", ".", ",", ";", ":", "]", "}", ">", "'", "\"", "?", "#"} {
+		if verifyDOIIdentity("10.1000/example", doiMetadata{}, archiveIdentity{DOI: "10.1000/example" + suffix}) {
+			t.Errorf("distinct DOI suffix %q matched the unpunctuated DOI", suffix)
+		}
 	}
 }

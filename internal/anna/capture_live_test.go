@@ -20,7 +20,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// TestCapturePages refreshes testdata/pages from the live archive. It signs
+// TestCapturePages refreshes parse/testdata/pages from the live archive. It signs
 // in with ANNAS_SECRET_KEY and reads search, record and SciDB pages as that
 // account, but downloads no files, so it uses no fast downloads.
 // ANNAS_MCP_CAPTURE=1 captures every page in the manifest; a comma-separated
@@ -29,7 +29,7 @@ import (
 func TestCapturePages(t *testing.T) {
 	selection := os.Getenv("ANNAS_MCP_CAPTURE")
 	if selection == "" {
-		t.Skip("set ANNAS_MCP_CAPTURE=1, or to page names, to refresh testdata/pages from Anna's Archive")
+		t.Skip("set ANNAS_MCP_CAPTURE=1, or to page names, to refresh parse/testdata/pages from Anna's Archive")
 	}
 	wanted := map[string]bool{}
 	if selection != "1" {
@@ -76,7 +76,7 @@ func TestCapturePages(t *testing.T) {
 				t.Fatalf("%s still contains account data after scrubbing", page.Name)
 			}
 		}
-		if err := writePage(filepath.Join("testdata", "pages", page.file()), body); err != nil {
+		if err := writePage(filepath.Join("parse", "testdata", "pages", page.file()), body); err != nil {
 			t.Fatal(err)
 		}
 		t.Logf("%-24s %8d bytes", page.Name, len(body))

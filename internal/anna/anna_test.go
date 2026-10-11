@@ -133,32 +133,6 @@ func TestSanitizeFilenameIsSafeAndByteBounded(t *testing.T) {
 	}
 }
 
-func TestNormalizeDOIPreservesSuffixPunctuation(t *testing.T) {
-	t.Parallel()
-
-	if got := NormalizeDOI("https://doi.org/10.1000%2Fexample?utm_source=test#fragment"); got != "10.1000/example" {
-		t.Fatalf("DOI URL was not decoded/cleaned: %q", got)
-	}
-	for _, suffix := range []string{"(02)", "(02).", ").", ".", ",", ";", ":", "]", "}", ">", "'", "\"", "?", "#"} {
-		want := "10.1000/example" + suffix
-		for _, input := range []string{want + " ", "doi: " + want, "https://doi.org/" + url.PathEscape(want)} {
-			got, valid := ParseDOI(input)
-			if got != want || !valid {
-				t.Errorf("DOI suffix changed: input=%q got=%q valid=%v want=%q", input, got, valid, want)
-			}
-		}
-		if verifyDOIIdentity("10.1000/example", doiMetadata{}, archiveIdentity{DOI: want}) {
-			t.Errorf("distinct DOI suffix %q matched the unpunctuated DOI", suffix)
-		}
-	}
-	for _, input := range []string{"<https://doi.org/10.1000/example(02)>", "\"10.1000/example(02)\"", "doi: <10.1000/example(02)>", "(10.1000/example(02))", "doi: https://doi.org/10.1000/example(02)"} {
-		got, valid := ParseDOI(input)
-		if got != "10.1000/example(02)" || !valid || !IsDOIQuery(input) {
-			t.Errorf("enclosing DOI wrapper was not recognized: input=%q got=%q valid=%v", input, got, valid)
-		}
-	}
-}
-
 func TestResolvePaperDownloadURLPreservesQuery(t *testing.T) {
 	t.Parallel()
 

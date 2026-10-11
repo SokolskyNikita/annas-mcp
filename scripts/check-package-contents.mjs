@@ -1,7 +1,7 @@
 // Checks that test data stays out of everything the project ships: the Go
 // binary, the npm package, the container image, the release archives and the
-// MCP Bundle. internal/anna/testdata holds about a megabyte of captured pages
-// that only the tests read.
+// MCP Bundle. internal/anna/parse/testdata holds about a megabyte of captured
+// pages that only the tests read.
 //
 // Usage: node scripts/check-package-contents.mjs
 import { spawnSync } from "node:child_process";

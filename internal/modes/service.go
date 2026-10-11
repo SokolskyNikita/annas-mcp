@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/anna"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 	"github.com/SokolskyNikita/annas-mcp/internal/env"
 )
@@ -263,7 +264,7 @@ func (s *service) articleSearch(ctx context.Context, params SearchParams, timeou
 		return nil, err
 	}
 	query := strings.TrimSpace(params.Query)
-	if anna.IsDOIQuery(query) {
+	if parse.IsDOIQuery(query) {
 		return s.archive.LookupDOI(ctx, query, timeout)
 	}
 	page, err := s.archive.FindArticle(ctx, query, options, timeout)

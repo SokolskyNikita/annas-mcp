@@ -7,7 +7,9 @@ import (
 	"embed"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,9 +21,10 @@ import (
 
 // testdata contains representative upstream responses. Keeping the payloads
 // in files makes them easier to inspect and lets tests exercise the parser
-// with realistic documents without hiding fixtures in Go source.
+// with realistic documents without hiding fixtures in Go source. Pages
+// captured from the live archive live with the parsers, in parse/testdata.
 //
-//go:embed testdata/*
+//go:embed testdata/* parse/testdata/*
 var testdataFS embed.FS
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
@@ -30,10 +33,14 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
 
-// readFixture returns a fixture's contents, unzipping .gz files.
+// readFixture returns a fixture's contents, unzipping .gz files. name is
+// relative to testdata or, for captured pages, parse/testdata.
 func readFixture(t testing.TB, name string) []byte {
 	t.Helper()
 	data, err := testdataFS.ReadFile("testdata/" + name)
+	if errors.Is(err, fs.ErrNotExist) {
+		data, err = testdataFS.ReadFile("parse/testdata/" + name)
+	}
 	if err != nil {
 		t.Fatalf("read fixture %q: %v", name, err)
 	}
@@ -60,7 +67,7 @@ type capturedPage struct {
 	Note string `json:"note,omitempty"`
 }
 
-// file is the captured page's name under testdata/pages.
+// file is the captured page's name under parse/testdata/pages.
 func (p capturedPage) file() string {
 	if p.Kind == "csl" {
 		return p.Name + ".json"

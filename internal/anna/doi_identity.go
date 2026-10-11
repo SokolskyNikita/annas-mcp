@@ -9,6 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
 type doiMetadata struct {
@@ -40,7 +41,7 @@ func parseArchiveIdentity(doc *goquery.Document) archiveIdentity {
 	// data-content nodes. Keep the older title/meta/link selectors as fallbacks
 	// for mirrors serving the preceding template.
 	doc.Find("[data-content][class*=violet-900]").EachWithBreak(func(_ int, node *goquery.Selection) bool {
-		identity.Title = cleanText(attr(node, "data-content"))
+		identity.Title = parse.CleanText(attr(node, "data-content"))
 		return identity.Title == ""
 	})
 	if identity.Title == "" {
@@ -55,7 +56,7 @@ func parseArchiveIdentity(doc *goquery.Document) archiveIdentity {
 
 	var authorTexts []string
 	doc.Find("[data-content][class*=amber-900]").Each(func(_ int, node *goquery.Selection) {
-		if value := cleanText(attr(node, "data-content")); value != "" {
+		if value := parse.CleanText(attr(node, "data-content")); value != "" {
 			authorTexts = append(authorTexts, value)
 		}
 	})
@@ -77,7 +78,7 @@ func parseArchiveIdentity(doc *goquery.Document) archiveIdentity {
 
 	dois := make(map[string]struct{})
 	doc.Find("meta[name=citation_doi], meta[name='DC.Identifier.DOI'], meta[property='og:doi']").Each(func(_ int, node *goquery.Selection) {
-		if candidate := NormalizeDOI(node.AttrOr("content", "")); candidate != "" && !placeholderDOI(candidate) {
+		if candidate := parse.NormalizeDOI(node.AttrOr("content", "")); candidate != "" && !placeholderDOI(candidate) {
 			dois[strings.ToLower(candidate)] = struct{}{}
 			if identity.DOI == "" {
 				identity.DOI = candidate
@@ -87,7 +88,7 @@ func parseArchiveIdentity(doc *goquery.Document) archiveIdentity {
 	for _, code := range archiveRecordCodes(doc) {
 		switch strings.ToLower(code.key) {
 		case "doi":
-			candidate := NormalizeDOI(code.value)
+			candidate := parse.NormalizeDOI(code.value)
 			if candidate != "" && !placeholderDOI(candidate) {
 				dois[strings.ToLower(candidate)] = struct{}{}
 				if identity.DOI == "" {
@@ -96,7 +97,7 @@ func parseArchiveIdentity(doc *goquery.Document) archiveIdentity {
 			}
 		case "arxiv", "arxiv_id", "arxiv-id":
 			if identity.ArxivID == "" {
-				identity.ArxivID = normalizeArxivID(code.value)
+				identity.ArxivID = parse.NormalizeArxivID(code.value)
 			}
 		case "year", "publication_year", "publication-year":
 			if identity.Year == "" {
@@ -106,7 +107,7 @@ func parseArchiveIdentity(doc *goquery.Document) archiveIdentity {
 	}
 	identity.DOIConflict = len(dois) > 1
 	if identity.DOI != "" {
-		identity.DOI = NormalizeDOI(identity.DOI)
+		identity.DOI = parse.NormalizeDOI(identity.DOI)
 	}
 	if identity.Year == "" {
 		identity.Year = archiveYear(doc)
@@ -151,7 +152,7 @@ func splitArchiveAuthors(values []string) []string {
 		// in one data-content node. Older templates expose one linked author per
 		// node. Records from some libraries list "Family, Given (role)" names
 		// separated by semicolons, where the comma belongs to the name.
-		value = cleanAuthors(value)
+		value = parse.CleanAuthors(value)
 		separators := func(r rune) bool { return r == ',' || r == ';' || r == '\n' || r == '\r' }
 		if strings.Contains(value, ";") {
 			separators = func(r rune) bool { return r == ';' || r == '\n' || r == '\r' }
@@ -242,15 +243,15 @@ func verifyDOIIdentity(doi string, metadata doiMetadata, record archiveIdentity)
 	if record.DOIConflict {
 		return false
 	}
-	if record.DOI != "" && !strings.EqualFold(NormalizeDOI(record.DOI), doi) {
+	if record.DOI != "" && !strings.EqualFold(parse.NormalizeDOI(record.DOI), doi) {
 		return false
 	}
-	wantArxiv := arxivID(doi)
-	if record.ArxivID != "" && wantArxiv != "" && normalizeArxivID(record.ArxivID) != wantArxiv {
+	wantArxiv := parse.ArxivID(doi)
+	if record.ArxivID != "" && wantArxiv != "" && parse.NormalizeArxivID(record.ArxivID) != wantArxiv {
 		return false
 	}
 
-	ownIdentifierMatches := record.DOI != "" && strings.EqualFold(NormalizeDOI(record.DOI), doi) ||
+	ownIdentifierMatches := record.DOI != "" && strings.EqualFold(parse.NormalizeDOI(record.DOI), doi) ||
 		wantArxiv != "" && record.ArxivID == wantArxiv
 	if ownIdentifierMatches {
 		if metadata.Title != "" && record.Title != "" && normalizeTitle(metadata.Title) != normalizeTitle(record.Title) {
@@ -281,7 +282,7 @@ func sameYear(doi, want, got string) bool {
 	}
 	wantYear, err1 := strconv.Atoi(want)
 	gotYear, err2 := strconv.Atoi(got)
-	return err1 == nil && err2 == nil && arxivID(doi) != "" && gotYear == wantYear+1
+	return err1 == nil && err2 == nil && parse.ArxivID(doi) != "" && gotYear == wantYear+1
 }
 
 // sameAuthorSet compares authors by family name and first initial, so
@@ -404,18 +405,4 @@ func foldNameRune(r rune) rune {
 		return 't'
 	}
 	return r
-}
-
-func normalizeArxivID(value string) string {
-	value = strings.TrimSpace(value)
-	if extracted := arxivID(value); extracted != "" {
-		return extracted
-	}
-	lower := strings.ToLower(value)
-	for _, prefix := range []string{"arxiv:", "arxiv."} {
-		if strings.HasPrefix(lower, prefix) {
-			return strings.ToLower(stripArxivVersion(value[len(prefix):]))
-		}
-	}
-	return strings.ToLower(stripArxivVersion(value))
 }

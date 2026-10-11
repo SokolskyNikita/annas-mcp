@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 	"github.com/SokolskyNikita/annas-mcp/internal/mirror"
 )
@@ -114,7 +115,7 @@ func addRecordDetails(paper *Paper, detail *goquery.Document) {
 		}
 	}
 	detail.Find(authorSelector).EachWithBreak(func(_ int, element *goquery.Selection) bool {
-		paper.Authors = cleanAuthors(element.Parent().Text())
+		paper.Authors = parse.CleanAuthors(element.Parent().Text())
 		return paper.Authors == ""
 	})
 	detail.Find("div.text-gray-500").EachWithBreak(func(_ int, element *goquery.Selection) bool {

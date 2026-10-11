@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
 var updateGolden = flag.Bool("update", false, "rewrite the expected outputs in testdata from the current parsers")
@@ -29,7 +30,7 @@ func TestGoldenPages(t *testing.T) {
 			got = append(got, '\n')
 			name := filepath.Join("pages", page.Name+".golden.json")
 			if *updateGolden {
-				if err := os.WriteFile(filepath.Join("testdata", name), got, 0o644); err != nil {
+				if err := os.WriteFile(filepath.Join("parse", "testdata", name), got, 0o644); err != nil {
 					t.Fatal(err)
 				}
 				return
@@ -127,7 +128,7 @@ func TestDOIIdentityCases(t *testing.T) {
 				t.Fatal(err)
 			}
 			record := parseArchiveIdentity(fixtureDocument(t, "pages/"+capturedPageNamed(t, tc.record).file()))
-			if got := verifyDOIIdentity(NormalizeDOI(csl.DOI), metadata, record); got != tc.want {
+			if got := verifyDOIIdentity(parse.NormalizeDOI(csl.DOI), metadata, record); got != tc.want {
 				t.Fatalf("verifyDOIIdentity = %v, want %v\nCSL: %+v\nrecord: %+v", got, tc.want, metadata, record)
 			}
 		})

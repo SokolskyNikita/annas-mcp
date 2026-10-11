@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 	"github.com/SokolskyNikita/annas-mcp/internal/env"
 )
@@ -204,7 +205,7 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 	if hash != "" {
 		return c.downloadBook(ctx, &Book{Hash: hash, Title: options.Title, Format: options.Format}, progress)
 	}
-	if _, ok := ParseDOI(doi); !ok {
+	if _, ok := parse.ParseDOI(doi); !ok {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "doi must be a valid DOI or DOI URL")
 	}
 	if err := c.validateDownload(ctx, options.Format); err != nil {
@@ -268,7 +269,7 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 	var base string
 	sourceURL := paper.DownloadURL
 	if sourceURL == "" {
-		if _, valid := ParseDOI(paper.DOI); !valid {
+		if _, valid := parse.ParseDOI(paper.DOI); !valid {
 			return DownloadResult{}, apperr.New(apperr.NotFound, "no DOI is available for SciDB lookup")
 		}
 		err = c.onMirror(ctx, func(mirrorBase string) error {

@@ -11,26 +11,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
-
-func TestIsDOIQueryRecognizesDOIForms(t *testing.T) {
-	t.Parallel()
-
-	tests := map[string]bool{
-		"10.1000/example":                          true,
-		" DOI:10.1000/example ":                    true,
-		"https://doi.org/10.1000/example":          true,
-		"https://dx.doi.org/10.1000/example":       true,
-		"attention is all you need":                false,
-		"doi.org/10.1000/example without protocol": false,
-	}
-	for query, want := range tests {
-		if got := IsDOIQuery(query); got != want {
-			t.Errorf("IsDOIQuery(%q) = %v, want %v", query, got, want)
-		}
-	}
-}
 
 func TestModelStringMethodsIncludeCoreFields(t *testing.T) {
 	t.Parallel()
@@ -119,27 +102,11 @@ func TestFormatFromResponseUsesFilenameAndMediaType(t *testing.T) {
 	}
 }
 
-func TestCleanAuthorsDropsNumberedAffiliations(t *testing.T) {
-	t.Parallel()
-
-	for input, want := range map[string]string{
-		"Yann Lecun , Yoshua Bengio , Geoffrey Hinton ;1 FAIR - Facebook AI Research [New York] ( 545378 ) - New York 2 NYU": "Yann Lecun, Yoshua Bengio, Geoffrey Hinton",
-		"  Austen, Jane  ":      "Austen, Jane",
-		"Ayr, Bray; Lady, a":    "Ayr, Bray; Lady, a",
-		"Cinnamon Worth & JAff": "Cinnamon Worth & JAff",
-		"":                      "",
-	} {
-		if got := cleanAuthors(input); got != want {
-			t.Errorf("cleanAuthors(%q) = %q, want %q", input, got, want)
-		}
-	}
-}
-
 func TestParserHelpersNormalizeMetadataAndSnippets(t *testing.T) {
 	t.Parallel()
 
 	text := strings.Repeat("long description ", 40)
-	if got := snippet(text); len(got) > 480 || strings.Contains(got, "  ") {
+	if got := parse.Snippet(text); len(got) > 480 || strings.Contains(got, "  ") {
 		t.Fatalf("snippet was not normalized: length=%d value=%q", len(got), got)
 	}
 	if meta := parseCardMeta("✅ English [en] · EPUB · 1.2MB · 2020"); meta.language != "English" || meta.format != "EPUB" || meta.size != "1.2MB" || meta.year != "2020" {

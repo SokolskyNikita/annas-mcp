@@ -10,15 +10,16 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
 func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
-	doi := NormalizeDOI(input)
+	doi := parse.NormalizeDOI(input)
 	if doi == "" {
 		return nil, apperr.New(apperr.InvalidArgument, "doi is empty")
 	}
-	if !validDOIPattern.MatchString(doi) {
+	if !parse.ValidDOI(doi) {
 		return nil, apperr.New(apperr.InvalidArgument, fmt.Sprintf("invalid DOI: %s", doi))
 	}
 	if err := c.requireArchiveAccess(ctx); err != nil {
@@ -58,7 +59,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if metadata.DOI != "" && !strings.EqualFold(NormalizeDOI(metadata.DOI), doi) {
+	if metadata.DOI != "" && !strings.EqualFold(parse.NormalizeDOI(metadata.DOI), doi) {
 		return nil, apperr.New(apperr.Upstream, "DOI metadata resolved to a different DOI")
 	}
 
@@ -67,7 +68,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 		queries = append(queries, metadata.Title)
 	}
 	queries = append(queries, doi)
-	if id := arxivID(doi); id != "" {
+	if id := parse.ArxivID(doi); id != "" {
 		queries = append(queries, id)
 	}
 	// Each query's candidates are checked before the next query is searched,
@@ -102,7 +103,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 				}
 				// When CSL identity is available, only inspect cards whose own
 				// title agrees. A conflicting title cannot be repaired by a DOI
-				// mention in its search snippet.
+				// mention in its search parse.Snippet.
 				if metadata.Title != "" && normalizeTitle(book.Title) != normalizeTitle(metadata.Title) {
 					continue
 				}

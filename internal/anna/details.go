@@ -14,6 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 	"github.com/SokolskyNikita/annas-mcp/internal/mirror"
 )
@@ -311,7 +312,7 @@ func detailsFromRecord(record *aaRecord, base, prefix, value string) *Details {
 		ID:                    id,
 		URL:                   buildPathURL(base, path),
 		Title:                 strings.TrimSpace(string(file.TitleBest)),
-		Authors:               cleanAuthors(string(file.AuthorBest)),
+		Authors:               parse.CleanAuthors(string(file.AuthorBest)),
 		Publisher:             strings.TrimSpace(string(file.PublisherBest)),
 		Edition:               strings.TrimSpace(string(file.EditionVariaBest)),
 		Year:                  strings.TrimSpace(string(file.YearBest)),
