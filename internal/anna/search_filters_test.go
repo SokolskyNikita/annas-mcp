@@ -219,7 +219,7 @@ func TestFindMetadataReturnsCatalogRecords(t *testing.T) {
 	want := []*MetadataRecord{
 		{
 			ID: "isbndb:9780521879286", Title: "Against Intellectual Monopoly", Authors: "Boldrin, Michele, Levine, David K.",
-			Publisher: "Cambridge University Press, 1, 2008", Language: "English", Year: "2008",
+			Publisher: "Cambridge University Press", Edition: "1, 2008", Language: "English", Year: "2008",
 			Description: "Patents and copyrights have become controversial.", URL: "https://annas.test/isbndb/9780521879286",
 		},
 		{

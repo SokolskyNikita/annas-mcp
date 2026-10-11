@@ -13,6 +13,7 @@ type Book struct {
 	Title          string   `json:"title"`
 	Authors        string   `json:"authors"`
 	Publisher      string   `json:"publisher"`
+	Edition        string   `json:"edition,omitempty"`
 	Language       string   `json:"language"`
 	Format         string   `json:"format"`
 	Size           string   `json:"size"`
@@ -31,6 +32,8 @@ type Book struct {
 // set when Anna's SciDB page embeds the PDF directly. It is a signed link
 // issued to the member session, so it is used internally and never output.
 // FastDownload is only known for search hits, so it is omitted when false.
+// Journal is the record's publisher and edition line, which for articles
+// usually names the journal, volume and issue.
 type Paper struct {
 	DOI            string   `json:"doi,omitempty"`
 	Title          string   `json:"title,omitempty"`
@@ -55,6 +58,7 @@ type MetadataRecord struct {
 	Title       string `json:"title"`
 	Authors     string `json:"authors"`
 	Publisher   string `json:"publisher"`
+	Edition     string `json:"edition,omitempty"`
 	Language    string `json:"language"`
 	Year        string `json:"year,omitempty"`
 	Description string `json:"description,omitempty"`
@@ -127,7 +131,7 @@ type ProgressFunc func(done, total int64)
 // String renders the CLI's plain-text view of a search hit.
 func (b *Book) String() string {
 	return labeled(
-		"Title", b.Title, "Authors", b.Authors, "Publisher", b.Publisher,
+		"Title", b.Title, "Authors", b.Authors, "Publisher", b.Publisher, "Edition", b.Edition,
 		"Language", b.Language, "Format", b.Format, "Size", b.Size,
 		"Year", b.Year, "Content", b.Content, "Sources", strings.Join(b.Sources, ", "),
 		"Fast download", yesNo(b.FastDownload), "Possible issues", yesOrEmpty(b.PossibleIssues),
@@ -147,7 +151,7 @@ func (p *Paper) String() string {
 // String renders the CLI's plain-text view of a catalog record.
 func (r *MetadataRecord) String() string {
 	return labeled(
-		"ID", r.ID, "Title", r.Title, "Authors", r.Authors, "Publisher", r.Publisher,
+		"ID", r.ID, "Title", r.Title, "Authors", r.Authors, "Publisher", r.Publisher, "Edition", r.Edition,
 		"Language", r.Language, "Year", r.Year, "URL", r.URL,
 	)
 }

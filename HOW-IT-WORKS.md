@@ -8,7 +8,7 @@ Every tool accepts `timeout_seconds`, covering the whole operation including ret
 
 ### Searching
 
-`book_search` and `article_search` return one page of results for a `query`. Each result includes a `hash`, title, authors, year, format, size and source libraries. Books also include the language, publisher and content type, and articles the journal. `fast_download` says whether Anna's fast download servers have the file, which the download tools need, and `possible_issues` marks files the archive warns might be broken.
+`book_search` and `article_search` return one page of results for a `query`. Each result includes a `hash`, title, authors, year, format, size and source libraries. Books also include the language, publisher, edition and content type, and articles the journal. `fast_download` says whether Anna's fast download servers have the file, which the download tools need, and `possible_issues` marks files the archive warns might be broken.
 
 Optional fields:
 

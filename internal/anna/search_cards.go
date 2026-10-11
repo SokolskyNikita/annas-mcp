@@ -25,7 +25,8 @@ const (
 //	<div class="flex [opacity-40] …">
 //	  <a href="/md5/<hash>" class="custom-a block …">cover</a>
 //	  <div class="max-w-full …">
-//	    <a href="/md5/<hash>">Title</a> <a href="/search?q=…"><span class="icon-[mdi--user-edit]"></span> Author</a> …
+//	    <a href="/md5/<hash>">Title</a> <a href="/search?q=…"><span class="icon-[mdi--user-edit]"></span> Author</a>
+//	    <a href="/search?q=<publisher>"><span class="icon-[mdi--company]"></span> Publisher, edition</a>
 //	    <div class="… text-gray-600 …">Description</div>
 //	    <div class="text-gray-800 …">English [en] · EPUB · 3.8MB · 2008 · 📘 Book (non-fiction) · 🚀/lgli/zlib<a>Save</a>…</div>
 //	  </div>
@@ -35,12 +36,13 @@ const (
 // inside .js-partial-matches-show are looser matches, which can ignore the
 // page's filters.
 type searchCard struct {
-	prefix, id                             string
-	href                                   string
-	title, authors, publisher, description string
-	meta                                   cardMeta
-	possibleIssues                         bool
-	partial                                bool
+	prefix, id                         string
+	href                               string
+	title, authors, publisher, edition string
+	description                        string
+	meta                               cardMeta
+	possibleIssues                     bool
+	partial                            bool
 }
 
 type cardMeta struct {
@@ -93,13 +95,15 @@ func parseSearchCards(doc *goquery.Document) []searchCard {
 		if title == "" {
 			return
 		}
+		publisher, edition := publisherAndEdition(info.Find(publisherSelector).Parent())
 		cards = append(cards, searchCard{
 			prefix:         prefix,
 			id:             id,
 			href:           href,
 			title:          title,
 			authors:        cleanAuthors(info.Find(authorSelector).Parent().Text()),
-			publisher:      strings.TrimSpace(info.Find(publisherSelector).Parent().Text()),
+			publisher:      publisher,
+			edition:        edition,
 			description:    snippet(info.Find(descriptionSelector).First().Text()),
 			meta:           parseCardMeta(ownText(info.Find("div.text-gray-800").First())),
 			possibleIssues: hasClass(container, "opacity-40"),
@@ -107,6 +111,38 @@ func parseSearchCards(doc *goquery.Document) []searchCard {
 		})
 	})
 	return cards
+}
+
+// publisherAndEdition splits the line "publisher, edition". Its link searches
+// for the publisher alone, so the link's query says where the publisher ends;
+// a record without a publisher links to an empty search. When the link and
+// the line disagree, the whole line counts as the publisher.
+func publisherAndEdition(link *goquery.Selection) (publisher, edition string) {
+	line := strings.Join(strings.Fields(link.Text()), " ")
+	if line == "" {
+		return "", ""
+	}
+	query, ok := strings.CutPrefix(link.AttrOr("href", ""), "/search?q=")
+	if !ok {
+		return line, ""
+	}
+	candidates := []string{query}
+	if decoded, err := url.QueryUnescape(query); err == nil && decoded != query {
+		candidates = append(candidates, decoded)
+	}
+	for _, candidate := range candidates {
+		candidate = strings.Join(strings.Fields(candidate), " ")
+		if candidate == "" {
+			return "", line
+		}
+		if line == candidate {
+			return line, ""
+		}
+		if rest, ok := strings.CutPrefix(line, candidate+", "); ok {
+			return candidate, rest
+		}
+	}
+	return line, ""
 }
 
 // recordPath splits a record link such as /md5/<hash> or /isbndb/<isbn>.

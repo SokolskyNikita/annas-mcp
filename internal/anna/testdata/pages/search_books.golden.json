@@ -32,7 +32,8 @@
       {
         "title": "Computer Exercises To Accompany Structure And Interpretation Of Computer Programs ;: Version For Ibm Pc Compatible Machines (the Mit Electrical Engineering And Computer Science Series)",
         "authors": "Abelson, Harold; Abelson, Harold. Structure and interpretation of computer programs; Sussman, Gerald Jay",
-        "publisher": "New York ; London : McGraw-Hill, New York [u.a, 1988",
+        "publisher": "New York ; London : McGraw-Hill",
+        "edition": "New York [u.a, 1988",
         "language": "English",
         "format": "PDF",
         "size": "7.0MB",
@@ -66,7 +67,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs (JavaScript Adaptation)",
         "authors": "Harold Abelson and Gerald Jay Sussman with Julie Sussman adapted by Martin Henz and Tobias Wrigstad",
-        "publisher": "MIT Press, 2nd, 2019",
+        "publisher": "MIT Press",
+        "edition": "2nd, 2019",
         "language": "English",
         "format": "PDF",
         "size": "10.6MB",
@@ -84,7 +86,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs (JavaScript Adaptation)",
         "authors": "Harold Abelson and Gerald Jay Sussman with Julie Sussman - authors. Martin Henz with Chan Ger Hean, Feng Piaopiao, Jolyn Tan, Liu Hang, and Tobias Wrigstad - adapters to JavaScript",
-        "publisher": "2019",
+        "publisher": "",
+        "edition": "2019",
         "language": "English",
         "format": "EPUB",
         "size": "4.0MB",
@@ -101,7 +104,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs, 2nd ed.",
         "authors": "Harold Abelson, Gerald Jay Sussman, Julie Sussman",
-        "publisher": "2nd ed",
+        "publisher": "",
+        "edition": "2nd ed",
         "language": "English",
         "format": "PDF",
         "size": "7.4MB",
@@ -119,7 +123,8 @@
       {
         "title": "6.001 Structure and Interpretation of Computer Programs. Copyright",
         "authors": "",
-        "publisher": "Massachusetts Institute of Technology, 2004",
+        "publisher": "Massachusetts Institute of Technology",
+        "edition": "2004",
         "language": "English",
         "format": "ZIP",
         "size": "24.4MB",
@@ -138,7 +143,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs [Paperback] [Jan 01, 2005] Harold Abelson, Gerald Jay Sussman, Julie Sussman",
         "authors": "Gerald Jay Sussman, Julie Sussman Harold Abelson, Harold Abelson, Gerald Jay Sussman, Julie Sussman",
-        "publisher": "Orient Black Swan, 1800",
+        "publisher": "Orient Black Swan",
+        "edition": "1800",
         "language": "English",
         "format": "PDF",
         "size": "33.7MB",
@@ -156,7 +162,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs, 2nd ed",
         "authors": "Harold Abelson and Gerald J. Sussman",
-        "publisher": "None",
+        "publisher": "",
+        "edition": "None",
         "language": "English",
         "format": "PDF",
         "size": "2.3MB",
@@ -171,7 +178,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs, 2nd ed.",
         "authors": "Harold Abelson, Gerald Jay Sussman, Julie Sussman",
-        "publisher": "2nd, 1996",
+        "publisher": "",
+        "edition": "2nd, 1996",
         "language": "English",
         "format": "PDF",
         "size": "7.4MB",
@@ -188,7 +196,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "The MIT Press, 2010",
+        "publisher": "The MIT Press",
+        "edition": "2010",
         "language": "English",
         "format": "MOBI",
         "size": "1.5MB",
@@ -208,7 +217,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2011",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "2011",
         "language": "English",
         "format": "MOBI",
         "size": "2.6MB",
@@ -228,7 +238,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT Electrical Engineering and Computer Science, 2 (Unofficial LaTeX), 2016",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "MIT Electrical Engineering and Computer Science, 2 (Unofficial LaTeX), 2016",
         "language": "English",
         "format": "PDF",
         "size": "8.0MB",
@@ -249,7 +260,8 @@
       {
         "title": "Structure and interpretation of computer programs",
         "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
-        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill",
+        "edition": "Second Edition, 1996",
         "language": "English",
         "format": "PDF",
         "size": "2.6MB",
@@ -266,7 +278,8 @@
       {
         "title": "Structure and interpretation of computer programs",
         "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
-        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill",
+        "edition": "Second Edition, 1996",
         "language": "English",
         "format": "PDF",
         "size": "4.5MB",
@@ -283,7 +296,8 @@
       {
         "title": "Structure and interpretation of computer programs",
         "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
-        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill",
+        "edition": "Second Edition, 1996",
         "language": "English",
         "format": "PDF",
         "size": "9.4MB",
@@ -300,7 +314,8 @@
       {
         "title": "Structure and interpretation of computer programs",
         "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
-        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill",
+        "edition": "Second Edition, 1996",
         "language": "English",
         "format": "PDF",
         "size": "1.9MB",
@@ -317,7 +332,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs, second edition",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
         "language": "English",
         "format": "EPUB",
         "size": "3.3MB",
@@ -336,7 +352,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs, 2e (JavaScript Edition)",
         "authors": "Harold Abelson, Gerald Jay Sussman, Julie Sussman, Martin Henz, Tobias Wrigstad",
-        "publisher": "The MIT Press, 1, 2022",
+        "publisher": "The MIT Press",
+        "edition": "1, 2022",
         "language": "English",
         "format": "PDF",
         "size": "9.4MB",
@@ -357,7 +374,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "The MIT Press, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "publisher": "The MIT Press",
+        "edition": "MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
         "language": "English",
         "format": "PDF",
         "size": "7.5MB",
@@ -377,7 +395,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs: JavaScript Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson; Gerald Jay Sussman; Martin Henz; Tobias Wrigstad; Gerald Sussman; Martin Henz; Tobias Wrigstad",
-        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science Ser, JavaScript Edition, Cambridge, Massachusetts, 2022",
+        "publisher": "The MIT Press",
+        "edition": "MIT Electrical Engineering and Computer Science Ser, JavaScript Edition, Cambridge, Massachusetts, 2022",
         "language": "English",
         "format": "EPUB",
         "size": "8.4MB",
@@ -398,7 +417,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs: JavaScript Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson; Gerald Jay Sussman; Martin Henz; Tobias Wrigstad; \u0026 Gerald Sussman \u0026 Martin Henz \u0026 Tobias Wrigstad",
-        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science Ser, JavaScript Edition, Cambridge, Massachusetts, 2022",
+        "publisher": "The MIT Press",
+        "edition": "MIT Electrical Engineering and Computer Science Ser, JavaScript Edition, Cambridge, Massachusetts, 2022",
         "language": "English",
         "format": "EPUB",
         "size": "8.4MB",
@@ -416,7 +436,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs (Second Edition)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2, 2002",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "2, 2002",
         "language": "English",
         "format": "PDF",
         "size": "7.4MB",
@@ -437,7 +458,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs: JavaScript Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Abelson, Harold \u0026 Sussman, Gerald \u0026 Henz, Martin \u0026 Wrigstad, Tobias",
-        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science Ser, JavaScript Edition, Cambridge, Massachusetts, 2022",
+        "publisher": "The MIT Press",
+        "edition": "MIT Electrical Engineering and Computer Science Ser, JavaScript Edition, Cambridge, Massachusetts, 2022",
         "language": "English, Polish",
         "format": "EPUB",
         "size": "8.4MB",
@@ -456,7 +478,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs",
         "authors": "Unknown",
-        "publisher": "2002",
+        "publisher": "",
+        "edition": "2002",
         "language": "English",
         "format": "PDF",
         "size": "2.4MB",
@@ -474,7 +497,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson \u0026 Gerald Jay Sussman \u0026 Julie Sussman [Abelson, Harold \u0026 Sussman, Gerald Jay \u0026 Sussman, Julie]",
-        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science, 2, 1996;2006",
+        "publisher": "The MIT Press",
+        "edition": "MIT Electrical Engineering and Computer Science, 2, 1996;2006",
         "language": "English",
         "format": "EPUB",
         "size": "1.2MB",
@@ -492,7 +516,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Sussman, Harold Abelson; Gerald Jay Sussman; Julie",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2012",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "2012",
         "language": "English",
         "format": "EPUB",
         "size": "1.7MB",
@@ -513,7 +538,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "The MIT Press, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "publisher": "The MIT Press",
+        "edition": "MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
         "language": "English",
         "format": "CHM",
         "size": "1.5MB",
@@ -533,7 +559,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "The MIT Press, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "publisher": "The MIT Press",
+        "edition": "MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
         "language": "English",
         "format": "PDF",
         "size": "9.4MB",
@@ -553,7 +580,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
         "language": "English",
         "format": "MOBI",
         "size": "2.0MB",
@@ -573,7 +601,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs (The Mit Electrical Engineering and Computer Science Series)",
         "authors": "Abelson, Harold, Sussman, Gerald Jay; Sussman, Julie",
-        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, MIT electrical engineering and computer science series, Cambridge - Mass.a.o. MIT Press; New York a.o. McGraw-Hill, 1985",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill",
+        "edition": "MIT electrical engineering and computer science series, Cambridge - Mass.a.o. MIT Press; New York a.o. McGraw-Hill, 1985",
         "language": "English",
         "format": "PDF",
         "size": "27.3MB",
@@ -592,7 +621,8 @@
       {
         "title": "Structure and interpretation of computer programs",
         "authors": "Abelson, Harold, Sussman, Gerald Jay, Sussman, Julie",
-        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, Second Edition, 1996",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill",
+        "edition": "Second Edition, 1996",
         "language": "English",
         "format": "PDF",
         "size": "4.5MB",
@@ -609,7 +639,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson, Gerald Jay Sussman, Julie Sussman",
-        "publisher": "MIT Press ; McGraw-Hill, New edition, 1985",
+        "publisher": "MIT Press ; McGraw-Hill",
+        "edition": "New edition, 1985",
         "language": "English",
         "format": "MOBI",
         "size": "1.6MB",
@@ -631,7 +662,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Abelson, Harold, Sussman, Gerald Jay",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 1996 Jul",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "1996 Jul",
         "language": "English",
         "format": "EPUB",
         "size": "1.3MB",
@@ -649,7 +681,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT Electrical Engineering and Computer Science, Second Edition, S. l, July 25th 1996",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "MIT Electrical Engineering and Computer Science, Second Edition, S. l, July 25th 1996",
         "language": "English",
         "format": "PDF",
         "size": "4.7MB",
@@ -666,7 +699,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2011",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "2011",
         "language": "English",
         "format": "PDF",
         "size": "6.0MB",
@@ -683,7 +717,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Abelson, Gerald Jay; Sussman, Harold; Sussman, Julie",
-        "publisher": "The MIT Press, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "publisher": "The MIT Press",
+        "edition": "MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
         "language": "English",
         "format": "EPUB",
         "size": "1.2MB",
@@ -704,7 +739,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, Second Edition, Cambridge, Mass, New York, Massachusetts, ©1996 by The Massachusetts Institute of Technology",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "Second Edition, Cambridge, Mass, New York, Massachusetts, ©1996 by The Massachusetts Institute of Technology",
         "language": "English",
         "format": "EPUB",
         "size": "1.2MB",
@@ -722,7 +758,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs (The Mit Electrical Engineering and Computer Science Series)",
         "authors": "Abelson, Harold; Sussman, Gerald Jay; Sussman, Julie",
-        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill, MIT electrical engineering and computer science series, Cambridge - Mass.a.o. MIT Press; New York a.o. McGraw-Hill, 1985",
+        "publisher": "Cambridge, Mass. : MIT Press ; New York : McGraw-Hill",
+        "edition": "MIT electrical engineering and computer science series, Cambridge - Mass.a.o. MIT Press; New York a.o. McGraw-Hill, 1985",
         "language": "English",
         "format": "PDF",
         "size": "39.8MB",
@@ -741,7 +778,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, Second Edition, Cambridge, Mass, New York, Massachusetts, ©1996 by The Massachusetts Institute of Technology",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "Second Edition, Cambridge, Mass, New York, Massachusetts, ©1996 by The Massachusetts Institute of Technology",
         "language": "English",
         "format": "PDF",
         "size": "2.6MB",
@@ -758,7 +796,8 @@
       {
         "title": "初等算法(算法新解)0.6180339887498949",
         "authors": "it-ebooks",
-        "publisher": "iBooker it-ebooks, it-ebooks-2017, 2017",
+        "publisher": "iBooker it-ebooks",
+        "edition": "it-ebooks-2017, 2017",
         "language": "English, Chinese",
         "format": "PDF",
         "size": "3.2MB",
@@ -810,7 +849,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, Second Edition, Cambridge, Mass, New York, Massachusetts, ©1996 by The Massachusetts Institute of Technology",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "Second Edition, Cambridge, Mass, New York, Massachusetts, ©1996 by The Massachusetts Institute of Technology",
         "language": "English",
         "format": "PDF",
         "size": "4.3MB",
@@ -827,7 +867,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Abelson, Harold; Sussman, Gerald Jay; Sussman, Julie",
-        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science, 2ed., 1996",
+        "publisher": "The MIT Press",
+        "edition": "MIT Electrical Engineering and Computer Science, 2ed., 1996",
         "language": "English",
         "format": "DJVU",
         "size": "4.7MB",
@@ -847,7 +888,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Abelson, Harold; Sussman, Gerald Jay; Sussman, Julie",
-        "publisher": "TPB;The MIT Press, MIT Electrical Engineering and Computer Science, 2ed. free web version, 1996",
+        "publisher": "TPB;The MIT Press",
+        "edition": "MIT Electrical Engineering and Computer Science, 2ed. free web version, 1996",
         "language": "English",
         "format": "PDF",
         "size": "5.5MB",
@@ -867,7 +909,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, 2nd Edition, US, 1996",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "2nd Edition, US, 1996",
         "language": "English",
         "format": "PDF",
         "size": "4.6MB",
@@ -888,7 +931,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs, Second Edition",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "McGraw-Hill Science/Engineering/Math, MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
+        "publisher": "McGraw-Hill Science/Engineering/Math",
+        "edition": "MIT electrical engineering and computer science series, 2. ed, Cambridge, Mass., New York, ©1996",
         "language": "English",
         "format": "PDF",
         "size": "3.1MB",
@@ -908,7 +952,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education, MIT Electrical Engineering and Computer Science, 2nd ed, 1996",
+        "publisher": "MIT Press Ltd; M I T Press; MIT Press Ltd; M I T Press; McGraw-Hill Higher Education",
+        "edition": "MIT Electrical Engineering and Computer Science, 2nd ed, 1996",
         "language": "English",
         "format": "PDF",
         "size": "1.8MB",
@@ -929,7 +974,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science, Second Edition, S. l, July 25th 1996",
+        "publisher": "The MIT Press",
+        "edition": "MIT Electrical Engineering and Computer Science, Second Edition, S. l, July 25th 1996",
         "language": "English",
         "format": "PDF",
         "size": "1.4MB",
@@ -949,7 +995,8 @@
       {
         "title": "Structure and Interpretation of Computer Programs - 2nd Edition (MIT Electrical Engineering and Computer Science)",
         "authors": "Harold Abelson and Gerald Jay Sussman, with Julie Sussman; foreword by Alan J. Perlis",
-        "publisher": "The MIT Press, MIT Electrical Engineering and Computer Science, 2, 1996;2006",
+        "publisher": "The MIT Press",
+        "edition": "MIT Electrical Engineering and Computer Science, 2, 1996;2006",
         "language": "English",
         "format": "PDF",
         "size": "4.6MB",

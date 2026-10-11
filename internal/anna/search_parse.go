@@ -81,6 +81,7 @@ func bookFromCard(card searchCard, pageURL string) *Book {
 		Title:          card.title,
 		Authors:        card.authors,
 		Publisher:      card.publisher,
+		Edition:        card.edition,
 		Language:       card.meta.language,
 		Format:         card.meta.format,
 		Size:           card.meta.size,
@@ -105,6 +106,7 @@ func metadataFromCard(card searchCard, pageURL string) *MetadataRecord {
 		Title:       card.title,
 		Authors:     card.authors,
 		Publisher:   card.publisher,
+		Edition:     card.edition,
 		Language:    card.meta.language,
 		Year:        card.meta.year,
 		Description: card.description,
@@ -139,7 +141,7 @@ func paperFromBook(book *Book, doi string) *Paper {
 		DOI:            doi,
 		Title:          book.Title,
 		Authors:        book.Authors,
-		Journal:        book.Publisher,
+		Journal:        joinNonEmpty(", ", book.Publisher, book.Edition),
 		Year:           book.Year,
 		Format:         book.Format,
 		Size:           book.Size,
@@ -151,6 +153,16 @@ func paperFromBook(book *Book, doi string) *Paper {
 		PageURL:        book.URL,
 	}
 	return paper
+}
+
+func joinNonEmpty(separator string, values ...string) string {
+	var kept []string
+	for _, value := range values {
+		if value != "" {
+			kept = append(kept, value)
+		}
+	}
+	return strings.Join(kept, separator)
 }
 
 func normalizeTitle(title string) string {
