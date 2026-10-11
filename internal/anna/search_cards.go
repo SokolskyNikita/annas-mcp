@@ -87,7 +87,7 @@ func parseSearchCards(doc *goquery.Document) []searchCard {
 		title := ""
 		info.Find("a[href]").EachWithBreak(func(_ int, anchor *goquery.Selection) bool {
 			if target, _ := anchor.Attr("href"); target == href {
-				title = strings.TrimSpace(anchor.Text())
+				title = cleanText(anchor.Text())
 				return false
 			}
 			return true
@@ -101,10 +101,10 @@ func parseSearchCards(doc *goquery.Document) []searchCard {
 			id:             id,
 			href:           href,
 			title:          title,
-			authors:        cleanAuthors(info.Find(authorSelector).Parent().Text()),
+			authors:        cleanAuthors(cleanText(info.Find(authorSelector).Parent().Text())),
 			publisher:      publisher,
 			edition:        edition,
-			description:    snippet(info.Find(descriptionSelector).First().Text()),
+			description:    snippet(cleanText(info.Find(descriptionSelector).First().Text())),
 			meta:           parseCardMeta(ownText(info.Find("div.text-gray-800").First())),
 			possibleIssues: hasClass(container, "opacity-40"),
 			partial:        link.Closest(".js-partial-matches-show").Length() > 0,
@@ -118,7 +118,7 @@ func parseSearchCards(doc *goquery.Document) []searchCard {
 // a record without a publisher links to an empty search. When the link and
 // the line disagree, the whole line counts as the publisher.
 func publisherAndEdition(link *goquery.Selection) (publisher, edition string) {
-	line := strings.Join(strings.Fields(link.Text()), " ")
+	line := cleanText(link.Text())
 	if line == "" {
 		return "", ""
 	}
@@ -131,7 +131,7 @@ func publisherAndEdition(link *goquery.Selection) (publisher, edition string) {
 		candidates = append(candidates, decoded)
 	}
 	for _, candidate := range candidates {
-		candidate = strings.Join(strings.Fields(candidate), " ")
+		candidate = cleanText(candidate)
 		if candidate == "" {
 			return "", line
 		}

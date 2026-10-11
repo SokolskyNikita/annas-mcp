@@ -40,7 +40,7 @@ func parseArchiveIdentity(doc *goquery.Document) archiveIdentity {
 	// data-content nodes. Keep the older title/meta/link selectors as fallbacks
 	// for mirrors serving the preceding template.
 	doc.Find("[data-content][class*=violet-900]").EachWithBreak(func(_ int, node *goquery.Selection) bool {
-		identity.Title = strings.TrimSpace(attr(node, "data-content"))
+		identity.Title = cleanText(attr(node, "data-content"))
 		return identity.Title == ""
 	})
 	if identity.Title == "" {
@@ -55,7 +55,7 @@ func parseArchiveIdentity(doc *goquery.Document) archiveIdentity {
 
 	var authorTexts []string
 	doc.Find("[data-content][class*=amber-900]").Each(func(_ int, node *goquery.Selection) {
-		if value := strings.TrimSpace(attr(node, "data-content")); value != "" {
+		if value := cleanText(attr(node, "data-content")); value != "" {
 			authorTexts = append(authorTexts, value)
 		}
 	})

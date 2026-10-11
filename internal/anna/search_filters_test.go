@@ -297,3 +297,22 @@ func TestSearchPageWithResultsItCannotReadIsAnError(t *testing.T) {
 		})
 	}
 }
+
+func TestCleanText(t *testing.T) {
+	for _, tc := range []struct{ in, want string }{
+		{"Smith &amp; Jones", "Smith & Jones"},
+		{"&#x201C;Quoted&#x201D; &#8212; text", "“Quoted” — text"},
+		{"AT&T and R&D", "AT&T and R&D"},
+		{"Cats &para no semicolon", "Cats &para no semicolon"},
+		{"Protein prediction by <i>AlphaFold</i>2", "Protein prediction by AlphaFold2"},
+		{"<jats:p>Abstract <jats:italic>text</jats:italic></jats:p>", "Abstract text"},
+		{"<p>One<p>Two<br/>Three</p>", "One Two Three"},
+		{"Vector<T> in C++", "Vector<T> in C++"},
+		{"a < b and c > d", "a < b and c > d"},
+		{"  spaced\n\tout  ", "spaced out"},
+	} {
+		if got := cleanText(tc.in); got != tc.want {
+			t.Errorf("cleanText(%q) = %q, want %q", tc.in, got, tc.want)
+		}
+	}
+}
