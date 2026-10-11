@@ -2,8 +2,18 @@
   "details": {
     "title": "Adam: A method for stochastic optimization",
     "authors": "Kingma, Diederik P. (author); Ba, Jimmy Lei (author)",
-    "journal": "2015",
-    "size": ""
+    "publisher": "International Conference on Learning Representations, ICLR",
+    "edition": "2015",
+    "meta": {
+      "format": "PDF",
+      "size": "2.7MB",
+      "year": "2015",
+      "content": "journal_article",
+      "sources": [
+        "lgli"
+      ],
+      "fast_download": true
+    }
   },
   "identity": {
     "doi": "",

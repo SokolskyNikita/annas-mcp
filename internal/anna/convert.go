@@ -114,9 +114,12 @@ func joinNonEmpty(separator string, values ...string) string {
 	return strings.Join(kept, separator)
 }
 
-// addRecordDetails fills in a SciDB paper's title, journal, authors and size
-// from its record page.
+// addRecordDetails fills in a SciDB paper's details from its record page,
+// read like a search card: the journal is the "publisher, edition" line.
 func addRecordDetails(paper *Paper, detail *goquery.Document) {
 	details := parse.ReadRecordDetails(detail)
-	paper.Title, paper.Journal, paper.Authors, paper.Size = details.Title, details.Journal, details.Authors, details.Size
+	paper.Title, paper.Authors = details.Title, details.Authors
+	paper.Journal = joinNonEmpty(", ", details.Publisher, details.Edition)
+	paper.Year, paper.Size = details.Meta.Year, details.Meta.Size
+	paper.Sources, paper.FastDownload = details.Meta.Sources, details.Meta.FastDownload
 }

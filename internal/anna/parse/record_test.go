@@ -112,13 +112,15 @@ func TestReadRecordDetails(t *testing.T) {
 	t.Parallel()
 
 	details := ReadRecordDetails(pageDocument(t, "record_equity_premium.html.gz"))
-	if details.Title != "Equity-premium prediction: attention is all you need." || details.Authors != "Luiz Renato Lima; Lucas Lúcio Godeiro" || details.Journal != "Wiley" {
-		t.Fatalf("details = %+v", details)
+	want := RecordDetails{
+		Title: "Equity-premium prediction: attention is all you need.", Authors: "Luiz Renato Lima; Lucas Lúcio Godeiro",
+		Publisher: "Wiley", Edition: "Journal of Applied Econometrics, 38, 2022",
+		Meta: CardMeta{Language: "English", Format: "PDF", Size: "1.4MB", Year: "2022", Content: "journal_article", Sources: []string{"nexusstc", "upload"}, FastDownload: true},
 	}
-	for description, journal := range map[string]string{"Only": "Only", "Author&#10;&#10;Publisher": "Publisher", "A&#10;&#10;B&#10;&#10;C": "C"} {
-		got := ReadRecordDetails(htmlDocument(t, `<title>No suffix</title><meta name="description" content="`+description+`"><div class="text-gray-500">path</div><div class="text-gray-500">2.0MB</div>`))
-		if got.Journal != journal || got.Title != "" || got.Size != "2.0MB" {
-			t.Errorf("%q: %+v", description, got)
-		}
+	if !reflect.DeepEqual(details, want) {
+		t.Fatalf("details\n got %+v\nwant %+v", details, want)
+	}
+	if details := ReadRecordDetails(nil); !reflect.DeepEqual(details, RecordDetails{}) {
+		t.Fatalf("no page: %+v", details)
 	}
 }

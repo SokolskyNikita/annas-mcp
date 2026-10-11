@@ -2,8 +2,20 @@
   "details": {
     "title": "[IEEE 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) - Las Vegas, NV, USA (2016.6.27-2016.6.30)] 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) - Deep Residual Learning for Image Recognition",
     "authors": "He, Kaiming; Zhang, Xiangyu; Ren, Shaoqing; Sun, Jian",
-    "journal": "2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), Las Vegas, NV, USA, 2016",
-    "size": ""
+    "publisher": "IEEE",
+    "edition": "2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), Las Vegas, NV, USA, 2016",
+    "meta": {
+      "format": "PDF",
+      "size": "0.3MB",
+      "year": "2016",
+      "content": "journal_article",
+      "sources": [
+        "lgli",
+        "nexusstc",
+        "scihub"
+      ],
+      "fast_download": true
+    }
   },
   "identity": {
     "doi": "10.1109/cvpr.2016.90",

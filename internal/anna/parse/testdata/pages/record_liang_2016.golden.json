@@ -2,8 +2,20 @@
   "details": {
     "title": "Attention Is All You Need",
     "authors": "Liang, Deqiang; Li, Xiangguang; Zhang, Wanshun; Li, Yanni; Zhang, Mi; Cheng, Ping",
-    "journal": "John Wiley and Sons; Wiley (John Wiley \u0026 Sons); Wiley (ISSN 0931-7597)",
-    "size": ""
+    "publisher": "John Wiley and Sons; Wiley (John Wiley \u0026 Sons); Wiley (ISSN 0931-7597)",
+    "edition": "ChemInform, #27, 47, 2016 jun 16",
+    "meta": {
+      "language": "German",
+      "format": "PDF",
+      "size": "0.1MB",
+      "year": "2016",
+      "content": "journal_article",
+      "sources": [
+        "lgli",
+        "scihub"
+      ],
+      "fast_download": true
+    }
   },
   "identity": {
     "doi": "10.1002/chin.201627137",

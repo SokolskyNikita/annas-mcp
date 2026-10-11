@@ -28,22 +28,7 @@ func RecordIdentity(doc *goquery.Document) Identity {
 		return identity
 	}
 
-	// The current record page provides the full title and author list in
-	// data-content nodes. Keep the older title/meta/link selectors as fallbacks
-	// for mirrors serving the preceding template.
-	doc.Find("[data-content][class*=violet-900]").EachWithBreak(func(_ int, node *goquery.Selection) bool {
-		identity.Title = CleanText(attr(node, "data-content"))
-		return identity.Title == ""
-	})
-	if identity.Title == "" {
-		identity.Title = strings.TrimSpace(doc.Find("meta[name=citation_title], meta[property='og:title']").First().AttrOr("content", ""))
-	}
-	if identity.Title == "" {
-		identity.Title = strings.TrimSpace(doc.Find("h1").First().Text())
-	}
-	if identity.Title == "" {
-		identity.Title = titleFromArchiveDocument(doc)
-	}
+	identity.Title = recordTitle(doc)
 
 	var authorTexts []string
 	doc.Find("[data-content][class*=amber-900]").Each(func(_ int, node *goquery.Selection) {
@@ -198,46 +183,50 @@ func attr(node *goquery.Selection, name string) string {
 	return value
 }
 
-// RecordDetails is what DOI lookup reports of a SciDB paper, read from its
-// record page.
-type RecordDetails struct {
-	Title   string `json:"title"`
-	Authors string `json:"authors"`
-	Journal string `json:"journal"`
-	Size    string `json:"size"`
+// recordTitle is the record's full title. The current record page provides
+// it in a data-content node; older title, meta and heading selectors remain
+// as fallbacks.
+func recordTitle(doc *goquery.Document) string {
+	var title string
+	doc.Find("[data-content][class*=violet-900]").EachWithBreak(func(_ int, node *goquery.Selection) bool {
+		title = CleanText(attr(node, "data-content"))
+		return title == ""
+	})
+	if title == "" {
+		title = strings.TrimSpace(doc.Find("meta[name=citation_title], meta[property='og:title']").First().AttrOr("content", ""))
+	}
+	if title == "" {
+		title = strings.TrimSpace(doc.Find("h1").First().Text())
+	}
+	if title == "" {
+		title = titleFromArchiveDocument(doc)
+	}
+	return title
 }
 
-// ReadRecordDetails reads a SciDB paper's title, journal, authors and size
-// from its record page.
-func ReadRecordDetails(detail *goquery.Document) RecordDetails {
-	var details RecordDetails
-	if title := strings.TrimSpace(detail.Find("title").First().Text()); title != "" {
-		if idx := strings.Index(title, " - Anna"); idx > 0 {
-			details.Title = strings.TrimSpace(title[:idx])
-		}
+// RecordDetails is how a record page describes its file. The page's header
+// has the same parts as a search card: the title, the authors, the
+// "publisher, edition" line and the metadata line.
+type RecordDetails struct {
+	Title     string   `json:"title"`
+	Authors   string   `json:"authors,omitempty"`
+	Publisher string   `json:"publisher,omitempty"`
+	Edition   string   `json:"edition,omitempty"`
+	Meta      CardMeta `json:"meta"`
+}
+
+// ReadRecordDetails reads a record page's header the way SearchCards reads a
+// card.
+func ReadRecordDetails(doc *goquery.Document) RecordDetails {
+	if doc == nil {
+		return RecordDetails{}
 	}
-	if description, ok := detail.Find("meta[name=description]").Attr("content"); ok {
-		parts := strings.Split(description, "\n\n")
-		switch {
-		case len(parts) >= 3:
-			details.Journal = strings.TrimSpace(parts[2])
-		case len(parts) >= 2:
-			details.Journal = strings.TrimSpace(parts[1])
-		default:
-			details.Journal = strings.TrimSpace(description)
-		}
+	publisher, edition := publisherAndEdition(doc.Find(publisherSelector).First().Parent())
+	return RecordDetails{
+		Title:     recordTitle(doc),
+		Authors:   CleanAuthors(CleanText(doc.Find(authorSelector).First().Parent().Text())),
+		Publisher: publisher,
+		Edition:   edition,
+		Meta:      ParseCardMeta(ownText(doc.Find("div.text-gray-800").First())),
 	}
-	detail.Find(authorSelector).EachWithBreak(func(_ int, element *goquery.Selection) bool {
-		details.Authors = CleanAuthors(element.Parent().Text())
-		return details.Authors == ""
-	})
-	detail.Find("div.text-gray-500").EachWithBreak(func(_ int, element *goquery.Selection) bool {
-		text := strings.TrimSpace(element.Text())
-		if strings.Contains(text, "MB") || strings.Contains(text, "KB") {
-			details.Size = text
-			return false
-		}
-		return true
-	})
-	return details
 }

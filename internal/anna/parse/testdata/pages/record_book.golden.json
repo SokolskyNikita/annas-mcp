@@ -2,8 +2,20 @@
   "details": {
     "title": "Computer Exercises To Accompany Structure And Interpretation Of Computer Programs ;: Version For Ibm Pc Compatible Machines (the Mit Electrical Engineering And Computer Science Series)",
     "authors": "Abelson, Harold; Abelson, Harold. Structure and interpretation of computer programs; Sussman, Gerald Jay",
-    "journal": "New York ; London : McGraw-Hill",
-    "size": ""
+    "publisher": "New York ; London : McGraw-Hill",
+    "edition": "New York [u.a, 1988",
+    "meta": {
+      "language": "English",
+      "format": "PDF",
+      "size": "7.0MB",
+      "year": "1988",
+      "content": "book_unknown",
+      "sources": [
+        "ia",
+        "zlib"
+      ],
+      "fast_download": true
+    }
   },
   "identity": {
     "doi": "",

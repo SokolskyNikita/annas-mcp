@@ -2,8 +2,20 @@
   "details": {
     "title": "Equity-premium prediction: attention is all you need.",
     "authors": "Luiz Renato Lima; Lucas Lúcio Godeiro",
-    "journal": "Wiley",
-    "size": ""
+    "publisher": "Wiley",
+    "edition": "Journal of Applied Econometrics, 38, 2022",
+    "meta": {
+      "language": "English",
+      "format": "PDF",
+      "size": "1.4MB",
+      "year": "2022",
+      "content": "journal_article",
+      "sources": [
+        "nexusstc",
+        "upload"
+      ],
+      "fast_download": true
+    }
   },
   "identity": {
     "doi": "10.1002/jae.2939",

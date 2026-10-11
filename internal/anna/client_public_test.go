@@ -65,7 +65,8 @@ func TestLookupDOIReadsSciDBAndDetailPages(t *testing.T) {
 	if paper.DOI != "10.1000/example" || paper.Hash != hash || paper.Title != "Equity-premium prediction: attention is all you need." || paper.DownloadURL != sciDBFileURL {
 		t.Fatalf("unexpected DOI result: %+v", paper)
 	}
-	if paper.Authors != "Luiz Renato Lima; Lucas Lúcio Godeiro" || paper.Journal != "Wiley" {
+	if paper.Authors != "Luiz Renato Lima; Lucas Lúcio Godeiro" || paper.Journal != "Wiley, Journal of Applied Econometrics, 38, 2022" ||
+		paper.Year != "2022" || paper.Size != "1.4MB" || !paper.FastDownload {
 		t.Fatalf("detail page metadata was not parsed: %+v", paper)
 	}
 }
