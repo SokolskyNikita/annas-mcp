@@ -41,7 +41,7 @@ func TestSciDBViewerExtraction(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			got, md5, err := parseSciDBFile(doc, page)
+			got, md5, err := sciDBFile(doc, page)
 			if !test.valid {
 				if err == nil {
 					t.Fatalf("accepted invalid SciDB page: %q, %q", got, md5)

@@ -7,18 +7,13 @@ import (
 	"unicode"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
 const (
 	DefaultSearchTimeout   = 60 * time.Second
 	DefaultDownloadTimeout = 30 * time.Minute
 	BrowserUserAgent       = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-)
-
-var (
-	authorSelector      = "a[href^='/search'] span.icon-\\[mdi--user-edit\\]"
-	publisherSelector   = "a[href^='/search'] span.icon-\\[mdi--company\\]"
-	descriptionSelector = "div.text-gray-600"
 )
 
 // ResolveSearch applies legacy content values and the default for a search.
@@ -60,65 +55,65 @@ func ResolveSearch(options SearchOptions, defaultContent string) SearchOptions {
 
 // parseBooks returns every file card on a search page, partial matches included.
 func parseBooks(doc *goquery.Document, pageURL string) []*Book {
-	return searchResults{cards: parseSearchCards(doc), pageURL: pageURL}.books()
+	return searchResults{cards: parse.SearchCards(doc), pageURL: pageURL}.books()
 }
 
 func (r searchResults) books() []*Book {
 	var books []*Book
 	for _, card := range r.cards {
-		if card.prefix == "md5" {
+		if card.Prefix == "md5" {
 			books = append(books, bookFromCard(card, r.pageURL))
 		}
 	}
 	return books
 }
 
-func bookFromCard(card searchCard, pageURL string) *Book {
+func bookFromCard(card parse.Card, pageURL string) *Book {
 	return &Book{
-		Title:          card.title,
-		Authors:        card.authors,
-		Publisher:      card.publisher,
-		Edition:        card.edition,
-		Language:       card.meta.language,
-		Format:         card.meta.format,
-		Size:           card.meta.size,
-		Year:           card.meta.year,
-		Content:        card.meta.content,
-		Sources:        card.meta.sources,
-		FastDownload:   card.meta.fastDownload,
-		PossibleIssues: card.possibleIssues,
-		Description:    card.description,
-		URL:            absoluteURL(pageURL, card.href),
-		Hash:           card.id,
+		Title:          card.Title,
+		Authors:        card.Authors,
+		Publisher:      card.Publisher,
+		Edition:        card.Edition,
+		Language:       card.Meta.Language,
+		Format:         card.Meta.Format,
+		Size:           card.Meta.Size,
+		Year:           card.Meta.Year,
+		Content:        card.Meta.Content,
+		Sources:        card.Meta.Sources,
+		FastDownload:   card.Meta.FastDownload,
+		PossibleIssues: card.PossibleIssues,
+		Description:    card.Description,
+		URL:            absoluteURL(pageURL, card.Href),
+		Hash:           card.ID,
 	}
 }
 
-func metadataFromCard(card searchCard, pageURL string) *MetadataRecord {
-	id, err := url.PathUnescape(card.id)
+func metadataFromCard(card parse.Card, pageURL string) *MetadataRecord {
+	id, err := url.PathUnescape(card.ID)
 	if err != nil {
-		id = card.id
+		id = card.ID
 	}
 	return &MetadataRecord{
-		ID:          card.prefix + ":" + id,
-		Title:       card.title,
-		Authors:     card.authors,
-		Publisher:   card.publisher,
-		Edition:     card.edition,
-		Language:    card.meta.language,
-		Year:        card.meta.year,
-		Description: card.description,
-		URL:         absoluteURL(pageURL, card.href),
+		ID:          card.Prefix + ":" + id,
+		Title:       card.Title,
+		Authors:     card.Authors,
+		Publisher:   card.Publisher,
+		Edition:     card.Edition,
+		Language:    card.Meta.Language,
+		Year:        card.Meta.Year,
+		Description: card.Description,
+		URL:         absoluteURL(pageURL, card.Href),
 	}
 }
 
 // splitPage sorts the chosen cards into exact and partial matches.
-func splitPage[T any](cards []searchCard, keep func(searchCard) bool, convert func(searchCard) T) SearchPage[T] {
+func splitPage[T any](cards []parse.Card, keep func(parse.Card) bool, convert func(parse.Card) T) SearchPage[T] {
 	page := SearchPage[T]{Results: []T{}}
 	for _, card := range cards {
 		if !keep(card) {
 			continue
 		}
-		if card.partial {
+		if card.Partial {
 			page.Partial = append(page.Partial, convert(card))
 		} else {
 			page.Results = append(page.Results, convert(card))

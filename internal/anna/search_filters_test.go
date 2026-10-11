@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -62,53 +63,6 @@ func TestResolveSearchSendsJournalArticlesToTheJournalsTab(t *testing.T) {
 	excluded := ResolveSearch(SearchOptions{Content: []string{"-book_fiction"}}, "journals")
 	if excluded.Index != "" || !reflect.DeepEqual(excluded.Content, []string{"-book_fiction"}) {
 		t.Fatalf("an exclusion is an explicit content filter: %+v", excluded)
-	}
-}
-
-func TestParseCardMetaReadsEveryPart(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		line string
-		want cardMeta
-	}{
-		{
-			line: "English [en] · EPUB · 3.8MB · 2008 · 📘 Book (non-fiction) · 🚀/lgli/zlib    · ",
-			want: cardMeta{language: "English", format: "EPUB", size: "3.8MB", year: "2008", content: "book_nonfiction", sources: []string{"lgli", "zlib"}, fastDownload: true},
-		},
-		{
-			line: "English [en] · PDF · 0.2MB · 2006 · 📄 Journal article · 🧬/🚀/lgli/scihub",
-			want: cardMeta{language: "English", format: "PDF", size: "0.2MB", year: "2006", content: "journal_article", sources: []string{"lgli", "scihub"}, fastDownload: true},
-		},
-		{
-			// Without a language the extension comes first.
-			line: "PDF · 1.5MB · 2008 · 📕 Book (fiction) · 🚀/lgli",
-			want: cardMeta{format: "PDF", size: "1.5MB", year: "2008", content: "book_fiction", sources: []string{"lgli"}, fastDownload: true},
-		},
-		{
-			// No 🚀: the file has no fast download.
-			line: "English [en] · German [de] · 7Z · 1.2GB · 💬 Comic book · lgli/lgrs",
-			want: cardMeta{language: "English, German", format: "7Z", size: "1.2GB", content: "book_comic", sources: []string{"lgli", "lgrs"}},
-		},
-		{
-			// A catalog record: no file, and a record id that looks like an extension.
-			line: "Metadata · English [en] · 📗 Book (unknown) · ol · OL1M",
-			want: cardMeta{language: "English", content: "book_unknown", sources: []string{"ol"}},
-		},
-		{
-			// A lowercase label before the content type is not a source.
-			line: "metadatos · Español [es] · 1999 · 📗\u00a0Libro (desconocido) · isbndb",
-			want: cardMeta{language: "Español", year: "1999", content: "book_unknown", sources: []string{"isbndb"}},
-		},
-		{
-			line: "Metadata · English [en] · 2008 · 📗 Book (unknown) · isbndb · ISBNdb 9780521879286",
-			want: cardMeta{language: "English", year: "2008", content: "book_unknown", sources: []string{"isbndb"}},
-		},
-	}
-	for _, tc := range tests {
-		if got := parseCardMeta(tc.line); !reflect.DeepEqual(got, tc.want) {
-			t.Errorf("parseCardMeta(%q)\n got %+v\nwant %+v", tc.line, got, tc.want)
-		}
 	}
 }
 
@@ -266,13 +220,13 @@ func TestFindMetadataReturnsCatalogRecords(t *testing.T) {
 func TestPageTotalsWithoutResultsLine(t *testing.T) {
 	t.Parallel()
 
-	page := SearchPage[int]{Results: make([]int, resultsPerPage)}
+	page := SearchPage[int]{Results: make([]int, parse.ResultsPerPage)}
 	pageTotals(&page, fixtureDocument(t, "pages/search_past_end.html.gz"), 2)
-	if page.Total != 2*resultsPerPage || !page.TotalIsLowerBound || !page.MorePages {
+	if page.Total != 2*parse.ResultsPerPage || !page.TotalIsLowerBound || !page.MorePages {
 		t.Fatalf("a full page without a count should suggest more: %+v", page)
 	}
-	last := SearchPage[int]{Results: make([]int, resultsPerPage)}
-	pageTotals(&last, fixtureDocument(t, "pages/search_past_end.html.gz"), maxResultPages)
+	last := SearchPage[int]{Results: make([]int, parse.ResultsPerPage)}
+	pageTotals(&last, fixtureDocument(t, "pages/search_past_end.html.gz"), parse.MaxResultPages)
 	if last.MorePages {
 		t.Fatal("Anna serves at most 100 pages")
 	}

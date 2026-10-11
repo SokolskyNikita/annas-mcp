@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/joho/godotenv"
 )
 
@@ -131,7 +132,7 @@ func captureArchivePage(ctx context.Context, client *Client, path string) ([]byt
 			return err
 		}
 		doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
-		if err != nil || !isArchiveDocument(doc) {
+		if err != nil || !parse.IsArchivePage(doc) {
 			return fmt.Errorf("%s did not answer with an Anna's Archive page", path)
 		}
 		return nil

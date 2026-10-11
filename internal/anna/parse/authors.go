@@ -66,3 +66,35 @@ func trimAffiliationBlock(authors string) string {
 	}
 	return strings.TrimSpace(authors[:open]) + " " + strings.TrimSpace(authors[open+len(block):])
 }
+
+func splitAuthors(values []string) []string {
+	var authors []string
+	for _, value := range values {
+		// Anna displays its current full author field as a comma-separated list
+		// in one data-content node. Older templates expose one linked author per
+		// node. Records from some libraries list "Family, Given (role)" names
+		// separated by semicolons, where the comma belongs to the name.
+		value = CleanAuthors(value)
+		separators := func(r rune) bool { return r == ',' || r == ';' || r == '\n' || r == '\r' }
+		if strings.Contains(value, ";") {
+			separators = func(r rune) bool { return r == ';' || r == '\n' || r == '\r' }
+		}
+		for _, part := range strings.FieldsFunc(value, separators) {
+			if name := givenFirst(part); name != "" {
+				authors = append(authors, name)
+			}
+		}
+	}
+	return authors
+}
+
+// givenFirst turns "Family, Given (author)" into "Given Family".
+func givenFirst(name string) string {
+	name = strings.TrimSpace(roleSuffix.ReplaceAllString(name, ""))
+	if family, given, ok := strings.Cut(name, ","); ok && !strings.Contains(given, ",") {
+		name = strings.TrimSpace(given) + " " + strings.TrimSpace(family)
+	}
+	return strings.TrimSpace(name)
+}
+
+var roleSuffix = regexp.MustCompile(`\s*\((?:author|editor|translator|ed\.|eds\.)\)\s*$`)

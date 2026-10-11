@@ -2,6 +2,8 @@ package anna
 
 import (
 	"context"
+	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -12,7 +14,7 @@ import (
 
 // searchResults is one parsed results page.
 type searchResults struct {
-	cards   []searchCard
+	cards   []parse.Card
 	doc     *goquery.Document
 	pageURL string
 	page    int
@@ -42,12 +44,12 @@ func (c *Client) searchOn(ctx context.Context, base, query string, options Searc
 	if err != nil {
 		return searchResults{pageURL: pageURL}, err
 	}
-	cards := parseSearchCards(doc)
-	if len(cards) == 0 && !isArchiveDocument(doc) {
+	cards := parse.SearchCards(doc)
+	if len(cards) == 0 && !parse.IsArchivePage(doc) {
 		c.mirrorFailed(pageURL, mirror.Failure{Reason: "answered a search with a page that is not Anna's Archive", Blocked: true})
 		return searchResults{pageURL: pageURL}, apperr.New(apperr.UpstreamBlocked, "archive returned an unexpected page; check the mirror and account access")
 	}
-	if len(cards) == 0 && showsResults(doc, options.Page) {
+	if len(cards) == 0 && parse.ShowsResults(doc, options.Page) {
 		return searchResults{pageURL: pageURL}, apperr.New(apperr.Upstream, "Anna's Archive returned search results this version cannot read; its page layout may have changed. Check for a newer release, or report it at https://github.com/SokolskyNikita/annas-mcp/issues")
 	}
 	if err := checkFacetFilter(doc, "src", "source", options.Source); err != nil {
@@ -62,8 +64,8 @@ func (c *Client) searchOn(ctx context.Context, base, query string, options Searc
 // filePage builds a page of file results, converting each card with convert.
 func filePage[T any](results searchResults, convert func(*Book) T) SearchPage[T] {
 	page := splitPage(results.cards,
-		func(card searchCard) bool { return card.prefix == "md5" },
-		func(card searchCard) T { return convert(bookFromCard(card, results.pageURL)) })
+		func(card parse.Card) bool { return card.Prefix == "md5" },
+		func(card parse.Card) T { return convert(bookFromCard(card, results.pageURL)) })
 	pageTotals(&page, results.doc, results.page)
 	return page
 }
@@ -71,14 +73,14 @@ func filePage[T any](results searchResults, convert func(*Book) T) SearchPage[T]
 // metadataPage builds a page of catalog records.
 func metadataPage(results searchResults) SearchPage[*MetadataRecord] {
 	page := splitPage(results.cards,
-		func(card searchCard) bool { return card.prefix != "md5" },
-		func(card searchCard) *MetadataRecord { return metadataFromCard(card, results.pageURL) })
+		func(card parse.Card) bool { return card.Prefix != "md5" },
+		func(card parse.Card) *MetadataRecord { return metadataFromCard(card, results.pageURL) })
 	pageTotals(&page, results.doc, results.page)
 	return page
 }
 
 func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi, scidbURL, base string) (*Paper, error) {
-	downloadURL, hash, err := parseSciDBFile(doc, scidbURL)
+	downloadURL, hash, err := sciDBFile(doc, scidbURL)
 	if err != nil {
 		return nil, err
 	}
@@ -98,32 +100,52 @@ func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi,
 // addRecordDetails fills in a SciDB paper's title, journal, authors and size
 // from its record page.
 func addRecordDetails(paper *Paper, detail *goquery.Document) {
-	if title := strings.TrimSpace(detail.Find("title").First().Text()); title != "" {
-		if idx := strings.Index(title, " - Anna"); idx > 0 {
-			paper.Title = strings.TrimSpace(title[:idx])
+	details := parse.ReadRecordDetails(detail)
+	paper.Title, paper.Journal, paper.Authors, paper.Size = details.Title, details.Journal, details.Authors, details.Size
+}
+
+// pageTotals fills in totals for a parsed page. Without Anna's count, a
+// full page is taken to mean that more results may follow. A page past the
+// last result shows no count either; the total is then unknown, so it is
+// reported as a lower bound of zero, with no more pages.
+func pageTotals[T any](page *SearchPage[T], doc *goquery.Document, pageNumber int) {
+	if pageNumber < 1 {
+		pageNumber = 1
+	}
+	total, lowerBound, found := parse.ResultsTotal(doc)
+	if !found && pageNumber > 1 && len(page.Results) == 0 && len(page.Partial) == 0 {
+		page.Total, page.TotalIsLowerBound, page.MorePages = 0, true, false
+		return
+	}
+	if !found {
+		total = (pageNumber-1)*parse.ResultsPerPage + len(page.Results)
+		lowerBound = len(page.Results) >= parse.ResultsPerPage
+	}
+	page.Total, page.TotalIsLowerBound = total, lowerBound
+	page.MorePages = pageNumber < parse.MaxResultPages && (total > pageNumber*parse.ResultsPerPage || lowerBound)
+}
+
+// checkFacetFilter rejects requested values the page does not offer. Anna
+// ignores an unknown value and returns no exact matches, which would read
+// as the work being absent. Pages without the facet are not checked.
+func checkFacetFilter(doc *goquery.Document, name, label string, requested []string) error {
+	if len(requested) == 0 || doc == nil {
+		return nil
+	}
+	offered := parse.FacetValues(doc, name)
+	if len(offered) == 0 {
+		return nil
+	}
+	known := make(map[string]bool, len(offered))
+	for _, value := range offered {
+		known[value] = true
+	}
+	for _, value := range requested {
+		value = strings.TrimPrefix(value, "-")
+		if !known[value] {
+			sort.Strings(offered)
+			return apperr.New(apperr.InvalidArgument, fmt.Sprintf("unknown %s %q for this search; use one of: %s", label, value, strings.Join(offered, ", ")))
 		}
 	}
-	if description, ok := detail.Find("meta[name=description]").Attr("content"); ok {
-		parts := strings.Split(description, "\n\n")
-		switch {
-		case len(parts) >= 3:
-			paper.Journal = strings.TrimSpace(parts[2])
-		case len(parts) >= 2:
-			paper.Journal = strings.TrimSpace(parts[1])
-		default:
-			paper.Journal = strings.TrimSpace(description)
-		}
-	}
-	detail.Find(authorSelector).EachWithBreak(func(_ int, element *goquery.Selection) bool {
-		paper.Authors = parse.CleanAuthors(element.Parent().Text())
-		return paper.Authors == ""
-	})
-	detail.Find("div.text-gray-500").EachWithBreak(func(_ int, element *goquery.Selection) bool {
-		text := strings.TrimSpace(element.Text())
-		if strings.Contains(text, "MB") || strings.Contains(text, "KB") {
-			paper.Size = text
-			return false
-		}
-		return true
-	})
+	return nil
 }

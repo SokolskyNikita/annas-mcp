@@ -2,12 +2,10 @@ package anna
 
 import (
 	"context"
-	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -21,11 +19,6 @@ type AccountStatus struct {
 	WindowHours    int      `json:"window_hours,omitempty"`
 	Memberships    []string `json:"memberships,omitempty"`
 }
-
-var (
-	downloadsUsedPattern = regexp.MustCompile(`^\s*(\d+)\s*/\s*(\d+)\s*$`)
-	firstNumberPattern   = regexp.MustCompile(`\d+`)
-)
 
 // AccountStatus reads the account page, which shows active memberships and
 // "Fast downloads used (last 18 hours): 4 / 125".
@@ -50,13 +43,13 @@ func (c *Client) accountStatusOn(ctx context.Context, base string) (*AccountStat
 		return nil, err
 	}
 	status := &AccountStatus{
-		Member:         page.limit > 0,
-		DownloadsLimit: page.limit,
-		WindowHours:    page.windowHours,
-		Memberships:    page.memberships,
+		Member:         page.Limit > 0,
+		DownloadsLimit: page.Limit,
+		WindowHours:    page.WindowHours,
+		Memberships:    page.Memberships,
 	}
-	if page.limit > 0 {
-		status.DownloadsLeft = max(0, page.limit-page.used)
+	if page.Limit > 0 {
+		status.DownloadsLeft = max(0, page.Limit-page.Used)
 		return status, nil
 	}
 	// No allowance line: the account has no membership, or the page changed.
@@ -69,71 +62,29 @@ func (c *Client) accountStatusOn(ctx context.Context, base string) (*AccountStat
 	return status, nil
 }
 
-type accountPage struct {
-	signedIn    bool
-	used, limit int
-	windowHours int
-	memberships []string
-}
-
 // fetchAccountPage signs in again once if the archive no longer recognizes
 // the session: the account page answers 200 either way.
-func (c *Client) fetchAccountPage(ctx context.Context, base string) (accountPage, error) {
+func (c *Client) fetchAccountPage(ctx context.Context, base string) (parse.AccountPage, error) {
 	accountURL := buildPathURL(base, "/account/")
 	for renewed := false; ; renewed = true {
 		cookie := c.sessionCookie()
 		doc, _, err := c.fetchDocument(ctx, accountURL)
 		if err != nil {
-			return accountPage{}, err
+			return parse.AccountPage{}, err
 		}
-		page := parseAccountPage(doc)
-		if page.signedIn {
+		page := parse.ParseAccountPage(doc)
+		if page.SignedIn {
 			return page, nil
 		}
 		if !renewed {
 			retry, err := c.signIn(ctx, cookie)
 			if err != nil {
-				return accountPage{}, err
+				return parse.AccountPage{}, err
 			}
 			if retry {
 				continue
 			}
 		}
-		return accountPage{}, apperr.New(apperr.UpstreamBlocked, "Anna's Archive shows this session as signed out; check ANNAS_SECRET_KEY, or set ANNAS_ACCOUNT_COOKIE: "+manualCookieSteps)
+		return parse.AccountPage{}, apperr.New(apperr.UpstreamBlocked, "Anna's Archive shows this session as signed out; check ANNAS_SECRET_KEY, or set ANNAS_ACCOUNT_COOKIE: "+manualCookieSteps)
 	}
-}
-
-func parseAccountPage(doc *goquery.Document) accountPage {
-	var page accountPage
-	if doc == nil {
-		return page
-	}
-	page.signedIn = doc.Find("a[href='/account/secret_key']").Length() > 0
-	doc.Find("a[href='/account/downloaded']").EachWithBreak(func(_ int, link *goquery.Selection) bool {
-		line := link.Parent()
-		match := downloadsUsedPattern.FindStringSubmatch(line.Find("strong").First().Text())
-		if match == nil {
-			return true
-		}
-		page.used, _ = strconv.Atoi(match[1])
-		page.limit, _ = strconv.Atoi(match[2])
-		if hours := firstNumberPattern.FindString(ownText(line)); hours != "" {
-			page.windowHours, _ = strconv.Atoi(hours)
-		}
-		return false
-	})
-	// Expired memberships stay listed with line-through.
-	doc.Find("a[href^='/donate?tier=']").Each(func(_ int, link *goquery.Selection) {
-		line := link.Parent()
-		tier := strings.Join(strings.Fields(line.Find("strong").First().Text()), " ")
-		if tier == "" || hasClass(line, "line-through") {
-			return
-		}
-		text := strings.Join(strings.Fields(line.Clone().Find("a").Remove().End().Text()), " ")
-		if i := strings.Index(text, tier); i >= 0 {
-			text = text[i:]
-		}
-		page.memberships = append(page.memberships, text)
-	})
-	return page
 }

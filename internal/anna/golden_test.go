@@ -65,12 +65,12 @@ func goldenOutput(t *testing.T, page capturedPage) any {
 		paper := &Paper{}
 		addRecordDetails(paper, doc)
 		return struct {
-			Identity archiveIdentity `json:"identity"`
+			Identity parse.Identity `json:"identity"`
 			// SciDB reads its paper's details from the same page.
 			SciDBDetails *Paper `json:"scidb_details"`
-		}{parseArchiveIdentity(doc), paper}
+		}{parse.RecordIdentity(doc), paper}
 	case "scidb":
-		downloadURL, hash, err := parseSciDBFile(doc, pageURL)
+		downloadURL, hash, err := sciDBFile(doc, pageURL)
 		return map[string]string{"download_url": downloadURL, "hash": hash, "error": errorText(err)}
 	}
 	t.Fatalf("unknown page kind %q", page.Kind)
@@ -78,11 +78,11 @@ func goldenOutput(t *testing.T, page capturedPage) any {
 }
 
 func goldenSearch(doc *goquery.Document, page capturedPage, pageURL string) any {
-	results := searchResults{cards: parseSearchCards(doc), doc: doc, pageURL: pageURL, page: max(page.Page, 1)}
+	results := searchResults{cards: parse.SearchCards(doc), doc: doc, pageURL: pageURL, page: max(page.Page, 1)}
 	output := map[string]any{
-		"facets": map[string][]string{"src": facetValues(doc, "src"), "content": facetValues(doc, "content")},
+		"facets": map[string][]string{"src": parse.FacetValues(doc, "src"), "content": parse.FacetValues(doc, "content")},
 	}
-	if len(results.cards) == 0 && showsResults(doc, results.page) {
+	if len(results.cards) == 0 && parse.ShowsResults(doc, results.page) {
 		output["error"] = "results this version cannot read"
 		return output
 	}
@@ -127,7 +127,7 @@ func TestDOIIdentityCases(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			record := parseArchiveIdentity(fixtureDocument(t, "pages/"+capturedPageNamed(t, tc.record).file()))
+			record := parse.RecordIdentity(fixtureDocument(t, "pages/"+capturedPageNamed(t, tc.record).file()))
 			if got := verifyDOIIdentity(parse.NormalizeDOI(csl.DOI), metadata, record); got != tc.want {
 				t.Fatalf("verifyDOIIdentity = %v, want %v\nCSL: %+v\nrecord: %+v", got, tc.want, metadata, record)
 			}
@@ -138,7 +138,7 @@ func TestDOIIdentityCases(t *testing.T) {
 // TestDOIIdentityRejectsAnotherDOI checks that a record carrying another real
 // DOI is rejected even when its title and authors agree with DOI.org's.
 func TestDOIIdentityRejectsAnotherDOI(t *testing.T) {
-	record := parseArchiveIdentity(fixtureDocument(t, "pages/record_liang_2016.html.gz"))
+	record := parse.RecordIdentity(fixtureDocument(t, "pages/record_liang_2016.html.gz"))
 	if record.DOI != "10.1002/chin.201627137" {
 		t.Fatalf("record DOI = %q, want the one in its identifiers panel", record.DOI)
 	}

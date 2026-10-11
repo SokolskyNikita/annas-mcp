@@ -143,11 +143,3 @@ func (c *Client) requestClient(timeout time.Duration) *http.Client {
 	}
 	return &client
 }
-
-func isArchiveDocument(doc *goquery.Document) bool {
-	if doc == nil {
-		return false
-	}
-	title := strings.ToLower(doc.Find("title").First().Text())
-	return strings.Contains(title, "anna's archive") || strings.Contains(title, "anna’s archive") || doc.Find("form[action='/search'] input[name='q']").Length() > 0
-}

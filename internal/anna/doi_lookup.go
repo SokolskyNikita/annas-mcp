@@ -189,7 +189,7 @@ func (c *Client) searchIndexes(ctx context.Context, query string) [2]indexResult
 // and cancels the rest. It returns an error only when ctx ends.
 func (c *Client) verifyCandidates(ctx context.Context, doi string, metadata doiMetadata, candidates []*Book, noteFailure func(error)) (*Paper, error) {
 	type checked struct {
-		identity archiveIdentity
+		identity parse.Identity
 		err      error
 	}
 	for len(candidates) > 0 {
@@ -229,15 +229,15 @@ func (c *Client) verifyCandidates(ctx context.Context, doi string, metadata doiM
 	return nil, nil
 }
 
-func (c *Client) archiveIdentityForBook(ctx context.Context, book *Book) (archiveIdentity, error) {
+func (c *Client) archiveIdentityForBook(ctx context.Context, book *Book) (parse.Identity, error) {
 	if book == nil || book.Hash == "" {
-		return archiveIdentity{}, apperr.New(apperr.NotFound, "archive search result has no record hash")
+		return parse.Identity{}, apperr.New(apperr.NotFound, "archive search result has no record hash")
 	}
 	hash, err := normalizeHash(book.Hash)
 	if err != nil {
-		return archiveIdentity{}, err
+		return parse.Identity{}, err
 	}
-	var identity archiveIdentity
+	var identity parse.Identity
 	err = c.onMirror(ctx, func(base string) error {
 		var err error
 		identity, err = c.archiveIdentityOn(ctx, base, hash)
@@ -246,24 +246,24 @@ func (c *Client) archiveIdentityForBook(ctx context.Context, book *Book) (archiv
 	return identity, err
 }
 
-func (c *Client) archiveIdentityOn(ctx context.Context, base, hash string) (archiveIdentity, error) {
+func (c *Client) archiveIdentityOn(ctx context.Context, base, hash string) (parse.Identity, error) {
 	requestedURL, err := url.Parse(buildPathURL(base, "/md5/"+hash))
 	if err != nil {
-		return archiveIdentity{}, err
+		return parse.Identity{}, err
 	}
 	if requestedURL.Scheme != "https" || requestedURL.Host == "" || requestedURL.User != nil ||
 		strings.TrimSuffix(requestedURL.Path, "/") != "/md5/"+hash {
-		return archiveIdentity{}, apperr.New(apperr.NotFound, "archive search result has an invalid record URL")
+		return parse.Identity{}, apperr.New(apperr.NotFound, "archive search result has an invalid record URL")
 	}
 	doc, finalURL, err := c.fetchDocument(ctx, requestedURL.String())
 	if err != nil {
-		return archiveIdentity{}, err
+		return parse.Identity{}, err
 	}
 	if finalURL == nil || finalURL.User != nil || !sameOrigin(finalURL, requestedURL) ||
 		strings.TrimSuffix(finalURL.Path, "/") != strings.TrimSuffix(requestedURL.Path, "/") {
-		return archiveIdentity{}, apperr.New(apperr.NotFound, "archive record redirected away from the selected hash")
+		return parse.Identity{}, apperr.New(apperr.NotFound, "archive record redirected away from the selected hash")
 	}
-	return parseArchiveIdentity(doc), nil
+	return parse.RecordIdentity(doc), nil
 }
 
 // citationMetadataFromDOI reads DOI.org's CSL representation. Search snippets

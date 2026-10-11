@@ -11,7 +11,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -100,22 +99,6 @@ func TestFormatFromResponseUsesFilenameAndMediaType(t *testing.T) {
 	if got := formatFromResponse(withoutHints); got != "bin" {
 		t.Fatalf("fallback format = %q", got)
 	}
-}
-
-func TestParserHelpersNormalizeMetadataAndSnippets(t *testing.T) {
-	t.Parallel()
-
-	text := strings.Repeat("long description ", 40)
-	if got := parse.Snippet(text); len(got) > 480 || strings.Contains(got, "  ") {
-		t.Fatalf("snippet was not normalized: length=%d value=%q", len(got), got)
-	}
-	if meta := parseCardMeta("✅ English [en] · EPUB · 1.2MB · 2020"); meta.language != "English" || meta.format != "EPUB" || meta.size != "1.2MB" || meta.year != "2020" {
-		t.Fatalf("metadata = %+v", meta)
-	}
-	if meta := parseCardMeta("unstructured metadata"); meta.language != "" || meta.format != "" || meta.size != "" || meta.sources != nil {
-		t.Fatalf("malformed metadata = %+v", meta)
-	}
-
 }
 
 func TestParseBooksSkipsMalformedCards(t *testing.T) {

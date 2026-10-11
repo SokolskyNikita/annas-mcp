@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -157,6 +158,9 @@ func (c *Client) detailsOn(ctx context.Context, base, prefix, value string) (*De
 	return details, nil
 }
 
+// recordPrefixPattern is a record id's prefix, such as md5, isbndb or ol.
+var recordPrefixPattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
+
 // ParseRecordID accepts a 32-character hash, md5:<hash>, a catalog id such
 // as ol:OL123M, or a record URL or path copied from a search result.
 func ParseRecordID(input string) (prefix, value string, err error) {
@@ -167,7 +171,7 @@ func ParseRecordID(input string) (prefix, value string, err error) {
 	if strings.HasPrefix(input, "/") || strings.Contains(input, "://") {
 		parsed, parseErr := url.Parse(input)
 		if parseErr == nil {
-			if p, v, ok := recordPath(parsed.Path); ok {
+			if p, v, ok := parse.RecordPath(parsed.Path); ok {
 				if unescaped, unescapeErr := url.PathUnescape(v); unescapeErr == nil {
 					v = unescaped
 				}

@@ -1,0 +1,99 @@
+package parse
+
+import (
+	"strings"
+	"unicode"
+	"unicode/utf8"
+)
+
+// CardMeta is a card's metadata line. Language joins up to three language
+// names, most likely first; Content is a content type such as
+// book_nonfiction; FastDownload marks files on Anna's fast download servers.
+type CardMeta struct {
+	Language, Format, Size, Year, Content string
+	Sources                               []string
+	FastDownload                          bool
+}
+
+// The content label is translated, but its emoji is not.
+var contentEmoji = map[rune]string{
+	'📗': "book_unknown", '📘': "book_nonfiction", '📕': "book_fiction",
+	'📄': "journal_article", '📝': "standards_document", '📰': "magazine",
+	'💬': "book_comic", '🎶': "musical_score", '🎧': "audiobook", '🤨': "other",
+}
+
+// ParseCardMeta reads the metadata line. Its parts are optional but always
+// in this order: languages, extension, size, year, content type, sources
+// (prefixed by 🧬 for SciDB and 🚀 for fast downloads) and a record id.
+func ParseCardMeta(line string) CardMeta {
+	const (
+		stageLanguage = iota
+		stageFormat
+		stageSize
+		stageYear
+		stageContent
+		stageSources
+		stageDone
+	)
+	var meta CardMeta
+	stage := stageLanguage
+	for _, part := range strings.Split(line, "·") {
+		part = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(part), "✅"))
+		if part == "" {
+			continue
+		}
+		if stage <= stageLanguage {
+			// A record can list up to three languages, most likely first.
+			if match := cardLanguagePattern.FindStringSubmatch(part); match != nil {
+				if meta.Language != "" {
+					meta.Language += ", "
+				}
+				meta.Language += match[1]
+				continue
+			}
+		}
+		if stage <= stageFormat && cardFormatPattern.MatchString(part) && strings.IndexFunc(part, unicode.IsLetter) >= 0 {
+			meta.Format, stage = part, stageSize
+			continue
+		}
+		if stage <= stageSize && cardSizePattern.MatchString(part) {
+			meta.Size, stage = part, stageYear
+			continue
+		}
+		if stage <= stageYear && cardYearPattern.MatchString(part) {
+			meta.Year, stage = part, stageContent
+			continue
+		}
+		if stage <= stageContent {
+			first, _ := utf8.DecodeRuneInString(part)
+			if content, ok := contentEmoji[first]; ok {
+				meta.Content, stage = content, stageSources
+				continue
+			}
+		}
+		// Sources follow the content type, which every record has; a lone
+		// lowercase word earlier on, such as a translated label, is not one.
+		if stage == stageSources || (stage < stageSources && strings.Contains(part, "/")) {
+			if sources, fast, ok := parseSources(part); ok {
+				meta.Sources, meta.FastDownload, stage = sources, fast, stageDone
+				continue
+			}
+		}
+	}
+	return meta
+}
+
+func parseSources(part string) (sources []string, fastDownload, ok bool) {
+	for _, token := range strings.Split(part, "/") {
+		switch token = strings.TrimSpace(token); {
+		case token == "🚀":
+			fastDownload = true
+		case token == "🧬":
+		case sourceNamePattern.MatchString(token):
+			sources = append(sources, token)
+		default:
+			return nil, false, false
+		}
+	}
+	return sources, fastDownload, len(sources) > 0 || fastDownload
+}

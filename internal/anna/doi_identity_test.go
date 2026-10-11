@@ -9,64 +9,6 @@ import (
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
-func TestParseArchiveIdentityUsesRecordFieldsNotCitations(t *testing.T) {
-	t.Parallel()
-
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(`<!doctype html>
-		<title>Attention Is All You Need - Anna’s Archive</title>
-		<meta name="description" content="A citation to 10.9999/unrelated">
-		<a href="/search?q=doi%3A10.9999%2Funrelated">citation DOI</a>
-		<div data-content="Attention Is All You Need" class="font-bold text-violet-900"></div>
-		<div data-content="Ashish Vaswani, Noam Shazeer" class="font-bold text-amber-900"></div>
-		<div class="js-md5-codes-container hidden">
-			<div id="md5-codes-panel-year"><span>Year:</span><span class="bg-gray-200">2017</span>
-				<a href="/search?q=year%3A2017">Search year</a></div>
-		</div>`))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	identity := parseArchiveIdentity(doc)
-	if identity.Title != "Attention Is All You Need" {
-		t.Fatalf("record title = %q", identity.Title)
-	}
-	if !sameAuthorSet([]string{"Ashish Vaswani", "Noam Shazeer"}, identity.Authors) {
-		t.Fatalf("record authors = %v", identity.Authors)
-	}
-	if identity.DOI != "" {
-		t.Fatalf("citation mention was treated as record DOI: %+v", identity)
-	}
-	if identity.Year != "2017" {
-		t.Fatalf("record year = %q", identity.Year)
-	}
-}
-
-func TestParseArchiveIdentityReadsStructuredDOIAndDetectsConflict(t *testing.T) {
-	t.Parallel()
-
-	for _, test := range []struct {
-		name         string
-		codes        string
-		wantDOI      string
-		wantConflict bool
-	}{
-		{name: "one DOI", codes: `<a href="/search?q=doi%3A10.1000%2Frecord">DOI</a>`, wantDOI: "10.1000/record"},
-		{name: "exact search link", codes: `<a href='/search?q="doi:10.1000/record"'>DOI</a>`, wantDOI: "10.1000/record"},
-		{name: "conflicting DOI fields", codes: `<a href="/search?q=doi%3A10.1000%2Frecord">DOI</a><a href="/search?q=doi%3A10.1000%2Fother">DOI</a>`, wantDOI: "10.1000/record", wantConflict: true},
-	} {
-		t.Run(test.name, func(t *testing.T) {
-			doc, err := goquery.NewDocumentFromReader(strings.NewReader(`<div class="js-md5-codes-container">` + test.codes + `</div>`))
-			if err != nil {
-				t.Fatal(err)
-			}
-			identity := parseArchiveIdentity(doc)
-			if identity.DOI != test.wantDOI || identity.DOIConflict != test.wantConflict {
-				t.Fatalf("identity = %+v, want DOI %q conflict %v", identity, test.wantDOI, test.wantConflict)
-			}
-		})
-	}
-}
-
 func TestVerifyDOIIdentityRequiresFullTitleAndAuthorsWithoutIdentifier(t *testing.T) {
 	t.Parallel()
 
@@ -77,7 +19,7 @@ func TestVerifyDOIIdentityRequiresFullTitleAndAuthorsWithoutIdentifier(t *testin
 		Authors: []string{"Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones", "Aidan N. Gomez", "Łukasz Kaiser", "Illia Polosukhin"},
 		Year:    "2017",
 	}
-	record := archiveIdentity{
+	record := parse.Identity{
 		Title:   metadata.Title,
 		Authors: []string{"Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones", "Aidan N. Gomez", "Lukasz Kaiser", "Illia Polosukhin"},
 		Year:    "2017",
@@ -114,10 +56,10 @@ func TestVerifyDOIIdentityAcceptsExactRecordDOIWithoutOptionalAuthors(t *testing
 
 	doi := "10.1000/example"
 	metadata := doiMetadata{DOI: doi, Title: "A Paper", Authors: []string{"An Author"}}
-	if !verifyDOIIdentity(doi, metadata, archiveIdentity{DOI: doi, Title: "A Paper"}) {
+	if !verifyDOIIdentity(doi, metadata, parse.Identity{DOI: doi, Title: "A Paper"}) {
 		t.Fatal("an exact structured record DOI should not require optional author fields")
 	}
-	if verifyDOIIdentity(doi, metadata, archiveIdentity{DOI: doi, DOIConflict: true, Title: "A Paper"}) {
+	if verifyDOIIdentity(doi, metadata, parse.Identity{DOI: doi, DOIConflict: true, Title: "A Paper"}) {
 		t.Fatal("conflicting structured DOIs must be rejected")
 	}
 }
@@ -155,7 +97,7 @@ func TestVerifyDOIIdentityAcceptsThePublishedVersionOfAnArxivPreprint(t *testing
 	if err != nil {
 		t.Fatal(err)
 	}
-	record := parseArchiveIdentity(doc)
+	record := parse.RecordIdentity(doc)
 	if record.DOI != "" || len(record.Authors) != 2 || record.Authors[0] != "Diederik P. Kingma" {
 		t.Fatalf("parsed record: %+v", record)
 	}
@@ -163,12 +105,12 @@ func TestVerifyDOIIdentityAcceptsThePublishedVersionOfAnArxivPreprint(t *testing
 		t.Fatal("the published version of the preprint was rejected")
 	}
 
-	for name, change := range map[string]func(*archiveIdentity){
-		"a year earlier than the preprint": func(r *archiveIdentity) { r.Year = "2013" },
-		"two years later":                  func(r *archiveIdentity) { r.Year = "2016" },
-		"another family name":              func(r *archiveIdentity) { r.Authors = []string{"Diederik P. Kingma", "Jimmy Lei Bo"} },
-		"another first initial":            func(r *archiveIdentity) { r.Authors = []string{"Diederik P. Kingma", "Lei Ba"} },
-		"its own real DOI":                 func(r *archiveIdentity) { r.DOI = "10.1109/example.2015.1" },
+	for name, change := range map[string]func(*parse.Identity){
+		"a year earlier than the preprint": func(r *parse.Identity) { r.Year = "2013" },
+		"two years later":                  func(r *parse.Identity) { r.Year = "2016" },
+		"another family name":              func(r *parse.Identity) { r.Authors = []string{"Diederik P. Kingma", "Jimmy Lei Bo"} },
+		"another first initial":            func(r *parse.Identity) { r.Authors = []string{"Diederik P. Kingma", "Lei Ba"} },
+		"its own real DOI":                 func(r *parse.Identity) { r.DOI = "10.1109/example.2015.1" },
 	} {
 		changed := record
 		change(&changed)
@@ -187,7 +129,7 @@ func TestVerifyDOIIdentityKeepsDOISuffixPunctuation(t *testing.T) {
 	t.Parallel()
 
 	for _, suffix := range []string{"(02)", "(02).", ").", ".", ",", ";", ":", "]", "}", ">", "'", "\"", "?", "#"} {
-		if verifyDOIIdentity("10.1000/example", doiMetadata{}, archiveIdentity{DOI: "10.1000/example" + suffix}) {
+		if verifyDOIIdentity("10.1000/example", doiMetadata{}, parse.Identity{DOI: "10.1000/example" + suffix}) {
 			t.Errorf("distinct DOI suffix %q matched the unpunctuated DOI", suffix)
 		}
 	}
