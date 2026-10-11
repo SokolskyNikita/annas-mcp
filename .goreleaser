@@ -27,7 +27,7 @@ archives:
     format_overrides:
       - {goos: windows, formats: [zip]}
     wrap_in_directory: true
-    files: [README.md, CHANGELOG.md, LICENSE]
+    files: [README.md, HOW-IT-WORKS.md, CHANGELOG.md, LICENSE]
 
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}--checksums.txt"

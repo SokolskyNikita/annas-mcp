@@ -40,6 +40,7 @@ The `npx` launcher always runs the latest published release, never your checkout
 | `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
 | `server.json`, `manifest.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery) and Glama |
 | `Dockerfile` | Container image for `docker run -i` and Docker's MCP Catalog |
+| `HOW-IT-WORKS.md` | Tool options and results, downloads, mirror selection, the cache folder and the saved session; shipped in release archives and the MCP Bundle |
 | `llms-install.md` | Setup steps for AI agents that install MCP servers for a user, such as Cline |
 | `assets` | Icon (`icon.svg`, rendered to `icon.png` at 512×512) and the GitHub social preview (`social-preview.svg`, rendered to `social-preview.png` at 1280×640) |
 | `docs` | Project website, served by GitHub Pages. Keep its setup snippets in step with the README |

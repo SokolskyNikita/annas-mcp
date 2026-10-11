@@ -29,7 +29,7 @@ const pkg = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 await rm(stage, { recursive: true, force: true });
 await rm(output, { force: true });
 await mkdir(stage, { recursive: true });
-for (const entry of ["bin", "lib", "manifest.json", "LICENSE", "README.md"]) {
+for (const entry of ["bin", "lib", "manifest.json", "LICENSE", "README.md", "HOW-IT-WORKS.md"]) {
   await cp(path.join(root, entry), path.join(stage, entry), { recursive: true });
 }
 await cp(path.join(root, "assets", "icon.png"), path.join(stage, "icon.png"));
