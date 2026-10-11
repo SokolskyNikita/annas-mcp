@@ -36,8 +36,11 @@ var corpora = []struct {
 // {"in", "out"} object per line. After changing a rule, run with -update and
 // review the diff.
 func TestCorpus(t *testing.T) {
+	t.Parallel()
+
 	for _, corpus := range corpora {
 		t.Run(corpus.name, func(t *testing.T) {
+			t.Parallel()
 			lines := corpusLines(t, corpus.name+".txt.gz")
 			if lines == nil {
 				t.Skip("no corpus yet; see TestCrawlCorpus in package anna")
@@ -79,6 +82,8 @@ func TestCorpus(t *testing.T) {
 // TestCorpusHasNothingUnread checks that every part of every real metadata
 // line is recognized.
 func TestCorpusHasNothingUnread(t *testing.T) {
+	t.Parallel()
+
 	var report Report
 	for _, line := range corpusLines(t, "metadata_lines.txt.gz") {
 		for _, part := range ParseCardMeta(line).Unparsed {

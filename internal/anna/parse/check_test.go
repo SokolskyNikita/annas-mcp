@@ -12,17 +12,20 @@ func TestCapturedPagesHaveNothingUnread(t *testing.T) {
 	t.Parallel()
 
 	for _, page := range readManifest(t) {
-		switch page.Kind {
-		case "books", "articles", "metadata":
-			doc := pageDocument(t, page.file())
-			if report := CheckSearchPage(doc, SearchCards(doc)); !report.Empty() {
-				t.Errorf("%s: %s", page.Name, report)
+		t.Run(page.Name, func(t *testing.T) {
+			t.Parallel()
+			switch page.Kind {
+			case "books", "articles", "metadata":
+				doc := pageDocument(t, page.file())
+				if report := CheckSearchPage(doc, SearchCards(doc)); !report.Empty() {
+					t.Error(report)
+				}
+			case "record":
+				if report := CheckRecordDetails(ReadRecordDetails(pageDocument(t, page.file()))); !report.Empty() {
+					t.Error(report)
+				}
 			}
-		case "record":
-			if report := CheckRecordDetails(ReadRecordDetails(pageDocument(t, page.file()))); !report.Empty() {
-				t.Errorf("%s: %s", page.Name, report)
-			}
-		}
+		})
 	}
 }
 
@@ -46,7 +49,7 @@ func TestCheckSearchPageNoticesWhatItCannotRead(t *testing.T) {
 		}
 	})
 	t.Run("a card that no longer parses", func(t *testing.T) {
-		doc := pageDocument(t, "search_books.html.gz")
+		doc := freshPageDocument(t, "search_books.html.gz")
 		doc.Find(".js-aarecord-list-outer div.max-w-full").First().Remove()
 		report := CheckSearchPage(doc, SearchCards(doc))
 		if kinds := problemKinds(report); strings.Join(kinds, "|") != ProblemDroppedCard+"|"+ProblemResultCount {
@@ -57,7 +60,7 @@ func TestCheckSearchPageNoticesWhatItCannotRead(t *testing.T) {
 		}
 	})
 	t.Run("a grey-out without the issues line", func(t *testing.T) {
-		doc := pageDocument(t, "search_books.html.gz")
+		doc := freshPageDocument(t, "search_books.html.gz")
 		doc.Find("div.opacity-40").First().RemoveClass("opacity-40")
 		report := CheckSearchPage(doc, SearchCards(doc))
 		if kinds := problemKinds(report); len(kinds) != 1 || kinds[0] != ProblemIssueMismatch {
@@ -65,7 +68,7 @@ func TestCheckSearchPageNoticesWhatItCannotRead(t *testing.T) {
 		}
 	})
 	t.Run("a missing partial match", func(t *testing.T) {
-		doc := pageDocument(t, "search_filtered_partial.html.gz")
+		doc := freshPageDocument(t, "search_filtered_partial.html.gz")
 		doc.Find(".js-partial-matches-show a.custom-a.block").First().Parent().Remove()
 		report := CheckSearchPage(doc, SearchCards(doc))
 		if len(report.Problems) != 1 || report.Problems[0].Samples[0] != "read 40, the page shows 41" {

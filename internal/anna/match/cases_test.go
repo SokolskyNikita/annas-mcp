@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
@@ -31,13 +32,21 @@ func readPage(t testing.TB, name string) []byte {
 	return data
 }
 
+// parsedPages holds the captured pages once parsed, so tests that read the
+// same record share one parse. The documents must not be changed.
+var parsedPages sync.Map
+
 func pageDocument(t testing.TB, name string) *goquery.Document {
 	t.Helper()
+	if doc, ok := parsedPages.Load(name); ok {
+		return doc.(*goquery.Document)
+	}
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(readPage(t, name)))
 	if err != nil {
 		t.Fatal(err)
 	}
-	return doc
+	stored, _ := parsedPages.LoadOrStore(name, doc)
+	return stored.(*goquery.Document)
 }
 
 // capturedCSLPage is a page in the capture manifest; DOI is set for

@@ -67,8 +67,11 @@ func TestCapturedPagesKeepScriptsOnlyWhereMarked(t *testing.T) {
 // make of it with the reviewed output in <name>.golden.json. After a capture
 // or a parser change, run with -update and review the diff.
 func TestCapturedPages(t *testing.T) {
+	t.Parallel()
+
 	for _, page := range readManifest(t) {
 		t.Run(page.Name, func(t *testing.T) {
+			t.Parallel()
 			got, err := json.MarshalIndent(pageOutput(t, page), "", "  ")
 			if err != nil {
 				t.Fatal(err)
