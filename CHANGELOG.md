@@ -2,6 +2,15 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.3.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.3.0) - 2026-10-11
+
+- Save downloads to `annas-archive` in the home folder (`~/annas-archive`, `%USERPROFILE%\annas-archive` on Windows) when `ANNAS_DOWNLOAD_PATH` is unset, so the secret key is the only setting a client needs. The folder is created on the first download, and unlike Desktop, Documents and Downloads it needs no macOS privacy permission. A leading `~` in `ANNAS_DOWNLOAD_PATH` now stands for the home folder. The MCP Bundle's download folder defaults to the same folder instead of Downloads.
+- Check that the download folder can be written before contacting any download server. Previously an unwritable folder failed only after the file had been requested from each fast server. The `[CONFIG]` error names the folder, and on macOS explains how to grant a protected folder's permission or pick an unprotected one.
+- The MCP instructions ask the client to tell the user where a download was saved.
+- Add a `Dockerfile` for `docker run -i` and Docker's MCP Catalog. CI builds the image and checks its MCP handshake.
+- Add a project site at https://sokolskynikita.github.io/annas-mcp/, `llms-install.md` for agents that install MCP servers, and a README section on switching from iosifache/annas-mcp.
+- The release workflow publishes the MCP Bundle to Smithery. `npm run bump` sets the version in every file and adds the CHANGELOG heading.
+
 ## [v0.2.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.2.0) - 2026-10-09
 
 - Sign in to Anna's Archive with `ANNAS_SECRET_KEY`, which is the account's login key as well as its API key, so the weekly `aa_account_id2` cookie no longer has to be copied from a browser. The server signs in before its first archive request. When the archive answers 403 to an expired session, it signs in again and retries the request once. Concurrent requests share one sign-in. With automatic mirror selection on, sign-in falls back to the other official mirrors.

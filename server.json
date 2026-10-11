@@ -8,7 +8,7 @@
     "url": "https://github.com/SokolskyNikita/annas-mcp",
     "source": "github"
   },
-  "version": "0.2.0",
+  "version": "0.3.0",
   "icons": [
     {
       "src": "https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.png",
@@ -26,7 +26,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "annas-mcp",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "transport": {
         "type": "stdio"
       },
@@ -39,7 +39,7 @@
         },
         {
           "name": "ANNAS_DOWNLOAD_PATH",
-          "description": "Absolute folder for downloaded files. Needed for downloads.",
+          "description": "Folder for downloaded files. Defaults to annas-archive in your home folder.",
           "isRequired": false,
           "format": "filepath"
         },

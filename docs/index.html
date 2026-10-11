@@ -151,11 +151,10 @@
   <h3>Claude Code</h3>
   <div class="code"><pre><code>claude mcp add annas-mcp \
   --env ANNAS_SECRET_KEY=your-secret-key \
-  --env ANNAS_DOWNLOAD_PATH=/absolute/path/to/downloads \
   -- npx -y annas-mcp</code></pre></div>
 
   <h3>Claude Desktop</h3>
-  <p>Download <a href="https://github.com/SokolskyNikita/annas-mcp/releases/latest/download/annas-mcp.mcpb">annas-mcp.mcpb</a> and open it. Claude Desktop asks for your secret key and download folder.</p>
+  <p>Download <a href="https://github.com/SokolskyNikita/annas-mcp/releases/latest/download/annas-mcp.mcpb">annas-mcp.mcpb</a> and open it. Claude Desktop asks for your secret key.</p>
 
   <h3>Cursor, or Claude Desktop by hand</h3>
   <div class="code"><pre><code>{
@@ -164,8 +163,7 @@
       "command": "npx",
       "args": ["-y", "annas-mcp"],
       "env": {
-        "ANNAS_SECRET_KEY": "your-secret-key",
-        "ANNAS_DOWNLOAD_PATH": "/absolute/path/to/downloads"
+        "ANNAS_SECRET_KEY": "your-secret-key"
       }
     }
   }
@@ -177,10 +175,9 @@ command = "npx"
 args = ["-y", "annas-mcp"]
 
 [mcp_servers.annas-mcp.env]
-ANNAS_SECRET_KEY = "your-secret-key"
-ANNAS_DOWNLOAD_PATH = "/absolute/path/to/downloads"</code></pre></div>
+ANNAS_SECRET_KEY = "your-secret-key"</code></pre></div>
 
-  <p>Then ask something like <em>"Find the EPUB of Pride and Prejudice and download it."</em> Docker, the command line and every option are in the <a href="https://github.com/SokolskyNikita/annas-mcp#readme">README</a>.</p>
+  <p>Then ask something like <em>"Find the EPUB of Pride and Prejudice and download it."</em> Files are saved to an <code>annas-archive</code> folder in your home folder; set <code>ANNAS_DOWNLOAD_PATH</code> to use another one. Docker, the command line and every option are in the <a href="https://github.com/SokolskyNikita/annas-mcp#readme">README</a>.</p>
 
   <h2>Coming from iosifache/annas-mcp?</h2>
   <p>It has the same four tools and reads the same <code>ANNAS_SECRET_KEY</code>, <code>ANNAS_DOWNLOAD_PATH</code> and <code>ANNAS_BASE_URL</code> variables. Replace the path to the old binary with <code>npx -y annas-mcp</code>. Searches then run as your signed-in member account, so they aren't turned away with <code>403</code>. <a href="https://github.com/SokolskyNikita/annas-mcp#switching-from-iosifacheannas-mcp">What changes</a>.</p>

@@ -20,7 +20,7 @@ To try your build in an MCP client, point the client at the binary with the `mcp
     "annas-mcp": {
       "command": "/absolute/path/to/annas-mcp",
       "args": ["mcp"],
-      "env": { "ANNAS_SECRET_KEY": "…", "ANNAS_DOWNLOAD_PATH": "…" }
+      "env": { "ANNAS_SECRET_KEY": "…" }
     }
   }
 }

@@ -6,12 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/internal/env"
 )
 
 var domainIndexes = []int{0, 1, 2}
@@ -33,13 +37,44 @@ func (c *Client) validateDownload(ctx context.Context, format string) error {
 			return err
 		}
 	}
-	if c.config.DownloadPath == "" || !filepath.IsAbs(c.config.DownloadPath) {
-		return apperr.New(apperr.Config, "ANNAS_DOWNLOAD_PATH must be an absolute directory path")
+	if c.config.DownloadPath == "" {
+		return apperr.New(apperr.Config, "set ANNAS_DOWNLOAD_PATH to an absolute folder path; the default folder in your home folder is unavailable because the home folder could not be determined")
+	}
+	if !filepath.IsAbs(c.config.DownloadPath) {
+		return apperr.New(apperr.Config, "ANNAS_DOWNLOAD_PATH must be an absolute folder path")
 	}
 	if strings.TrimSpace(c.config.SecretKey) == "" {
 		return apperr.New(apperr.Config, "ANNAS_SECRET_KEY is required for downloads")
 	}
-	return nil
+	return prepareDownloadFolder(c.config.DownloadPath)
+}
+
+// prepareDownloadFolder creates the download folder and checks that a file
+// can be written there, so a folder problem is reported before anything is
+// downloaded rather than once per download server.
+func prepareDownloadFolder(path string) error {
+	err := os.MkdirAll(path, 0o755)
+	if err == nil {
+		var probe *os.File
+		if probe, err = os.CreateTemp(path, ".annas-mcp-write-test-*"); err == nil {
+			_ = probe.Close()
+			return os.Remove(probe.Name())
+		}
+	}
+	// The path is already in the message; keep only the reason.
+	var pathErr *fs.PathError
+	if errors.As(err, &pathErr) {
+		err = pathErr.Err
+	}
+	err = apperr.Wrap(apperr.Config, "cannot write to the download folder "+path, err)
+	if !errors.Is(err, fs.ErrPermission) {
+		return err
+	}
+	advice := "Set ANNAS_DOWNLOAD_PATH to a folder you can write to."
+	if runtime.GOOS == "darwin" {
+		advice = "On macOS, Desktop, Documents, Downloads and iCloud Drive need permission: allow your MCP client (for example Claude or Cursor) in System Settings > Privacy & Security > Files and Folders, or set ANNAS_DOWNLOAD_PATH to a folder directly in your home folder, such as ~/" + env.DefaultDownloadFolder + "."
+	}
+	return fmt.Errorf("%w. %s", err, advice)
 }
 
 func (c *Client) downloadBook(ctx context.Context, book *Book, progress ProgressFunc) (DownloadResult, error) {

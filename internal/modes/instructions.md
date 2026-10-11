@@ -6,7 +6,7 @@ Pass the selected 32-character hash to a download tool, or a DOI to article_down
 Download format only names the extension; it does not convert files.
 Search returns at most 10 hits by default; matched counts the parsed hits on that page.
 Raise limit before increasing page.
-Downloads write under ANNAS_DOWNLOAD_PATH and never overwrite existing files. They return path and bytes.
+Downloads write under ANNAS_DOWNLOAD_PATH (by default annas-archive in the user's home folder) and never overwrite existing files. They return path and bytes; tell the user where the file was saved.
 Errors begin with a stable code: INVALID_ARGUMENT, CONFIG, NOT_FOUND, UPSTREAM_BLOCKED, REQUEST_TIMEOUT or UPSTREAM.
 Report errors; do not claim a file was downloaded unless the tool succeeded.
 When an error says sign-in failed or mentions ANNAS_ACCOUNT_COOKIE, give the user its steps for setting the cookie by hand.

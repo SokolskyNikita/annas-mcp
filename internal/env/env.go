@@ -18,6 +18,12 @@ import (
 // fallback when automatic mirror selection fails.
 const DefaultAnnasBaseURL = "annas-archive.gl"
 
+// DefaultDownloadFolder is the folder in the user's home folder that
+// downloads go to when ANNAS_DOWNLOAD_PATH is unset. A new folder there works
+// on every platform and, unlike Desktop, Documents and Downloads, needs no
+// macOS privacy permission.
+const DefaultDownloadFolder = "annas-archive"
+
 // Env is the normalized configuration. Credentials are excluded from JSON so
 // the struct can be logged safely.
 type Env struct {
@@ -35,7 +41,7 @@ type Env struct {
 func Load() (*Env, error) {
 	config := &Env{
 		SecretKey:    os.Getenv("ANNAS_SECRET_KEY"),
-		DownloadPath: os.Getenv("ANNAS_DOWNLOAD_PATH"),
+		DownloadPath: downloadPathSetting(),
 		SessionFile:  sessionFile(),
 	}
 	var err error
@@ -75,6 +81,26 @@ func autoBaseURLSetting() (bool, error) {
 		return false, apperr.Wrap(apperr.Config, "invalid ANNAS_AUTO_BASE_URL", err)
 	}
 	return enabled, nil
+}
+
+// downloadPathSetting expands a leading ~, which MCP client configs pass
+// through unexpanded, and defaults to DefaultDownloadFolder in the home
+// folder. Without a home folder it returns the raw value, which downloads
+// then reject as missing or relative.
+func downloadPathSetting() string {
+	raw := strings.TrimSpace(os.Getenv("ANNAS_DOWNLOAD_PATH"))
+	tilde := raw == "~" || strings.HasPrefix(raw, "~/") || (runtime.GOOS == "windows" && strings.HasPrefix(raw, `~\`))
+	if raw != "" && !tilde {
+		return raw
+	}
+	home := homeDir()
+	if home == "" {
+		return raw
+	}
+	if raw == "" {
+		return filepath.Join(home, DefaultDownloadFolder)
+	}
+	return filepath.Join(home, raw[1:])
 }
 
 // sessionFile is where the signed-in session is kept between runs. It sits in

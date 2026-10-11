@@ -36,7 +36,8 @@ func TestLoadNormalizesSettings(t *testing.T) {
 			want: Env{AnnasBaseURL: DefaultAnnasBaseURL, AutoBaseURL: true, SecretKey: "key", DownloadPath: "/data/books", AccountCookie: "aa_account_id2=token"},
 		},
 		{
-			// Search needs no download settings, so Load must not require them.
+			// Search needs no download settings, and downloads default to a
+			// folder in the home folder.
 			name: "search-only overrides", base: "https://configured.example/", auto: "false",
 			cookie: "fundraiser_banner_hidden=6; aa_account_id2=from-jar; __ddg1_=x",
 			want:   Env{AnnasBaseURL: "configured.example", AccountCookie: "aa_account_id2=from-jar"},
@@ -45,6 +46,12 @@ func TestLoadNormalizesSettings(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.want.SessionFile = setEnv(t, tc.secret, tc.downloads, tc.base, tc.auto, tc.cookie)
+			home := t.TempDir()
+			t.Setenv("HOME", home)
+			t.Setenv("USERPROFILE", home)
+			if tc.downloads == "" {
+				tc.want.DownloadPath = filepath.Join(home, DefaultDownloadFolder)
+			}
 			got, err := Load()
 			if err != nil {
 				t.Fatalf("Load: %v", err)
@@ -53,6 +60,31 @@ func TestLoadNormalizesSettings(t *testing.T) {
 				t.Fatalf("Load = %+v, want %+v", *got, tc.want)
 			}
 		})
+	}
+}
+
+func TestLoadDownloadPathDefaultsToHomeAndExpandsTilde(t *testing.T) {
+	setEnv(t, "", "", "", "", "")
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	absolute := filepath.Join(t.TempDir(), "books")
+	cases := map[string]string{
+		"":                   filepath.Join(home, DefaultDownloadFolder),
+		"~":                  home,
+		"~/Books":            filepath.Join(home, "Books"),
+		" " + absolute + " ": absolute,
+		"~other/Books":       "~other/Books",
+	}
+	for raw, want := range cases {
+		t.Setenv("ANNAS_DOWNLOAD_PATH", raw)
+		got, err := Load()
+		if err != nil {
+			t.Fatalf("Load with %q: %v", raw, err)
+		}
+		if got.DownloadPath != want {
+			t.Errorf("ANNAS_DOWNLOAD_PATH=%q gave %q, want %q", raw, got.DownloadPath, want)
+		}
 	}
 }
 

@@ -33,14 +33,13 @@ Copy the secret key you log in with from your Anna's Archive [account page](http
 
 ### 2. Add the server to your client
 
-Pick a permanent `ANNAS_DOWNLOAD_PATH`. Folders under `/tmp` are cleared by the operating system.
+Files are saved to an `annas-archive` folder in your home folder. To save them somewhere else, add `ANNAS_DOWNLOAD_PATH` (see [Choosing the download folder](#choosing-the-download-folder)).
 
 #### Claude Code
 
 ```bash
 claude mcp add annas-mcp \
   --env ANNAS_SECRET_KEY=your-secret-key \
-  --env ANNAS_DOWNLOAD_PATH=/absolute/path/to/downloads \
   -- npx -y annas-mcp
 ```
 
@@ -48,7 +47,7 @@ On native Windows (not WSL), end the command with `-- cmd /c npx -y annas-mcp`.
 
 #### Claude Desktop, one click
 
-Download [annas-mcp.mcpb](https://github.com/SokolskyNikita/annas-mcp/releases/latest/download/annas-mcp.mcpb) and open it, or drag it onto Settings → Extensions. Claude Desktop asks for your secret key and download folder.
+Download [annas-mcp.mcpb](https://github.com/SokolskyNikita/annas-mcp/releases/latest/download/annas-mcp.mcpb) and open it, or drag it onto Settings → Extensions. Claude Desktop asks for your secret key, and lets you pick a different download folder.
 
 #### Claude Desktop or Cursor, by hand
 
@@ -61,8 +60,7 @@ Add this to Claude Desktop's config (Settings → Developer → Edit Config) or 
       "command": "npx",
       "args": ["-y", "annas-mcp"],
       "env": {
-        "ANNAS_SECRET_KEY": "your-secret-key",
-        "ANNAS_DOWNLOAD_PATH": "/absolute/path/to/downloads"
+        "ANNAS_SECRET_KEY": "your-secret-key"
       }
     }
   }
@@ -80,7 +78,6 @@ args = ["-y", "annas-mcp"]
 
 [mcp_servers.annas-mcp.env]
 ANNAS_SECRET_KEY = "your-secret-key"
-ANNAS_DOWNLOAD_PATH = "/absolute/path/to/downloads"
 ```
 
 #### Docker
@@ -148,13 +145,19 @@ The server uses that cookie first and still signs in with the secret key once it
 | Variable | Needed for | Description |
 | --- | --- | --- |
 | `ANNAS_SECRET_KEY` | Everything | Your Anna's Archive secret key. The server signs in with it and uses it for downloads. |
-| `ANNAS_DOWNLOAD_PATH` | Downloads | Absolute folder for downloaded files. Created if missing. |
+| `ANNAS_DOWNLOAD_PATH` | Optional | Folder for downloaded files. Defaults to `annas-archive` in your home folder. See [Choosing the download folder](#choosing-the-download-folder). |
 | `ANNAS_ACCOUNT_COOKIE` | Optional | An `aa_account_id2` cookie to use before signing in. See [Signing in](#signing-in). |
 | `ANNAS_BASE_URL` | Optional | Mirror to fall back on when automatic selection fails. Defaults to `annas-archive.gl`. |
 | `ANNAS_AUTO_BASE_URL` | Optional | Set to `false` to always use `ANNAS_BASE_URL` instead of picking a mirror automatically. |
 | `ANNAS_MCP_CACHE_DIR` | Optional | Where the server saves its session and `npx` caches release binaries. |
 
 The server picks a working mirror by itself, and only among the official domains `annas-archive.gl`, `.pk` and `.gd`. Whatever host you set in `ANNAS_BASE_URL` receives your credentials, so only use one you trust.
+
+### Choosing the download folder
+
+Downloads go to `~/annas-archive` (`%USERPROFILE%\annas-archive` on Windows), which is created on the first download. Set `ANNAS_DOWNLOAD_PATH` to use another folder. It must be an absolute path, except that a leading `~` stands for your home folder.
+
+On macOS, Desktop, Documents, Downloads and iCloud Drive are protected: the first download there makes macOS ask whether your MCP client may access the folder. If that access is denied, downloads fail with `[CONFIG] cannot write to the download folder`; allow your client in System Settings → Privacy & Security → Files and Folders, or pick a folder directly in your home folder. Avoid `/tmp`, which the operating system clears.
 
 The server and CLI also read a `.env` file from their working directory. Variables already set in the environment take precedence.
 
@@ -189,7 +192,7 @@ Errors start with a code:
 
 | Code | What to do |
 | --- | --- |
-| `[CONFIG]` | A variable is missing or invalid, or Anna's Archive rejected the secret key. Check [Configuration](#configuration). |
+| `[CONFIG]` | A variable is missing or invalid, Anna's Archive rejected the secret key, or the download folder can't be written to. Check [Configuration](#configuration). |
 | `[UPSTREAM_BLOCKED]` | The archive refused access. Check that your membership allows searching. If signing in itself failed, see [Signing in](#signing-in). |
 | `[NOT_FOUND]` | Nothing matched, or that copy has no fast download. Try another query, or another copy from the search results. |
 | `[INVALID_ARGUMENT]` | Fix the hash, DOI, format, page, limit or timeout. |
@@ -215,7 +218,7 @@ Add `--json` for machine-readable output, `--timeout 10m` to change the timeout 
 
 ## Privacy
 
-annas-mcp runs on your machine and has no telemetry. It sends your secret key (and cookie, if you set one) only to Anna's Archive, and downloads files from the servers Anna's Archive points it to. DOI lookups may contact doi.org. The `npx` launcher and the MCP Bundle contact GitHub to fetch and verify release binaries. Downloaded files stay in `ANNAS_DOWNLOAD_PATH`; nothing else is stored apart from the cached binary and the [saved session](#signing-in). Questions: [open an issue](https://github.com/SokolskyNikita/annas-mcp/issues).
+annas-mcp runs on your machine and has no telemetry. It sends your secret key (and cookie, if you set one) only to Anna's Archive, and downloads files from the servers Anna's Archive points it to. DOI lookups may contact doi.org. The `npx` launcher and the MCP Bundle contact GitHub to fetch and verify release binaries. Downloaded files stay in the download folder; nothing else is stored apart from the cached binary and the [saved session](#signing-in). Questions: [open an issue](https://github.com/SokolskyNikita/annas-mcp/issues).
 
 ## Contributing
 
