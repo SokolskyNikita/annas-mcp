@@ -29,13 +29,26 @@ var (
 )
 
 // CleanText decodes doubly escaped entities, removes formatting markup and
-// collapses whitespace.
+// direction marks, and collapses whitespace.
 func CleanText(text string) string {
 	text = decodeEntities(text)
 	if strings.Contains(text, "<") {
 		text = blockMarkup.ReplaceAllString(inlineMarkup.ReplaceAllString(text, ""), " ")
 	}
-	return strings.Join(strings.Fields(text), " ")
+	return strings.Join(strings.Fields(strings.Map(dropDirectionMark, text)), " ")
+}
+
+// dropDirectionMark removes the invisible marks that steer right-to-left
+// text in a browser, such as the right-to-left mark catalogs put around
+// Hebrew titles. They mean nothing in plain text. Joiners, which shape
+// letters in scripts such as Bengali and Persian, are kept.
+func dropDirectionMark(r rune) rune {
+	switch {
+	case r == '\u200e', r == '\u200f', r == '\u061c', r == '\ufeff',
+		r >= '\u202a' && r <= '\u202e', r >= '\u2066' && r <= '\u2069':
+		return -1
+	}
+	return r
 }
 
 // Snippet collapses whitespace and shortens text to at most 480 bytes,

@@ -14,6 +14,10 @@ func TestCleanText(t *testing.T) {
 		{"Vector<T> in C++", "Vector<T> in C++"},
 		{"a < b and c > d", "a < b and c > d"},
 		{"  spaced\n\tout  ", "spaced out"},
+		{"\u200fהאיחוד האירופי :\u200f \u200fהיסטוריה", "האיחוד האירופי : היסטוריה"},
+		{"\u202bembedded\u202c \u2067isolated\u2069 \ufeffmarked", "embedded isolated marked"},
+		// Joiners shape Bengali letters and stay.
+		{"খুল্\u200cনার", "খুল্\u200cনার"},
 	} {
 		if got := CleanText(tc.in); got != tc.want {
 			t.Errorf("cleanText(%q) = %q, want %q", tc.in, got, tc.want)
