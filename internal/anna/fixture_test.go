@@ -12,7 +12,6 @@ import (
 	"io"
 	"io/fs"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"testing"
@@ -146,7 +145,8 @@ const (
 	attentionTitle = "Attention Is All You Need"
 	// attentionHash is the record DOI lookup accepts for attentionDOI. Its
 	// identifiers panel carries no DOI, so it matches on title and authors.
-	attentionHash    = "18e1b007a1dab45b30cc861ba2dfda25"
+	attentionHash = "18e1b007a1dab45b30cc861ba2dfda25"
+	// literal: the captured page's author list, which several tests expect.
 	attentionAuthors = "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin"
 	// liangHash's record carries liangDOI in its identifiers panel, so it
 	// matches that DOI without DOI.org.
@@ -214,12 +214,10 @@ func htmlResponse(req *http.Request, status int, body string) *http.Response {
 	}
 }
 
-// withCode adds an identifier to a captured record page's codes panel, as
-// Anna links it: an exact search for key:value.
-func withCode(key, value string) map[string]string {
-	return map[string]string{
-		`<div class="js-md5-codes-container hidden">`: `<div class="js-md5-codes-container hidden"><a href='/search?q="` + key + ":" + url.QueryEscape(value) + `"'>` + key + `</a>`,
-	}
+// loadCases reads testdata/cases/<name>.json into cases.
+func loadCases(t testing.TB, name string, cases any) {
+	t.Helper()
+	decodeFixture(t, "cases/"+name+".json", cases)
 }
 
 // decodeFixture reads a JSON fixture into v. Unknown fields are an error,
@@ -231,4 +229,9 @@ func decodeFixture(t testing.TB, name string, v any) {
 	if err := decoder.Decode(v); err != nil {
 		t.Fatalf("%s: %v", name, err)
 	}
+}
+
+// errorPage is an HTML error page whose body is body.
+func errorPage(t testing.TB, body string) string {
+	return strings.ReplaceAll(fixtureText(t, "upstream_error.html"), "{{BODY}}", body)
 }

@@ -1,0 +1,9 @@
+{
+  "comment": "ANNAS_ACCOUNT_COOKIE values and the Cookie header normalizeCookieHeader makes of each: the bare value, a whole aa_account_id2 cookie, or the aa_account_id2 cookie picked from a pasted Cookie header.",
+  "cases": [
+    {"input": "aa_account_id2=abc=", "header": "aa_account_id2=abc="},
+    {"input": "abc", "header": "aa_account_id2=abc"},
+    {"input": "other=x; aa_account_id2=abc", "header": "aa_account_id2=abc"},
+    {"input": "other=x; other2=y", "header": ""}
+  ]
+}

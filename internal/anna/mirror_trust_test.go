@@ -10,19 +10,18 @@ func TestOnlyCandidateMirrorsReceiveTheSessionCookie(t *testing.T) {
 	t.Parallel()
 
 	client := NewClient(Config{AutoBaseURL: true})
-	for raw, want := range map[string]bool{
-		"https://annas-archive.gl/search":    true,
-		"https://annas-archive.pk/md5/x":     true,
-		"https://ANNAS-ARCHIVE.GD/scidb/x":   true,
-		"http://annas-archive.gl/search":     false,
-		"https://annas-archive.su/search":    false,
-		"https://annas-archive.gl.evil.com/": false,
-		"https://user@annas-archive.gl/":     false,
-		"https://downloads.example/file":     false,
-	} {
-		u, _ := url.Parse(raw)
-		if _, got := client.archiveHost(u); got != want {
-			t.Errorf("archiveHost(%s) = %v, want %v", raw, got, want)
+	var hosts struct {
+		Comment string
+		Cases   []struct {
+			URL    string
+			Mirror bool
+		}
+	}
+	loadCases(t, "archive_hosts", &hosts)
+	for _, tc := range hosts.Cases {
+		u, _ := url.Parse(tc.URL)
+		if _, got := client.archiveHost(u); got != tc.Mirror {
+			t.Errorf("archiveHost(%s) = %v, want %v", tc.URL, got, tc.Mirror)
 		}
 	}
 }

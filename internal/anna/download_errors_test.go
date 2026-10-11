@@ -35,7 +35,7 @@ func TestDownloadFailureDiagnosticsIncludeAllFastAttempts(t *testing.T) {
 			if req.URL.Host == "annas.test" && req.URL.Path == "/dyn/api/fast_download.json" {
 				switch req.URL.Query().Get("domain_index") {
 				case "0":
-					return testDownloadResponse(req, http.StatusBadGateway, "text/html", "<html><body>"+apiHTMLMarker+" "+configuredSecret+"</body></html>"), nil
+					return testDownloadResponse(req, http.StatusBadGateway, "text/html", errorPage(t, apiHTMLMarker+" "+configuredSecret)), nil
 				case "1":
 					return testDownloadURLResponse(req, "https://cdn-two.example/private/cook.pdf?token="+querySecret), nil
 				case "2":
@@ -44,9 +44,9 @@ func TestDownloadFailureDiagnosticsIncludeAllFastAttempts(t *testing.T) {
 			}
 			switch req.URL.Host {
 			case "cdn-two.example":
-				return testDownloadResponse(req, http.StatusNotFound, "text/html", "<!doctype html><html><body>"+fileHTMLMarker+" "+querySecret+"</body></html>"), nil
+				return testDownloadResponse(req, http.StatusNotFound, "text/html", errorPage(t, fileHTMLMarker+" "+querySecret)), nil
 			case "cdn-three.example":
-				return testDownloadResponse(req, http.StatusServiceUnavailable, "text/html", "<!doctype html><html><body>"+fileHTMLMarker+" "+querySecret+"</body></html>"), nil
+				return testDownloadResponse(req, http.StatusServiceUnavailable, "text/html", errorPage(t, fileHTMLMarker+" "+querySecret)), nil
 			default:
 				return nil, fmt.Errorf("unexpected request to %s%s", req.URL.Host, req.URL.Path)
 			}
@@ -57,25 +57,9 @@ func TestDownloadFailureDiagnosticsIncludeAllFastAttempts(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected download to fail")
 	}
-	message := strings.ToLower(err.Error())
-	for _, want := range []string{
-		"fast server 1 (api)", "fast server 2 (file)", "fast server 3 (file)",
-		"502", "bad gateway", "annas.test",
-		"404", "not found", "cdn-two.example",
-		"503", "service unavailable", "cdn-three.example",
-	} {
-		if !strings.Contains(message, strings.ToLower(want)) {
-			t.Errorf("diagnostic omitted %q: %v", want, err)
-		}
-	}
-	for _, forbidden := range []string{
-		configuredSecret, querySecret, apiHTMLMarker, fileHTMLMarker,
-		"<!doctype html>", "/private/cook.pdf", "fast_download.json?",
-	} {
-		if strings.Contains(err.Error(), forbidden) {
-			t.Errorf("diagnostic leaked %q: %v", forbidden, err)
-		}
-	}
+	var cases downloadCases
+	loadCases(t, "downloads", &cases)
+	checkDiagnostic(t, err, cases.FastAttempts, configuredSecret, querySecret, apiHTMLMarker, fileHTMLMarker)
 }
 
 func TestDOIDownloadFailureDiagnosticsIncludeFastAndSciDBAttempts(t *testing.T) {
@@ -88,10 +72,8 @@ func TestDOIDownloadFailureDiagnosticsIncludeFastAndSciDBAttempts(t *testing.T) 
 		bodyMarker       = "upstream-html-body-must-not-leak"
 	)
 	hash := fixtureHash(t, "paper.pdf")
-	scidbPage := fmt.Sprintf(`<!doctype html><html><body>
-<a href="/md5/%s">Download record</a>
-<iframe src="/pdfjs/web/viewer.html?file=https%%3A%%2F%%2Fdownloads.example%%2Fscidb-paper.pdf%%3Ftoken%%3D%s"></iframe>
-</body></html>`, hash, querySecret)
+	// The captured SciDB page, its file link pointing at a signed URL.
+	scidbPage := strings.NewReplacer(sciDBHash, hash, "files.invalid/scidb/paper.pdf", "downloads.example/scidb-paper.pdf%3Ftoken%3D"+querySecret).Replace(fixtureText(t, sciDBPage))
 
 	client := NewClient(Config{
 		BaseURL:       "annas.test",
@@ -105,7 +87,7 @@ func TestDOIDownloadFailureDiagnosticsIncludeFastAndSciDBAttempts(t *testing.T) 
 			if req.URL.Host == "annas.test" && req.URL.Path == "/dyn/api/fast_download.json" {
 				switch req.URL.Query().Get("domain_index") {
 				case "0":
-					return testDownloadResponse(req, http.StatusBadGateway, "text/html", "<html><body>"+bodyMarker+"</body></html>"), nil
+					return testDownloadResponse(req, http.StatusBadGateway, "text/html", errorPage(t, bodyMarker)), nil
 				case "1":
 					return testDownloadURLResponse(req, "https://cdn-two.example/private/cook.pdf?token="+querySecret), nil
 				case "2":
@@ -114,11 +96,11 @@ func TestDOIDownloadFailureDiagnosticsIncludeFastAndSciDBAttempts(t *testing.T) 
 			}
 			switch req.URL.Host {
 			case "cdn-two.example":
-				return testDownloadResponse(req, http.StatusNotFound, "text/html", "<html><body>"+bodyMarker+"</body></html>"), nil
+				return testDownloadResponse(req, http.StatusNotFound, "text/html", errorPage(t, bodyMarker)), nil
 			case "cdn-three.example":
-				return testDownloadResponse(req, http.StatusServiceUnavailable, "text/html", "<html><body>"+bodyMarker+"</body></html>"), nil
+				return testDownloadResponse(req, http.StatusServiceUnavailable, "text/html", errorPage(t, bodyMarker)), nil
 			case "downloads.example":
-				return testDownloadResponse(req, http.StatusNotFound, "text/html", "<html><body>"+bodyMarker+" "+querySecret+"</body></html>"), nil
+				return testDownloadResponse(req, http.StatusNotFound, "text/html", errorPage(t, bodyMarker+" "+querySecret)), nil
 			default:
 				return nil, fmt.Errorf("unexpected request to %s%s", req.URL.Host, req.URL.Path)
 			}
@@ -129,25 +111,9 @@ func TestDOIDownloadFailureDiagnosticsIncludeFastAndSciDBAttempts(t *testing.T) 
 	if err == nil {
 		t.Fatal("expected DOI download to fail")
 	}
-	message := strings.ToLower(err.Error())
-	for _, want := range []string{
-		"fast server 1 (api)", "fast server 2 (file)", "fast server 3 (file)", "scidb",
-		"502", "bad gateway", "annas.test",
-		"404", "not found", "cdn-two.example", "downloads.example",
-		"503", "service unavailable", "cdn-three.example",
-	} {
-		if !strings.Contains(message, strings.ToLower(want)) {
-			t.Errorf("diagnostic omitted %q: %v", want, err)
-		}
-	}
-	for _, forbidden := range []string{
-		configuredSecret, querySecret, bodyMarker,
-		"<!doctype html>", "/private/cook.pdf", "/scidb-paper.pdf", "fast_download.json?",
-	} {
-		if strings.Contains(err.Error(), forbidden) {
-			t.Errorf("diagnostic leaked %q: %v", forbidden, err)
-		}
-	}
+	var cases downloadCases
+	loadCases(t, "downloads", &cases)
+	checkDiagnostic(t, err, cases.FastAndSciDBAttempts, configuredSecret, querySecret, bodyMarker)
 }
 
 func TestDownloadFailureDiagnosticsRedactAPIErrorAndPreserveTransportCause(t *testing.T) {
@@ -171,9 +137,9 @@ func TestDownloadFailureDiagnosticsRedactAPIErrorAndPreserveTransportCause(t *te
 			case "0":
 				return nil, transportCause
 			case "1":
-				return testDownloadResponse(req, http.StatusBadRequest, "application/json", `{"error":"rejected credential `+configuredSecret+`"}`), nil
+				return testDownloadResponse(req, http.StatusBadRequest, "application/json", strings.ReplaceAll(fixtureText(t, "fast_download_rejected_key.json"), "{{SECRET}}", configuredSecret)), nil
 			case "2":
-				return testDownloadResponse(req, http.StatusServiceUnavailable, "text/html", "<html><body>"+bodyMarker+"</body></html>"), nil
+				return testDownloadResponse(req, http.StatusServiceUnavailable, "text/html", errorPage(t, bodyMarker)), nil
 			default:
 				return nil, fmt.Errorf("unexpected domain index %q", req.URL.Query().Get("domain_index"))
 			}
@@ -334,7 +300,7 @@ func TestDownloadStopsWhenFileHasNoFastDownload(t *testing.T) {
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.URL.Host == "annas.test" && req.URL.Path == "/dyn/api/fast_download.json" {
 				apiCalls++
-				return testDownloadResponse(req, http.StatusBadRequest, "application/json", `{"download_url":null,"error":"Invalid domain_index or path_index"}`), nil
+				return testDownloadResponse(req, http.StatusBadRequest, "application/json", fixtureText(t, "fast_download_no_copy.json")), nil
 			}
 			return nil, fmt.Errorf("unexpected request to %s%s", req.URL.Host, req.URL.Path)
 		})},
@@ -364,5 +330,45 @@ func testDownloadResponse(req *http.Request, status int, contentType, body strin
 		Body:          io.NopCloser(strings.NewReader(body)),
 		ContentLength: int64(len(body)),
 		Request:       req,
+	}
+}
+
+// downloadCases are testdata/cases/downloads.json.
+type downloadCases struct {
+	Comment              string           `json:"comment"`
+	FastAttempts         diagnosticCase   `json:"fast_attempts"`
+	FastAndSciDBAttempts diagnosticCase   `json:"fast_and_scidb_attempts"`
+	AccountAndRecord     []stopAnswerCase `json:"account_and_record_stops"`
+}
+
+// diagnosticCase is what a failed download's error must mention, and must
+// never mention.
+type diagnosticCase struct {
+	Mentions      []string `json:"mentions"`
+	NeverMentions []string `json:"never_mentions"`
+}
+
+// stopAnswerCase is an API answer that ends a download at once.
+type stopAnswerCase struct {
+	Status  int    `json:"status"`
+	Answer  string `json:"answer"`
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+// checkDiagnostic checks a failed download's error against want; planted
+// are secrets and markers the error must not repeat either.
+func checkDiagnostic(t *testing.T, err error, want diagnosticCase, planted ...string) {
+	t.Helper()
+	message := strings.ToLower(err.Error())
+	for _, mention := range want.Mentions {
+		if !strings.Contains(message, strings.ToLower(mention)) {
+			t.Errorf("diagnostic omitted %q: %v", mention, err)
+		}
+	}
+	for _, forbidden := range append(want.NeverMentions, planted...) {
+		if strings.Contains(err.Error(), forbidden) {
+			t.Errorf("diagnostic leaked %q: %v", forbidden, err)
+		}
 	}
 }

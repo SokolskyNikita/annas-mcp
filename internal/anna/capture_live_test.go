@@ -157,6 +157,7 @@ func captureCSL(ctx context.Context, doi string) ([]byte, error) {
 	return io.ReadAll(response.Body)
 }
 
+// literal: a pattern is code, not data.
 var sciDBViewerFile = regexp.MustCompile(`/pdfjs/web/viewer\.html\?file=https(?:%3A|:)(?://|%2F%2F)([^/%"'\s<>]+)`)
 
 // scrubCapture removes account data and SciDB's signed file links, which

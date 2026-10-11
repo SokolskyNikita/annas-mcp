@@ -1,0 +1,17 @@
+{
+  "comment": "Edits to the captured record page of the Attention paper, and whether LookupDOI must still accept the record as the DOI's paper. replace maps text on the page to its replacement.",
+  "cases": [
+    {"name": "matching title and authors", "replace": {}, "match": true},
+    {
+      "name": "matching title but conflicting DOI",
+      "replace": {"<div class=\"js-md5-codes-container hidden\">": "<div class=\"js-md5-codes-container hidden\"><a href='/search?q=\"doi:10.1000%2Fanother\"'>doi</a>"},
+      "match": false
+    },
+    {"name": "matching title but different author", "replace": {"Ashish Vaswani": "Unrelated Author"}, "match": false},
+    {
+      "name": "matching title without authors",
+      "replace": {"Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin": ""},
+      "match": false
+    }
+  ]
+}

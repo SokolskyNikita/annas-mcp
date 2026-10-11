@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -27,7 +28,7 @@ func fakeSignIn(t *testing.T, req *http.Request, key, cookie string) *http.Respo
 		t.Error(err)
 	}
 	if req.PostForm.Get("key") != key {
-		return &http.Response{StatusCode: http.StatusOK, Header: make(http.Header), Body: io.NopCloser(strings.NewReader("<p>Invalid secret key. Verify your key and try again.</p>")), Request: req}
+		return fixtureResponse(t, req, http.StatusOK, "sign_in_invalid_key.html", "text/html", nil)
 	}
 	header := http.Header{"Location": {"/account/"}, "Set-Cookie": {cookie + "; Domain=" + req.URL.Host + "; HttpOnly; Path=/"}}
 	return &http.Response{StatusCode: http.StatusFound, Header: header, Body: io.NopCloser(strings.NewReader("")), Request: req}
@@ -223,59 +224,43 @@ func TestSignInFallsBackToAnotherOfficialMirror(t *testing.T) {
 func TestFailedSignInExplainsHowToSetTheCookieByHand(t *testing.T) {
 	t.Parallel()
 
-	blocked := func(req *http.Request) *http.Response {
-		return &http.Response{StatusCode: http.StatusForbidden, Header: make(http.Header), Body: io.NopCloser(strings.NewReader("<title>DDoS-Guard</title>")), Request: req}
+	var cases struct {
+		Comment string
+		Always  []string
+		Cases   []struct {
+			Name        string
+			BaseURL     string `json:"base_url"`
+			AutoBaseURL bool   `json:"auto_base_url"`
+			Answers     map[string]struct {
+				Status int
+				Page   string
+			}
+			Code    string
+			Reasons []string
+		}
 	}
-	noSession := func(req *http.Request) *http.Response {
-		return &http.Response{StatusCode: http.StatusOK, Header: make(http.Header), Body: io.NopCloser(strings.NewReader("<form action=\"/account/\">")), Request: req}
-	}
-	tests := map[string]struct {
-		config  Config
-		answers map[string]func(*http.Request) *http.Response
-		code    string
-		reasons []string
-	}{
-		"every mirror refuses": {
-			config: Config{BaseURL: "annas-archive.gl", AutoBaseURL: true},
-			answers: map[string]func(*http.Request) *http.Response{
-				"annas-archive.gl": blocked,
-				"annas-archive.gd": noSession,
-			},
-			code: apperr.UpstreamBlocked,
-			reasons: []string{
-				"annas-archive.gl put the sign-in form behind a DDoS-Guard browser check",
-				"request to annas-archive.pk failed",
-				"annas-archive.gd answered the sign-in form with HTTP status 200 but no session",
-			},
-		},
-		"the only mirror is unreachable": {
-			config:  Config{BaseURL: "annas.test"},
-			code:    apperr.Upstream,
-			reasons: []string{"request to annas.test failed"},
-		},
-	}
-	for name, tt := range tests {
-		t.Run(name, func(t *testing.T) {
+	loadCases(t, "sign_in_failures", &cases)
+	for _, tt := range cases.Cases {
+		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
-			config := tt.config
-			config.SecretKey = "test-secret"
+			config := Config{BaseURL: tt.BaseURL, AutoBaseURL: tt.AutoBaseURL, SecretKey: "test-secret"}
 			config.HTTPClient = &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 				if req.URL.Path != "/account/" {
 					t.Errorf("searched after sign-in failed: %s", req.URL)
 				}
-				if answer := tt.answers[req.URL.Host]; answer != nil {
-					return answer(req), nil
+				if answer, ok := tt.Answers[req.URL.Host]; ok {
+					return fixtureResponse(t, req, answer.Status, answer.Page, "text/html", nil), nil
 				}
 				return nil, errors.New("connection refused")
 			})}
 			client := NewClient(config)
 
 			_, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
-			if apperr.CodeOf(err) != tt.code {
-				t.Fatalf("expected %s, got %s: %v", tt.code, apperr.CodeOf(err), err)
+			if apperr.CodeOf(err) != tt.Code {
+				t.Fatalf("expected %s, got %s: %v", tt.Code, apperr.CodeOf(err), err)
 			}
 			message := err.Error()
-			for _, want := range append(tt.reasons, "automatic sign-in with ANNAS_SECRET_KEY failed", "copy the aa_account_id2 value into ANNAS_ACCOUNT_COOKIE") {
+			for _, want := range slices.Concat(tt.Reasons, cases.Always) {
 				if !strings.Contains(message, want) {
 					t.Errorf("error lacks %q: %s", want, message)
 				}

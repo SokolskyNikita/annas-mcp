@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
@@ -41,7 +40,7 @@ func TestLiveSciDBFallback(t *testing.T) {
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.URL.Path == "/dyn/api/fast_download.json" {
 				apiCalls++
-				return &http.Response{StatusCode: http.StatusBadRequest, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(`{"error":"fast API disabled for SciDB integration check"}`)), Request: req}, nil
+				return fixtureResponse(t, req, http.StatusBadRequest, "fast_download_disabled.json", "application/json", nil), nil
 			}
 			if req.URL.Host != "annas-archive.gl" {
 				pdfCalls++

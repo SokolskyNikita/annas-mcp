@@ -108,17 +108,17 @@ func TestLookupDOIFallsBackToArchiveSearchAfterSciDBMiss(t *testing.T) {
 func TestLookupDOIRequiresVerifiedCitationIdentity(t *testing.T) {
 	t.Parallel()
 
-	for _, test := range []struct {
-		name      string
-		record    map[string]string
-		wantMatch bool
-	}{
-		{"matching title and authors", nil, true},
-		{"matching title but conflicting DOI", withCode("doi", "10.1000/another"), false},
-		{"matching title but different author", map[string]string{"Ashish Vaswani": "Unrelated Author"}, false},
-		{"matching title without authors", map[string]string{attentionAuthors: ""}, false},
-	} {
-		t.Run(test.name, func(t *testing.T) {
+	var cases struct {
+		Comment string
+		Cases   []struct {
+			Name    string
+			Replace map[string]string
+			Match   bool
+		}
+	}
+	loadCases(t, "citation_identity", &cases)
+	for _, test := range cases.Cases {
+		t.Run(test.Name, func(t *testing.T) {
 			client := NewClient(Config{
 				BaseURL:       "annas.test",
 				AccountCookie: "aa_account_id2=test",
@@ -139,14 +139,14 @@ func TestLookupDOIRequiresVerifiedCitationIdentity(t *testing.T) {
 						return fixtureResponse(t, req, http.StatusOK, noResultsPage, "text/html", nil), nil
 					}
 					if req.URL.Path == "/md5/"+attentionHash {
-						return fixtureResponse(t, req, http.StatusOK, recordAttentionPage, "text/html", test.record), nil
+						return fixtureResponse(t, req, http.StatusOK, recordAttentionPage, "text/html", test.Replace), nil
 					}
 					return nil, errors.New("unexpected DOI title fallback URL: " + req.URL.String())
 				})},
 			})
 
 			paper, err := client.LookupDOI(context.Background(), attentionDOI, time.Second)
-			if !test.wantMatch {
+			if !test.Match {
 				if paper != nil || apperr.CodeOf(err) != apperr.NotFound {
 					t.Fatalf("unverified citation was accepted: paper=%+v err=%v", paper, err)
 				}

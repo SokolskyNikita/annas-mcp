@@ -1,0 +1,15 @@
+{
+  "comment": "Inputs ParseRecordID accepts, with the prefix and value it reads, and inputs it rejects as INVALID_ARGUMENT.",
+  "valid": [
+    {"input": "8336332BF5877E3ADBFB60AC70720CD5", "prefix": "md5", "value": "8336332bf5877e3adbfb60ac70720cd5"},
+    {"input": "md5:8336332bf5877e3adbfb60ac70720cd5", "prefix": "md5", "value": "8336332bf5877e3adbfb60ac70720cd5"},
+    {"input": " isbndb:9780521879286 ", "prefix": "isbndb", "value": "9780521879286"},
+    {"input": "OL:OL18017946M", "prefix": "ol", "value": "OL18017946M"},
+    {"input": "https://annas-archive.gl/md5/8336332bf5877e3adbfb60ac70720cd5", "prefix": "md5", "value": "8336332bf5877e3adbfb60ac70720cd5"},
+    {"input": "https://annas-archive.gl/isbndb/9780521879286", "prefix": "isbndb", "value": "9780521879286"},
+    {"input": "/ol/OL18017946M", "prefix": "ol", "value": "OL18017946M"},
+    {"input": "doi:10.1000/example/part", "prefix": "doi", "value": "10.1000/example/part"},
+    {"input": "https://annas-archive.gl/doi/10.1000%2Fexample%2Fx", "prefix": "doi", "value": "10.1000/example/x"}
+  ],
+  "invalid": ["", "hello", "isbndb:", "md5:xyz", "two words:x", "isbndb:978 052", "ol:OL1M?x=1", ":value"]
+}

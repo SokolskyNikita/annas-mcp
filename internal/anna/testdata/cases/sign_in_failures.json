@@ -1,0 +1,30 @@
+{
+  "comment": "Mirrors that fail the automatic sign-in, and what the error must say. answers maps a host to the status and testdata page its sign-in form answers with; other hosts refuse the connection. Every error must also carry always.",
+  "always": [
+    "automatic sign-in with ANNAS_SECRET_KEY failed",
+    "copy the aa_account_id2 value into ANNAS_ACCOUNT_COOKIE"
+  ],
+  "cases": [
+    {
+      "name": "every mirror refuses",
+      "base_url": "annas-archive.gl",
+      "auto_base_url": true,
+      "answers": {
+        "annas-archive.gl": {"status": 403, "page": "ddos_guard.html"},
+        "annas-archive.gd": {"status": 200, "page": "sign_in_form.html"}
+      },
+      "code": "UPSTREAM_BLOCKED",
+      "reasons": [
+        "annas-archive.gl put the sign-in form behind a DDoS-Guard browser check",
+        "request to annas-archive.pk failed",
+        "annas-archive.gd answered the sign-in form with HTTP status 200 but no session"
+      ]
+    },
+    {
+      "name": "the only mirror is unreachable",
+      "base_url": "annas.test",
+      "code": "UPSTREAM",
+      "reasons": ["request to annas.test failed"]
+    }
+  ]
+}

@@ -22,7 +22,7 @@ func TestModelStringMethodsIncludeCoreFields(t *testing.T) {
 			t.Errorf("book string %q does not contain %q", book, part)
 		}
 	}
-	const signedLink = "https://cdn.example/d4/y/anon/f/1790666329/10000/paper.pdf~/SIGNATURE/Example.pdf"
+	const signedLink = "https://cdn.example/paper.pdf~/SIGNATURE/Example.pdf"
 	paperValue := &Paper{DOI: "10.1000/example", Title: "Example", Authors: "Author", Journal: "Journal", PageURL: "https://annas.test/scidb", DownloadURL: signedLink}
 	encoded, err := json.Marshal(paperValue)
 	if err != nil {
@@ -88,14 +88,14 @@ func TestParseBooksSkipsMalformedCards(t *testing.T) {
 func TestCookieAndHTMLResponseHelpers(t *testing.T) {
 	t.Parallel()
 
-	for raw, want := range map[string]string{
-		"aa_account_id2=abc=":         "aa_account_id2=abc=",
-		"abc":                         "aa_account_id2=abc",
-		"other=x; aa_account_id2=abc": "aa_account_id2=abc",
-		"other=x; other2=y":           "",
-	} {
-		if got := normalizeCookieHeader(raw); got != want {
-			t.Errorf("normalizeCookieHeader(%q) = %q, want %q", raw, got, want)
+	var cookies struct {
+		Comment string
+		Cases   []struct{ Input, Header string }
+	}
+	loadCases(t, "cookie_headers", &cookies)
+	for _, tc := range cookies.Cases {
+		if got := normalizeCookieHeader(tc.Input); got != tc.Header {
+			t.Errorf("normalizeCookieHeader(%q) = %q, want %q", tc.Input, got, tc.Header)
 		}
 	}
 	resp := &http.Response{
@@ -158,6 +158,7 @@ func TestPublicMethodsRequireCredentialsBeforeNetwork(t *testing.T) {
 		})
 		return client, &calls
 	}
+	// literal: one call per public method; the arguments do not matter.
 	tests := map[string]func(*Client) error{
 		"FindBook": func(client *Client) error {
 			_, err := client.FindBook(context.Background(), "example", SearchOptions{}, 0)

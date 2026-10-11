@@ -71,6 +71,7 @@ func TestLookupDOIReportsArchiveOutage(t *testing.T) {
 			return fixtureResponse(t, req, code, "blocked.txt", "text/plain", nil), nil
 		}
 	}
+	// literal: each case is a fake archive, which only code can describe.
 	for _, test := range []struct {
 		name      string
 		doiStatus int

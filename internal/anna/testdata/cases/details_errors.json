@@ -1,0 +1,9 @@
+{
+  "comment": "How Details reports a record request that fails: the status and testdata file the record request answers with, and the error code and text it must give.",
+  "cases": [
+    {"name": "missing", "status": 404, "answer": "record_not_found.json", "code": "NOT_FOUND", "message": "has no record md5:8336332bf5877e3adbfb60ac70720cd5"},
+    {"name": "not a member", "status": 403, "answer": "record_not_member.json", "code": "UPSTREAM_BLOCKED", "message": "members only"},
+    {"name": "browser check", "status": 200, "answer": "ddos_guard.html", "code": "UPSTREAM_BLOCKED", "message": "web page instead of record details"},
+    {"name": "broken JSON", "status": 200, "answer": "record_truncated.json", "code": "UPSTREAM", "message": "invalid record details"}
+  ]
+}

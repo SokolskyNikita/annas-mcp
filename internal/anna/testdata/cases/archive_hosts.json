@@ -1,0 +1,13 @@
+{
+  "comment": "URLs and whether the client treats them as an Anna mirror, the only hosts that receive the session cookie.",
+  "cases": [
+    {"url": "https://annas-archive.gl/search", "mirror": true},
+    {"url": "https://annas-archive.pk/md5/x", "mirror": true},
+    {"url": "https://ANNAS-ARCHIVE.GD/scidb/x", "mirror": true},
+    {"url": "http://annas-archive.gl/search", "mirror": false},
+    {"url": "https://annas-archive.su/search", "mirror": false},
+    {"url": "https://annas-archive.gl.evil.com/", "mirror": false},
+    {"url": "https://user@annas-archive.gl/", "mirror": false},
+    {"url": "https://downloads.example/file", "mirror": false}
+  ]
+}

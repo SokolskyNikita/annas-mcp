@@ -1,0 +1,74 @@
+{
+  "comment": "What a failed download's error must and must never say. The tests add the secrets and markers they planted to never_mentions.",
+  "fast_attempts": {
+    "mentions": [
+      "fast server 1 (api)",
+      "fast server 2 (file)",
+      "fast server 3 (file)",
+      "502",
+      "bad gateway",
+      "annas.test",
+      "404",
+      "not found",
+      "cdn-two.example",
+      "503",
+      "service unavailable",
+      "cdn-three.example"
+    ],
+    "never_mentions": [
+      "<!doctype html>",
+      "/private/cook.pdf",
+      "fast_download.json?"
+    ]
+  },
+  "fast_and_scidb_attempts": {
+    "mentions": [
+      "fast server 1 (api)",
+      "fast server 2 (file)",
+      "fast server 3 (file)",
+      "scidb",
+      "502",
+      "bad gateway",
+      "annas.test",
+      "404",
+      "not found",
+      "cdn-two.example",
+      "downloads.example",
+      "503",
+      "service unavailable",
+      "cdn-three.example"
+    ],
+    "never_mentions": [
+      "<!doctype html>",
+      "/private/cook.pdf",
+      "/scidb-paper.pdf",
+      "fast_download.json?"
+    ]
+  },
+  "account_and_record_stops": [
+    {
+      "status": 429,
+      "answer": "fast_download_no_downloads_left.json",
+      "code": "UPSTREAM_BLOCKED",
+      "message": "no fast downloads left"
+    },
+    {
+      "status": 401,
+      "answer": "fast_download_invalid_key.json",
+      "code": "CONFIG",
+      "message": "ANNAS_SECRET_KEY"
+    },
+    {
+      "status": 403,
+      "answer": "fast_download_not_member.json",
+      "code": "UPSTREAM_BLOCKED",
+      "message": "active membership"
+    },
+    {
+      "status": 404,
+      "answer": "fast_download_record_not_found.json",
+      "code": "NOT_FOUND",
+      "message": "no file with this hash"
+    }
+  ]
+}

@@ -22,24 +22,19 @@ const detailsHash = "8336332bf5877e3adbfb60ac70720cd5"
 func TestParseRecordIDAcceptsHashesCatalogIDsAndURLs(t *testing.T) {
 	t.Parallel()
 
-	valid := map[string][2]string{
-		strings.ToUpper(detailsHash):                         {"md5", detailsHash},
-		"md5:" + detailsHash:                                 {"md5", detailsHash},
-		" isbndb:9780521879286 ":                             {"isbndb", "9780521879286"},
-		"OL:OL18017946M":                                     {"ol", "OL18017946M"},
-		"https://annas-archive.gl/md5/" + detailsHash:        {"md5", detailsHash},
-		"https://annas-archive.gl/isbndb/9780521879286":      {"isbndb", "9780521879286"},
-		"/ol/OL18017946M":                                    {"ol", "OL18017946M"},
-		"doi:10.1000/example/part":                           {"doi", "10.1000/example/part"},
-		"https://annas-archive.gl/doi/10.1000%2Fexample%2Fx": {"doi", "10.1000/example/x"},
+	var cases struct {
+		Comment string
+		Valid   []struct{ Input, Prefix, Value string }
+		Invalid []string
 	}
-	for input, want := range valid {
-		prefix, value, err := ParseRecordID(input)
-		if err != nil || prefix != want[0] || value != want[1] {
-			t.Errorf("ParseRecordID(%q) = %q, %q, %v; want %q, %q", input, prefix, value, err, want[0], want[1])
+	loadCases(t, "record_ids", &cases)
+	for _, tc := range cases.Valid {
+		prefix, value, err := ParseRecordID(tc.Input)
+		if err != nil || prefix != tc.Prefix || value != tc.Value {
+			t.Errorf("ParseRecordID(%q) = %q, %q, %v; want %q, %q", tc.Input, prefix, value, err, tc.Prefix, tc.Value)
 		}
 	}
-	for _, input := range []string{"", "hello", "isbndb:", "md5:xyz", "two words:x", "isbndb:978 052", "ol:OL1M?x=1", ":value"} {
+	for _, input := range cases.Invalid {
 		if _, _, err := ParseRecordID(input); apperr.CodeOf(err) != apperr.InvalidArgument {
 			t.Errorf("ParseRecordID(%q) err = %v, want INVALID_ARGUMENT", input, err)
 		}
@@ -64,7 +59,7 @@ func detailsClient(t *testing.T, routes map[string]func(*http.Request) *http.Res
 			if route, ok := routes[req.URL.Path]; ok {
 				return route(req), nil
 			}
-			return testDownloadResponse(req, http.StatusNotFound, "text/json", `"{\"error\":\"Record not found\"}"`), nil
+			return fixtureResponse(t, req, http.StatusNotFound, "record_not_found.json", "text/json", nil), nil
 		})},
 	})
 	return client, &requests
@@ -73,6 +68,7 @@ func detailsClient(t *testing.T, routes map[string]func(*http.Request) *http.Res
 func TestDetailsCombinesRecordAndStatistics(t *testing.T) {
 	t.Parallel()
 
+	// literal: the routes are the requests Details must make.
 	client, requests := detailsClient(t, map[string]func(*http.Request) *http.Response{
 		"/db/aarecord_elasticsearch/md5:" + detailsHash + ".json": func(req *http.Request) *http.Response {
 			return fixtureResponse(t, req, http.StatusOK, "record_md5.json", "text/json", nil)
@@ -158,12 +154,13 @@ func TestDetailsOfACatalogRecordSkipStatistics(t *testing.T) {
 func TestDetailsSurviveMissingStatistics(t *testing.T) {
 	t.Parallel()
 
+	// literal: the routes are the requests Details must make.
 	client, _ := detailsClient(t, map[string]func(*http.Request) *http.Response{
 		"/db/aarecord_elasticsearch/md5:" + detailsHash + ".json": func(req *http.Request) *http.Response {
 			return fixtureResponse(t, req, http.StatusOK, "record_md5.json", "text/json", nil)
 		},
 		"/dyn/md5/summary/" + detailsHash: func(req *http.Request) *http.Response {
-			return testDownloadResponse(req, http.StatusBadGateway, "text/html", "<html>bad gateway</html>")
+			return htmlResponse(req, http.StatusBadGateway, errorPage(t, "bad gateway"))
 		},
 	})
 	details, err := client.Details(context.Background(), detailsHash, time.Second)
@@ -175,36 +172,32 @@ func TestDetailsSurviveMissingStatistics(t *testing.T) {
 func TestDetailsErrors(t *testing.T) {
 	t.Parallel()
 
-	tests := map[string]struct {
-		response func(*http.Request) *http.Response
-		code     string
-		message  string
-	}{
-		"missing": {func(req *http.Request) *http.Response {
-			return testDownloadResponse(req, http.StatusNotFound, "text/json", `"{\"error\":\"Record not found\"}"`)
-		}, apperr.NotFound, "has no record md5:" + detailsHash},
-		"not a member": {func(req *http.Request) *http.Response {
-			return testDownloadResponse(req, http.StatusForbidden, "text/json", `{"error":"Not a member"}`)
-		}, apperr.UpstreamBlocked, "members only"},
-		"browser check": {func(req *http.Request) *http.Response {
-			return testDownloadResponse(req, http.StatusOK, "text/html", "  <!doctype html><title>DDoS-Guard</title>")
-		}, apperr.UpstreamBlocked, "web page instead of record details"},
-		"broken JSON": {func(req *http.Request) *http.Response {
-			return testDownloadResponse(req, http.StatusOK, "text/json", `{"id":`)
-		}, apperr.Upstream, "invalid record details"},
+	var cases struct {
+		Comment string
+		Cases   []struct {
+			Name, Answer, Code, Message string
+			Status                      int
+		}
 	}
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
+	loadCases(t, "details_errors", &cases)
+	for _, tc := range cases.Cases {
+		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
+			contentType := "text/json"
+			if strings.HasSuffix(tc.Answer, ".html") {
+				contentType = "text/html"
+			}
 			client, _ := detailsClient(t, map[string]func(*http.Request) *http.Response{
-				"/db/aarecord_elasticsearch/md5:" + detailsHash + ".json": tc.response,
+				"/db/aarecord_elasticsearch/md5:" + detailsHash + ".json": func(req *http.Request) *http.Response {
+					return fixtureResponse(t, req, tc.Status, tc.Answer, contentType, nil)
+				},
 				"/dyn/md5/summary/" + detailsHash: func(req *http.Request) *http.Response {
 					return fixtureResponse(t, req, http.StatusOK, "md5_summary.json", "text/css", nil)
 				},
 			})
 			_, err := client.Details(context.Background(), detailsHash, time.Second)
-			if apperr.CodeOf(err) != tc.code || !strings.Contains(err.Error(), tc.message) {
-				t.Fatalf("err = %v, want %s containing %q", err, tc.code, tc.message)
+			if apperr.CodeOf(err) != tc.Code || !strings.Contains(err.Error(), tc.Message) {
+				t.Fatalf("err = %v, want %s containing %q", err, tc.Code, tc.Message)
 			}
 		})
 	}
@@ -214,8 +207,7 @@ func TestLooseJSONValuesTolerateNumbersAndNulls(t *testing.T) {
 	t.Parallel()
 
 	var record parse.Record
-	body := `{"id":"md5:x","file_unified_data":{"year_best":2008,"filesize_best":12,"has_aa_downloads":true,"title_additional":["a",null,3],"identifiers_unified":{"isbn13":"9780000000002"}}}`
-	if err := json.Unmarshal([]byte(body), &record); err != nil {
+	if err := json.Unmarshal(readFixture(t, "snippets/record_loose_values.json"), &record); err != nil {
 		t.Fatal(err)
 	}
 	file := record.FileUnifiedData
@@ -250,8 +242,7 @@ func accountClient(t *testing.T, pages ...string) (*Client, *int) {
 				return fixtureResponse(t, req, http.StatusOK, page, "text/html", nil), nil
 			case strings.HasPrefix(req.URL.Path, "/dyn/md5/summary/"):
 				summaries++
-				return &http.Response{StatusCode: http.StatusOK, Header: make(http.Header), Request: req,
-					Body: io.NopCloser(strings.NewReader(`{"downloads_left":0,"is_member":0,"download_still_active":0}`))}, nil
+				return fixtureResponse(t, req, http.StatusOK, "md5_summary_not_member.json", "text/css", nil), nil
 			}
 			t.Errorf("unexpected request %s %s", req.Method, req.URL)
 			return nil, io.EOF

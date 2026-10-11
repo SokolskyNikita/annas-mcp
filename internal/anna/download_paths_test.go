@@ -24,9 +24,12 @@ type fastAPI struct {
 
 	mu    sync.Mutex
 	calls []string
+	// noCopy is the API's answer for an index beyond the file's copies.
+	noCopy string
 }
 
 func (api *fastAPI) client(t *testing.T) *Client {
+	api.noCopy = fixtureText(t, "fast_download_no_copy.json")
 	return NewClient(Config{
 		BaseURL: "annas.test", AccountCookie: "aa_account_id2=test", SecretKey: "test-secret", DownloadPath: t.TempDir(),
 		HTTPClient: &http.Client{Transport: roundTripFunc(api.roundTrip)},
@@ -51,7 +54,7 @@ func (api *fastAPI) roundTrip(req *http.Request) (*http.Response, error) {
 	api.calls = append(api.calls, fmt.Sprintf("%d/%d", path, domain))
 	api.mu.Unlock()
 	if path >= api.collections || domain >= len(domainIndexes) {
-		return testDownloadResponse(req, http.StatusBadRequest, "text/json", `{"download_url":null,"error":"Invalid domain_index or path_index"}`), nil
+		return testDownloadResponse(req, http.StatusBadRequest, "text/json", api.noCopy), nil
 	}
 	status, body := api.answer(path, domain)
 	return testDownloadResponse(req, status, "text/json", body), nil
@@ -151,7 +154,7 @@ func TestDownloadSkipsMissingServersWithinACollection(t *testing.T) {
 			return http.StatusOK, grantJSON("https://files.example/missing.pdf", 3)
 		case path == 0:
 			// Anna has fewer servers in reserve mode than domainIndexes lists.
-			return http.StatusBadRequest, `{"download_url":null,"error":"Invalid domain_index or path_index"}`
+			return http.StatusBadRequest, fixtureText(t, "fast_download_no_copy.json")
 		}
 		return http.StatusOK, grantJSON("https://files.example/good.pdf", 2, hash)
 	}
@@ -166,28 +169,20 @@ func TestDownloadSkipsMissingServersWithinACollection(t *testing.T) {
 func TestDownloadStopsOnAccountAndRecordErrors(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		status  int
-		body    string
-		code    string
-		message string
-	}{
-		{http.StatusTooManyRequests, `{"download_url":null,"error":"No downloads left"}`, apperr.UpstreamBlocked, "no fast downloads left"},
-		{http.StatusUnauthorized, `{"download_url":null,"error":"Invalid secret key"}`, apperr.Config, "ANNAS_SECRET_KEY"},
-		{http.StatusForbidden, `{"download_url":null,"error":"Not a member"}`, apperr.UpstreamBlocked, "active membership"},
-		{http.StatusNotFound, `{"download_url":null,"error":"Record not found"}`, apperr.NotFound, "no file with this hash"},
-	}
-	for _, tc := range tests {
-		t.Run(fmt.Sprint(tc.status), func(t *testing.T) {
+	var cases downloadCases
+	loadCases(t, "downloads", &cases)
+	for _, tc := range cases.AccountAndRecord {
+		t.Run(fmt.Sprint(tc.Status), func(t *testing.T) {
 			t.Parallel()
 			api := &fastAPI{collections: 3}
-			api.answer = func(int, int) (int, string) { return tc.status, tc.body }
+			answer := fixtureText(t, tc.Answer)
+			api.answer = func(int, int) (int, string) { return tc.Status, answer }
 			_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, time.Second, nil)
 			if len(api.calls) != 1 {
 				t.Fatalf("API calls = %v; every other server would give the same answer", api.calls)
 			}
-			if apperr.CodeOf(err) != tc.code || !strings.Contains(err.Error(), tc.message) || strings.Contains(err.Error(), "test-secret") {
-				t.Fatalf("err = %v, want %s containing %q", err, tc.code, tc.message)
+			if apperr.CodeOf(err) != tc.Code || !strings.Contains(err.Error(), tc.Message) || strings.Contains(err.Error(), "test-secret") {
+				t.Fatalf("err = %v, want %s containing %q", err, tc.Code, tc.Message)
 			}
 		})
 	}
@@ -198,7 +193,7 @@ func TestDownloadRetriesServerErrorsWithoutMovingCollection(t *testing.T) {
 
 	api := &fastAPI{collections: 3}
 	api.answer = func(int, int) (int, string) {
-		return http.StatusInternalServerError, `{"download_url":null,"error":"Error during fetching"}`
+		return http.StatusInternalServerError, fixtureText(t, "fast_download_fetch_failed.json")
 	}
 	_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, time.Second, nil)
 	// The API answers for every collection, so a failing API is retried per
@@ -220,7 +215,7 @@ func TestDOIDownloadFallsBackToSciDBWhenFastDownloadsRunOut(t *testing.T) {
 			switch req.URL.Path {
 			case "/dyn/api/fast_download.json":
 				apiCalls++
-				return testDownloadResponse(req, http.StatusTooManyRequests, "text/json", `{"download_url":null,"error":"No downloads left"}`), nil
+				return testDownloadResponse(req, http.StatusTooManyRequests, "text/json", fixtureText(t, "fast_download_no_downloads_left.json")), nil
 			case "/scidb/10.1000/example/":
 				return fixtureResponse(t, req, http.StatusOK, sciDBPage, "text/html", map[string]string{sciDBHash: hash}), nil
 			case "/md5/" + hash:
