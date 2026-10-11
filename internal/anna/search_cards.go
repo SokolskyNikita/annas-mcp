@@ -292,12 +292,18 @@ func showsResults(doc *goquery.Document, pageNumber int) bool {
 }
 
 // pageTotals fills in totals for a parsed page. Without Anna's count, a
-// full page is taken to mean that more results may follow.
+// full page is taken to mean that more results may follow. A page past the
+// last result shows no count either; the total is then unknown, so it is
+// reported as a lower bound of zero, with no more pages.
 func pageTotals[T any](page *SearchPage[T], doc *goquery.Document, pageNumber int) {
 	if pageNumber < 1 {
 		pageNumber = 1
 	}
 	total, lowerBound, found := parseResultsTotal(doc)
+	if !found && pageNumber > 1 && len(page.Results) == 0 && len(page.Partial) == 0 {
+		page.Total, page.TotalIsLowerBound, page.MorePages = 0, true, false
+		return
+	}
 	if !found {
 		total = (pageNumber-1)*resultsPerPage + len(page.Results)
 		lowerBound = len(page.Results) >= resultsPerPage

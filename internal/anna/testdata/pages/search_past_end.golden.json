@@ -30,8 +30,8 @@
   "page": {
     "Results": [],
     "Partial": null,
-    "Total": 100,
-    "TotalIsLowerBound": false,
+    "Total": 0,
+    "TotalIsLowerBound": true,
     "MorePages": false
   }
 }
