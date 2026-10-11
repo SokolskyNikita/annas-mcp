@@ -137,7 +137,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 		}
 		return nil, fmt.Errorf("could not check Anna's Archive for DOI %s: %w", doi, failure)
 	}
-	return nil, apperr.New(apperr.NotFound, fmt.Sprintf("no verified archive record found for DOI: %s", doi))
+	return nil, apperr.New(apperr.NotFound, fmt.Sprintf("no verified archive record found for DOI: %s. The archive may hold another version of the paper, such as the published one under its own DOI: search article_search by the title and download a match by its hash", doi))
 }
 
 // paperFromSciDBPage reads the SciDB page for doi. A canonical SciDB record

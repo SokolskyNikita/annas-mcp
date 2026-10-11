@@ -171,3 +171,47 @@ func TestNormalizeArxivIDStripsOnlyExplicitNumericVersion(t *testing.T) {
 		}
 	}
 }
+
+func TestVerifyDOIIdentityAcceptsThePublishedVersionOfAnArxivPreprint(t *testing.T) {
+	t.Parallel()
+
+	// DOI.org's metadata for arXiv:1412.6980 and the archive's ICLR record.
+	doi := "10.48550/arXiv.1412.6980"
+	metadata := doiMetadata{DOI: doi, Title: "Adam: A Method for Stochastic Optimization", Authors: []string{"Diederik P. Kingma", "Jimmy Ba"}, Year: "2014"}
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(`<html><body>
+		<div class="font-bold text-violet-900" data-content="Adam: A method for stochastic optimization"></div>
+		<div class="text-amber-900" data-content="Kingma, Diederik P. (author); Ba, Jimmy Lei (author)"></div>
+		<div class="js-md5-codes-container">
+			<a href="/search?q=doi:10.0000/2b5806fea0e2c0ff892275cc38f9477c">doi</a>
+			<a href="/search?q=year:2015">year</a>
+		</div></body></html>`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	record := parseArchiveIdentity(doc)
+	if record.DOI != "" || len(record.Authors) != 2 || record.Authors[0] != "Diederik P. Kingma" {
+		t.Fatalf("parsed record: %+v", record)
+	}
+	if !verifyDOIIdentity(doi, metadata, record) {
+		t.Fatal("the published version of the preprint was rejected")
+	}
+
+	for name, change := range map[string]func(*archiveIdentity){
+		"a year earlier than the preprint": func(r *archiveIdentity) { r.Year = "2013" },
+		"two years later":                  func(r *archiveIdentity) { r.Year = "2016" },
+		"another family name":              func(r *archiveIdentity) { r.Authors = []string{"Diederik P. Kingma", "Jimmy Lei Bo"} },
+		"another first initial":            func(r *archiveIdentity) { r.Authors = []string{"Diederik P. Kingma", "Lei Ba"} },
+		"its own real DOI":                 func(r *archiveIdentity) { r.DOI = "10.1109/example.2015.1" },
+	} {
+		changed := record
+		change(&changed)
+		if verifyDOIIdentity(doi, metadata, changed) {
+			t.Errorf("%s was accepted", name)
+		}
+	}
+	// The year after is only allowed for preprints.
+	journal := record
+	if verifyDOIIdentity("10.1000/journal", doiMetadata{Title: metadata.Title, Authors: metadata.Authors, Year: "2014"}, journal) {
+		t.Error("a journal DOI accepted a record from the following year")
+	}
+}
