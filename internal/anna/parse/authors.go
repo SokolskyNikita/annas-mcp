@@ -6,12 +6,16 @@ import (
 	"unicode/utf8"
 )
 
-// Some imported records append affiliations to the author field, either as a
-// numbered list ("A , B ;1 FAIR - Facebook AI Research ...", from HAL) or as
-// a parenthesized block after the last author ("A;B(University of ...;...)").
+// Some imported records append affiliations to the author field: as a
+// numbered list ("A , B ;1 FAIR - Facebook AI Research ...", from HAL), after
+// a label ("A; B Affiliation: Zoology Department, ..."), as a parenthesized
+// block after the last author ("A;B(University of ...;...)"), or after each
+// name ("Hamel, R.. Alzheimer Centre Limburg, ...;Köhler, S.. ...").
 var (
 	numberedAffiliations = regexp.MustCompile(`\s*;\s*1\s+\S`)
-	affiliationKeywords  = regexp.MustCompile(`(?i)\b(universit|institut|department|school|college|laborator|hospital|academy|research|faculty|centre|center)`)
+	affiliationLabel     = regexp.MustCompile(`(?i)\s*\baffiliations?:`)
+	affiliationKeywords  = regexp.MustCompile(`(?i)\b(affiliation|universit|institut|department|division|school|college|laborator|hospital|clinic|academy|research|faculty|centre|center|gmbh)`)
+	nameThenAffiliation  = regexp.MustCompile(`^([^,;.()]+, [^.;()]{1,40}?)\.\.? (.+)$`)
 )
 
 // CleanAuthors removes affiliations appended to an author field and
@@ -22,11 +26,16 @@ func CleanAuthors(authors string) string {
 	if loc := numberedAffiliations.FindStringIndex(authors); loc != nil {
 		authors = authors[:loc[0]]
 	}
-	return spaceSeparators(trimAffiliationBlock(authors))
+	if loc := affiliationLabel.FindStringIndex(authors); loc != nil {
+		authors = authors[:loc[0]]
+	}
+	groups := strings.Split(trimAffiliationBlock(authors), ";")
+	for i, group := range groups {
+		groups[i] = trimNameAffiliation(strings.TrimSpace(group))
+	}
+	return spaceSeparators(strings.Join(groups, ";"))
 }
 
-// spaceSeparators writes the names of an author field separated by ", "
-// and groups by "; ", dropping empty ones.
 func spaceSeparators(authors string) string {
 	var groups []string
 	for _, group := range strings.Split(authors, ";") {
@@ -43,35 +52,58 @@ func spaceSeparators(authors string) string {
 	return strings.Join(groups, "; ")
 }
 
-// trimAffiliationBlock drops the first parenthesized block that holds
-// affiliations. Short notes such as "(ed.)" or "(Translator)" are kept.
+// trimAffiliationBlock drops everything from the first parenthesized block
+// that holds affiliations or an e-mail address: such blocks come after the
+// names they belong to. Short notes such as "(ed.)" or "(Translator)" are
+// kept. Full-width parentheses come from Chinese catalogs, which use them
+// only for affiliations, so short ones go too.
 func trimAffiliationBlock(authors string) string {
-	open := strings.IndexAny(authors, "(（")
-	if open < 0 {
-		return authors
+	for offset := 0; ; {
+		open := strings.IndexAny(authors[offset:], "(（")
+		if open < 0 {
+			return authors
+		}
+		open += offset
+		block := enclosed(authors[open:])
+		fullWidth := strings.HasPrefix(block, "（")
+		if strings.Contains(block, "@") || affiliationKeywords.MatchString(block) && (len(block) >= 40 || fullWidth) {
+			return strings.TrimSpace(authors[:open])
+		}
+		offset = open + len(block)
 	}
-	// Affiliations can nest parentheses ("Institute (Quzhou)") and may use
-	// full-width ones, so find the matching close; an unclosed block runs to
-	// the end of the field.
-	block := authors[open:]
+}
+
+// enclosed returns the parenthesized block text starts with, up to its
+// matching close. Affiliations can nest parentheses ("Institute (Quzhou)")
+// and may use full-width ones; an unclosed block runs to the end.
+func enclosed(text string) string {
 	depth := 0
-	for i, r := range block {
+	for i, r := range text {
 		switch r {
 		case '(', '（':
 			depth++
 		case ')', '）':
-			if depth--; depth == 0 {
-				block = block[:i+utf8.RuneLen(r)]
-			}
+			depth--
 		}
 		if depth == 0 {
-			break
+			return text[:i+utf8.RuneLen(r)]
 		}
 	}
-	if len(block) < 40 || !affiliationKeywords.MatchString(block) {
-		return authors
+	return text
+}
+
+// trimNameAffiliation turns "Family, Given.. Affiliation, ..." into
+// "Family, Given.", keeping the period of a final initial.
+func trimNameAffiliation(group string) string {
+	match := nameThenAffiliation.FindStringSubmatch(group)
+	if match == nil || !affiliationKeywords.MatchString(match[2]) {
+		return group
 	}
-	return strings.TrimSpace(authors[:open]) + " " + strings.TrimSpace(authors[open+len(block):])
+	name := match[1]
+	if fields := strings.Fields(name); utf8.RuneCountInString(fields[len(fields)-1]) == 1 {
+		name += "."
+	}
+	return name
 }
 
 func splitAuthors(values []string) []string {
