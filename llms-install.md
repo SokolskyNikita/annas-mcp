@@ -10,7 +10,7 @@ Instructions for an AI agent setting up this MCP server for a user. The [README]
 ## Ask the user for
 
 1. **Secret key** (required): the key they log in to Anna's Archive with. It is on their account page, https://annas-archive.gl/account/. Treat it as a password: put it only in the MCP config, never in chat output or files in a repository.
-2. **Download folder** (optional): files go to `annas-archive` in the user's home folder unless `ANNAS_DOWNLOAD_PATH` names another absolute folder, which is created if missing. Only ask if the user wants a different folder. Avoid `/tmp`, which the operating system clears. On macOS, Desktop, Documents and Downloads make macOS ask the user for permission on the first download.
+2. **Download folder** (optional): files go to `annas-archive` in the user's home folder unless `ANNAS_DOWNLOAD_PATH` names another absolute folder, which is created if missing. Skip this unless the user mentions a folder. Avoid `/tmp`, which the operating system clears. On macOS, Desktop, Documents and Downloads make macOS ask the user for permission on the first download.
 
 ## Configure the client
 

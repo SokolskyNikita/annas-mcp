@@ -1,7 +1,5 @@
 # Contributing
 
-Contributions that improve search accuracy, download reliability, mirror handling, the MCP tool schemas or the cross-platform launcher are welcome.
-
 ## Build from source
 
 Requires Go 1.26 or newer.
@@ -34,9 +32,12 @@ The `npx` launcher always runs the latest published release, never your checkout
 | --- | --- |
 | `cmd/annas-mcp` | Executable entry point |
 | `internal/modes` | MCP server and CLI, sharing one service layer for validation and output |
-| `internal/anna` | Archive search and result parsing, record details, account status, DOI lookup, downloads and sign-in, including the saved session |
+| `internal/anna` | Archive client: search, record details, account status, DOI lookup, downloads and sign-in, including the saved session |
+| `internal/anna/parse` | Everything that reads Anna's Archive's and DOI.org's answers |
+| `internal/anna/match` | Checks that a record is the paper a DOI names |
 | `internal/mirror` | Mirror selection: health checks, holds on failing mirrors and the official mirror list |
 | `internal/env`, `internal/apperr`, `internal/version` | Configuration, stable error codes, embedded version |
+| `internal/testpolicy` | Checks on the repository's own tests (see [Test data](#test-data)) |
 | `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
 | `server.json`, `manifest.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery) and Glama |
 | `Dockerfile` | Container image for `docker run -i` and Docker's MCP Catalog |
@@ -44,49 +45,54 @@ The `npx` launcher always runs the latest published release, never your checkout
 | `llms-install.md` | Setup steps for AI agents that install MCP servers for a user, such as Cline |
 | `assets` | Icon (`icon.svg`, rendered to `icon.png` at 512×512) and the GitHub social preview (`social-preview.svg`, rendered to `social-preview.png` at 1280×640) |
 | `docs` | Project website, served by GitHub Pages. Keep its setup snippets in step with the README |
-| `plugin.json`, `mcp.json` | [Agent Plugins](https://agent-plugins.org) manifest for plugin directories such as cursor.directory. It carries no credentials; the server reads the `ANNAS_*` variables from its environment |
+| `plugin.json`, `mcp.json` | [Agent Plugins](https://agent-plugins.org) manifest for plugin directories such as cursor.directory |
 | `scripts` | Test, health-check and release tooling |
 
 ## Checks
 
-Run these before opening a pull request. None of them need archive credentials; they use fixtures and a mock release server.
+Run these before opening a pull request. None of them need archive credentials.
 
 ```bash
 gofmt -w cmd internal
 go vet ./...
 npm run check:version   # embedded and npm versions must agree
 npm test                # version, launcher and stdio integration tests
-npm run coverage        # Go race tests; requires 80% total coverage, 95% for parse and match
+npm run coverage        # Go race tests; needs 80% total coverage, and 95% for parse and match from their own tests
 ```
 
-CI runs the same checks on Linux, macOS and Windows. It also lints the workflows with actionlint, syntax-checks the shell scripts, builds a GoReleaser snapshot and builds the Docker image, checking its MCP handshake with `scripts/check-docker.mjs`. `scripts/check-package-contents.mjs` checks that test data stays out of the binary, the npm package, the image, the release archives and the MCP Bundle.
-
-### Captured pages
-
-Everything that reads Anna's Archive's and DOI.org's answers lives in `internal/anna/parse`, and the check that a record is the paper a DOI names in `internal/anna/match`. Both are pure and tested on their own: `scripts/check-coverage.mjs` requires 95% coverage of each from its own tests, besides 80% overall.
-
-The parser tests read real pages, saved gzipped in `internal/anna/parse/testdata/pages` and listed in its `manifest.json`. What the parsers make of each page is kept beside it as `<name>.golden.json`, and `TestCapturedPages` fails when that changes, showing the first line that differs.
-
-- After changing a parser, run `go test ./internal/anna/parse -run TestCapturedPages -update` and review the diff of the `.golden.json` files: every change in it should be one you meant.
-- To refresh the pages, or after adding one to the manifest, run `ANNAS_MCP_CAPTURE=1 go test ./internal/anna -run '^TestCapturePages$' -count=1 -v` (or set `ANNAS_MCP_CAPTURE` to a comma-separated list of page names), then update the outputs the same way. Capturing signs in with `ANNAS_SECRET_KEY` and reads pages without downloading files. It replaces the account's id, cookie and key, and SciDB's signed file links, and fails if any of them remains. It also drops the pages' scripts, about half of each page, which the parsers never read; `search_books` keeps them (`keep_scripts` in the manifest), so the tests still check that the parsers ignore script text.
-- Check new outputs against the live pages before committing them, so the tests describe what the archive shows rather than what the parser happened to read.
-- The client's tests serve the same pages from fake mirrors, so they exercise the client against the markup the archive really serves.
-- The text rules also run over about 11,600 strings from real search cards, gzipped in `internal/anna/parse/testdata/corpus`: metadata lines, author lists, publisher links and titles. What the rules make of each is kept beside them as `<name>.golden.jsonl.gz`, and `TestCorpus` fails when that changes; review it with `-update` as for the pages. `TestCorpusHasNothingUnread` checks that every part of every metadata line is recognized. To add more, run `ANNAS_MCP_CRAWL=1 go test ./internal/anna -run '^TestCrawlCorpus$' -count=1 -v -timeout 75m`. It signs in with `ANNAS_SECRET_KEY` and runs the searches in `internal/anna/testdata/crawl_searches.json`, one every 20 seconds, downloading nothing. To read changes to the corpus in `git diff` and `git log -p`, run `git config diff.gzip.textconv "gzip -dc"` once.
-- Fuzz tests in `parse` and `match` check properties that must always hold, such as cleaning a cleaned author list changing nothing. `go test` runs their seeds, which include the corpus; to search further, run one for a while, for example `go test ./internal/anna/parse -run '^$' -fuzz '^FuzzCleanAuthors$' -fuzztime 1m`, and keep any failing input as a seed once it is fixed.
+CI runs the same checks on Linux, macOS and Windows. It also lints the workflows and builds a GoReleaser snapshot and the Docker image. `scripts/check-package-contents.mjs` checks that test data stays out of the binary, the npm package, the image, the release archives and the MCP Bundle.
 
 ### Test data
 
-Test data lives in files, not in Go source: case tables in each package's `testdata/cases/<name>.json`, page snippets and API answers beside them, and fuzz seeds in `testdata/fuzz/<FuzzName>`. Case files are decoded strictly, so a misspelled field fails the test. `internal/testpolicy` fails on a test that writes markup, JSON, text spanning lines, a string over 60 bytes or a table of more than five strings inline; a literal the test is about can stay, with a comment saying `literal:` and why.
+Test data lives in files rather than Go source: case tables in each package's `testdata/cases/<name>.json`, page snippets and API answers beside them, and fuzz seeds in `testdata/fuzz/<FuzzName>`. Case files are decoded strictly, so a misspelled field fails the test. Test data stays plain text so it reads and diffs well; only the captured pages and the corpus, which are large, are gzipped.
 
-Test data stays plain text, so it reads and diffs well; only the captured HTML pages and the corpus, which are large, are gzipped. `internal/testpolicy` checks that too.
+`internal/testpolicy` enforces this. It fails on gzipped test data elsewhere, and on a test that writes markup, JSON, text spanning lines, a string over 60 bytes or a table of more than five strings inline. A literal the test is about can stay, with a comment saying `literal:` and why.
+
+### Captured pages
+
+The parser tests read real pages, saved gzipped in `internal/anna/parse/testdata/pages` and listed in its `manifest.json`. What the parsers make of each page is kept beside it as `<name>.golden.json`, and `TestCapturedPages` fails when that changes, showing the first line that differs. The client's tests serve the same pages from fake mirrors.
+
+- After changing a parser, run `go test ./internal/anna/parse -run TestCapturedPages -update` and review the diff of the `.golden.json` files: every change in it should be one you meant.
+- To refresh the pages, or after adding one to the manifest, run `ANNAS_MCP_CAPTURE=1 go test ./internal/anna -run '^TestCapturePages$' -count=1 -v` (or set `ANNAS_MCP_CAPTURE` to a comma-separated list of page names), then update the outputs the same way. Capturing signs in with `ANNAS_SECRET_KEY` and downloads no files. It replaces the account's id, cookie and key and SciDB's signed file links, and fails if any of them remains. It drops the pages' scripts, which the parsers never read, except from the `search_books` page (`keep_scripts` in the manifest), so the tests still check that the parsers ignore script text.
+- Check new outputs against the live pages before committing them. A golden file only records what the parser read, right or wrong.
+
+### Search card corpus
+
+The text rules also run over about 11,600 strings from real search cards (metadata lines, author lists, publisher links and titles), gzipped in `internal/anna/parse/testdata/corpus`. What the rules make of each is kept beside them as `<name>.golden.jsonl.gz`. `TestCorpus` fails when that changes, and `-update` refreshes it as for the pages. `TestCorpusHasNothingUnread` checks that every part of every metadata line is recognized.
+
+To add more strings, run `ANNAS_MCP_CRAWL=1 go test ./internal/anna -run '^TestCrawlCorpus$' -count=1 -v -timeout 75m`. It signs in with `ANNAS_SECRET_KEY` and runs the searches in `internal/anna/testdata/crawl_searches.json`, one every 20 seconds, downloading nothing. To read corpus changes in `git diff` and `git log -p`, run `git config diff.gzip.textconv "gzip -dc"` once.
+
+### Fuzz tests
+
+Fuzz tests in `parse` and `match` check properties that must always hold, such as cleaning a cleaned author list changing nothing. `go test` runs their seeds, which include the corpus. To search further, run one for a while, for example `go test ./internal/anna/parse -run '^$' -fuzz '^FuzzCleanAuthors$' -fuzztime 1m`, and keep any failing input as a seed once it is fixed.
 
 ### Watching Anna's Archive's source
 
-`npm run check:upstream` lists the commits to Anna's Archive's source that may break the parsers: changes near the hooks listed in `scripts/upstream-watch.json` to the templates and code that render search results, record pages, SciDB pages and the account page. It keeps a partial clone of Anna's repository in `~/.cache/annas-mcp` (`--repo` sets another folder) and needs no credentials. Changes to whitespace, comments, scripts, styles, classes the parsers do not use, Python formatting and translation placeholders are left out; the remaining commits that touch no hook are still listed, since a hook list can miss things.
+`npm run check:upstream` lists commits to Anna's Archive's source that may break the parsers. It reads the templates and code listed in `scripts/upstream-watch.json`, which render search results, record pages, SciDB pages and the account page, and flags changes near the parsers' hooks. Commits that only change whitespace, comments, scripts, styles, unused classes or translation placeholders are left out. Commits that touch no hook are still listed, since the hook list can miss things. The check keeps a partial clone of Anna's repository in `~/.cache/annas-mcp` (`--repo` sets another folder) and needs no credentials.
 
-After checking each relevant commit against `internal/anna/parse`, and recapturing affected pages, run `npm run check:upstream -- --accept` and commit `scripts/upstream-watch.json`. When a parser starts relying on a new part of Anna's markup, add it to `hooks` in `internal/anna/parse/hooks.go`; `TestUpstreamWatchCoversHooks` then fails until `upstream-watch.json` watches it.
+After checking each relevant commit against `internal/anna/parse` and recapturing affected pages, run `npm run check:upstream -- --accept` and commit `scripts/upstream-watch.json`. When a parser starts relying on a new part of Anna's markup, add it to `hooks` in `internal/anna/parse/hooks.go`; `TestUpstreamWatchCoversHooks` then fails until `upstream-watch.json` watches it.
 
-A workflow runs the same check every Monday and opens an issue labelled `upstream-change` for relevant commits, adds later ones to it, and closes it once everything is accepted. It reads Anna's public source repository only, never the archive.
+A workflow runs the same check every Monday. It opens an issue labelled `upstream-change` for relevant commits, adds later ones to it and closes it once everything is accepted.
 
 ### Live tests
 

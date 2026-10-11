@@ -5,28 +5,28 @@ Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were p
 ## [v0.6.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.0) - 2026-10-11
 
 - `book_search` and `metadata_search` results get an `edition` field. A result's publisher line reads "publisher, edition", and the whole line used to be returned as the publisher, so a record without a publisher reported "2019" or "2nd ed" as one. `publisher` now holds the publisher alone. Articles still report the whole line as `journal`.
-- Fix DOI lookup accepting a record that names a different paper's DOI whenever its title and authors matched. Anna now writes the identifier links on record pages as exact searches, and the quotes kept any DOI, arXiv id or year from being read there.
-- Clean up text from publishers' records. Titles, authors and descriptions that were HTML-escaped twice ("Trengove &amp; coll") are decoded. Formatting markup is removed: `<i>`, `<p>` and similar tags, Crossref's `jats:` tags, Wiley's `<scp>` and the `<title>` SPIE wraps paper titles in. Text such as "AT&T" or "Vector<T>" is left alone. Right-to-left marks in Hebrew titles and publishers no longer show up as escape codes; joiners that shape Bengali and Hindi letters are kept.
-- Drop more affiliations from author lists: ones after a short note such as "(Pandha, Hardev)", blocks holding an e-mail address, text after "Affiliation:", Scopus-style "Hamel, R.. Alzheimer Centre Limburg, …" lists, and short affiliations in full-width parentheses. Roles, notes and corporate authors stay.
+- Fix DOI lookup accepting a record that names a different paper's DOI whenever its title and authors matched.
+- Clean up text from publishers' records. Titles, authors and descriptions that were HTML-escaped twice ("Trengove &amp; coll") are decoded. Formatting tags such as `<i>`, `<p>` and Crossref's `jats:` tags are removed; text such as "AT&T" or "Vector<T>" is left alone. Right-to-left marks in Hebrew titles and publishers no longer show up as escape codes; joiners that shape Bengali and Hindi letters are kept.
+- Drop more affiliations from author lists: ones after a short note such as "(Pandha, Hardev)", blocks holding an e-mail address, text after "Affiliation:", Scopus-style "Hamel, R.. Alzheimer Centre Limburg, …" lists and short affiliations in full-width parentheses. Roles, notes and corporate authors stay.
 - DOI lookup folds the accents of any Latin letter when comparing author names, so "Gülşen Özdemir-Ağaoğlu" matches "Gulsen Ozdemir-Agaoglu"; marks that tell letters apart in other scripts are kept. A pasted DOI with repeated prefixes, such as `https://doi.org/doi:10.1000/x`, is accepted.
 - A paper found through SciDB reports its year, size, source libraries and `fast_download` from its record page, with the whole publisher line as `journal`, the way search results do. The journal used to come out as a year or the publisher alone, and the size was missing.
 - A page past the last result reports no more pages and a total of at least 0, instead of a total guessed from the page number.
 - `ANNAS_BASE_URL` refuses a language version of an official mirror, such as `es.annas-archive.gl`, with a `[CONFIG]` error naming the mirror to use. The server reads Anna's pages in English.
 - Read Anna's pages through the hooks its own scripts use instead of styling classes, so a restyling no longer breaks search results or record pages. When part of a page can't be read, the server logs one short warning, without search terms or account details, and returns what it read.
-- For contributors: the parsers live in `internal/anna/parse` and DOI matching in `internal/anna/match`, each with 95% test coverage. They are tested on pages captured from the live archive, including searches in ten languages besides English, on about 11,600 strings from real search cards, and with fuzz tests. `npm run check:upstream`, and a weekly workflow that opens an issue, flag changes to Anna's Archive's source that the parsers depend on. Test data lives in files rather than in Go source.
+- For contributors: the parsers moved to `internal/anna/parse` and DOI matching to `internal/anna/match`. Their tests run on pages captured from the live archive (including searches in ten languages besides English), on about 11,600 strings from real search cards and as fuzz tests. `npm run check:upstream` and a weekly workflow flag changes to Anna's Archive's source that the parsers depend on. Test data moved out of Go source into files.
 
 ## [v0.5.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.5.0) - 2026-10-11
 
 - Pick mirrors without SLUM (open-slum.org). The server checks the official mirrors itself, all at once on Anna's small `/dyn/up/` endpoint, and keeps using one for as long as it works. `ANNAS_BASE_URL` is now the mirror tried first, with the official mirrors standing in for it while it fails; before, it was only used, unchecked, when automatic selection failed.
-- Retry a call once on another mirror when its mirror fails: it can't be reached, doesn't answer within 30 seconds, answers with a 5xx or 429, or returns a page that isn't Anna's Archive. Previously the call failed and only the next call moved on. A failing mirror is set aside for 15 seconds, twice as long with each further failure in a row, up to 5 minutes.
+- Retry a call once on another mirror when its mirror fails: it can't be reached, doesn't answer within 30 seconds, returns a page that isn't Anna's Archive or answers with a 5xx or 429. Previously the call failed and only the next call moved on. A failing mirror is set aside for 15 seconds, twice as long with each further failure in a row, up to 5 minutes.
 - When every mirror is failing, calls fail at once with what each mirror last did and when to try again, instead of waiting on each one. The mirrors are checked again at most every 30 seconds, so the server recovers soon after the archive or your connection comes back.
 - Contact the mirrors only while a tool call is running, never in the background. Mirror health is saved as `mirrors.json` in the cache folder, so a new run, a CLI command or another MCP client uses a mirror that worked in the last 10 minutes without checking it, and skips one that just failed.
 - A `403` that a fresh session doesn't fix counts against a mirror only when another mirror then works. When two mirrors refuse, the error says the account lacks access, instead of every mirror being reported down.
 - Limit how long one request can wait: 30 seconds for a response and 60 seconds for each pause in a download, separately from `timeout_seconds`. A mirror that went quiet used to hold a search for the whole minute, and a stalled download for 30 minutes.
 - Continue a download that drops or stalls partway where it stopped, with up to two `Range` requests per server, instead of starting over on the next server. The MD5 check still covers the whole file.
 - Sign-in gives each mirror 15 seconds and skips mirrors that are set aside, so one that hangs no longer uses up the call. A sign-in that failed only because no mirror could be reached is no longer remembered for a minute.
-- Speed up DOI lookups. The SciDB page is requested in its final form instead of through up to four slow redirects, and a SciDB miss no longer follows on to a search. When SciDB misses, the main and journal indexes are searched at once, the lookup stops after the first query that finds the paper, and record pages are read four at a time, returning as soon as the paper is found. If DOI.org doesn't answer within 10 seconds, the lookup goes on without it. "Attention Is All You Need" by arXiv DOI went from 24 to 14 seconds.
-- Find arXiv papers whose archive record differs from DOI.org only in form, such as "Adam: A Method for Stochastic Optimization", which came back `[NOT_FOUND]` although the archive has its ICLR version. Placeholder DOIs (`10.0000/…`) on records without one no longer count as a conflicting DOI, "Family, Given; Family, Given" author lists are read correctly, authors are compared by family name and first initial, and for arXiv DOIs a record from the year after the preprint matches. A record with a different real DOI is still rejected, and `[NOT_FOUND]` now suggests searching by title to find another version, such as the published one.
+- Speed up DOI lookups. The SciDB page is requested in its final form instead of through up to four slow redirects, and a SciDB miss no longer follows on to a search. When SciDB misses, the main and journal indexes are searched at once, the lookup stops after the first query that finds the paper and record pages are read four at a time, returning as soon as the paper is found. If DOI.org doesn't answer within 10 seconds, the lookup goes on without it. "Attention Is All You Need" by arXiv DOI went from 24 to 14 seconds.
+- Find arXiv papers whose archive record differs from DOI.org only in form, such as "Adam: A Method for Stochastic Optimization", which came back `[NOT_FOUND]` although the archive has its ICLR version. Placeholder DOIs (`10.0000/…`) on records without one no longer count as a conflicting DOI, and "Family, Given; Family, Given" author lists are read correctly. Authors are compared by family name and first initial, and for arXiv DOIs a record from the year after the preprint matches. A record with a different real DOI is still rejected, and `[NOT_FOUND]` now suggests searching by title to find another version, such as the published one.
 - Report a search page whose results can't be read as `[UPSTREAM]` instead of returning no results, so a change in Anna's page layout isn't mistaken for the work being absent.
 - When a call's retry on a second mirror fails too, the error says what both mirrors answered. The fast download API's `403`, which is about the account, no longer counts against the mirror.
 - Move tool details, the cache folder and the saved session from the README to HOW-IT-WORKS.md, which also explains how mirrors are chosen. It ships in the release archives and the MCP Bundle.
@@ -40,7 +40,7 @@ Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were p
 - Add `metadata_search`, which searches library catalogs such as Open Library, WorldCat, ISBNdb, Goodreads and Google Books, including books with no downloadable file, to find editions and ISBNs.
 - Add `account_status`, which shows the active memberships and how many fast downloads are left in the rolling 18- or 24-hour window. Downloads report `downloads_left` too.
 - When every fast server fails for a file that is stored in more than one collection, try up to two more collections. Only the first request for a file counts against the allowance, so this costs time, not downloads. A failing download API is still tried once per server, not again for each collection.
-- Stop at the first fast download API answer that every other server would repeat: no fast downloads left (now a clear `[UPSTREAM_BLOCKED]` error instead of three HTTP 429 attempts), a rejected secret key (`[CONFIG]`), an account without a membership, or a hash the archive does not know (`[NOT_FOUND]`). `article_download` by DOI still falls back to SciDB when fast downloads run out.
+- Stop at the first fast download API answer that every other server would repeat: no fast downloads left (now an `[UPSTREAM_BLOCKED]` error instead of three HTTP 429 attempts), a rejected secret key (`[CONFIG]`), an account without a membership or a hash the archive does not know (`[NOT_FOUND]`). `article_download` by DOI still falls back to SciDB when fast downloads run out.
 - The CLI gains `metadata-search`, `book-details` and `account-status`, flags for every new search filter, a line with the total and the next page after search results, and the fast downloads left after a download.
 - Add an opt-in live test of search, catalog, details and account parsing that downloads nothing (`ANNAS_MCP_TEST_LIVE=1`). The live smoke test and release verification check all seven tools.
 
@@ -55,7 +55,7 @@ Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were p
 - Check that the download folder can be written before contacting any download server. Previously an unwritable folder failed only after the file had been requested from each fast server. The `[CONFIG]` error names the folder, and on macOS explains how to grant a protected folder's permission or pick an unprotected one.
 - The MCP instructions ask the client to tell the user where a download was saved.
 - Add a `Dockerfile` for `docker run -i` and Docker's MCP Catalog. CI builds the image and checks its MCP handshake.
-- Add a project site at https://sokolskynikita.github.io/annas-mcp/, `llms-install.md` for agents that install MCP servers, and a README section on switching from iosifache/annas-mcp.
+- Add a project site at https://sokolskynikita.github.io/annas-mcp/, `llms-install.md` for agents that install MCP servers and a README section on switching from iosifache/annas-mcp.
 - The release workflow publishes the MCP Bundle to Smithery. `npm run bump` sets the version in every file and adds the CHANGELOG heading.
 
 ## [v0.2.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.2.0) - 2026-10-09
@@ -96,16 +96,16 @@ Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were p
 
 - Stop after the first fast-download API response when Anna's Archive reports that a file has no fast download copy (`Invalid domain_index or path_index`). Return `NOT_FOUND` with advice to pick another copy, instead of three identical upstream failures. DOI downloads still fall back to SciDB.
 - Infer the saved file's extension from the download URL when the file server sends a bare `attachment` disposition and a generic `application/octet-stream` type. This fixes files such as AZW3 books being saved as `.bin` when `format` is omitted.
-- Remove numbered affiliation text (for example `;1 FAIR - Facebook AI Research …`) from author fields in book search, article/DOI lookup and DOI identity matching, and normalize the spacing around commas. Add regression tests for all three changes.
+- Remove numbered affiliation text (for example `;1 FAIR - Facebook AI Research …`) from author fields in book search, article/DOI lookup and DOI identity matching, and normalize the spacing around commas.
 
 ## v0.0.14 - 2026-09-24
 
 - Replace raw HTML download errors with server hostnames, HTTP statuses and short explanations. Keep every fast-server failure and the SciDB fallback outcome in the error, with their underlying causes. HTTP and transport diagnostics leave out signed URLs.
-- Take a failed download's error code from its final attempt. Cancelling the operation still takes precedence, and earlier causes stay in the error. Add regression tests for mixed failures, credential redaction, cancellation and MCP tool error output.
+- Take a failed download's error code from its final attempt. Cancelling the operation still takes precedence, and earlier causes stay in the error.
 
 ## v0.0.13 - 2026-09-23
 
-- Verify a published release through its GitHub release ID when the tag endpoint omits uploaded assets. The archive, checksum, version and MCP checks all still run. Add regression tests for inconsistent metadata and mismatched release identities.
+- Verify a published release through its GitHub release ID when the tag endpoint omits uploaded assets.
 
 ## v0.0.12 - 2026-09-23
 
@@ -119,7 +119,6 @@ Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were p
 
 - Fixed Windows launcher installation under Git Bash by selecting the system's native `tar.exe`. Git Bash's GNU tar misinterprets Windows drive paths and does not support the required ZIP extraction.
 - Ran launcher integration tests under Bash on all CI platforms to cover Windows shell differences before publication.
-- The published assets, launcher version and MCP startup passed verification on Linux, macOS and Windows.
 
 ## v0.0.10 - 2026-09-23
 
@@ -131,10 +130,10 @@ Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were p
 - Made mirror discovery lazy and bounded, cached successful selections and fallbacks, invalidated failed mirrors and tightened origin/redirect checks.
 - Checked downloads for empty files and content-length mismatches, tightened HTML detection, wrote each download to a temporary file before moving it into place, handled name collisions and made filename sanitization portable.
 - Tightened the launcher's archive-entry validation, cached-binary verification, concurrent installation and offline fallback. Reworked its Windows support and subprocess lifecycle handling.
-- Moved HTML and other test data into external fixtures. Expanded regression, CLI, MCP and launcher coverage, and added race checks and an 80% total Go coverage gate. Added an opt-in live smoke test for all four MCP tools and made health checks local by default.
+- Moved HTML and other test data into external fixtures and added race checks and an 80% total Go coverage gate. Added an opt-in live smoke test for all four MCP tools and made health checks local by default.
 - Expanded CI to Linux, macOS and Windows, with workflow linting and snapshot builds of all eight release targets. Gated release publication on passing checks and added post-publish checks of the assets, launcher version and MCP startup. The Windows check exposed the Git Bash extraction issue fixed in v0.0.11.
 - Corrected release version embedding, synchronized package/tag metadata and restricted the tag script to new annotated tags from a clean checkout matching `origin/main`.
-- Reorganized and deduplicated the README and replaced real bibliographic examples with fictional placeholders. Rewrote its explanations of membership levels, API keys, weekly cookie renewal, tool contracts and release procedures.
+- Replaced real bibliographic examples in the README with fictional placeholders, and rewrote its sections on membership levels, API keys, weekly cookie renewal, tool contracts and release procedures.
 
 ## v0.0.9 - 2026-09-23
 
@@ -160,7 +159,7 @@ Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were p
 - Added download-server retries, MD5 verification when a hash was known, an 8 GiB size limit, safer filenames and collision handling that preserved existing files. Fixed the size-limit constant for 32-bit builds.
 - Enabled the inherited automatic mirror discovery by default, added parsing/ranking for SLUM's directory status badges and kept the configured mirror as a fallback.
 - Added SHA-256 verification of release archives and versioned launcher caches, with cached startup and background update checks.
-- Expanded archive, mirror, MCP and launcher tests. Rewrote the setup and tool documentation, described download membership requirements and removed stale screenshots.
+- Rewrote the setup and tool documentation, described download membership requirements and removed stale screenshots.
 - Added an MIT `LICENSE` file and README license section; these were removed again in v0.0.8.
 
 ## v0.0.6 - 2026-09-22

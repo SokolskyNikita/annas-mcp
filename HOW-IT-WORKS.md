@@ -1,10 +1,10 @@
 # How annas-mcp works
 
-The [README](README.md) covers setup and everyday use. This page has the details: every tool's options and results, how downloads are fetched and checked, how the server picks a mirror, where it keeps its cache, and how it remembers its session.
+For setup and everyday use, see the [README](README.md).
 
 ## Tools
 
-Every tool accepts `timeout_seconds`, covering the whole operation including retries. Downloads default to 30 minutes and the other tools to 60 seconds.
+Every tool accepts `timeout_seconds`, which covers the whole operation including retries. Downloads default to 30 minutes and the other tools to 60 seconds.
 
 ### Searching
 
@@ -34,31 +34,27 @@ Give `article_search` a DOI (`10.1038/nature14539`, `doi:…` or `https://doi.or
 
 ### Catalogs and details
 
-`metadata_search` searches catalog records from Open Library, WorldCat, ISBNdb, Goodreads, Google Books and other sources, including books that have no downloadable file. It takes the same `query`, `title`, `author`, `publisher`, `year`, `language`, `sort`, `limit` and `page` fields, and its `source` filter takes catalogs such as `ol`, `oclc`, `isbndb`, `goodreads` or `gbooks`. Each result has an `id` such as `isbndb:9780521879286`. Searching `book_search` for an ISBN it finds is a good way to find files of that edition.
+`metadata_search` searches catalog records from Open Library, WorldCat, ISBNdb, Goodreads, Google Books and other sources, including books that have no downloadable file. It takes the same `query`, `title`, `author`, `publisher`, `year`, `language`, `sort`, `limit` and `page` fields, and its `source` filter takes catalogs such as `ol`, `oclc`, `isbndb`, `goodreads` or `gbooks`. Each result has an `id` such as `isbndb:9780521879286`. To find files of an edition it lists, search `book_search` for the ISBN.
 
 `book_details` takes a `hash` from either search tool or an `id` from `metadata_search` as its `id`, and returns the full record: ISBNs, DOI, OCLC, Open Library and other identifiers, the edition, the full description, subjects and Dewey/Library of Congress classes, alternative titles and authors, problems source libraries reported for the file (with a better copy's hash when the archive knows one), and download and quality counts.
 
 ### Downloading
 
-`book_download` takes the `hash` and a `title`. `article_download` takes either a `doi` or a `hash`, plus an optional `title`. Both return the saved file's `path`, its size in `bytes`, and `downloads_left`: the account's remaining fast downloads.
+`book_download` takes the `hash` and a `title`. `article_download` takes either a `doi` or a `hash`, plus an optional `title`. Both return the saved file's `path`, its size in `bytes` and `downloads_left`, the account's remaining fast downloads. `account_status` returns `member`, `downloads_left`, `downloads_limit`, `window_hours` and your active `memberships`; the [README](README.md#tools) explains the allowance.
 
 `title` becomes the filename. Pass `format` (such as `epub` or `pdf`) to set the extension; this doesn't convert the file, and without it the extension is detected from the download. An existing file is never overwritten: a name clash gets a short suffix.
 
 Files are checked against the archive's MD5 hash, and incomplete or corrupt downloads are deleted. A download tries three fast servers, and when the file is stored in more than one collection and every server fails, up to two more collections. When the fast download servers don't have a paper, or the account has no fast downloads left, `article_download` by DOI falls back to the PDF on Anna's SciDB page.
 
-### Account status
-
-Each new file uses one fast download from your membership's allowance, which Anna's Archive counts over a rolling 18- or 24-hour window. Downloading a file again within that window is free. `account_status` returns `member`, `downloads_left`, `downloads_limit`, `window_hours` and your active `memberships`.
-
 ## Choosing a mirror
 
-The server uses `ANNAS_BASE_URL` (`annas-archive.gl` unless you set it) and the official mirrors `annas-archive.gl`, `.pk` and `.gd`. Set `ANNAS_AUTO_BASE_URL=false` to use only `ANNAS_BASE_URL`. It reads the archive's pages in English, so a language version of a mirror, such as `es.annas-archive.gl`, is refused with a `[CONFIG]` error naming the mirror to use instead.
+The server picks among `ANNAS_BASE_URL` and the official mirrors `annas-archive.gl`, `.pk` and `.gd`, or uses only `ANNAS_BASE_URL` when `ANNAS_AUTO_BASE_URL` is `false`.
 
-It contacts the mirrors only while a tool call is running, never in the background. The first call checks them all at once on Anna's small uptime endpoint and uses the first that answers. After that it keeps using that mirror for as long as it works, without checking it again.
+It contacts the mirrors only while a tool call is running, never in the background. The first call checks them all at once on Anna's uptime endpoint and uses the first that answers. After that it keeps using that mirror for as long as it works, without checking it again.
 
 A mirror that fails is set aside: when it can't be reached, doesn't answer within 30 seconds, answers with a server error or returns a page that isn't Anna's Archive. It is set aside for 15 seconds, then twice as long with each further failure in a row, up to 5 minutes. A call that hits a failing mirror is retried once on another. A `403` counts against a mirror only when another mirror then works; when two refuse, the problem is the account, and the error says so.
 
-When every mirror is set aside, calls fail at once with what each mirror last did and when to try again, rather than waiting on them. At most one round of checks runs every 30 seconds, so the server recovers quickly when your connection comes back.
+When every mirror is set aside, calls fail at once with what each mirror last did and when to try again. Until one works again, the mirrors are checked at most once every 30 seconds.
 
 Which mirrors worked or failed recently is saved as `mirrors.json` in the [cache folder](#the-cache-folder). A new run, a CLI command or another MCP client uses a mirror that worked in the last 10 minutes without checking it, and skips one that just failed. The file holds no credentials, and deleting it is safe.
 
@@ -70,6 +66,6 @@ The cache folder is `ANNAS_MCP_CACHE_DIR` if you set it, otherwise `~/.cache/ann
 
 ## The saved session
 
-The server saves its session as `session.json` in the [cache folder](#the-cache-folder), so restarts and CLI commands don't sign in again. Only you can read the file. It holds the session cookie plus SHA-256 fingerprints of your secret key and of any `ANNAS_ACCOUNT_COOKIE` the session replaced. Deleting it is safe; the server just signs in again.
+The server saves its session as `session.json` in the [cache folder](#the-cache-folder), so restarts and CLI commands don't sign in again. Only you can read the file. It holds the session cookie plus SHA-256 fingerprints of your secret key and of any `ANNAS_ACCOUNT_COOKIE` the session replaced. Deleting it is safe; the server signs in again.
 
-When `ANNAS_ACCOUNT_COOKIE` is set, the server uses that cookie first and still signs in with the secret key once it expires. From then on it remembers that this cookie expired and skips it until you set a different one. `ANNAS_ACCOUNT_COOKIE` accepts the bare value, `aa_account_id2=…` or a whole `Cookie` header copied from the Network tab. Only `aa_account_id2` is ever sent.
+Once an `ANNAS_ACCOUNT_COOKIE` expires and the server has signed in with the secret key instead, it skips that cookie until you set a different one. `ANNAS_ACCOUNT_COOKIE` accepts the bare value, `aa_account_id2=…` or a whole `Cookie` header copied from the Network tab. Only `aa_account_id2` is ever sent.
