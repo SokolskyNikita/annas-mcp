@@ -1,0 +1,16 @@
+{
+  "comment": "Configured base URLs and the host ParseBaseURL makes of each; a case without want must be rejected",
+  "cases": [
+    {"name": "bare host", "raw": "fallback.example", "want": "fallback.example"},
+    {"name": "https origin", "raw": "https://Fallback.Example/", "want": "fallback.example"},
+    {"name": "port", "raw": "https://fallback.example:8443", "want": "fallback.example:8443"},
+    {"name": "explicit fraudulent-looking host is a deliberate override", "raw": "https://annas-archive.su/", "want": "annas-archive.su"},
+    {"name": "http", "raw": "http://fallback.example"},
+    {"name": "path", "raw": "https://fallback.example/path"},
+    {"name": "userinfo", "raw": "https://user:fallback@example.com"},
+    {"name": "a language version of an official mirror", "raw": "https://es.annas-archive.gl"},
+    {"name": "a three-letter language version", "raw": "kmr.annas-archive.pk"},
+    {"name": "www is not a language", "raw": "www.annas-archive.gl", "want": "www.annas-archive.gl"},
+    {"name": "a subdomain of another host", "raw": "es.example.com", "want": "es.example.com"}
+  ]
+}

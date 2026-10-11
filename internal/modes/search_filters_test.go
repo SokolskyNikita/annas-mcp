@@ -13,6 +13,13 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
+// cliOutput is what the CLI should print for the fake archive's answers.
+type cliOutput struct {
+	Comment      string
+	BookSearch   []string `json:"book_search"`
+	BookDownload string   `json:"book_download"`
+}
+
 func callTool[T any](t *testing.T, archive *fakeArchive, name string, arguments map[string]any) T {
 	t.Helper()
 	result, err := connectTestServer(t, archive).CallTool(context.Background(), &mcp.CallToolParams{Name: name, Arguments: arguments})
@@ -31,19 +38,16 @@ func callTool[T any](t *testing.T, archive *fakeArchive, name string, arguments 
 
 func TestBookSearchFiltersReachTheArchiveNormalized(t *testing.T) {
 	t.Parallel()
-	archive := &fakeArchive{}
-	callTool[searchResult[*anna.Book]](t, archive, "book_search", map[string]any{
-		"author": "  Michele   Boldrin ", "year": "2008", "format": "EPUB, .mobi, -pdf", "language": "en,ZH-hant,-de",
-		"source": "LGLI,-scihub", "content": "book_nonfiction", "sort": "Newest", "downloadable_only": true, "search_descriptions": true,
-	})
-	want := anna.SearchOptions{
-		Page: 1, Sort: "newest", Descriptions: true,
-		Content: []string{"book_nonfiction"}, Language: []string{"en", "zh-Hant", "-de"},
-		Format: []string{"epub", "mobi", "-pdf"}, Source: []string{"lgli", "-scihub"}, Access: []string{"aa_download"},
-		Fields: []anna.SearchField{{Name: "author", Value: "Michele Boldrin"}, {Name: "year", Value: "2008"}},
+	var file struct {
+		Comment   string
+		Arguments map[string]any
+		Want      anna.SearchOptions
 	}
-	if archive.query != "" || !reflect.DeepEqual(archive.options, want) {
-		t.Fatalf("query %q options\n got %+v\nwant %+v", archive.query, archive.options, want)
+	loadCases(t, "book-search-filters", &file)
+	archive := &fakeArchive{}
+	callTool[searchResult[*anna.Book]](t, archive, "book_search", file.Arguments)
+	if archive.query != "" || !reflect.DeepEqual(archive.options, file.Want) {
+		t.Fatalf("query %q options\n got %+v\nwant %+v", archive.query, archive.options, file.Want)
 	}
 }
 
@@ -87,6 +91,8 @@ func TestPartialMatchesOnlyFillRoomLeftByExactResults(t *testing.T) {
 
 func TestCLINewCommandsAndFlags(t *testing.T) {
 	t.Parallel()
+	var printed cliOutput
+	loadCases(t, "cli-output", &printed)
 	run := func(archive *fakeArchive, args ...string) string {
 		t.Helper()
 		var output bytes.Buffer
@@ -105,7 +111,7 @@ func TestCLINewCommandsAndFlags(t *testing.T) {
 	if archive.query != "" || archive.options.Fields[0].Value != "Boldrin" || archive.options.Format[0] != "epub" || archive.options.Sort != "oldest" || archive.options.Access[0] != "aa_download" {
 		t.Fatalf("options = %+v", archive.options)
 	}
-	for _, want := range []string{"Book 1:\nTitle: Exact", "Fast download: yes", "Partial matches", "Title: Loose", "showing 1 of 51 results"} {
+	for _, want := range printed.BookSearch {
 		if !strings.Contains(out, want) {
 			t.Errorf("book-search output lacks %q:\n%s", want, out)
 		}
@@ -129,12 +135,14 @@ func TestCLINewCommandsAndFlags(t *testing.T) {
 
 func TestCLIDownloadReportsDownloadsLeft(t *testing.T) {
 	t.Parallel()
+	var printed cliOutput
+	loadCases(t, "cli-output", &printed)
 	left := 41
 	var output bytes.Buffer
 	if err := printDownloadResult(&output, anna.DownloadResult{Path: "/tmp/book.epub", Bytes: 1, DownloadsLeft: &left}, "Book", false); err != nil {
 		t.Fatal(err)
 	}
-	if got := output.String(); got != "Book downloaded successfully to: /tmp/book.epub (41 fast downloads left)\n" {
+	if got := output.String(); got != printed.BookDownload {
 		t.Fatalf("output = %q", got)
 	}
 }

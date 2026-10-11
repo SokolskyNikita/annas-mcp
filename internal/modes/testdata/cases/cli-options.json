@@ -1,0 +1,14 @@
+{
+  "comment": "Command lines the CLI must reject before calling the archive, and an article download by hash whose options must reach it",
+  "invalid": [
+    ["book-search", "--page=-1", "example"],
+    ["book-search", "--limit=-1", "example"],
+    ["book-search", "--timeout=25h", "example"],
+    ["article-download"]
+  ],
+  "download": {
+    "args": ["article-download", "--hash", "0123456789abcdef0123456789abcdef", "--title", "Example", "--format", "pdf", "--json"],
+    "title": "Example",
+    "format": "pdf"
+  }
+}

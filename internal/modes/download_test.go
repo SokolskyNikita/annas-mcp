@@ -42,10 +42,15 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 	})}})
 	ctx := t.Context()
 	session := connectTestServer(t, client)
-	for _, args := range []map[string]any{
-		{"hash": hash, "title": "test", "format": "pdf/../../outside"},
-		{"hash": "not-a-hash", "title": "test"},
-	} {
+	var invalid struct {
+		Comment string
+		Cases   []map[string]any
+	}
+	loadCases(t, "invalid-downloads", &invalid)
+	for _, args := range invalid.Cases {
+		if _, ok := args["hash"]; !ok {
+			args["hash"] = hash
+		}
 		result, err := session.CallTool(ctx, &mcp.CallToolParams{Name: "book_download", Arguments: args})
 		if err != nil {
 			t.Fatal(err)
@@ -86,12 +91,13 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 
 func TestDownloadToolReportsAttemptsWithoutHTML(t *testing.T) {
 	t.Parallel()
+	upstreamPage := fixture(t, "upstream-error.html")
 	client := anna.NewClient(anna.Config{
 		BaseURL: "https://annas.example", DownloadPath: t.TempDir(),
 		AccountCookie: "test-cookie", SecretKey: "test-secret",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			status, contentType := http.StatusNotFound, "text/html"
-			body := []byte("<html><body>upstream error body</body></html>")
+			body := upstreamPage
 			if req.URL.Path == "/dyn/api/fast_download.json" {
 				status, contentType = http.StatusOK, "application/json"
 				body = fixture(t, "fast-download.json")
@@ -118,6 +124,7 @@ func TestDownloadToolReportsAttemptsWithoutHTML(t *testing.T) {
 			t.Errorf("tool result omitted %q: %s", want, message)
 		}
 	}
+	// literal: the start tag and text of the upstream page, which the message must not repeat.
 	if strings.Contains(message, "<html>") || strings.Contains(message, "upstream error body") {
 		t.Fatalf("tool result included upstream HTML: %s", message)
 	}

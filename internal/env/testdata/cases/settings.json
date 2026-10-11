@@ -1,0 +1,27 @@
+{
+  "comment": "Environment settings and the configuration Load makes of them; an unset base URL or download path takes its default",
+  "cases": [
+    {
+      "name": "defaults",
+      "secret": "key",
+      "downloads": "/data/books",
+      "cookie": "token",
+      "want": {
+        "auto_base_url": true,
+        "secret_key": "key",
+        "download_path": "/data/books",
+        "account_cookie": "aa_account_id2=token"
+      }
+    },
+    {
+      "name": "search-only overrides",
+      "base": "https://configured.example/",
+      "auto": "false",
+      "cookie": "fundraiser_banner_hidden=6; aa_account_id2=from-jar; __ddg1_=x",
+      "want": {
+        "base_url": "configured.example",
+        "account_cookie": "aa_account_id2=from-jar"
+      }
+    }
+  ]
+}

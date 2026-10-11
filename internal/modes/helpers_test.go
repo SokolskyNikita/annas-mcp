@@ -1,6 +1,7 @@
 package modes
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-func fixture(t *testing.T, name string) []byte {
+func fixture(t testing.TB, name string) []byte {
 	t.Helper()
 	data, err := os.ReadFile(filepath.Join("testdata", name))
 	if err != nil {
@@ -20,6 +21,7 @@ func fixture(t *testing.T, name string) []byte {
 	}
 	return data
 }
+
 func fixtureJSON[T any](t *testing.T, name string) T {
 	t.Helper()
 	var value T
@@ -27,6 +29,17 @@ func fixtureJSON[T any](t *testing.T, name string) T {
 		t.Fatal(err)
 	}
 	return value
+}
+
+// loadCases decodes testdata/cases/<name>.json into into. Unknown fields fail
+// the test, so a typo in a case file cannot pass silently.
+func loadCases(t testing.TB, name string, into any) {
+	t.Helper()
+	decoder := json.NewDecoder(bytes.NewReader(fixture(t, filepath.Join("cases", name+".json"))))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(into); err != nil {
+		t.Fatalf("testdata/cases/%s.json: %v", name, err)
+	}
 }
 
 type fakeArchive struct {

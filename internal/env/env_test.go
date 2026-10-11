@@ -1,63 +1,85 @@
 package env
 
 import (
+	"bytes"
+	"encoding/json"
+	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
 )
+
+// loadCases decodes testdata/cases/<name>.json into into. Unknown fields fail
+// the test, so a typo in a case file cannot pass silently.
+func loadCases(t testing.TB, name string, into any) {
+	t.Helper()
+	file := filepath.Join("testdata", "cases", name+".json")
+	data, err := os.ReadFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(into); err != nil {
+		t.Fatalf("%s: %v", file, err)
+	}
+}
 
 // setEnv sets every ANNAS_* variable Load reads, so a test never inherits
 // values from the developer's shell. It returns the session file path.
 func setEnv(t *testing.T, secret, downloads, baseURL, auto, cookie string) string {
 	t.Helper()
 	cacheDir := t.TempDir()
-	for name, value := range map[string]string{
-		"ANNAS_SECRET_KEY":     secret,
-		"ANNAS_DOWNLOAD_PATH":  downloads,
-		"ANNAS_BASE_URL":       baseURL,
-		"ANNAS_AUTO_BASE_URL":  auto,
-		"ANNAS_ACCOUNT_COOKIE": cookie,
-		"ANNAS_MCP_CACHE_DIR":  cacheDir,
-	} {
-		t.Setenv(name, value)
-	}
+	t.Setenv("ANNAS_SECRET_KEY", secret)
+	t.Setenv("ANNAS_DOWNLOAD_PATH", downloads)
+	t.Setenv("ANNAS_BASE_URL", baseURL)
+	t.Setenv("ANNAS_AUTO_BASE_URL", auto)
+	t.Setenv("ANNAS_ACCOUNT_COOKIE", cookie)
+	t.Setenv("ANNAS_MCP_CACHE_DIR", cacheDir)
 	return filepath.Join(cacheDir, "session.json")
 }
 
 func TestLoadNormalizesSettings(t *testing.T) {
-	cases := []struct {
-		name                          string
-		secret, downloads, base, auto string
-		cookie                        string
-		want                          Env
-	}{
-		{
-			name: "defaults", secret: "key", downloads: "/data/books", cookie: "token",
-			want: Env{AnnasBaseURL: DefaultAnnasBaseURL, AutoBaseURL: true, SecretKey: "key", DownloadPath: "/data/books", AccountCookie: "aa_account_id2=token"},
-		},
-		{
-			// Search needs no download settings, and downloads default to a
-			// folder in the home folder.
-			name: "search-only overrides", base: "https://configured.example/", auto: "false",
-			cookie: "fundraiser_banner_hidden=6; aa_account_id2=from-jar; __ddg1_=x",
-			want:   Env{AnnasBaseURL: "configured.example", AccountCookie: "aa_account_id2=from-jar"},
-		},
+	var file struct {
+		Comment string
+		Cases   []struct {
+			Name                          string
+			Secret, Downloads, Base, Auto string
+			Cookie                        string
+			Want                          struct {
+				BaseURL       string `json:"base_url"`
+				AutoBaseURL   bool   `json:"auto_base_url"`
+				SecretKey     string `json:"secret_key"`
+				DownloadPath  string `json:"download_path"`
+				AccountCookie string `json:"account_cookie"`
+			}
+		}
 	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			tc.want.SessionFile = setEnv(t, tc.secret, tc.downloads, tc.base, tc.auto, tc.cookie)
+	loadCases(t, "settings", &file)
+	for _, tc := range file.Cases {
+		t.Run(tc.Name, func(t *testing.T) {
+			want := Env{
+				AnnasBaseURL: tc.Want.BaseURL, AutoBaseURL: tc.Want.AutoBaseURL, SecretKey: tc.Want.SecretKey,
+				DownloadPath: tc.Want.DownloadPath, AccountCookie: tc.Want.AccountCookie,
+			}
+			want.SessionFile = setEnv(t, tc.Secret, tc.Downloads, tc.Base, tc.Auto, tc.Cookie)
 			home := t.TempDir()
 			t.Setenv("HOME", home)
 			t.Setenv("USERPROFILE", home)
-			if tc.downloads == "" {
-				tc.want.DownloadPath = filepath.Join(home, DefaultDownloadFolder)
+			// Unset settings take their defaults. Search needs no download
+			// settings, and downloads default to a folder in the home folder.
+			if tc.Base == "" {
+				want.AnnasBaseURL = DefaultAnnasBaseURL
+			}
+			if tc.Downloads == "" {
+				want.DownloadPath = filepath.Join(home, DefaultDownloadFolder)
 			}
 			got, err := Load()
 			if err != nil {
 				t.Fatalf("Load: %v", err)
 			}
-			if *got != tc.want {
-				t.Fatalf("Load = %+v, want %+v", *got, tc.want)
+			if *got != want {
+				t.Fatalf("Load = %+v, want %+v", *got, want)
 			}
 		})
 	}
@@ -69,6 +91,7 @@ func TestLoadDownloadPathDefaultsToHomeAndExpandsTilde(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("USERPROFILE", home)
 	absolute := filepath.Join(t.TempDir(), "books")
+	// literal: the expected paths are built from this run's temporary home and download folders.
 	cases := map[string]string{
 		"":                   filepath.Join(home, DefaultDownloadFolder),
 		"~":                  home,
@@ -108,29 +131,25 @@ func TestLoadRejectsUnsafeBaseURLAndAutoFlag(t *testing.T) {
 }
 
 func TestLoadAccountCookieForms(t *testing.T) {
-	tests := []struct {
-		name string
-		raw  string
-		want string
-	}{
-		{name: "raw", raw: "token", want: "aa_account_id2=token"},
-		{name: "raw base64 padding", raw: "abc=", want: "aa_account_id2=abc="},
-		{name: "name value", raw: "aa_account_id2=abc=", want: "aa_account_id2=abc="},
-		{name: "full header", raw: "fundraiser_banner_hidden=6; aa_account_id2=from-jar; __ddg1_=x", want: "aa_account_id2=from-jar"},
+	var file struct {
+		Comment string
+		Cases   []struct{ Name, Raw, Want string }
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Setenv("ANNAS_ACCOUNT_COOKIE", tt.raw)
+	loadCases(t, "account_cookies", &file)
+	for _, tt := range file.Cases {
+		t.Run(tt.Name, func(t *testing.T) {
+			t.Setenv("ANNAS_ACCOUNT_COOKIE", tt.Raw)
 			config, err := Load()
 			if err != nil {
 				t.Fatalf("Load returned error: %v", err)
 			}
-			if config.AccountCookie != tt.want {
-				t.Fatalf("expected %q, got %q", tt.want, config.AccountCookie)
+			if config.AccountCookie != tt.Want {
+				t.Fatalf("expected %q, got %q", tt.Want, config.AccountCookie)
 			}
 		})
 	}
 
+	// literal: the CR LF that would start a second header is what the check must reject.
 	t.Setenv("ANNAS_ACCOUNT_COOKIE", "bad\r\nCookie: injected")
 	if _, err := Load(); err == nil {
 		t.Fatal("expected unsafe cookie to be rejected")

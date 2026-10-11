@@ -1,0 +1,28 @@
+{
+  "comment": "book_search filters as a client may write them, and the normalized search options the archive should get",
+  "arguments": {
+    "author": "  Michele   Boldrin ",
+    "year": "2008",
+    "format": "EPUB, .mobi, -pdf",
+    "language": "en,ZH-hant,-de",
+    "source": "LGLI,-scihub",
+    "content": "book_nonfiction",
+    "sort": "Newest",
+    "downloadable_only": true,
+    "search_descriptions": true
+  },
+  "want": {
+    "page": 1,
+    "sort": "newest",
+    "descriptions": true,
+    "content": ["book_nonfiction"],
+    "language": ["en", "zh-Hant", "-de"],
+    "format": ["epub", "mobi", "-pdf"],
+    "source": ["lgli", "-scihub"],
+    "access": ["aa_download"],
+    "fields": [
+      {"name": "author", "value": "Michele Boldrin"},
+      {"name": "year", "value": "2008"}
+    ]
+  }
+}

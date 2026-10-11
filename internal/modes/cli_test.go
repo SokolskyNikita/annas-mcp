@@ -16,8 +16,17 @@ import (
 
 func TestCLIValidationAndDownloadOptions(t *testing.T) {
 	t.Parallel()
+	var file struct {
+		Comment  string
+		Invalid  [][]string
+		Download struct {
+			Args          []string
+			Title, Format string
+		}
+	}
+	loadCases(t, "cli-options", &file)
 	archive := &fakeArchive{}
-	for _, args := range [][]string{{"book-search", "--page=-1", "example"}, {"book-search", "--limit=-1", "example"}, {"book-search", "--timeout=25h", "example"}, {"article-download"}} {
+	for _, args := range file.Invalid {
 		cmd := newRootCommand(func() (*service, error) { return &service{archive: archive}, nil })
 		cmd.SetArgs(args)
 		if err := cmd.ExecuteContext(context.Background()); apperr.CodeOf(err) != apperr.InvalidArgument {
@@ -30,11 +39,11 @@ func TestCLIValidationAndDownloadOptions(t *testing.T) {
 	var output bytes.Buffer
 	cmd := newRootCommand(func() (*service, error) { return &service{archive: archive}, nil })
 	cmd.SetOut(&output)
-	cmd.SetArgs([]string{"article-download", "--hash", "0123456789abcdef0123456789abcdef", "--title", "Example", "--format", "pdf", "--json"})
+	cmd.SetArgs(file.Download.Args)
 	if err := cmd.ExecuteContext(context.Background()); err != nil {
 		t.Fatal(err)
 	}
-	if archive.article.Title != "Example" || archive.article.Format != "pdf" || archive.article.Hash == "" {
+	if archive.article.Title != file.Download.Title || archive.article.Format != file.Download.Format || archive.article.Hash == "" {
 		t.Fatalf("wrong options: %+v", archive.article)
 	}
 	var result anna.DownloadResult
@@ -92,15 +101,12 @@ func TestCLICommandsPrintResultsAndPreserveErrors(t *testing.T) {
 
 func TestCLIReportsInvalidCommandInputs(t *testing.T) {
 	t.Parallel()
-	cases := [][]string{
-		{"unknown-command"},
-		{"book-search"},
-		{"book-search", "example", "--nonexistent"},
-		{"book-search", "example", "--timeout", "not-a-duration"},
-		{"book-search", "example", "--timeout", "0"},
-		{"book-download", "hash", "filename-without-extension"},
+	var file struct {
+		Comment string
+		Cases   [][]string
 	}
-	for _, args := range cases {
+	loadCases(t, "cli-invalid-inputs", &file)
+	for _, args := range file.Cases {
 		var diagnostic bytes.Buffer
 		archive := &fakeArchive{}
 		status := executeCLI(t.Context(), args, io.Discard, &diagnostic, func() (*service, error) {

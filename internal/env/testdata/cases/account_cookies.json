@@ -1,0 +1,9 @@
+{
+  "comment": "Accepted forms of ANNAS_ACCOUNT_COOKIE and the Cookie header Load makes of each",
+  "cases": [
+    {"name": "raw", "raw": "token", "want": "aa_account_id2=token"},
+    {"name": "raw base64 padding", "raw": "abc=", "want": "aa_account_id2=abc="},
+    {"name": "name value", "raw": "aa_account_id2=abc=", "want": "aa_account_id2=abc="},
+    {"name": "full header", "raw": "fundraiser_banner_hidden=6; aa_account_id2=from-jar; __ddg1_=x", "want": "aa_account_id2=from-jar"}
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "comment": "What the CLI prints: parts of the book-search text for one exact and one partial match of 51 results, and a book download with 41 fast downloads left",
+  "book_search": ["Book 1:\nTitle: Exact", "Fast download: yes", "Partial matches", "Title: Loose", "showing 1 of 51 results"],
+  "book_download": "Book downloaded successfully to: /tmp/book.epub (41 fast downloads left)\n"
+}

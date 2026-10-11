@@ -1,0 +1,11 @@
+{
+  "comment": "Command lines the CLI must report as invalid arguments without calling the archive",
+  "cases": [
+    ["unknown-command"],
+    ["book-search"],
+    ["book-search", "example", "--nonexistent"],
+    ["book-search", "example", "--timeout", "not-a-duration"],
+    ["book-search", "example", "--timeout", "0"],
+    ["book-download", "hash", "filename-without-extension"]
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "comment": "Configured hosts and the mirrors automatic selection then chooses from, preferred first",
+  "cases": [
+    {"configured": "", "want": ["annas-archive.gl", "annas-archive.pk", "annas-archive.gd"]},
+    {"configured": "annas-archive.pk", "want": ["annas-archive.pk", "annas-archive.gl", "annas-archive.gd"]},
+    {"configured": "proxy.example", "want": ["proxy.example", "annas-archive.gl", "annas-archive.pk", "annas-archive.gd"]}
+  ]
+}

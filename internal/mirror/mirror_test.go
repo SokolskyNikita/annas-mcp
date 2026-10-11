@@ -1,8 +1,10 @@
 package mirror
 
 import (
+	"bytes"
 	"context"
 	"embed"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -11,19 +13,31 @@ import (
 	"testing"
 )
 
-//go:embed testdata/*.html
-var testPages embed.FS
-
-// upResponse is what a mirror's uptime endpoint returns to a signed-in probe.
-const upResponse = `{"aa_logged_in":1}`
+//go:embed testdata
+var testData embed.FS
 
 func page(t *testing.T, name string) string {
 	t.Helper()
-	data, err := testPages.ReadFile("testdata/" + name)
+	data, err := testData.ReadFile("testdata/" + name)
 	if err != nil {
 		t.Fatalf("missing test page %s: %v", name, err)
 	}
 	return string(data)
+}
+
+// loadCases decodes testdata/cases/<name>.json into into. Unknown fields fail
+// the test, so a typo in a case file cannot pass silently.
+func loadCases(t testing.TB, name string, into any) {
+	t.Helper()
+	data, err := testData.ReadFile("testdata/cases/" + name + ".json")
+	if err != nil {
+		t.Fatalf("missing test cases %s: %v", name, err)
+	}
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(into); err != nil {
+		t.Fatalf("testdata/cases/%s.json: %v", name, err)
+	}
 }
 
 // transport answers requests without a network; it satisfies http.RoundTripper.
@@ -49,13 +63,17 @@ func redirect(req *http.Request, status int, location string) *http.Response {
 
 func TestCandidatesPutTheConfiguredHostFirst(t *testing.T) {
 	t.Parallel()
-	for configured, want := range map[string][]string{
-		"":                 {"annas-archive.gl", "annas-archive.pk", "annas-archive.gd"},
-		"annas-archive.pk": {"annas-archive.pk", "annas-archive.gl", "annas-archive.gd"},
-		"proxy.example":    {"proxy.example", "annas-archive.gl", "annas-archive.pk", "annas-archive.gd"},
-	} {
-		if got := Candidates(configured); !slices.Equal(got, want) {
-			t.Errorf("Candidates(%q) = %v, want %v", configured, got, want)
+	var file struct {
+		Comment string
+		Cases   []struct {
+			Configured string
+			Want       []string
+		}
+	}
+	loadCases(t, "candidates", &file)
+	for _, tc := range file.Cases {
+		if got := Candidates(tc.Configured); !slices.Equal(got, tc.Want) {
+			t.Errorf("Candidates(%q) = %v, want %v", tc.Configured, got, tc.Want)
 		}
 	}
 }
@@ -63,10 +81,12 @@ func TestCandidatesPutTheConfiguredHostFirst(t *testing.T) {
 func TestProberChecksUptimeEndpointAndSendsCookie(t *testing.T) {
 	t.Parallel()
 
+	// A signed-in probe gets this answer from the uptime endpoint.
+	up := page(t, "uptime_signed_in.json")
 	var seen *http.Request
 	client := &http.Client{Transport: transport(func(req *http.Request) (*http.Response, error) {
 		seen = req
-		return serve(req, http.StatusOK, upResponse), nil
+		return serve(req, http.StatusOK, up), nil
 	})}
 	prober := NewProber(client, func() string { return "aa_account_id2=token" })
 	if err := prober.Check(context.Background(), "annas-archive.gl"); err != nil {
@@ -79,11 +99,14 @@ func TestProberChecksUptimeEndpointAndSendsCookie(t *testing.T) {
 		t.Fatalf("expected account cookie on probe request, got %q", seen.Header.Get("Cookie"))
 	}
 
-	rejected := map[string]string{
-		"challenge page":          page(t, "probe_challenge.html"),
-		"archive HTML page":       "<html><head><title>Anna's Archive</title></head></html>",
-		"JSON without the status": `{"status":"ok"}`,
-		"oversized response":      `{"aa_logged_in":1,"padding":"` + strings.Repeat("x", maxProbeBodyBytes) + `"}`,
+	// An uptime answer padded past the read limit is cut off mid-string.
+	oversized, err := json.Marshal(map[string]any{"aa_logged_in": 1, "padding": strings.Repeat("x", maxProbeBodyBytes)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rejected := map[string]string{"oversized response": string(oversized)}
+	for _, name := range []string{"probe_challenge.html", "archive_page.html", "json_without_aa_logged_in.json"} {
+		rejected[name] = page(t, name)
 	}
 	for name, body := range rejected {
 		client.Transport = transport(func(req *http.Request) (*http.Response, error) {
@@ -129,34 +152,22 @@ func TestProberRejectsCrossOriginRedirectAndHTTPError(t *testing.T) {
 func TestParseBaseURLRejectsDowngradeAndURLParts(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name string
-		raw  string
-		want string
-	}{
-		{name: "bare host", raw: "fallback.example", want: "fallback.example"},
-		{name: "https origin", raw: "https://Fallback.Example/", want: "fallback.example"},
-		{name: "port", raw: "https://fallback.example:8443", want: "fallback.example:8443"},
-		{name: "explicit fraudulent-looking host is a deliberate override", raw: "https://annas-archive.su/", want: "annas-archive.su"},
-		{name: "http", raw: "http://fallback.example"},
-		{name: "path", raw: "https://fallback.example/path"},
-		{name: "userinfo", raw: "https://user:fallback@example.com"},
-		{name: "a language version of an official mirror", raw: "https://es.annas-archive.gl"},
-		{name: "a three-letter language version", raw: "kmr.annas-archive.pk"},
-		{name: "www is not a language", raw: "www.annas-archive.gl", want: "www.annas-archive.gl"},
-		{name: "a subdomain of another host", raw: "es.example.com", want: "es.example.com"},
+	var file struct {
+		Comment string
+		Cases   []struct{ Name, Raw, Want string }
 	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			got, err := ParseBaseURL(test.raw)
-			if test.want == "" {
+	loadCases(t, "base_urls", &file)
+	for _, test := range file.Cases {
+		t.Run(test.Name, func(t *testing.T) {
+			got, err := ParseBaseURL(test.Raw)
+			if test.Want == "" {
 				if err == nil {
-					t.Fatalf("expected %q to fail, got %q", test.raw, got)
+					t.Fatalf("expected %q to fail, got %q", test.Raw, got)
 				}
 				return
 			}
-			if err != nil || got != test.want {
-				t.Fatalf("ParseBaseURL(%q) = %q, %v; want %q", test.raw, got, err, test.want)
+			if err != nil || got != test.Want {
+				t.Fatalf("ParseBaseURL(%q) = %q, %v; want %q", test.Raw, got, err, test.Want)
 			}
 		})
 	}

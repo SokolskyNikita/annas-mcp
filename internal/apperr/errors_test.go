@@ -9,6 +9,7 @@ import (
 )
 
 func TestClassificationPreservesCausesAndIgnoresMessageText(t *testing.T) {
+	// literal: each case is an error chain built in Go, and its strings are the messages given to New and Wrap.
 	for _, tc := range []struct {
 		err  error
 		code string

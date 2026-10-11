@@ -1,0 +1,7 @@
+{
+  "comment": "book_download arguments rejected before any request; a case without a hash gets the test document's, so only its other arguments are wrong",
+  "cases": [
+    {"title": "test", "format": "pdf/../../outside"},
+    {"hash": "not-a-hash", "title": "test"}
+  ]
+}
