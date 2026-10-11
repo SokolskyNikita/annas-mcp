@@ -50,14 +50,14 @@ func TestMirrorSelectionIsLazyAndKeepsAWorkingMirror(t *testing.T) {
 	if checks.Load()+searches.Load() != 0 {
 		t.Fatal("constructor contacted upstream")
 	}
-	if page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err != nil || len(page.Results) != 0 {
+	if page, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout); err != nil || len(page.Results) != 0 {
 		t.Fatalf("search: %v %v", page.Results, err)
 	}
 	if checks.Load() != 1 || searches.Load() != 1 {
 		t.Fatalf("expected one check and a search; got %d checks, %d searches", checks.Load(), searches.Load())
 	}
 	for range 3 {
-		if _, err := client.FindBook(context.Background(), "again", SearchOptions{}, time.Second); err != nil {
+		if _, err := client.FindBook(context.Background(), "again", SearchOptions{}, callTimeout); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -76,7 +76,7 @@ func TestEveryMirrorDownFailsFastWithASummary(t *testing.T) {
 		}
 		return nil, errors.New("connection refused")
 	})}})
-	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
 	if apperr.CodeOf(err) != apperr.Upstream {
 		t.Fatalf("wrong code for an outage: %v", err)
 	}
@@ -94,7 +94,7 @@ func TestEveryMirrorDownFailsFastWithASummary(t *testing.T) {
 	// Until a hold ends or 30 seconds pass, calls fail without contacting
 	// any mirror.
 	for range 3 {
-		if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err == nil {
+		if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout); err == nil {
 			t.Fatal("search succeeded while every mirror was down")
 		}
 	}
@@ -110,7 +110,7 @@ func TestDownloadConfigurationFailsBeforeNetwork(t *testing.T) {
 			t.Error("invalid configuration contacted upstream")
 			return nil, errors.New("unexpected request")
 		})}
-		_, err := NewClient(config).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef"}, time.Second, nil)
+		_, err := NewClient(config).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef"}, callTimeout, nil)
 		if apperr.CodeOf(err) != apperr.Config {
 			t.Fatalf("wrong error: %v", err)
 		}
@@ -144,7 +144,7 @@ func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 			return nil, errors.New("unexpected URL")
 		}
 	})}})
-	result, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "https://doi.org/10.1000/example", Title: "My paper", Format: "pdf"}, time.Second, nil)
+	result, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "https://doi.org/10.1000/example", Title: "My paper", Format: "pdf"}, callTimeout, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,7 +155,7 @@ func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 		t.Fatalf("bytes: %d", result.Bytes)
 	}
 	corrupt = true
-	if _, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "10.1000/example"}, time.Second, nil); err == nil {
+	if _, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "10.1000/example"}, callTimeout, nil); err == nil {
 		t.Fatal("SciDB checksum mismatch was accepted")
 	}
 	entries, err := os.ReadDir(dir)
@@ -184,7 +184,7 @@ func TestDownloadRetriesShareOneDeadline(t *testing.T) {
 		}
 		return nil, errors.New("temporary transport failure")
 	})}})
-	if _, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef"}, time.Second, nil); err == nil {
+	if _, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef"}, callTimeout, nil); err == nil {
 		t.Fatal("expected failure")
 	}
 	if calls != 3 {

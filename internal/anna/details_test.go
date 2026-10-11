@@ -10,7 +10,6 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"time"
 	"unicode/utf8"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
@@ -80,7 +79,7 @@ func TestDetailsCombinesRecordAndStatistics(t *testing.T) {
 			return fixtureResponse(t, req, http.StatusOK, "md5_summary.json", "text/css", nil)
 		},
 	})
-	details, err := client.Details(context.Background(), detailsHash, time.Second)
+	details, err := client.Details(context.Background(), detailsHash, callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,7 +138,7 @@ func TestDetailsOfACatalogRecordSkipStatistics(t *testing.T) {
 			return fixtureResponse(t, req, http.StatusOK, "record_isbndb.json", "text/json", nil)
 		},
 	})
-	details, err := client.Details(context.Background(), "isbndb:9780521879286", time.Second)
+	details, err := client.Details(context.Background(), "isbndb:9780521879286", callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,7 +162,7 @@ func TestDetailsSurviveMissingStatistics(t *testing.T) {
 			return htmlResponse(req, http.StatusBadGateway, errorPage(t, "bad gateway"))
 		},
 	})
-	details, err := client.Details(context.Background(), detailsHash, time.Second)
+	details, err := client.Details(context.Background(), detailsHash, callTimeout)
 	if err != nil || details.Stats != nil || details.Title == "" {
 		t.Fatalf("details = %+v, err = %v", details, err)
 	}
@@ -195,7 +194,7 @@ func TestDetailsErrors(t *testing.T) {
 					return fixtureResponse(t, req, http.StatusOK, "md5_summary.json", "text/css", nil)
 				},
 			})
-			_, err := client.Details(context.Background(), detailsHash, time.Second)
+			_, err := client.Details(context.Background(), detailsHash, callTimeout)
 			if apperr.CodeOf(err) != tc.Code || !strings.Contains(err.Error(), tc.Message) {
 				t.Fatalf("err = %v, want %s containing %q", err, tc.Code, tc.Message)
 			}
@@ -255,7 +254,7 @@ func TestAccountStatusReadsAllowanceAndActiveMemberships(t *testing.T) {
 	t.Parallel()
 
 	client, summaries := accountClient(t, "account_page.html")
-	status, err := client.AccountStatus(context.Background(), time.Second)
+	status, err := client.AccountStatus(context.Background(), callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -275,7 +274,7 @@ func TestAccountStatusWithoutMembershipUsesStatistics(t *testing.T) {
 	t.Parallel()
 
 	client, summaries := accountClient(t, "account_no_membership.html")
-	status, err := client.AccountStatus(context.Background(), time.Second)
+	status, err := client.AccountStatus(context.Background(), callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -288,13 +287,13 @@ func TestAccountStatusSignsInAgainWhenTheSessionExpired(t *testing.T) {
 	t.Parallel()
 
 	client, _ := accountClient(t, "account_signed_out.html", "account_page.html")
-	status, err := client.AccountStatus(context.Background(), time.Second)
+	status, err := client.AccountStatus(context.Background(), callTimeout)
 	if err != nil || !status.Member || client.sessionCookie() != "aa_account_id2=new" {
 		t.Fatalf("status = %+v, err = %v, cookie %q", status, err, client.sessionCookie())
 	}
 	signedOut, _ := accountClient(t, "account_signed_out.html")
 	signedOut.config.SecretKey = ""
-	if _, err := signedOut.AccountStatus(context.Background(), time.Second); apperr.CodeOf(err) != apperr.UpstreamBlocked || !strings.Contains(err.Error(), "signed out") {
+	if _, err := signedOut.AccountStatus(context.Background(), callTimeout); apperr.CodeOf(err) != apperr.UpstreamBlocked || !strings.Contains(err.Error(), "signed out") {
 		t.Fatalf("err = %v", err)
 	}
 }

@@ -15,6 +15,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -129,6 +130,11 @@ func fixtureResponse(t testing.TB, req *http.Request, status int, name, contentT
 		Request:       req,
 	}
 }
+
+// callTimeout bounds the client calls tests make when they are not about a
+// deadline. Each call parses real captured pages, which under the race
+// detector on a two-core CI runner takes over a second.
+const callTimeout = 30 * time.Second
 
 // Captured pages and records the client tests serve.
 const (

@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
@@ -26,7 +25,7 @@ func TestFindArticleReturnsMappedPapers(t *testing.T) {
 		})},
 	})
 
-	page, err := client.FindArticle(context.Background(), "attention", SearchOptions{}, time.Second)
+	page, err := client.FindArticle(context.Background(), "attention", SearchOptions{}, callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +57,7 @@ func TestLookupDOIReadsSciDBAndDetailPages(t *testing.T) {
 		})},
 	})
 
-	paper, err := client.LookupDOI(context.Background(), "https://doi.org/10.1000/example", time.Second)
+	paper, err := client.LookupDOI(context.Background(), "https://doi.org/10.1000/example", callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +95,7 @@ func TestLookupDOIFallsBackToArchiveSearchAfterSciDBMiss(t *testing.T) {
 		})},
 	})
 
-	paper, err := client.LookupDOI(context.Background(), liangDOI, time.Second)
+	paper, err := client.LookupDOI(context.Background(), liangDOI, callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +144,7 @@ func TestLookupDOIRequiresVerifiedCitationIdentity(t *testing.T) {
 				})},
 			})
 
-			paper, err := client.LookupDOI(context.Background(), attentionDOI, time.Second)
+			paper, err := client.LookupDOI(context.Background(), attentionDOI, callTimeout)
 			if !test.Match {
 				if paper != nil || apperr.CodeOf(err) != apperr.NotFound {
 					t.Fatalf("unverified citation was accepted: paper=%+v err=%v", paper, err)
@@ -187,7 +186,7 @@ func TestDownloadBookUsesFastDownloadAndVerifiesFile(t *testing.T) {
 		})},
 	})
 
-	result, err := client.DownloadBook(context.Background(), &Book{Hash: hash, Title: "Downloaded paper", Format: "pdf"}, time.Second, nil)
+	result, err := client.DownloadBook(context.Background(), &Book{Hash: hash, Title: "Downloaded paper", Format: "pdf"}, callTimeout, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -207,19 +206,19 @@ func TestPublicMethodsHonorCanceledContextBeforeNetwork(t *testing.T) {
 	})
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	if _, err := client.FindBook(ctx, "example", SearchOptions{}, time.Second); !errors.Is(err, context.Canceled) {
+	if _, err := client.FindBook(ctx, "example", SearchOptions{}, callTimeout); !errors.Is(err, context.Canceled) {
 		t.Fatalf("FindBook returned %v", err)
 	}
-	if _, err := client.FindArticle(ctx, "example", SearchOptions{}, time.Second); !errors.Is(err, context.Canceled) {
+	if _, err := client.FindArticle(ctx, "example", SearchOptions{}, callTimeout); !errors.Is(err, context.Canceled) {
 		t.Fatalf("FindArticle returned %v", err)
 	}
-	if _, err := client.LookupDOI(ctx, "10.1000/example", time.Second); !errors.Is(err, context.Canceled) {
+	if _, err := client.LookupDOI(ctx, "10.1000/example", callTimeout); !errors.Is(err, context.Canceled) {
 		t.Fatalf("LookupDOI returned %v", err)
 	}
-	if _, err := client.DownloadBook(ctx, &Book{Hash: "0123456789abcdef0123456789abcdef"}, time.Second, nil); !errors.Is(err, context.Canceled) {
+	if _, err := client.DownloadBook(ctx, &Book{Hash: "0123456789abcdef0123456789abcdef"}, callTimeout, nil); !errors.Is(err, context.Canceled) {
 		t.Fatalf("DownloadBook returned %v", err)
 	}
-	if _, err := client.DownloadArticle(ctx, ArticleDownloadOptions{DOI: "10.1000/example"}, time.Second, nil); !errors.Is(err, context.Canceled) {
+	if _, err := client.DownloadArticle(ctx, ArticleDownloadOptions{DOI: "10.1000/example"}, callTimeout, nil); !errors.Is(err, context.Canceled) {
 		t.Fatalf("DownloadArticle returned %v", err)
 	}
 }

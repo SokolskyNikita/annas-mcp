@@ -129,21 +129,22 @@ func TestStalledDownloadIsAbandoned(t *testing.T) {
 	}
 }
 
+// TestIdleLimitResetsWhileDataArrives measures real pauses, so it does not
+// run in parallel: the other tests parse pages and could hold up the writer.
 func TestIdleLimitResetsWhileDataArrives(t *testing.T) {
-	t.Parallel()
 	reader, writer := io.Pipe()
 	go func() {
 		// Each pause is well under the limit; all of them together are not.
-		for range 8 {
-			time.Sleep(25 * time.Millisecond)
+		for range 10 {
+			time.Sleep(20 * time.Millisecond)
 			writer.Write([]byte("chunk"))
 		}
 		writer.Close()
 	}()
-	body := newIdleBody(reader, func() { reader.CloseWithError(errors.New("cancelled")) }, 100*time.Millisecond, "files.example")
+	body := newIdleBody(reader, func() { reader.CloseWithError(errors.New("cancelled")) }, 150*time.Millisecond, "files.example")
 	defer body.Close()
 	data, err := io.ReadAll(body)
-	if err != nil || string(data) != strings.Repeat("chunk", 8) {
+	if err != nil || string(data) != strings.Repeat("chunk", 10) {
 		t.Fatalf("slow but steady body: %q %v", data, err)
 	}
 }

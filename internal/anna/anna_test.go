@@ -202,7 +202,7 @@ func TestClientSearchUsesInjectedBaseAndTransport(t *testing.T) {
 			return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 		})},
 	})
-	page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+	page, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
 	books := page.Results
 	if err != nil || len(books) != 9 || books[0].Hash != attentionHash {
 		t.Fatalf("injected client search failed: books=%+v err=%v", books, err)

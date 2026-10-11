@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
@@ -67,7 +66,7 @@ func TestSignsInWithSecretKeyWhenNoCookieIsConfigured(t *testing.T) {
 	errs := make(chan error, 4)
 	for range 4 {
 		wg.Go(func() {
-			page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+			page, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
 			if err == nil && len(page.Results) != 9 {
 				err = errors.New("expected one book")
 			}
@@ -109,7 +108,7 @@ func TestExpiredCookieIsRenewedAndTheRequestRetried(t *testing.T) {
 		})},
 	})
 
-	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err != nil {
+	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout); err != nil {
 		t.Fatal(err)
 	}
 	if strings.Join(cookies, ",") != "aa_account_id2=expired,aa_account_id2=fresh" {
@@ -138,7 +137,7 @@ func TestRejectedSecretKeyIsAConfigErrorAndNotRetriedAtOnce(t *testing.T) {
 	})
 
 	for range 2 {
-		_, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+		_, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
 		if apperr.CodeOf(err) != apperr.Config || !strings.Contains(err.Error(), "rejected ANNAS_SECRET_KEY") {
 			t.Fatalf("expected a rejected-key config error, got %v", err)
 		}
@@ -170,7 +169,7 @@ func TestForbiddenFreshSessionPointsAtMembership(t *testing.T) {
 		})},
 	})
 
-	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
 	if apperr.CodeOf(err) != apperr.UpstreamBlocked || !strings.Contains(err.Error(), "Lucky Librarian") {
 		t.Fatalf("expected a membership hint, got %v", err)
 	}
@@ -213,7 +212,7 @@ func TestSignInFallsBackToAnotherOfficialMirror(t *testing.T) {
 		})},
 	})
 
-	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err != nil {
+	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout); err != nil {
 		t.Fatal(err)
 	}
 	if strings.Join(hosts, ",") != "annas-archive.gl,annas-archive.pk" {
@@ -255,7 +254,7 @@ func TestFailedSignInExplainsHowToSetTheCookieByHand(t *testing.T) {
 			})}
 			client := NewClient(config)
 
-			_, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+			_, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
 			if apperr.CodeOf(err) != tt.Code {
 				t.Fatalf("expected %s, got %s: %v", tt.Code, apperr.CodeOf(err), err)
 			}
@@ -286,7 +285,7 @@ func TestExpiredCookieWithoutSecretKeyExplainsBothFixes(t *testing.T) {
 		})},
 	})
 
-	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
 	if apperr.CodeOf(err) != apperr.UpstreamBlocked {
 		t.Fatalf("expected an upstream-blocked error, got %v", err)
 	}

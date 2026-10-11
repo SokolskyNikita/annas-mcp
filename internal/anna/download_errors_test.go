@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
@@ -53,7 +52,7 @@ func TestDownloadFailureDiagnosticsIncludeAllFastAttempts(t *testing.T) {
 		})},
 	})
 
-	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "Cook review", Format: "pdf"}, time.Second, nil)
+	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "Cook review", Format: "pdf"}, callTimeout, nil)
 	if err == nil {
 		t.Fatal("expected download to fail")
 	}
@@ -107,7 +106,7 @@ func TestDOIDownloadFailureDiagnosticsIncludeFastAndSciDBAttempts(t *testing.T) 
 		})},
 	})
 
-	_, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: doi, Title: "Cook review", Format: "pdf"}, time.Second, nil)
+	_, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: doi, Title: "Cook review", Format: "pdf"}, callTimeout, nil)
 	if err == nil {
 		t.Fatal("expected DOI download to fail")
 	}
@@ -146,7 +145,7 @@ func TestDownloadFailureDiagnosticsRedactAPIErrorAndPreserveTransportCause(t *te
 		})},
 	})
 
-	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "Example", Format: "pdf"}, time.Second, nil)
+	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "Example", Format: "pdf"}, callTimeout, nil)
 	if err == nil {
 		t.Fatal("expected download to fail")
 	}
@@ -190,7 +189,7 @@ func TestDownloadErrorClassificationUsesTerminalAttemptAndKeepsEarly403(t *testi
 		})},
 	})
 
-	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "Example", Format: "pdf"}, time.Second, nil)
+	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "Example", Format: "pdf"}, callTimeout, nil)
 	if err == nil {
 		t.Fatal("expected download to fail")
 	}
@@ -226,7 +225,7 @@ func TestDownloadErrorClassificationUsesTerminalAttemptAndKeepsEarlyDNSTimeout(t
 		})},
 	})
 
-	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "Example", Format: "pdf"}, time.Second, nil)
+	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "Example", Format: "pdf"}, callTimeout, nil)
 	if err == nil {
 		t.Fatal("expected download to fail")
 	}
@@ -306,7 +305,7 @@ func TestDownloadStopsWhenFileHasNoFastDownload(t *testing.T) {
 		})},
 	})
 
-	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "No copy"}, time.Second, nil)
+	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "No copy"}, callTimeout, nil)
 	if !errors.Is(err, errNoFastDownload) {
 		t.Fatalf("error = %v, want errNoFastDownload", err)
 	}

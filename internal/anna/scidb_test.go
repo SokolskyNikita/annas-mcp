@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
@@ -59,7 +58,7 @@ func TestSciDBFallbackResolvesViewerForSearchResult(t *testing.T) {
 			if mismatch {
 				selectedHash = "0123456789abcdef0123456789abcdef"
 			}
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), callTimeout)
 			defer cancel()
 			paper := paperFromBook(&Book{Hash: selectedHash, Title: "Paper"}, "10.1000/example")
 			result, err := client.downloadPaper(ctx, paper, "", nil)

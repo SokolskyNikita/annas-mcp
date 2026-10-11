@@ -88,7 +88,7 @@ func TestFindBookSeparatesPartialMatchesAndReadsCards(t *testing.T) {
 
 	var query url.Values
 	client := searchFixtureClient(t, "pages/search_filtered_partial.html.gz", &query)
-	page, err := client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Source: []string{"lgli"}}, time.Second)
+	page, err := client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Source: []string{"lgli"}}, callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +127,7 @@ func TestFindBookSeparatesPartialMatchesAndReadsCards(t *testing.T) {
 func TestFindBookFlagsFilesWithPossibleIssues(t *testing.T) {
 	t.Parallel()
 
-	page, err := searchFixtureClient(t, "pages/search_books.html.gz", nil).FindBook(context.Background(), "sicp", SearchOptions{}, time.Second)
+	page, err := searchFixtureClient(t, "pages/search_books.html.gz", nil).FindBook(context.Background(), "sicp", SearchOptions{}, callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -146,7 +146,7 @@ func TestFindBookFlagsFilesWithPossibleIssues(t *testing.T) {
 func TestFindArticleCarriesCardDetails(t *testing.T) {
 	t.Parallel()
 
-	page, err := searchFixtureClient(t, searchJournalsPage, nil).FindArticle(context.Background(), "attention is all you need", SearchOptions{}, time.Second)
+	page, err := searchFixtureClient(t, searchJournalsPage, nil).FindArticle(context.Background(), "attention is all you need", SearchOptions{}, callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,11 +163,11 @@ func TestSearchRejectsFilterValuesThePageDoesNotOffer(t *testing.T) {
 	client := searchFixtureClient(t, "pages/search_filtered_partial.html.gz", nil)
 	// Anna answers an unknown source with partial matches only, which would
 	// look like the book being absent.
-	_, err := client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Source: []string{"lgli", "-libgen"}}, time.Second)
+	_, err := client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Source: []string{"lgli", "-libgen"}}, callTimeout)
 	if apperr.CodeOf(err) != apperr.InvalidArgument || !strings.Contains(err.Error(), `"libgen"`) || !strings.Contains(err.Error(), "lgli, lgrs, magzdb") {
 		t.Fatalf("err = %v", err)
 	}
-	_, err = client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Content: []string{"podcast"}}, time.Second)
+	_, err = client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Content: []string{"podcast"}}, callTimeout)
 	if apperr.CodeOf(err) != apperr.InvalidArgument || !strings.Contains(err.Error(), "content") {
 		t.Fatalf("err = %v", err)
 	}
@@ -184,7 +184,7 @@ func TestSearchRejectsFilterValuesThePageDoesNotOffer(t *testing.T) {
 	unchecked := NewClient(Config{BaseURL: "https://annas.test", AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		return htmlResponse(req, http.StatusOK, withoutFacet), nil
 	})}})
-	if _, err := unchecked.FindBook(context.Background(), "example", SearchOptions{Source: []string{"anything"}}, time.Second); err != nil {
+	if _, err := unchecked.FindBook(context.Background(), "example", SearchOptions{Source: []string{"anything"}}, callTimeout); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -193,7 +193,7 @@ func TestFindMetadataReturnsCatalogRecords(t *testing.T) {
 	t.Parallel()
 
 	var query url.Values
-	page, err := searchFixtureClient(t, "pages/search_meta.html.gz", &query).FindMetadata(context.Background(), "against intellectual monopoly", SearchOptions{Page: 1}, time.Second)
+	page, err := searchFixtureClient(t, "pages/search_meta.html.gz", &query).FindMetadata(context.Background(), "against intellectual monopoly", SearchOptions{Page: 1}, callTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -253,10 +253,10 @@ func TestSearchNeedsAQueryOrAField(t *testing.T) {
 
 	var query url.Values
 	client := searchFixtureClient(t, "pages/search_fields.html.gz", &query)
-	if _, err := client.FindBook(context.Background(), " ", SearchOptions{}, time.Second); apperr.CodeOf(err) != apperr.InvalidArgument {
+	if _, err := client.FindBook(context.Background(), " ", SearchOptions{}, callTimeout); apperr.CodeOf(err) != apperr.InvalidArgument {
 		t.Fatalf("err = %v", err)
 	}
-	if _, err := client.FindBook(context.Background(), "", SearchOptions{Fields: []SearchField{{Name: "author", Value: "Boldrin"}}}, time.Second); err != nil {
+	if _, err := client.FindBook(context.Background(), "", SearchOptions{Fields: []SearchField{{Name: "author", Value: "Boldrin"}}}, callTimeout); err != nil {
 		t.Fatal(err)
 	}
 	if query.Get("termval_1") != "Boldrin" || query.Get("q") != "" {

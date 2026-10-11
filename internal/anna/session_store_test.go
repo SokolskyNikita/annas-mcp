@@ -11,7 +11,6 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"time"
 )
 
 // fakeArchive signs in with key, minting mint, and serves search only to
@@ -44,7 +43,7 @@ func (a *fakeArchive) run(config Config) []string {
 	a.mu.Lock()
 	seen := len(a.cookies)
 	a.mu.Unlock()
-	if _, err := NewClient(config).FindBook(context.Background(), "example", SearchOptions{}, time.Second); err != nil {
+	if _, err := NewClient(config).FindBook(context.Background(), "example", SearchOptions{}, callTimeout); err != nil {
 		a.t.Fatal(err)
 	}
 	a.mu.Lock()

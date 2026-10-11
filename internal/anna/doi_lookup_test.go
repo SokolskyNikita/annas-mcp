@@ -106,7 +106,7 @@ func TestLookupDOIReportsArchiveOutage(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			client := doiArchiveClient(t, test.doiStatus, test.archive)
-			paper, err := client.LookupDOI(context.Background(), outageDOI, time.Second)
+			paper, err := client.LookupDOI(context.Background(), outageDOI, callTimeout)
 			if paper != nil || err == nil {
 				t.Fatalf("lookup succeeded during an outage: paper=%+v err=%v", paper, err)
 			}
@@ -148,7 +148,7 @@ func TestLookupDOIKeepsNotFoundForGenuineMiss(t *testing.T) {
 				t.Errorf("unexpected archive request: %s", req.URL)
 				return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
 			})
-			paper, err := client.LookupDOI(context.Background(), outageDOI, time.Second)
+			paper, err := client.LookupDOI(context.Background(), outageDOI, callTimeout)
 			if paper != nil || apperr.CodeOf(err) != apperr.NotFound {
 				t.Fatalf("genuine miss was not NOT_FOUND: paper=%+v err=%v", paper, err)
 			}
@@ -171,7 +171,7 @@ func TestDownloadArticleByDOIReportsArchiveOutage(t *testing.T) {
 			return archive(req)
 		})},
 	})
-	_, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: outageDOI}, time.Second, nil)
+	_, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: outageDOI}, callTimeout, nil)
 	if code := apperr.CodeOf(err); err == nil || code != apperr.Upstream {
 		t.Fatalf("article download during an outage: code=%s err=%v", code, err)
 	}

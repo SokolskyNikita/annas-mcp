@@ -6,7 +6,6 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
-	"time"
 )
 
 func TestDOILookupUsesCurrentMirrorForIdentity(t *testing.T) {
@@ -47,7 +46,7 @@ func TestDOILookupUsesCurrentMirrorForIdentity(t *testing.T) {
 			return htmlResponse(req, http.StatusOK, searchPageWith(t, capturedCard(t, searchAttentionPage, attentionHash))), nil
 		})},
 	})
-	paper, err := client.LookupDOI(context.Background(), attentionDOI, time.Second)
+	paper, err := client.LookupDOI(context.Background(), attentionDOI, callTimeout)
 	if err != nil || paper == nil || paper.DOI != attentionDOI || details.Load() != 1 || client.mirrors.Current() != "annas-archive.gd" {
 		t.Fatalf("mirror change broke DOI identity validation: paper=%+v error=%v details=%d mirror=%s", paper, err, details.Load(), client.mirrors.Current())
 	}

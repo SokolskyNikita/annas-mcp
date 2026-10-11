@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
@@ -88,7 +87,7 @@ func TestDownloadTriesAnotherCollectionAfterFileFailures(t *testing.T) {
 		}
 		return http.StatusOK, grantJSON("https://files.example/good.pdf", 9, hash)
 	}
-	result, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: hash, Title: "Paper", Format: "pdf"}, time.Second, nil)
+	result, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: hash, Title: "Paper", Format: "pdf"}, callTimeout, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,7 +109,7 @@ func TestDownloadStopsAfterTheFilesLastCollection(t *testing.T) {
 	api.answer = func(path, domain int) (int, string) {
 		return http.StatusOK, grantJSON(fmt.Sprintf("https://files.example/missing-%d.pdf", domain), 5)
 	}
-	_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, time.Second, nil)
+	_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, callTimeout, nil)
 	if err == nil {
 		t.Fatal("expected failure")
 	}
@@ -133,7 +132,7 @@ func TestDownloadTriesAtMostThreeCollections(t *testing.T) {
 	api.answer = func(path, domain int) (int, string) {
 		return http.StatusOK, grantJSON(fmt.Sprintf("https://files.example/missing-%d-%d.pdf", path, domain), 5)
 	}
-	_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, time.Second, nil)
+	_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, callTimeout, nil)
 	if err == nil || len(api.calls) != maxDownloadPaths*len(domainIndexes) {
 		t.Fatalf("calls = %v, err = %v", api.calls, err)
 	}
@@ -158,7 +157,7 @@ func TestDownloadSkipsMissingServersWithinACollection(t *testing.T) {
 		}
 		return http.StatusOK, grantJSON("https://files.example/good.pdf", 2, hash)
 	}
-	if _, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: hash, Title: "Paper", Format: "pdf"}, time.Second, nil); err != nil {
+	if _, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: hash, Title: "Paper", Format: "pdf"}, callTimeout, nil); err != nil {
 		t.Fatal(err)
 	}
 	if got := strings.Join(api.calls, " "); got != "0/0 0/1 1/0" {
@@ -177,7 +176,7 @@ func TestDownloadStopsOnAccountAndRecordErrors(t *testing.T) {
 			api := &fastAPI{collections: 3}
 			answer := fixtureText(t, tc.Answer)
 			api.answer = func(int, int) (int, string) { return tc.Status, answer }
-			_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, time.Second, nil)
+			_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, callTimeout, nil)
 			if len(api.calls) != 1 {
 				t.Fatalf("API calls = %v; every other server would give the same answer", api.calls)
 			}
@@ -195,7 +194,7 @@ func TestDownloadRetriesServerErrorsWithoutMovingCollection(t *testing.T) {
 	api.answer = func(int, int) (int, string) {
 		return http.StatusInternalServerError, fixtureText(t, "fast_download_fetch_failed.json")
 	}
-	_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, time.Second, nil)
+	_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, callTimeout, nil)
 	// The API answers for every collection, so a failing API is retried per
 	// server but not once more per collection.
 	if err == nil || strings.Join(api.calls, " ") != "0/0 0/1 0/2" || !strings.Contains(err.Error(), "Error during fetching") {
@@ -226,7 +225,7 @@ func TestDOIDownloadFallsBackToSciDBWhenFastDownloadsRunOut(t *testing.T) {
 			return nil, fmt.Errorf("unexpected request %s", req.URL)
 		})},
 	})
-	result, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "10.1000/example"}, time.Second, nil)
+	result, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "10.1000/example"}, callTimeout, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
