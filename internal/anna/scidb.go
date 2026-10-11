@@ -76,15 +76,16 @@ func parseSciDBFile(doc *goquery.Document, pageURL string) (downloadURL, hash st
 
 // A successful SciDB transfer must contain a PDF even when the CDN serves it
 // as application/octet-stream. Preserve the prefix for the streaming hasher.
-func (c *Client) getSciDBPDF(ctx context.Context, client *http.Client, rawURL string) (*http.Response, error) {
-	response, err := c.doGet(ctx, client, rawURL)
-	if err != nil || response.StatusCode != http.StatusOK {
+// A resumed transfer starts mid-file, so it has no prefix to check.
+func (c *Client) getSciDBPDF(ctx context.Context, client *http.Client, rawURL string, header http.Header) (*http.Response, error) {
+	response, err := c.doGetWith(ctx, client, rawURL, header)
+	if err != nil || response.StatusCode != http.StatusOK || header.Get("Range") != "" {
 		return response, err
 	}
 	reader := bufio.NewReader(response.Body)
 	response.Body = &bufferedReadCloser{Reader: reader, closer: response.Body}
-	header, err := reader.Peek(5)
-	if err != nil || !bytes.Equal(header, []byte("%PDF-")) {
+	prefix, err := reader.Peek(5)
+	if err != nil || !bytes.Equal(prefix, []byte("%PDF-")) {
 		response.Body.Close()
 		return nil, apperr.New(apperr.Upstream, "SciDB download did not contain a PDF")
 	}

@@ -75,30 +75,43 @@ func TestParseBooksReadsSearchCard(t *testing.T) {
 	}
 }
 
-func TestCopyWithHashRejectsMismatchedChecksum(t *testing.T) {
+// copyAll runs a whole transfer from source.
+func copyAll(t *testing.T, source []byte, size int64, expectedMD5 string) error {
+	t.Helper()
+	transfer, err := newTransfer(io.Discard, size, expectedMD5, nil)
+	if err != nil {
+		return err
+	}
+	if err := transfer.copy(context.Background(), bytes.NewReader(source)); err != nil {
+		return err
+	}
+	return transfer.finish()
+}
+
+func TestTransferRejectsMismatchedChecksum(t *testing.T) {
 	t.Parallel()
 
-	paper := readFixture(t, "paper.pdf")
 	hash := fixtureHash(t, "paper.pdf")
-	_, err := copyWithHash(context.Background(), io.Discard, bytes.NewReader(paper), -1, hash, nil)
-	if err != nil {
+	if err := copyAll(t, readFixture(t, "paper.pdf"), -1, hash); err != nil {
 		t.Fatal(err)
 	}
-
-	_, err = copyWithHash(context.Background(), io.Discard, bytes.NewReader(readFixture(t, "corrupt.pdf")), -1, hash, nil)
-	if err == nil {
+	if err := copyAll(t, readFixture(t, "corrupt.pdf"), -1, hash); err == nil {
 		t.Fatal("expected a checksum mismatch")
 	}
 }
 
-func TestCopyWithHashRejectsEmptyAndMismatchedLength(t *testing.T) {
+func TestTransferRejectsEmptyAndMismatchedLength(t *testing.T) {
 	t.Parallel()
 
-	if _, err := copyWithHash(context.Background(), io.Discard, bytes.NewReader(readFixture(t, "empty.txt")), 0, "", nil); err == nil || !strings.Contains(err.Error(), "empty") {
+	if err := copyAll(t, readFixture(t, "empty.txt"), 0, ""); err == nil || !strings.Contains(err.Error(), "empty") {
 		t.Fatalf("expected an empty-file error, got %v", err)
 	}
-	if _, err := copyWithHash(context.Background(), io.Discard, bytes.NewReader(readFixture(t, "short.txt")), 4, "", nil); err == nil || !strings.Contains(err.Error(), "size mismatch") {
+	if err := copyAll(t, readFixture(t, "short.txt"), 4, ""); err == nil || !strings.Contains(err.Error(), "size mismatch") {
 		t.Fatalf("expected a content-length error, got %v", err)
+	}
+	var interrupted *interruptedError
+	if err := copyAll(t, readFixture(t, "short.txt"), 100, ""); !errors.As(err, &interrupted) {
+		t.Fatalf("a body shorter than its length was not interrupted: %v", err)
 	}
 }
 
@@ -191,7 +204,7 @@ func TestDownloadFileRejectsHTMLChallenge(t *testing.T) {
 	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		return fixtureResponse(t, req, http.StatusOK, "challenge.html", "text/html; charset=utf-8", nil), nil
 	})}
-	_, err := downloadFileWithGetter(context.Background(), client, "https://download.invalid/file", t.TempDir(), "paper", "", "", nil, func(_ context.Context, _ *http.Client, _ string) (*http.Response, error) {
+	_, err := downloadFileWithGetter(context.Background(), client, "https://download.invalid/file", t.TempDir(), "paper", "", "", nil, func(_ context.Context, _ *http.Client, _ string, _ http.Header) (*http.Response, error) {
 		return client.Transport.RoundTrip(&http.Request{})
 	})
 	if err == nil || !strings.Contains(err.Error(), "HTML") {

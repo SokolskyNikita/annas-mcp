@@ -205,7 +205,7 @@ func TestDownloadFileRejectsNonSuccessResponse(t *testing.T) {
 	client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		return fixtureResponse(t, req, http.StatusForbidden, "blocked.txt", "text/plain", nil), nil
 	})}
-	get := func(_ context.Context, _ *http.Client, rawURL string) (*http.Response, error) {
+	get := func(_ context.Context, _ *http.Client, rawURL string, _ http.Header) (*http.Response, error) {
 		req, err := http.NewRequest(http.MethodGet, rawURL, nil)
 		if err != nil {
 			return nil, err

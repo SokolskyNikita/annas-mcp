@@ -160,7 +160,7 @@ collections:
 			if grant.account != nil {
 				account = grant.account
 			}
-			result, err := downloadFileWithGetter(ctx, client, grant.url, c.config.DownloadPath, book.Title, book.Format, hash, progress, c.doGet)
+			result, err := downloadFileWithGetter(ctx, client, grant.url, c.config.DownloadPath, book.Title, book.Format, hash, progress, c.doGetWith)
 			if err == nil {
 				result.DownloadsLeft = downloadsLeftAfter(account, hash)
 				return result, nil

@@ -48,6 +48,11 @@ func (c *Client) fetchDocument(ctx context.Context, rawURL string) (*goquery.Doc
 }
 
 func (c *Client) doGet(ctx context.Context, client *http.Client, rawURL string) (*http.Response, error) {
+	return c.doGetWith(ctx, client, rawURL, nil)
+}
+
+// doGetWith is doGet with extra request headers, such as Range.
+func (c *Client) doGetWith(ctx context.Context, client *http.Client, rawURL string, header http.Header) (*http.Response, error) {
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -58,6 +63,9 @@ func (c *Client) doGet(ctx context.Context, client *http.Client, rawURL string) 
 		}
 		if request.URL.Scheme != "https" || request.URL.Host == "" || request.URL.User != nil {
 			return nil, apperr.New(apperr.Upstream, "upstream URL must be HTTPS without credentials")
+		}
+		for key, values := range header {
+			request.Header[key] = values
 		}
 		request.Header.Set("User-Agent", BrowserUserAgent)
 		_, archive := c.archiveHost(request.URL)

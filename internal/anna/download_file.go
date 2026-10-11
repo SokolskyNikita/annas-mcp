@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"hash"
 	"io"
 	"mime"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -27,17 +29,23 @@ var unsafeFilenameChars = regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
 
 const maxDownloadBytes int64 = 8 << 30
 
-type getFunc func(context.Context, *http.Client, string) (*http.Response, error)
+// getFunc requests rawURL with extra headers, such as Range.
+type getFunc func(ctx context.Context, client *http.Client, rawURL string, header http.Header) (*http.Response, error)
+
+// maxResumes is how often an interrupted download continues where it
+// stopped before the attempt counts as failed.
+const maxResumes = 2
 
 func downloadFileWithGetter(ctx context.Context, client *http.Client, rawURL, folderPath, title, format, expectedMD5 string, progress ProgressFunc, get getFunc) (DownloadResult, error) {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	resp, err := get(ctx, client, rawURL)
+	resp, err := get(ctx, client, rawURL, nil)
 	if err != nil {
 		return DownloadResult{}, requestFailure(err, rawURL)
 	}
-	defer resp.Body.Close()
+	// A resumed download replaces resp; close whichever is current.
+	defer func() { resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return DownloadResult{}, httpResponseError(resp, rawURL)
@@ -74,7 +82,27 @@ func downloadFileWithGetter(ctx context.Context, client *http.Client, rawURL, fo
 		_ = os.Remove(temp.Name())
 	}()
 
-	written, err := copyWithHash(ctx, temp, resp.Body, resp.ContentLength, expectedMD5, progress)
+	transfer, err := newTransfer(temp, resp.ContentLength, expectedMD5, progress)
+	if err != nil {
+		return DownloadResult{}, err
+	}
+	for resumes := 0; ; resumes++ {
+		err = transfer.copy(ctx, resp.Body)
+		var interrupted *interruptedError
+		if err == nil || resumes == maxResumes || !errors.As(err, &interrupted) || ctx.Err() != nil {
+			break
+		}
+		resp.Body.Close()
+		next, resumeErr := transfer.resume(ctx, client, rawURL, get)
+		if resumeErr != nil {
+			err = fmt.Errorf("%w; resuming failed: %v", err, resumeErr)
+			break
+		}
+		resp = next
+	}
+	if err == nil {
+		err = transfer.finish()
+	}
 	if err != nil {
 		return DownloadResult{}, err
 	}
@@ -91,7 +119,7 @@ func downloadFileWithGetter(ctx context.Context, client *http.Client, rawURL, fo
 	paths := downloadPathCandidates(folderPath, title, format, expectedMD5)
 	for _, path := range paths {
 		if err := os.Link(temp.Name(), path); err == nil {
-			return DownloadResult{Path: path, Bytes: written}, nil
+			return DownloadResult{Path: path, Bytes: transfer.written}, nil
 		} else if !errors.Is(err, os.ErrExist) {
 			return DownloadResult{}, fmt.Errorf("failed to finalize downloaded file: %w", err)
 		}
@@ -99,72 +127,130 @@ func downloadFileWithGetter(ctx context.Context, client *http.Client, rawURL, fo
 	return DownloadResult{}, errors.New("could not find a free filename")
 }
 
-func copyWithHash(ctx context.Context, destination io.Writer, source io.Reader, contentLength int64, expectedMD5 string, progress ProgressFunc) (int64, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
+// interruptedError is a download whose body stopped before its end.
+type interruptedError struct {
+	written int64
+	err     error
+}
+
+func (e *interruptedError) Error() string {
+	return fmt.Sprintf("download stopped after %d bytes: %v", e.written, e.err)
+}
+
+func (e *interruptedError) Unwrap() error { return e.err }
+
+// transfer writes a download, hashing it as it goes, so an interrupted
+// download can continue where it stopped.
+type transfer struct {
+	destination io.Writer
+	hasher      hash.Hash
+	written     int64
+	reported    int64
+	// size is the expected size, or -1 when the server did not say.
+	size     int64
+	expected string
+	progress ProgressFunc
+}
+
+func newTransfer(destination io.Writer, size int64, expectedMD5 string, progress ProgressFunc) (*transfer, error) {
 	if expectedMD5 != "" {
 		normalized, err := normalizeHash(expectedMD5)
 		if err != nil {
-			return 0, err
+			return nil, err
 		}
 		expectedMD5 = normalized
 	}
-	hasher := md5.New()
-	buffer := make([]byte, 32*1024)
-	var written int64
-	var reported int64
-	total := contentLength
-	if total < 0 {
-		total = 0
-	}
+	return &transfer{destination: destination, hasher: md5.New(), size: size, expected: expectedMD5, progress: progress}, nil
+}
 
+// copy appends source. A read that fails, or a body that ends before size,
+// returns an *interruptedError.
+func (t *transfer) copy(ctx context.Context, source io.Reader) error {
+	buffer := make([]byte, 32*1024)
 	for {
 		if err := ctx.Err(); err != nil {
-			return written, err
+			return err
 		}
 		read, readErr := source.Read(buffer)
 		if read > 0 {
-			if written+int64(read) > maxDownloadBytes {
-				return written, fmt.Errorf("download exceeded %d bytes", maxDownloadBytes)
+			if t.written+int64(read) > maxDownloadBytes {
+				return fmt.Errorf("download exceeded %d bytes", maxDownloadBytes)
 			}
-			if _, err := hasher.Write(buffer[:read]); err != nil {
-				return written, err
+			if _, err := t.hasher.Write(buffer[:read]); err != nil {
+				return err
 			}
-			writtenNow, err := destination.Write(buffer[:read])
+			writtenNow, err := t.destination.Write(buffer[:read])
 			if err != nil {
-				return written, fmt.Errorf("failed to write file (wrote %d bytes): %w", written, err)
+				return fmt.Errorf("failed to write file (wrote %d bytes): %w", t.written, err)
 			}
 			if writtenNow != read {
-				return written, fmt.Errorf("failed to write file (wrote %d bytes): %w", written, io.ErrShortWrite)
+				return fmt.Errorf("failed to write file (wrote %d bytes): %w", t.written, io.ErrShortWrite)
 			}
-			written += int64(read)
-			if progress != nil && (written-reported >= 512*1024 || readErr == io.EOF) {
-				progress(written, total)
-				reported = written
+			t.written += int64(read)
+			if t.progress != nil && t.written-t.reported >= 512*1024 {
+				t.progress(t.written, max(t.size, 0))
+				t.reported = t.written
 			}
 		}
 		if readErr == io.EOF {
 			break
 		}
 		if readErr != nil {
-			return written, fmt.Errorf("download stopped after %d bytes: %w", written, readErr)
+			return &interruptedError{written: t.written, err: readErr}
 		}
 	}
+	if t.size >= 0 && t.written < t.size {
+		return &interruptedError{written: t.written, err: io.ErrUnexpectedEOF}
+	}
+	return nil
+}
 
-	if progress != nil && reported != written {
-		progress(written, total)
+// resume asks for the rest of the file. Only a 206 answer that starts
+// exactly where the download stopped continues it; any other answer fails
+// the attempt, and the caller tries the next server.
+func (t *transfer) resume(ctx context.Context, client *http.Client, rawURL string, get getFunc) (*http.Response, error) {
+	resp, err := get(ctx, client, rawURL, http.Header{"Range": {fmt.Sprintf("bytes=%d-", t.written)}})
+	if err != nil {
+		return nil, requestFailure(err, rawURL)
 	}
-	if written == 0 {
-		return 0, errors.New("download returned an empty file")
+	if start, ok := contentRangeStart(resp.Header.Get("Content-Range")); resp.StatusCode != http.StatusPartialContent || !ok || start != t.written {
+		resp.Body.Close()
+		return nil, fmt.Errorf("%s did not continue the download (HTTP status %d)", responseHost(resp, rawURL), resp.StatusCode)
 	}
-	if contentLength >= 0 && written != contentLength {
-		return written, fmt.Errorf("download size mismatch: expected %d bytes, wrote %d", contentLength, written)
+	return resp, nil
+}
+
+// contentRangeStart reads the first byte of a Content-Range such as
+// "bytes 1000-1999/2000".
+func contentRangeStart(value string) (int64, bool) {
+	spec, ok := strings.CutPrefix(strings.TrimSpace(value), "bytes ")
+	if !ok {
+		return 0, false
 	}
-	if expectedMD5 != "" && !strings.EqualFold(hex.EncodeToString(hasher.Sum(nil)), expectedMD5) {
-		return written, fmt.Errorf("downloaded file checksum does not match %s", expectedMD5)
+	first, _, ok := strings.Cut(spec, "-")
+	if !ok {
+		return 0, false
 	}
-	return written, nil
+	start, err := strconv.ParseInt(first, 10, 64)
+	return start, err == nil && start >= 0
+}
+
+// finish checks the complete download.
+func (t *transfer) finish() error {
+	if t.progress != nil && t.reported != t.written {
+		t.progress(t.written, max(t.size, 0))
+		t.reported = t.written
+	}
+	if t.written == 0 {
+		return errors.New("download returned an empty file")
+	}
+	if t.size >= 0 && t.written != t.size {
+		return fmt.Errorf("download size mismatch: expected %d bytes, wrote %d", t.size, t.written)
+	}
+	if t.expected != "" && !strings.EqualFold(hex.EncodeToString(t.hasher.Sum(nil)), t.expected) {
+		return fmt.Errorf("downloaded file checksum does not match %s", t.expected)
+	}
+	return nil
 }
 
 func normalizeHash(hash string) (string, error) {

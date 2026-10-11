@@ -124,7 +124,7 @@ func TestSciDBRejectsHTMLInsteadOfPDF(t *testing.T) {
 	client := NewClient(Config{BaseURL: "annas.test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "application/octet-stream", nil), nil
 	})}})
-	if _, err := client.getSciDBPDF(context.Background(), client.requestClient(0), "https://downloads.example/paper.pdf"); err == nil {
+	if _, err := client.getSciDBPDF(context.Background(), client.requestClient(0), "https://downloads.example/paper.pdf", nil); err == nil {
 		t.Fatal("HTML from the PDF CDN was accepted")
 	}
 }
