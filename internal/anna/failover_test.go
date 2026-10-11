@@ -84,8 +84,8 @@ func TestACallTriesOneOtherMirrorAtMost(t *testing.T) {
 		return fixtureResponse(t, req, http.StatusServiceUnavailable, "blocked.txt", "text/plain", nil), nil
 	})}})
 	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Minute)
-	if apperr.CodeOf(err) != apperr.Upstream || !strings.Contains(err.Error(), "HTTP status 503") {
-		t.Fatalf("wrong error: %v", err)
+	if apperr.CodeOf(err) != apperr.Upstream || strings.Count(err.Error(), "HTTP status 503") != 2 || !strings.Contains(err.Error(), "(before that, ") {
+		t.Fatalf("error does not describe both mirrors: %v", err)
 	}
 	if got := log.list(); len(got) != 2 || got[0] == got[1] {
 		t.Fatalf("expected one search on each of two mirrors: %v", got)

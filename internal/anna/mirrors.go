@@ -89,8 +89,12 @@ func (c *Client) onMirrorFrom(ctx context.Context, base string, fn func(base str
 		return err
 	}
 	logger.GetLogger().Info("Retrying on another Anna mirror", zap.String("failed", host), zap.String("mirror", next))
-	if err := fn("https://" + next); err != nil {
-		return err
+	if retryErr := fn("https://" + next); retryErr != nil {
+		// When the second mirror failed too, say what the first one did.
+		if !refused && !c.health.Eligible(next) {
+			return fmt.Errorf("%w (before that, %v)", retryErr, err)
+		}
+		return retryErr
 	}
 	if refused {
 		c.mirrorFailed(base, mirror.Failure{Reason: "refused access (HTTP 403)", Blocked: true})
