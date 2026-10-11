@@ -18,6 +18,42 @@
     "result_key": "results"
   },
   {
+    "name": "books by author",
+    "tool": "book_search",
+    "arguments": {
+      "author": "Boldrin",
+      "format": "epub,-pdf",
+      "timeout_seconds": 23
+    },
+    "result_key": "results"
+  },
+  {
+    "name": "metadata",
+    "tool": "metadata_search",
+    "arguments": {
+      "query": "9780521879286",
+      "timeout_seconds": 23
+    },
+    "result_key": "results"
+  },
+  {
+    "name": "details",
+    "tool": "book_details",
+    "arguments": {
+      "id": "0123456789abcdef0123456789abcdef",
+      "timeout_seconds": 23
+    },
+    "result_key": "title"
+  },
+  {
+    "name": "account status",
+    "tool": "account_status",
+    "arguments": {
+      "timeout_seconds": 23
+    },
+    "result_key": "downloads_left"
+  },
+  {
     "name": "article DOI",
     "tool": "article_search",
     "arguments": {

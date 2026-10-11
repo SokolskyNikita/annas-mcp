@@ -19,8 +19,8 @@ func TestBuildSearchURLIncludesFiltersAndPage(t *testing.T) {
 	t.Parallel()
 
 	got := buildSearchURL("annas-archive.gl", "machine learning", SearchOptions{
-		Content:  "book_nonfiction",
-		Language: "en",
+		Content:  []string{"book_nonfiction"},
+		Language: []string{"en"},
 		Page:     2,
 	})
 	for _, part := range []string{
@@ -39,12 +39,12 @@ func TestBuildSearchURLIncludesFiltersAndPage(t *testing.T) {
 func TestResolveSearchDropsLegacyFilters(t *testing.T) {
 	t.Parallel()
 
-	books := ResolveSearch(SearchOptions{Content: "book_any", Page: 2}, "book_any")
-	if books.Content != "" || books.Index != "" || books.Page != 2 {
+	books := ResolveSearch(SearchOptions{Content: []string{"book_any"}, Page: 2}, "book_any")
+	if len(books.Content) != 0 || books.Index != "" || books.Page != 2 {
 		t.Fatalf("book_any should not be sent: %+v", books)
 	}
 	articles := ResolveSearch(SearchOptions{}, "journal")
-	if articles.Index != "journals" || articles.Content != "" {
+	if articles.Index != "journals" || len(articles.Content) != 0 {
 		t.Fatalf("articles should use the journals index: %+v", articles)
 	}
 	got := buildSearchURL("annas-archive.gl", "transformers", articles)
@@ -212,7 +212,8 @@ func TestClientSearchUsesInjectedBaseAndTransport(t *testing.T) {
 			return fixtureResponse(t, req, http.StatusOK, "search_card.html", "text/html", nil), nil
 		})},
 	})
-	books, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+	page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+	books := page.Results
 	if err != nil || len(books) != 1 || books[0].Hash != "abc123def456" {
 		t.Fatalf("injected client search failed: books=%+v err=%v", books, err)
 	}

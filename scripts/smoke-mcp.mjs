@@ -67,7 +67,9 @@ try {
   assert.equal(initialized.serverInfo.name, "annas-mcp");
   report.server = initialized.serverInfo;
   const listed = await client.request("tools/list");
-  assert.deepEqual(listed.tools.map(({ name }) => name).sort(), ["article_download", "article_search", "book_download", "book_search"]);
+  assert.deepEqual(listed.tools.map(({ name }) => name).sort(), [
+    "account_status", "article_download", "article_search", "book_details", "book_download", "book_search", "metadata_search",
+  ]);
 
   const books = await call("book_search", cases.book);
   assert(books.results.length > 0, "Book search returned no records");
@@ -83,6 +85,19 @@ try {
   assert(book, "No matching PDF/EPUB found for the configured public-domain book");
   report.book = { title: book.title, authors: book.authors, format: book.format, hash: book.hash };
 
+  const filtered = await call("book_search", { ...cases.book, format: "epub", limit: 5 }, "book_search (format filter)");
+  assert(filtered.results.length > 0, "Filtered book search returned no records");
+  assert(filtered.results.every((record) => record.format === "EPUB"), "format filter returned other formats");
+  assert(filtered.total >= filtered.results.length, "total is smaller than the results shown");
+  const details = await call("book_details", { id: book.hash, timeout_seconds: 90 });
+  assert.equal(details.hash, book.hash.toLowerCase());
+  assert(details.title, "book_details returned no title");
+  const catalog = await call("metadata_search", { query: cases.book.query, limit: 5, timeout_seconds: 90 });
+  assert(catalog.results.length > 0 && catalog.results.every((record) => /^[a-z_0-9]+:/.test(record.id)), "metadata_search returned no catalog ids");
+  const status = await call("account_status", { timeout_seconds: 90 });
+  assert(status.member, "account_status says the account has no membership");
+  report.downloads_left_before = status.downloads_left;
+
   const papers = await call("article_search", { query: cases.article_query, limit: 5, timeout_seconds: 90 }, "article_search (keywords)");
   assert(papers.results.length > 0, "Article keyword search returned no records");
   const article = await call("article_search", { query: `https://doi.org/${cases.article_doi}`, timeout_seconds: 90 }, "article_search (DOI URL)");
@@ -92,6 +107,7 @@ try {
 
   const bookFile = await call("book_download", { hash: book.hash, title: book.title, format: book.format.toLowerCase(), timeout_seconds: 180 });
   await verifyDownload(bookFile, book, "book_download");
+  assert(Number.isInteger(bookFile.downloads_left) && bookFile.downloads_left <= status.downloads_left, "book_download did not report downloads_left");
   const hashFile = await call("article_download", { hash: article.hash, title: `${article.title} - hash`, format: "pdf", timeout_seconds: 180 }, "article_download (hash)");
   await verifyDownload(hashFile, article, "article_download (hash)");
   const doiFile = await call("article_download", { doi: cases.article_doi, title: `${article.title} - doi`, format: "pdf", timeout_seconds: 180 }, "article_download (DOI)");

@@ -335,7 +335,7 @@ async function assertHandshake(client, timeoutMs = 10_000) {
   const names = (tools?.tools || []).map((tool) => tool.name).sort();
   assert.deepEqual(
     names,
-    ["article_download", "article_search", "book_download", "book_search"],
+    ["account_status", "article_download", "article_search", "book_details", "book_download", "book_search", "metadata_search"],
     `unexpected tools: ${names.join(", ")}`,
   );
 }

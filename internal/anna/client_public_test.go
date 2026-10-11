@@ -26,10 +26,11 @@ func TestFindArticleReturnsMappedPapers(t *testing.T) {
 		})},
 	})
 
-	papers, err := client.FindArticle(context.Background(), "attention", SearchOptions{}, time.Second)
+	page, err := client.FindArticle(context.Background(), "attention", SearchOptions{}, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
+	papers := page.Results
 	if len(papers) != 1 {
 		t.Fatalf("expected one paper, got %d", len(papers))
 	}

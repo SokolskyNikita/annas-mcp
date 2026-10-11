@@ -22,7 +22,9 @@ import {
 const root = fileURLToPath(new URL("../", import.meta.url));
 const entrypoint = path.join(root, "bin", "annas-mcp.js");
 const MAX_OUTPUT_BYTES = 64 << 10;
-const toolNames = ["article_download", "article_search", "book_download", "book_search"];
+const toolNames = [
+  "account_status", "article_download", "article_search", "book_details", "book_download", "book_search", "metadata_search",
+];
 const releaseTargets = [
   ["linux", "amd64"],
   ["linux", "arm64"],

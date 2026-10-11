@@ -1,0 +1,178 @@
+{
+  "///id": [
+    "File from the combined collections of Anna's Archive.",
+    "This is the `/db/aarecord_elasticsearch/` version."
+  ],
+  "id": "md5:8336332bf5877e3adbfb60ac70720cd5",
+  "file_unified_data": {
+    "title_best": "Against intellectual monopoly",
+    "title_additional": [
+      "Against Intellectual Monopoly",
+      "Against intellectual monopoly 1/1"
+    ],
+    "author_best": "Michele Boldrin, David K. Levine",
+    "author_additional": [
+      "Boldrin, Michele, Levine, David K."
+    ],
+    "publisher_best": "Cambridge University Press (Virtual Publishing)",
+    "publisher_additional": [
+      "Greenwich Medical Media Ltd"
+    ],
+    "edition_varia_best": "1. publ, Cambridge, 2008",
+    "edition_varia_additional": [
+      "Cambridge University Press, New York, 2008",
+      "United Kingdom and Ireland, United Kingdom",
+      "Cambridge books online, Cambridge, 2008",
+      "New York, New York State, 2008",
+      "Illustrated, 2010",
+      "1, PS, 2008",
+      "2009"
+    ],
+    "year_best": "2008",
+    "year_additional": [
+      "2010",
+      "2009"
+    ],
+    "extension_best": "pdf",
+    "filesize_best": 4283327,
+    "content_type_best": "book_nonfiction",
+    "stripped_description_best": "'Intellectual property' - patents and copyrights - have become controversial. We witness teenagers being sued for 'pirating' music - and we observe AIDS patients in Africa dying due to lack of ability to pay for drugs that are high priced to satisfy patent holders. Are patents and copyrights essenti",
+    "language_codes": [
+      "en"
+    ],
+    "most_likely_language_codes": [
+      "en"
+    ],
+    "added_date_best": "2009-08-06",
+    "original_filename_best": "nexusstc/Against Intellectual Monopoly/8336332bf5877e3adbfb60ac70720cd5.pdf",
+    "has_aa_downloads": 1,
+    "has_scidb": 0,
+    "cover_url_best": "https://libgen.li/covers/110000/8336332bf5877e3adbfb60ac70720cd5.jpg",
+    "identifiers_unified": {
+      "md5": [
+        "8336332bf5877e3adbfb60ac70720cd5"
+      ],
+      "sha256": [
+        "bc8011de3d9b5cab5e7530d5bde7bd29184f26ec5eebd45343a9d9e9e1c9cd47"
+      ],
+      "filepath": [
+        "lgli/Boldrin M., Levine D.K. Against intellectual monopoly (CUP, 2008)(ISBN 0521879280).pdf",
+        "zlib/Business & Economics/Michele Boldrin, David K. Levine/Against intellectual monopoly_538420.pdf",
+        "lgrsnf/Boldrin M., Levine D.K. Against intellectual monopoly (CUP, 2008)(ISBN 0521879280).pdf",
+        "nexusstc/Against Intellectual Monopoly/8336332bf5877e3adbfb60ac70720cd5.pdf"
+      ],
+      "server_path": [
+        "g4/libgenrs_nonfiction/libgenrs_nonfiction/110000/8336332bf5877e3adbfb60ac70720cd5"
+      ],
+      "isbn10": [
+        "0521879280",
+        "0511510853",
+        "0511412223",
+        "0511414099"
+      ],
+      "isbn13": [
+        "9780521879286",
+        "9780521127264",
+        "9780521879286"
+      ],
+      "doi": [
+        "10.1017/cbo9780511510854"
+      ],
+      "oclc": [
+        "1043303358",
+        "1127453797",
+        "437219422",
+        "232365572"
+      ],
+      "ol": [
+        "OL28454993M",
+        "OL40480832M",
+        "OL34441693M",
+        "OL18017946M"
+      ],
+      "lccn": [
+        "2007053007"
+      ],
+      "goodreads": [
+        "3770306"
+      ],
+      "ocaid": [
+        "againstintellect00bold"
+      ]
+    },
+    "classifications_unified": {
+      "ddc": [
+        "346.048",
+        "346.04/8"
+      ],
+      "lcc": [
+        "K1401.B65 2010",
+        "K1401 .B65 2008",
+        "K1401.B65 2008"
+      ],
+      "openlib_subject": [
+        "Monopolies",
+        "Intellectual property -- Economic aspects",
+        "Intellectual property",
+        "Competition"
+      ],
+      "edsebk_subject": [
+        "unclass/Competition",
+        "bisac/LAW / Business & Financial",
+        "unclass/Monopolies",
+        "unclass/Intellectual property--Economic aspects",
+        "bisac/LAW / Intellectual Property / General"
+      ],
+      "zlib_category_name": [
+        "Business & Economics"
+      ],
+      "year": [
+        "2009",
+        "2010",
+        "2008"
+      ],
+      "collection": [
+        "lgli",
+        "lgrs",
+        "nexusstc",
+        "zlib"
+      ],
+      "date_lgli_source": [
+        "2009-08-06"
+      ]
+    },
+    "problems": [
+      {
+        "type": "lgli_broken",
+        "descr": "",
+        "only_if_no_partner_server": false,
+        "better_aarecord_id": "md5:224c5b1195fd2fb4650c3b75c2908d65"
+      },
+      {
+        "type": "lgrsnf_visible",
+        "descr": "ban",
+        "only_if_no_partner_server": false,
+        "better_aarecord_id": ""
+      }
+    ]
+  },
+  "search_only_fields": {
+    "search_record_sources": [
+      "lgli",
+      "lgrs",
+      "nexusstc",
+      "zlib"
+    ],
+    "search_access_types": [
+      "external_download",
+      "aa_download",
+      "torrents_available"
+    ]
+  },
+  "additional": {
+    "path": "/md5/8336332bf5877e3adbfb60ac70720cd5",
+    "most_likely_language_names": [
+      "English [en]"
+    ]
+  }
+}

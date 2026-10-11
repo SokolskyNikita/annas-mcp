@@ -34,7 +34,7 @@ The `npx` launcher always runs the latest published release, never your checkout
 | --- | --- |
 | `cmd/annas-mcp` | Executable entry point |
 | `internal/modes` | MCP server and CLI, sharing one service layer for validation and output |
-| `internal/anna` | Archive search, DOI lookup, downloads and sign-in, including the saved session |
+| `internal/anna` | Archive search and result parsing, record details, account status, DOI lookup, downloads and sign-in, including the saved session |
 | `internal/mirror` | Mirror discovery and probing |
 | `internal/env`, `internal/apperr`, `internal/version` | Configuration, stable error codes, embedded version |
 | `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
@@ -64,9 +64,10 @@ CI runs the same checks on Linux, macOS and Windows. It also lints the workflows
 
 These use real credentials from your environment or `.env`.
 
-- `node scripts/smoke-mcp.mjs ./annas-mcp` exercises all four MCP tools against the live archive, including real downloads (so it uses download quota), and verifies sizes and checksums. It ignores `ANNAS_ACCOUNT_COOKIE` and saves the session in a temporary folder, so it always tests signing in with `ANNAS_SECRET_KEY`.
+- `node scripts/smoke-mcp.mjs ./annas-mcp` exercises all seven MCP tools against the live archive, including real downloads (so it uses download quota), and verifies sizes and checksums. It ignores `ANNAS_ACCOUNT_COOKIE` and saves the session in a temporary folder, so it always tests signing in with `ANNAS_SECRET_KEY`.
 - `scripts/healthcheck.sh --live` runs real searches without downloading anything.
 - `ANNAS_MCP_TEST_SCIDB_LIVE=1 go test ./internal/anna -run '^TestLiveSciDBFallback$' -count=1 -v` tests the SciDB PDF fallback on its own.
+- `ANNAS_MCP_TEST_LIVE=1 go test ./internal/anna -run '^TestLiveSearchDetailsAndAccount$' -count=1 -v` checks search filters and result cards, catalog search, `book_details` and the account page against the live archive. It downloads nothing, so it uses no download quota.
 - `ANNAS_MCP_TEST_MIRROR_LIVE=1 go test ./internal/mirror -run '^TestLiveResolve$' -count=1 -v` selects a mirror the way a first run does, then probes each official mirror and logs how long it took. It needs no credentials.
 
 ## Releasing
@@ -76,7 +77,7 @@ These use real credentials from your environment or `.env`.
 3. Commit, push to `main` and wait for CI to pass.
 4. Run `scripts/manage-tag.sh add` to create and push the annotated tag.
 
-The tag triggers the release workflow. It builds the binaries, publishes them with SHA-256 checksums to GitHub Releases, attaches `annas-mcp.mcpb` (built by `npm run pack:mcpb`), then installs the release through the `npx` launcher on each platform and checks the MCP handshake and all four tools. `node scripts/verify-release.mjs vX.Y.Z` repeats that check locally.
+The tag triggers the release workflow. It builds the binaries, publishes them with SHA-256 checksums to GitHub Releases, attaches `annas-mcp.mcpb` (built by `npm run pack:mcpb`), then installs the release through the `npx` launcher on each platform and checks the MCP handshake and all seven tools. `node scripts/verify-release.mjs vX.Y.Z` repeats that check locally.
 
 When the repository variable `PUBLISH_REGISTRIES` is `true`, the workflow then publishes the launcher to npm through npm trusted publishing and the new version to the [MCP Registry](https://registry.modelcontextprotocol.io) through GitHub OIDC. Neither needs a stored secret. The npm package holds only the launcher (`bin`, `lib`); binaries always come from GitHub Releases.
 

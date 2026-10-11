@@ -30,30 +30,60 @@ func fixtureJSON[T any](t *testing.T, name string) T {
 }
 
 type fakeArchive struct {
-	calls   int
-	query   string
-	options anna.SearchOptions
-	article anna.ArticleDownloadOptions
-	books   []*anna.Book
-	papers  []*anna.Paper
-	book    *anna.Book
-	timeout time.Duration
-	failure error
+	calls    int
+	query    string
+	options  anna.SearchOptions
+	article  anna.ArticleDownloadOptions
+	books    []*anna.Book
+	partial  []*anna.Book
+	papers   []*anna.Paper
+	records  []*anna.MetadataRecord
+	total    int
+	details  *anna.Details
+	status   *anna.AccountStatus
+	detailID string
+	book     *anna.Book
+	timeout  time.Duration
+	failure  error
 }
 
-func (f *fakeArchive) FindBook(_ context.Context, q string, o anna.SearchOptions, timeout time.Duration) ([]*anna.Book, error) {
+func (f *fakeArchive) FindBook(_ context.Context, q string, o anna.SearchOptions, timeout time.Duration) (anna.SearchPage[*anna.Book], error) {
 	f.calls++
 	f.timeout = timeout
 	f.query = q
 	f.options = o
-	return f.books, f.failure
+	return anna.SearchPage[*anna.Book]{Results: f.books, Partial: f.partial, Total: max(f.total, len(f.books))}, f.failure
 }
-func (f *fakeArchive) FindArticle(_ context.Context, q string, o anna.SearchOptions, timeout time.Duration) ([]*anna.Paper, error) {
+func (f *fakeArchive) FindArticle(_ context.Context, q string, o anna.SearchOptions, timeout time.Duration) (anna.SearchPage[*anna.Paper], error) {
 	f.calls++
 	f.timeout = timeout
 	f.query = q
 	f.options = o
-	return f.papers, f.failure
+	return anna.SearchPage[*anna.Paper]{Results: f.papers, Total: len(f.papers)}, f.failure
+}
+func (f *fakeArchive) FindMetadata(_ context.Context, q string, o anna.SearchOptions, timeout time.Duration) (anna.SearchPage[*anna.MetadataRecord], error) {
+	f.calls++
+	f.timeout = timeout
+	f.query = q
+	f.options = o
+	return anna.SearchPage[*anna.MetadataRecord]{Results: f.records, Total: len(f.records)}, f.failure
+}
+func (f *fakeArchive) Details(_ context.Context, id string, timeout time.Duration) (*anna.Details, error) {
+	f.calls++
+	f.timeout = timeout
+	f.detailID = id
+	if f.details == nil {
+		return &anna.Details{ID: "md5:" + id, Title: "Example Details"}, f.failure
+	}
+	return f.details, f.failure
+}
+func (f *fakeArchive) AccountStatus(_ context.Context, timeout time.Duration) (*anna.AccountStatus, error) {
+	f.calls++
+	f.timeout = timeout
+	if f.status == nil {
+		return &anna.AccountStatus{Member: true, DownloadsLeft: 7, DownloadsLimit: 25, WindowHours: 18}, f.failure
+	}
+	return f.status, f.failure
 }
 func (f *fakeArchive) LookupDOI(_ context.Context, q string, timeout time.Duration) (*anna.Paper, error) {
 	f.calls++

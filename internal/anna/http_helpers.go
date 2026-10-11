@@ -17,16 +17,37 @@ func buildSearchURL(base, query string, options SearchOptions) string {
 	if options.Index != "" {
 		values.Set("index", options.Index)
 	}
-	if options.Content != "" {
-		values.Set("content", options.Content)
+	addSearchFilter(values, "content", options.Content)
+	addSearchFilter(values, "lang", options.Language)
+	addSearchFilter(values, "ext", options.Format)
+	addSearchFilter(values, "src", options.Source)
+	addSearchFilter(values, "acc", options.Access)
+	if options.Sort != "" {
+		values.Set("sort", options.Sort)
 	}
-	if options.Language != "" {
-		values.Set("lang", options.Language)
+	if options.Descriptions {
+		values.Set("desc", "1")
+	}
+	// Anna reads at most nine numbered field terms.
+	for i, field := range options.Fields {
+		values.Set("termtype_"+strconv.Itoa(i+1), field.Name)
+		values.Set("termval_"+strconv.Itoa(i+1), field.Value)
 	}
 	if options.Page > 1 {
 		values.Set("page", strconv.Itoa(options.Page))
 	}
 	return buildPathURL(base, "/search") + "?" + values.Encode()
+}
+
+// addSearchFilter sends each value as a repeated parameter. Anna excludes a
+// value written as anti__value; callers mark exclusions with a leading "-".
+func addSearchFilter(values url.Values, key string, filters []string) {
+	for _, filter := range filters {
+		if excluded, ok := strings.CutPrefix(filter, "-"); ok {
+			filter = "anti__" + excluded
+		}
+		values.Add(key, filter)
+	}
 }
 
 func buildPathURL(base, path string) string {

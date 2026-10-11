@@ -37,7 +37,7 @@ No other variables are needed. The server signs in with the secret key by itself
 ## Verify
 
 1. Run `npx -y annas-mcp --version` in a terminal. It prints the version once the release binary is downloaded and verified.
-2. Restart or reload the MCP client so it starts the server, and check that it lists four tools: `book_search`, `article_search`, `book_download` and `article_download`.
+2. Restart or reload the MCP client so it starts the server, and check that it lists seven tools: `book_search`, `article_search`, `metadata_search`, `book_details`, `account_status`, `book_download` and `article_download`.
 3. Call `book_search` with the query `pride and prejudice`. A page of results means the secret key and membership work.
 
 ## If something fails

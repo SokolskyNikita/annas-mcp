@@ -174,6 +174,8 @@ if [[ "$LIVE" -eq 1 ]]; then
         go run ./cmd/annas-mcp book-search crypto
     run_check "Live article search for DOI 10.48550/arXiv.1706.03762" 'DOI:' \
         go run ./cmd/annas-mcp article-search 10.48550/arXiv.1706.03762
+    run_check 'Live account status' 'Fast downloads left:' \
+        go run ./cmd/annas-mcp account-status
 else
     printf '%bLive upstream searches skipped%b; pass --live to enable them.\n' "$YELLOW" "$NC"
 fi

@@ -11,8 +11,11 @@ It signs in with your membership's secret key and renews the session by itself, 
 
 | Tool | What it does |
 | --- | --- |
-| `book_search` | Finds books, textbooks, manuals and standards by title, author or topic |
-| `article_search` | Finds journal articles by keyword, or looks one up by DOI |
+| `book_search` | Finds books, textbooks, manuals and standards by title, author or topic, filtered by format, language, source or year |
+| `article_search` | Finds journal articles by keyword, author or year, or looks one up by DOI |
+| `metadata_search` | Searches library catalogs such as Open Library, WorldCat and ISBNdb for editions and ISBNs |
+| `book_details` | Shows a result's ISBNs and other identifiers, edition, description and reported file problems |
+| `account_status` | Shows your membership and how many fast downloads are left |
 | `book_download` | Downloads a book using the hash from a search result |
 | `article_download` | Downloads an article by DOI or hash |
 
@@ -112,7 +115,7 @@ On first run `npx` downloads the latest release and caches it once its checksum 
 
 ## Switching from iosifache/annas-mcp
 
-This server has the same four tools and reads the same `ANNAS_SECRET_KEY`, `ANNAS_DOWNLOAD_PATH` and `ANNAS_BASE_URL` variables. In your client's config, replace the path to the old binary with `npx`:
+This server keeps the same four tools, adds three more, and reads the same `ANNAS_SECRET_KEY`, `ANNAS_DOWNLOAD_PATH` and `ANNAS_BASE_URL` variables. In your client's config, replace the path to the old binary with `npx`:
 
 ```diff
 -      "command": "/path/to/annas-mcp",
@@ -163,28 +166,51 @@ The server and CLI also read a `.env` file from their working directory. Variabl
 
 ## Tools
 
-Every tool accepts `timeout_seconds`, covering the whole operation including retries. Searches default to 60 seconds and downloads to 30 minutes.
+Every tool accepts `timeout_seconds`, covering the whole operation including retries. Downloads default to 30 minutes and the other tools to 60 seconds.
 
 ### Searching
 
-`book_search` and `article_search` take a `query` and return one page of results. Each result includes a `hash`, title, authors, format, size and language, and books also include a publisher. Optional fields:
+`book_search` and `article_search` return one page of results for a `query`. Each result includes a `hash`, title, authors, year, format, size and source libraries. Books also include the language, publisher and content type, and articles the journal. `fast_download` says whether Anna's fast download servers have the file, which the download tools need, and `possible_issues` marks files the archive warns might be broken.
+
+Optional fields:
 
 | Field | Default | Meaning |
 | --- | --- | --- |
+| `title`, `author`, `publisher` | Any | A phrase that field must contain. With any of these or `year`, `query` can be left out. |
+| `year` | Any | Publication year, such as `2008`. |
+| `format` | Any | File extensions such as `epub`, `pdf`, `mobi`, `azw3` or `djvu`. |
+| `language` | Any | Language codes such as `en`. |
+| `content` | Any | `book_nonfiction`, `book_fiction`, `book_unknown`, `book_comic`, `magazine`, `standards_document`, `musical_score`, `audiobook` or `other`. |
+| `source` | Any | Source libraries such as `lgli` (Libgen.li), `lgrs` (Libgen.rs), `zlib`, `ia`, `scihub`, `nexusstc` or `upload`. An unknown one is an error that lists the valid ones. |
+| `sort` | Relevance | `newest` or `oldest` (publication year), `largest` or `smallest` (file size), `newest_added` or `oldest_added`, or `random`. |
+| `downloadable_only` | `false` | Only files the download tools can fetch: fast downloads, plus SciDB for `article_search`. |
+| `search_descriptions` | `false` | Also match `query` against descriptions and metadata comments. |
 | `limit` | 10 | Results to return from the page. Raise this before asking for another page. |
-| `page` | 1 | Result page. |
-| `language` | Any | Two-letter code such as `en`. |
-| `content` | Any | `book_fiction`, `book_nonfiction`, `book_unknown`, `book_comic`, `magazine` or `standards_document`. |
+| `page` | 1 | Result page. Anna's Archive pages hold 50 results. |
+
+`format`, `language`, `content` and `source` take comma-separated lists, and a leading `-` excludes a value: `"format": "epub,mobi"`, `"source": "-scihub"`.
+
+Every result in `results` matches all filters. `total` counts all matches (it is a lower bound when `total_is_lower_bound` is set), and `more_pages` says whether another page exists. When a first page has fewer results than `limit`, Anna's Archive suggests looser matches; these come back separately as `partial_matches` and may ignore the filters.
 
 Give `article_search` a DOI (`10.1038/nature14539`, `doi:…` or `https://doi.org/…`) to get that one article instead of a page of results.
 
+### Catalogs and details
+
+`metadata_search` searches catalog records from Open Library, WorldCat, ISBNdb, Goodreads, Google Books and other sources, including books that have no downloadable file. It takes the same `query`, `title`, `author`, `publisher`, `year`, `language`, `sort`, `limit` and `page` fields, and its `source` filter takes catalogs such as `ol`, `oclc`, `isbndb`, `goodreads` or `gbooks`. Each result has an `id` such as `isbndb:9780521879286`. Searching `book_search` for an ISBN it finds is a good way to find files of that edition.
+
+`book_details` takes a `hash` from either search tool or an `id` from `metadata_search` as its `id`, and returns the full record: ISBNs, DOI, OCLC, Open Library and other identifiers, the edition, the full description, subjects and Dewey/Library of Congress classes, alternative titles and authors, problems source libraries reported for the file (with a better copy's hash when the archive knows one), and download and quality counts.
+
 ### Downloading
 
-`book_download` takes the `hash` and a `title`. `article_download` takes either a `doi` or a `hash`, plus an optional `title`. Both return the saved file's `path` and size in `bytes`.
+`book_download` takes the `hash` and a `title`. `article_download` takes either a `doi` or a `hash`, plus an optional `title`. Both return the saved file's `path`, its size in `bytes`, and `downloads_left`: the account's remaining fast downloads.
 
 `title` becomes the filename. Pass `format` (such as `epub` or `pdf`) to set the extension; this doesn't convert the file, and without it the extension is detected from the download. An existing file is never overwritten: a name clash gets a short suffix.
 
-Files are checked against the archive's MD5 hash, and incomplete or corrupt downloads are deleted. When the fast download servers don't have a paper, `article_download` by DOI falls back to the PDF on Anna's SciDB page.
+Files are checked against the archive's MD5 hash, and incomplete or corrupt downloads are deleted. A download tries three fast servers, and when the file is stored in more than one collection and every server fails, up to two more collections. When the fast download servers don't have a paper, or the account has no fast downloads left, `article_download` by DOI falls back to the PDF on Anna's SciDB page.
+
+### Account status
+
+Each new file uses one fast download from your membership's allowance, which Anna's Archive counts over a rolling 18- or 24-hour window. Downloading a file again within that window is free. `account_status` returns `member`, `downloads_left`, `downloads_limit`, `window_hours` and your active `memberships`.
 
 ## Troubleshooting
 
@@ -193,9 +219,9 @@ Errors start with a code:
 | Code | What to do |
 | --- | --- |
 | `[CONFIG]` | A variable is missing or invalid, Anna's Archive rejected the secret key, or the download folder can't be written to. Check [Configuration](#configuration). |
-| `[UPSTREAM_BLOCKED]` | The archive refused access. Check that your membership allows searching. If signing in itself failed, see [Signing in](#signing-in). |
+| `[UPSTREAM_BLOCKED]` | The archive refused access. Check that your membership allows searching. If the error says no fast downloads are left, wait for the window to roll over; `account_status` shows the allowance. If signing in itself failed, see [Signing in](#signing-in). |
 | `[NOT_FOUND]` | Nothing matched, or that copy has no fast download. Try another query, or another copy from the search results. |
-| `[INVALID_ARGUMENT]` | Fix the hash, DOI, format, page, limit or timeout. |
+| `[INVALID_ARGUMENT]` | Fix the hash, DOI, id, filter, sort, page, limit or timeout. |
 | `[REQUEST_TIMEOUT]` | Retry, or raise `timeout_seconds`. |
 | `[UPSTREAM]` | The archive or a download server failed. Check your daily download quota and secret key, then retry. |
 
@@ -208,8 +234,12 @@ If the server doesn't start at all, run `npx -y annas-mcp --version` in a termin
 Every tool is also a command. Set the same variables (or put them in a `.env` file), then:
 
 ```bash
-npx -y annas-mcp book-search "pride and prejudice" --language en
+npx -y annas-mcp book-search "pride and prejudice" --language en --format epub
+npx -y annas-mcp book-search --author "Jane Austen" --year 1813 --sort oldest
 npx -y annas-mcp article-search 10.1038/nature14539
+npx -y annas-mcp metadata-search 9780141439518
+npx -y annas-mcp book-details <hash>
+npx -y annas-mcp account-status
 npx -y annas-mcp book-download <hash> "Pride and Prejudice.epub"
 npx -y annas-mcp article-download 10.1038/nature14539
 ```

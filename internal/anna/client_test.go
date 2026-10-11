@@ -38,9 +38,9 @@ func TestAutomaticMirrorDiscoveryIsLazyAndUsesInjectedTransport(t *testing.T) {
 	if calls.Load() != 0 {
 		t.Fatal("constructor contacted upstream")
 	}
-	books, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
-	if err != nil || len(books) != 0 {
-		t.Fatalf("search: %v %v", books, err)
+	page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+	if err != nil || len(page.Results) != 0 {
+		t.Fatalf("search: %v %v", page.Results, err)
 	}
 	if calls.Load() != 3 {
 		t.Fatalf("expected discovery, probe, search; got %d requests", calls.Load())

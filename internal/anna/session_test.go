@@ -66,8 +66,8 @@ func TestSignsInWithSecretKeyWhenNoCookieIsConfigured(t *testing.T) {
 	errs := make(chan error, 4)
 	for range 4 {
 		wg.Go(func() {
-			books, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
-			if err == nil && len(books) != 1 {
+			page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+			if err == nil && len(page.Results) != 1 {
 				err = errors.New("expected one book")
 			}
 			errs <- err

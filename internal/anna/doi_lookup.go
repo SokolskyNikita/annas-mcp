@@ -88,7 +88,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 		}
 		seenQueries[key] = struct{}{}
 		for _, index := range []string{"", "journals"} {
-			books, _, searchErr := c.search(ctx, query, SearchOptions{Index: index, Page: 1}, "")
+			results, searchErr := c.search(ctx, query, SearchOptions{Index: index, Page: 1}, "")
 			if searchErr != nil {
 				if ctx.Err() != nil {
 					return nil, ctx.Err()
@@ -96,7 +96,9 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 				noteFailure(searchErr)
 				continue
 			}
-			for _, book := range books {
+			// Partial matches are welcome here: each candidate must still
+			// agree on the title and carry the DOI on its record page.
+			for _, book := range results.books() {
 				if book == nil || book.Hash == "" {
 					continue
 				}

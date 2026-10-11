@@ -111,25 +111,43 @@ func (c *Client) requireArchiveAccess(ctx context.Context) error {
 	return nil
 }
 
-func (c *Client) FindBook(ctx context.Context, query string, options SearchOptions, timeout time.Duration) ([]*Book, error) {
+// FindBook returns one page of book search results.
+func (c *Client) FindBook(ctx context.Context, query string, options SearchOptions, timeout time.Duration) (SearchPage[*Book], error) {
 	ctx, cancel := operationContext(ctx, timeout)
 	defer cancel()
-	books, _, err := c.search(ctx, query, options, "")
-	return books, err
+	results, err := c.search(ctx, query, options, "")
+	if err != nil {
+		return SearchPage[*Book]{}, err
+	}
+	return filePage(results, func(book *Book) *Book { return book }), nil
 }
 
-func (c *Client) FindArticle(ctx context.Context, query string, options SearchOptions, timeout time.Duration) ([]*Paper, error) {
+// FindArticle returns one page of journal article search results.
+func (c *Client) FindArticle(ctx context.Context, query string, options SearchOptions, timeout time.Duration) (SearchPage[*Paper], error) {
 	ctx, cancel := operationContext(ctx, timeout)
 	defer cancel()
-	books, _, err := c.search(ctx, query, options, "journals")
+	results, err := c.search(ctx, query, options, "journals")
 	if err != nil {
-		return nil, err
+		return SearchPage[*Paper]{}, err
 	}
-	papers := make([]*Paper, 0, len(books))
-	for _, book := range books {
-		papers = append(papers, paperFromBook(book, book.DOI))
+	return filePage(results, func(book *Book) *Paper { return paperFromBook(book, book.DOI) }), nil
+}
+
+// FindMetadata searches catalog records, which describe books without
+// holding a file, such as Open Library, WorldCat and ISBNdb entries.
+func (c *Client) FindMetadata(ctx context.Context, query string, options SearchOptions, timeout time.Duration) (SearchPage[*MetadataRecord], error) {
+	ctx, cancel := operationContext(ctx, timeout)
+	defer cancel()
+	options.Index = "meta"
+	results, err := c.search(ctx, query, options, "")
+	if err != nil {
+		return SearchPage[*MetadataRecord]{}, err
 	}
-	return papers, nil
+	page := splitPage(results.cards,
+		func(card searchCard) bool { return card.prefix != "md5" },
+		func(card searchCard) *MetadataRecord { return metadataFromCard(card, results.pageURL) })
+	pageTotals(&page, results.doc, results.page)
+	return page, nil
 }
 
 func (c *Client) LookupDOI(ctx context.Context, doi string, timeout time.Duration) (*Paper, error) {

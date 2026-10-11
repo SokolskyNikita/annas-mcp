@@ -137,8 +137,11 @@
   <table>
     <thead><tr><th>Tool</th><th>What it does</th></tr></thead>
     <tbody>
-      <tr><td><code>book_search</code></td><td>Finds books, textbooks, manuals and standards by title, author or topic</td></tr>
-      <tr><td><code>article_search</code></td><td>Finds journal articles by keyword, or looks one up by DOI</td></tr>
+      <tr><td><code>book_search</code></td><td>Finds books, textbooks, manuals and standards by title, author or topic, filtered by format, language, source or year</td></tr>
+      <tr><td><code>article_search</code></td><td>Finds journal articles by keyword, author or year, or looks one up by DOI</td></tr>
+      <tr><td><code>metadata_search</code></td><td>Searches library catalogs such as Open Library, WorldCat and ISBNdb for editions and ISBNs</td></tr>
+      <tr><td><code>book_details</code></td><td>Shows a result's ISBNs and other identifiers, edition, description and reported file problems</td></tr>
+      <tr><td><code>account_status</code></td><td>Shows your membership and how many fast downloads are left</td></tr>
       <tr><td><code>book_download</code></td><td>Downloads a book using the hash from a search result</td></tr>
       <tr><td><code>article_download</code></td><td>Downloads an article by DOI or hash</td></tr>
     </tbody>
@@ -180,7 +183,7 @@ ANNAS_SECRET_KEY = "your-secret-key"</code></pre></div>
   <p>Then ask something like <em>"Find the EPUB of Pride and Prejudice and download it."</em> Files are saved to an <code>annas-archive</code> folder in your home folder; set <code>ANNAS_DOWNLOAD_PATH</code> to use another one. Docker, the command line and every option are in the <a href="https://github.com/SokolskyNikita/annas-mcp#readme">README</a>.</p>
 
   <h2>Coming from iosifache/annas-mcp?</h2>
-  <p>It has the same four tools and reads the same <code>ANNAS_SECRET_KEY</code>, <code>ANNAS_DOWNLOAD_PATH</code> and <code>ANNAS_BASE_URL</code> variables. Replace the path to the old binary with <code>npx -y annas-mcp</code>. Searches then run as your signed-in member account, so they aren't turned away with <code>403</code>. <a href="https://github.com/SokolskyNikita/annas-mcp#switching-from-iosifacheannas-mcp">What changes</a>.</p>
+  <p>It keeps the same four tools, adds three more, and reads the same <code>ANNAS_SECRET_KEY</code>, <code>ANNAS_DOWNLOAD_PATH</code> and <code>ANNAS_BASE_URL</code> variables. Replace the path to the old binary with <code>npx -y annas-mcp</code>. Searches then run as your signed-in member account, so they aren't turned away with <code>403</code>. <a href="https://github.com/SokolskyNikita/annas-mcp#switching-from-iosifacheannas-mcp">What changes</a>.</p>
 
   <footer>
     <p>annas-mcp is free and open source under the <a href="https://github.com/SokolskyNikita/annas-mcp/blob/main/LICENSE">MIT license</a>. It runs on your machine and has no telemetry. It is not affiliated with Anna's Archive. Use it only for material you are entitled to obtain, under the laws and terms that apply to you.</p>

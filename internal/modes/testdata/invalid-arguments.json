@@ -66,5 +66,104 @@
       "doi": "10.1000/example",
       "hash": "abc"
     }
+  },
+  {
+    "name": "unsupported sort",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "sort": "popular"
+    }
+  },
+  {
+    "name": "format with a space",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "format": "e pub"
+    }
+  },
+  {
+    "name": "one invalid language in a list",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "language": "en,English"
+    }
+  },
+  {
+    "name": "exclusion without a value",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "source": "lgli,-"
+    }
+  },
+  {
+    "name": "year with letters",
+    "tool": "book_search",
+    "arguments": {
+      "author": "Boldrin",
+      "year": "20o8"
+    }
+  },
+  {
+    "name": "no query and no fields",
+    "tool": "book_search",
+    "arguments": {
+      "format": "epub"
+    }
+  },
+  {
+    "name": "too many formats",
+    "tool": "book_search",
+    "arguments": {
+      "query": "example",
+      "format": "f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20"
+    }
+  },
+  {
+    "name": "article content typo",
+    "tool": "article_search",
+    "arguments": {
+      "query": "example",
+      "content": "journals"
+    }
+  },
+  {
+    "name": "metadata size sort",
+    "tool": "metadata_search",
+    "arguments": {
+      "query": "9780521879286",
+      "sort": "largest"
+    }
+  },
+  {
+    "name": "metadata without query",
+    "tool": "metadata_search",
+    "arguments": {
+      "language": "en"
+    }
+  },
+  {
+    "name": "details with a title",
+    "tool": "book_details",
+    "arguments": {
+      "id": "Against Intellectual Monopoly"
+    }
+  },
+  {
+    "name": "details with a short hash",
+    "tool": "book_details",
+    "arguments": {
+      "id": "md5:abc"
+    }
+  },
+  {
+    "name": "account status timeout too large",
+    "tool": "account_status",
+    "arguments": {
+      "timeout_seconds": 86401
+    }
   }
 ]

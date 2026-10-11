@@ -8,29 +8,53 @@ import (
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
-func (c *Client) search(ctx context.Context, query string, options SearchOptions, defaultContent string) ([]*Book, string, error) {
-	if strings.TrimSpace(query) == "" {
-		return nil, "", apperr.New(apperr.InvalidArgument, "search query is empty")
+// searchResults is one parsed results page.
+type searchResults struct {
+	cards   []searchCard
+	doc     *goquery.Document
+	pageURL string
+	page    int
+}
+
+func (c *Client) search(ctx context.Context, query string, options SearchOptions, defaultContent string) (searchResults, error) {
+	query = strings.TrimSpace(query)
+	if query == "" && len(options.Fields) == 0 {
+		return searchResults{}, apperr.New(apperr.InvalidArgument, "search query is empty")
 	}
 	if err := c.requireArchiveAccess(ctx); err != nil {
-		return nil, "", err
+		return searchResults{}, err
 	}
 	base, err := c.baseURLFor(ctx)
 	if err != nil {
-		return nil, "", err
+		return searchResults{}, err
 	}
 	options = ResolveSearch(options, defaultContent)
 	pageURL := buildSearchURL(base, query, options)
 	doc, _, err := c.fetchDocument(ctx, pageURL)
 	if err != nil {
-		return nil, pageURL, err
+		return searchResults{pageURL: pageURL}, err
 	}
-	books := parseBooks(doc, pageURL)
-	if len(books) == 0 && !isArchiveDocument(doc) {
+	cards := parseSearchCards(doc)
+	if len(cards) == 0 && !isArchiveDocument(doc) {
 		c.invalidateMirror(pageURL)
-		return nil, pageURL, apperr.New(apperr.UpstreamBlocked, "archive returned an unexpected page; check the mirror and account access")
+		return searchResults{pageURL: pageURL}, apperr.New(apperr.UpstreamBlocked, "archive returned an unexpected page; check the mirror and account access")
 	}
-	return books, pageURL, nil
+	if err := checkFacetFilter(doc, "src", "source", options.Source); err != nil {
+		return searchResults{pageURL: pageURL}, err
+	}
+	if err := checkFacetFilter(doc, "content", "content", options.Content); err != nil {
+		return searchResults{pageURL: pageURL}, err
+	}
+	return searchResults{cards: cards, doc: doc, pageURL: pageURL, page: options.Page}, nil
+}
+
+// filePage builds a page of file results, converting each card with convert.
+func filePage[T any](results searchResults, convert func(*Book) T) SearchPage[T] {
+	page := splitPage(results.cards,
+		func(card searchCard) bool { return card.prefix == "md5" },
+		func(card searchCard) T { return convert(bookFromCard(card, results.pageURL)) })
+	pageTotals(&page, results.doc, results.page)
+	return page
 }
 
 func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi, scidbURL, base string) (*Paper, error) {

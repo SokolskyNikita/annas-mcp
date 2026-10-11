@@ -3,9 +3,9 @@
   "manifest_version": "0.3",
   "name": "annas-mcp",
   "display_name": "Anna's Archive",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Search Anna's Archive for books and papers and download the file you pick.",
-  "long_description": "Search Anna's Archive for books, textbooks, manuals, standards and journal articles by title, author, topic or DOI, then download the copy you pick into a local folder. Requires an Anna's Archive membership: the server signs in with your account's secret key and renews the session by itself. On first run the bundle downloads the matching annas-mcp release binary from GitHub, verifies its SHA-256 checksum and caches it; the signed-in session is saved in the same cache folder.",
+  "long_description": "Search Anna's Archive for books, textbooks, manuals, standards and journal articles by title, author, topic or DOI, then download the copy you pick into a local folder. Filter by format, language, source or year, look up editions and ISBNs in library catalogs, check a file's identifiers and reported problems, and see how many fast downloads are left. Requires an Anna's Archive membership: the server signs in with your account's secret key and renews the session by itself. On first run the bundle downloads the matching annas-mcp release binary from GitHub, verifies its SHA-256 checksum and caches it; the signed-in session is saved in the same cache folder.",
   "author": {
     "name": "Nikita Sokolsky",
     "url": "https://github.com/SokolskyNikita"
@@ -36,11 +36,23 @@
   "tools": [
     {
       "name": "book_search",
-      "description": "Find books, textbooks, manuals and standards by title, author or topic"
+      "description": "Find books, textbooks, manuals and standards by title, author or topic, with filters for format, language, source, year and sort order"
     },
     {
       "name": "article_search",
-      "description": "Find journal articles by keyword, or look one up by DOI"
+      "description": "Find journal articles by keyword, author or year, or look one up by DOI"
+    },
+    {
+      "name": "metadata_search",
+      "description": "Search library catalogs such as Open Library, WorldCat and ISBNdb for editions and ISBNs"
+    },
+    {
+      "name": "book_details",
+      "description": "Show a search result's ISBNs and other identifiers, edition, description and reported file problems"
+    },
+    {
+      "name": "account_status",
+      "description": "Show the membership and how many fast downloads are left"
     },
     {
       "name": "book_download",

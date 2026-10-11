@@ -1,58 +1,124 @@
 package anna
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 // Book is one search hit. Its JSON field names are part of the MCP output.
+// FastDownload reports whether Anna's fast download servers have the file,
+// which book_download needs; PossibleIssues mirrors the archive's warning
+// that the file may be broken or mislabeled.
 type Book struct {
-	Title       string `json:"title"`
-	Authors     string `json:"authors"`
-	Publisher   string `json:"publisher"`
-	Language    string `json:"language"`
-	Format      string `json:"format"`
-	Size        string `json:"size"`
-	Hash        string `json:"hash"`
-	URL         string `json:"url"`
-	DOI         string `json:"doi,omitempty"`
-	Description string `json:"description,omitempty"`
+	Title          string   `json:"title"`
+	Authors        string   `json:"authors"`
+	Publisher      string   `json:"publisher"`
+	Language       string   `json:"language"`
+	Format         string   `json:"format"`
+	Size           string   `json:"size"`
+	Year           string   `json:"year,omitempty"`
+	Content        string   `json:"content,omitempty"`
+	Sources        []string `json:"sources,omitempty"`
+	FastDownload   bool     `json:"fast_download"`
+	PossibleIssues bool     `json:"possible_issues,omitempty"`
+	Hash           string   `json:"hash"`
+	URL            string   `json:"url"`
+	DOI            string   `json:"doi,omitempty"`
+	Description    string   `json:"description,omitempty"`
 }
 
 // Paper is a journal article found by DOI or keyword search. DownloadURL is
 // set when Anna's SciDB page embeds the PDF directly. It is a signed link
 // issued to the member session, so it is used internally and never output.
+// FastDownload is only known for search hits, so it is omitted when false.
 type Paper struct {
-	DOI         string `json:"doi,omitempty"`
-	Title       string `json:"title,omitempty"`
+	DOI            string   `json:"doi,omitempty"`
+	Title          string   `json:"title,omitempty"`
+	Authors        string   `json:"authors"`
+	Journal        string   `json:"journal"`
+	Year           string   `json:"year,omitempty"`
+	Format         string   `json:"format,omitempty"`
+	Size           string   `json:"size"`
+	Sources        []string `json:"sources,omitempty"`
+	FastDownload   bool     `json:"fast_download,omitempty"`
+	PossibleIssues bool     `json:"possible_issues,omitempty"`
+	Hash           string   `json:"hash,omitempty"`
+	Description    string   `json:"description,omitempty"`
+	DownloadURL    string   `json:"-"`
+	PageURL        string   `json:"page_url"`
+}
+
+// MetadataRecord is a catalog entry from a source such as Open Library,
+// WorldCat or ISBNdb. It describes a book but has no file of its own.
+type MetadataRecord struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
 	Authors     string `json:"authors"`
-	Journal     string `json:"journal"`
-	Format      string `json:"format,omitempty"`
-	Size        string `json:"size"`
-	Hash        string `json:"hash,omitempty"`
+	Publisher   string `json:"publisher"`
+	Language    string `json:"language"`
+	Year        string `json:"year,omitempty"`
 	Description string `json:"description,omitempty"`
-	DownloadURL string `json:"-"`
-	PageURL     string `json:"page_url"`
+	URL         string `json:"url"`
 }
 
 // fastDownloadResponse is the body of /dyn/api/fast_download.json. A failed
-// request sets Error and leaves DownloadURL null.
+// request sets Error and leaves DownloadURL null. AccountInfo is read before
+// the request is counted, so it does not yet include the download it allows.
 type fastDownloadResponse struct {
-	DownloadURL *string `json:"download_url"`
-	Error       string  `json:"error"`
+	DownloadURL *string               `json:"download_url"`
+	Error       string                `json:"error"`
+	AccountInfo *fastDownloadAccounts `json:"account_fast_download_info"`
 }
 
-// SearchOptions narrows one page of Anna's Archive results.
-// Index is an Anna search tab such as "journals". Content is a file-type filter
-// such as "book_nonfiction". book_any and journal are legacy values and are not sent.
+type fastDownloadAccounts struct {
+	DownloadsLeft          int      `json:"downloads_left"`
+	DownloadsPerDay        int      `json:"downloads_per_day"`
+	RecentlyDownloadedMD5s []string `json:"recently_downloaded_md5s"`
+}
+
+// SearchOptions narrows one page of Anna's Archive results. Index is an
+// Anna search tab such as "journals" or "meta". The list filters take
+// upstream values; a leading "-" excludes a value instead of requiring it.
+// book_any and journal are legacy Content values and are not sent.
 type SearchOptions struct {
-	Content  string
-	Language string
-	Index    string
-	Page     int
+	Index        string
+	Page         int
+	Sort         string
+	Content      []string
+	Language     []string
+	Format       []string
+	Source       []string
+	Access       []string
+	Fields       []SearchField
+	Descriptions bool
+}
+
+// SearchField limits one metadata field to a phrase. Name is an Anna field
+// such as title, author, publisher or year.
+type SearchField struct {
+	Name  string
+	Value string
+}
+
+// SearchPage is one page of results. Results honor every filter. Partial
+// holds the looser matches Anna's Archive adds to a short first page; they
+// may ignore the filters. Total counts all matches, and is only a lower
+// bound when TotalIsLowerBound is set.
+type SearchPage[T any] struct {
+	Results           []T
+	Partial           []T
+	Total             int
+	TotalIsLowerBound bool
+	MorePages         bool
 }
 
 // DownloadResult is the file written by a successful download.
+// DownloadsLeft is the account's remaining fast downloads afterwards, when
+// the file came from a fast download server.
 type DownloadResult struct {
-	Path  string `json:"path"`
-	Bytes int64  `json:"bytes"`
+	Path          string `json:"path"`
+	Bytes         int64  `json:"bytes"`
+	DownloadsLeft *int   `json:"downloads_left,omitempty"`
 }
 
 // ProgressFunc reports bytes written. total is 0 when the server omits Content-Length.
@@ -63,6 +129,8 @@ func (b *Book) String() string {
 	return labeled(
 		"Title", b.Title, "Authors", b.Authors, "Publisher", b.Publisher,
 		"Language", b.Language, "Format", b.Format, "Size", b.Size,
+		"Year", b.Year, "Content", b.Content, "Sources", strings.Join(b.Sources, ", "),
+		"Fast download", yesNo(b.FastDownload), "Possible issues", yesOrEmpty(b.PossibleIssues),
 		"URL", b.URL, "Hash", b.Hash,
 	)
 }
@@ -71,15 +139,86 @@ func (b *Book) String() string {
 func (p *Paper) String() string {
 	return labeled(
 		"DOI", p.DOI, "Title", p.Title, "Authors", p.Authors, "Journal", p.Journal,
-		"Size", p.Size, "Hash", p.Hash, "Page", p.PageURL,
+		"Year", p.Year, "Size", p.Size, "Possible issues", yesOrEmpty(p.PossibleIssues),
+		"Hash", p.Hash, "Page", p.PageURL,
 	)
 }
 
-// labeled formats label/value pairs as "Label: value" lines.
+// String renders the CLI's plain-text view of a catalog record.
+func (r *MetadataRecord) String() string {
+	return labeled(
+		"ID", r.ID, "Title", r.Title, "Authors", r.Authors, "Publisher", r.Publisher,
+		"Language", r.Language, "Year", r.Year, "URL", r.URL,
+	)
+}
+
+// String renders the CLI's plain-text view of a record's details.
+func (d *Details) String() string {
+	pairs := []string{
+		"ID", d.ID, "Title", d.Title, "Authors", d.Authors, "Publisher", d.Publisher,
+		"Edition", d.Edition, "Year", d.Year, "Languages", strings.Join(d.Languages, ", "),
+		"Content", d.Content, "Format", d.Format,
+	}
+	if d.SizeBytes > 0 {
+		pairs = append(pairs, "Size", strconv.FormatInt(d.SizeBytes, 10)+" bytes")
+	}
+	for _, identifier := range detailIdentifiers {
+		pairs = append(pairs, identifier.label, strings.Join(d.Identifiers[identifier.key], ", "))
+	}
+	for _, key := range detailClassifications {
+		pairs = append(pairs, strings.ToUpper(key), strings.Join(d.Classifications[key], ", "))
+	}
+	pairs = append(pairs, "Subjects", strings.Join(d.Subjects, "; "), "Sources", strings.Join(d.Sources, ", "))
+	if strings.HasPrefix(d.ID, "md5:") {
+		pairs = append(pairs, "Fast download", yesNo(d.FastDownload))
+	}
+	for _, problem := range d.Problems {
+		pairs = append(pairs, "Problem", problem.Description)
+	}
+	if d.Stats != nil {
+		pairs = append(pairs, "Downloads", strconv.Itoa(d.Stats.Downloads), "Great quality votes", strconv.Itoa(d.Stats.GreatQuality), "Issue reports", strconv.Itoa(d.Stats.Reports))
+	}
+	pairs = append(pairs, "Recently downloaded", yesOrEmpty(d.RecentlyDownloaded), "URL", d.URL, "Description", d.Description)
+	return labeled(pairs...)
+}
+
+// String renders the CLI's plain-text view of the account's membership.
+func (s *AccountStatus) String() string {
+	pairs := []string{"Member", yesNo(s.Member), "Fast downloads left", strconv.Itoa(s.DownloadsLeft)}
+	if s.DownloadsLimit > 0 {
+		limit := strconv.Itoa(s.DownloadsLimit)
+		if s.WindowHours > 0 {
+			limit += " per " + strconv.Itoa(s.WindowHours) + " hours"
+		}
+		pairs = append(pairs, "Fast download limit", limit)
+	}
+	for _, membership := range s.Memberships {
+		pairs = append(pairs, "Membership", membership)
+	}
+	return labeled(pairs...)
+}
+
+// labeled formats label/value pairs as "Label: value" lines, skipping empty values.
 func labeled(pairs ...string) string {
 	lines := make([]string, 0, len(pairs)/2)
 	for i := 0; i+1 < len(pairs); i += 2 {
-		lines = append(lines, pairs[i]+": "+pairs[i+1])
+		if pairs[i+1] != "" {
+			lines = append(lines, pairs[i]+": "+pairs[i+1])
+		}
 	}
 	return strings.Join(lines, "\n")
+}
+
+func yesNo(value bool) string {
+	if value {
+		return "yes"
+	}
+	return "no"
+}
+
+func yesOrEmpty(value bool) string {
+	if value {
+		return "yes"
+	}
+	return ""
 }

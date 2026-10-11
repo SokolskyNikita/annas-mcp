@@ -142,11 +142,11 @@ func TestParserHelpersNormalizeMetadataAndSnippets(t *testing.T) {
 	if got := snippet(text); len(got) > 480 || strings.Contains(got, "  ") {
 		t.Fatalf("snippet was not normalized: length=%d value=%q", len(got), got)
 	}
-	if language, format, size := extractMetaInformation("✅ English [en] · EPUB · 1.2MB · 2020"); language != "English" || format != "EPUB" || size != "1.2MB" {
-		t.Fatalf("metadata = %q, %q, %q", language, format, size)
+	if meta := parseCardMeta("✅ English [en] · EPUB · 1.2MB · 2020"); meta.language != "English" || meta.format != "EPUB" || meta.size != "1.2MB" || meta.year != "2020" {
+		t.Fatalf("metadata = %+v", meta)
 	}
-	if language, format, size := extractMetaInformation("unstructured metadata"); language != "" || format != "" || size != "" {
-		t.Fatalf("malformed metadata = %q, %q, %q", language, format, size)
+	if meta := parseCardMeta("unstructured metadata"); meta.language != "" || meta.format != "" || meta.size != "" || meta.sources != nil {
+		t.Fatalf("malformed metadata = %+v", meta)
 	}
 
 }

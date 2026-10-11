@@ -22,11 +22,11 @@ func TestMCPInitializationAndSchemasNeedNoUpstream(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(listed.Tools) != 4 {
+	if len(listed.Tools) != 7 {
 		t.Fatalf("got %d tools", len(listed.Tools))
 	}
 	for _, tool := range listed.Tools {
-		readOnly := strings.HasSuffix(tool.Name, "search")
+		readOnly := !strings.HasSuffix(tool.Name, "_download")
 		if tool.Annotations == nil || tool.Annotations.ReadOnlyHint != readOnly {
 			t.Fatalf("wrong annotations: %+v", tool)
 		}

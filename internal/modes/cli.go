@@ -88,7 +88,8 @@ func newRootCommand(factory serviceFactory) *cobra.Command {
 	root.PersistentFlags().DurationVar(&options.timeout, "timeout", 0, "Total operation timeout, including retries (default search: 60s; download: 30m; maximum: 24h)")
 	root.PersistentFlags().BoolVar(&options.json, "json", false, "Print structured JSON results")
 	root.AddCommand(
-		newSearchCommand(options, false), newSearchCommand(options, true),
+		newSearchCommand(options, false), newSearchCommand(options, true), newMetadataSearchCommand(options),
+		newBookDetailsCommand(options), newAccountStatusCommand(options),
 		newBookDownloadCommand(options), newArticleDownloadCommand(options),
 		&cobra.Command{Use: "mcp", Short: "Start the MCP server over stdin/stdout", Args: argumentCount(0, 0), RunE: func(cmd *cobra.Command, _ []string) error {
 			return runMCP(cmd.Context(), options.service, options.operationTimeout(anna.DefaultSearchTimeout), options.operationTimeout(anna.DefaultDownloadTimeout))

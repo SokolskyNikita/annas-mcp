@@ -1,0 +1,48 @@
+{
+  "id": "isbndb:9780521879286",
+  "file_unified_data": {
+    "title_best": "Against Intellectual Monopoly",
+    "title_additional": [],
+    "author_best": "Boldrin, Michele, Levine, David K.",
+    "author_additional": [],
+    "publisher_best": "Cambridge University Press",
+    "publisher_additional": [],
+    "edition_varia_best": "1, 2008",
+    "edition_varia_additional": [],
+    "year_best": "2008",
+    "year_additional": [],
+    "extension_best": "",
+    "filesize_best": 0,
+    "content_type_best": "book_unknown",
+    "stripped_description_best": "Patents and copyrights have become controversial.",
+    "language_codes": [
+      "en"
+    ],
+    "most_likely_language_codes": [
+      "en"
+    ],
+    "added_date_best": "2022-09-01",
+    "original_filename_best": "",
+    "has_aa_downloads": 0,
+    "has_scidb": 0,
+    "cover_url_best": "https://images.isbndb.com/covers/92/86/9780521879286.jpg",
+    "identifiers_unified": {
+      "isbn10": [
+        "0521879280"
+      ],
+      "isbn13": [
+        "9780521879286"
+      ]
+    },
+    "classifications_unified": {},
+    "problems": []
+  },
+  "search_only_fields": {
+    "search_record_sources": [
+      "isbndb"
+    ]
+  },
+  "additional": {
+    "path": "/isbndb/9780521879286"
+  }
+}
