@@ -136,6 +136,39 @@ jobs:
           done
           exit 1
 
+  # Smithery has no keyless publishing like npm and the MCP Registry, so this
+  # job needs the SMITHERY_API_KEY repository secret (see CONTRIBUTING.md).
+  # Re-running it publishes the same bundle again, which is harmless.
+  smithery:
+    name: Publish to Smithery
+    needs: [verify, bundle]
+    if: vars.PUBLISH_REGISTRIES == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Publish the MCP Bundle to Smithery
+        shell: bash
+        run: |
+          if [[ -z "$SMITHERY_API_KEY" ]]; then
+            echo "::error::Add the SMITHERY_API_KEY repository secret to publish to Smithery"
+            exit 1
+          fi
+          node scripts/publish-smithery.mjs
+        env:
+          SMITHERY_API_KEY: ${{ secrets.SMITHERY_API_KEY }}
+
   verify:
     name: Verify published release (${{ matrix.os }})
     needs: publish

@@ -39,7 +39,9 @@ The `npx` launcher always runs the latest published release, never your checkout
 | `internal/env`, `internal/apperr`, `internal/version` | Configuration, stable error codes, embedded version |
 | `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
 | `server.json`, `manifest.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery) and Glama |
-| `assets` | Icon (`icon.svg`, rendered to `icon.png` at 512×512) |
+| `Dockerfile` | Container image for `docker run -i` and Docker's MCP Catalog |
+| `assets` | Icon (`icon.svg`, rendered to `icon.png` at 512×512) and the GitHub social preview (`social-preview.svg`, rendered to `social-preview.png` at 1280×640) |
+| `docs` | Project website, served by GitHub Pages |
 | `plugin.json`, `mcp.json` | [Agent Plugins](https://agent-plugins.org) manifest for plugin directories such as cursor.directory. It carries no credentials; the server reads the `ANNAS_*` variables from its environment |
 | `scripts` | Test, health-check and release tooling |
 
@@ -55,7 +57,7 @@ npm test                # version, launcher and stdio integration tests
 npm run coverage        # Go race tests; requires 80% total coverage
 ```
 
-CI runs the same checks on Linux, macOS and Windows. It also lints the workflows with actionlint, syntax-checks the shell scripts and builds a GoReleaser snapshot.
+CI runs the same checks on Linux, macOS and Windows. It also lints the workflows with actionlint, syntax-checks the shell scripts, builds a GoReleaser snapshot and builds the Docker image, checking its MCP handshake with `scripts/check-docker.mjs`.
 
 ### Live tests
 
@@ -67,17 +69,15 @@ These use real credentials from your environment or `.env`.
 
 ## Releasing
 
-1. Set the new version in `internal/version/version.txt` (`vX.Y.Z`) and `package.json` (`X.Y.Z`), and add an entry to [CHANGELOG.md](CHANGELOG.md).
+1. Run `npm run bump patch` (or `minor`, `major` or an explicit `X.Y.Z`). It sets the version in `internal/version/version.txt`, `package.json`, `server.json` and `manifest.json`, and adds the release's heading to [CHANGELOG.md](CHANGELOG.md). Write the release notes under that heading.
 2. Run the checks above, `goreleaser check -f .goreleaser` and the live smoke test.
 3. Commit, push to `main` and wait for CI to pass.
 4. Run `scripts/manage-tag.sh add` to create and push the annotated tag.
-
-Step 1 also covers `server.json` (both `version` fields) and `manifest.json`; `npm run check:version` fails if any of them disagree.
 
 The tag triggers the release workflow. It builds the binaries, publishes them with SHA-256 checksums to GitHub Releases, attaches `annas-mcp.mcpb` (built by `npm run pack:mcpb`), then installs the release through the `npx` launcher on each platform and checks the MCP handshake and all four tools. `node scripts/verify-release.mjs vX.Y.Z` repeats that check locally.
 
 When the repository variable `PUBLISH_REGISTRIES` is `true`, the workflow then publishes the launcher to npm through npm trusted publishing and the new version to the [MCP Registry](https://registry.modelcontextprotocol.io) through GitHub OIDC. Neither needs a stored secret. The npm package holds only the launcher (`bin`, `lib`); binaries always come from GitHub Releases.
 
-After the release workflow finishes, run `npm run publish:smithery` to update the [Smithery](https://smithery.ai/servers/sokolx/annas-mcp) listing. It needs `zip` and a one-time `npx @smithery/cli auth login`; `--dry-run` builds the bundle without publishing.
+With the same variable set, the workflow also publishes the bundle to [Smithery](https://smithery.ai/servers/sokolx/annas-mcp) with `npm run publish:smithery`. Smithery has no keyless publishing, so that job needs the repository secret `SMITHERY_API_KEY`, an API key from your Smithery account. To publish by hand, run `npm run publish:smithery` after the release workflow finishes. It needs `zip` and a one-time `npx @smithery/cli auth login`; `--dry-run` builds the bundle without publishing.
 
 Never move or recreate a published tag: the launcher caches binaries by release and checksum.

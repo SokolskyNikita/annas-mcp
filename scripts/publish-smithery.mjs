@@ -6,7 +6,8 @@
 // forbids that field (smithery-ai/cli issue #806). So this downloads the
 // released annas-mcp.mcpb, asks that release's server for its tool schemas,
 // and publishes a copy whose manifest carries them. The release asset itself
-// stays valid MCPB. Requires `zip` and a prior `smithery auth login`.
+// stays valid MCPB. Requires `zip` and either a prior `smithery auth login`
+// or SMITHERY_API_KEY, which the release workflow sets.
 import { spawn, spawnSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -59,6 +60,7 @@ async function releasedToolSchemas() {
       ANNAS_ACCOUNT_COOKIE: "",
       ANNAS_SECRET_KEY: "",
       ANNAS_DOWNLOAD_PATH: "",
+      SMITHERY_API_KEY: "",
     },
     stdio: ["pipe", "pipe", "pipe"],
   });
