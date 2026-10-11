@@ -37,7 +37,11 @@ func TestMirrorSelectionIsLazyAndKeepsAWorkingMirror(t *testing.T) {
 			t.Error("missing cookie on archive request")
 		}
 		if req.URL.Path == "/dyn/up/" {
-			checks.Add(1)
+			// Checks of the losing mirrors may still be starting when the
+			// call returns, so only the winner's are counted.
+			if req.URL.Host == "annas-archive.gl" {
+				checks.Add(1)
+			}
 			return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.gl" })
 		}
 		searches.Add(1)
@@ -49,16 +53,15 @@ func TestMirrorSelectionIsLazyAndKeepsAWorkingMirror(t *testing.T) {
 	if page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err != nil || len(page.Results) != 0 {
 		t.Fatalf("search: %v %v", page.Results, err)
 	}
-	first := checks.Load()
-	if first < 1 || first > 3 || searches.Load() != 1 {
-		t.Fatalf("expected one round of checks and a search; got %d checks, %d searches", first, searches.Load())
+	if checks.Load() != 1 || searches.Load() != 1 {
+		t.Fatalf("expected one check and a search; got %d checks, %d searches", checks.Load(), searches.Load())
 	}
 	for range 3 {
 		if _, err := client.FindBook(context.Background(), "again", SearchOptions{}, time.Second); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if checks.Load() != first || searches.Load() != 4 {
+	if checks.Load() != 1 || searches.Load() != 4 {
 		t.Fatalf("a working mirror was checked again: %d checks", checks.Load())
 	}
 }

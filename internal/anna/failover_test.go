@@ -252,7 +252,11 @@ func TestMirrorHealthIsSharedWithTheNextRun(t *testing.T) {
 	var checks atomic.Int32
 	transport := roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		if req.URL.Path == "/dyn/up/" {
-			checks.Add(1)
+			// Checks of the losing mirrors may still be starting when a
+			// run returns, so only the winner's are counted.
+			if req.URL.Host == "annas-archive.pk" {
+				checks.Add(1)
+			}
 			return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.pk" })
 		}
 		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
@@ -264,12 +268,14 @@ func TestMirrorHealthIsSharedWithTheNextRun(t *testing.T) {
 		}
 	}
 	run()
-	first := checks.Load()
+	if checks.Load() != 1 {
+		t.Fatalf("first run checked the mirror %d times", checks.Load())
+	}
 	if _, err := os.Stat(filepath.Join(filepath.Dir(sessionFile), "mirrors.json")); err != nil {
 		t.Fatalf("mirror health was not saved: %v", err)
 	}
 	run()
-	if checks.Load() != first {
-		t.Fatalf("the next run checked again: %d checks", checks.Load()-first)
+	if checks.Load() != 1 {
+		t.Fatal("the next run checked the mirror again")
 	}
 }
