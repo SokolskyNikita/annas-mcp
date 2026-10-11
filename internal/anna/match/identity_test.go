@@ -70,8 +70,7 @@ func TestSameWorkAcceptsThePublishedVersionOfAnArxivPreprint(t *testing.T) {
 	doi := "10.48550/arXiv.1412.6980"
 	metadata := parse.Citation{DOI: doi, Title: "Adam: A Method for Stochastic Optimization", Authors: []string{"Diederik P. Kingma", "Jimmy Ba"}, Year: "2014"}
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(`<html><body>
-		<div class="font-bold text-violet-900" data-content="Adam: A method for stochastic optimization"></div>
-		<div class="text-amber-900" data-content="Kingma, Diederik P. (author); Ba, Jimmy Lei (author)"></div>
+		<div class="js-aarecord-list-fallback-cover"><div data-content="Adam: A method for stochastic optimization"></div><div data-content="Kingma, Diederik P. (author); Ba, Jimmy Lei (author)"></div></div>
 		<div class="js-md5-codes-container">
 			<a href="/search?q=doi:10.0000/2b5806fea0e2c0ff892275cc38f9477c">doi</a>
 			<a href="/search?q=year:2015">year</a>

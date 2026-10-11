@@ -15,20 +15,22 @@ const (
 	MaxResultPages = 100
 )
 
-// Search result cards share one layout for files and catalog records:
+// Search result cards share one layout for files and catalog records. Each
+// is a child of a results list:
 //
-//	<div class="flex [opacity-40] …">
-//	  <a href="/md5/<hash>" class="custom-a block …">cover</a>
-//	  <div class="max-w-full …">
-//	    <a href="/md5/<hash>">Title</a> <a href="/search?q=…"><span class="icon-[mdi--user-edit]"></span> Author</a>
+//	<div class="js-aarecord-list-outer">
+//	  <div class="flex [opacity-40] …">
+//	    <a href="/md5/<hash>" class="custom-a block …">cover</a>
+//	    <a href="/md5/<hash>" class="js-vim-focus …">Title</a>
+//	    <a href="/search?q=…"><span class="icon-[mdi--user-edit]"></span> Author</a>
 //	    <a href="/search?q=<publisher>"><span class="icon-[mdi--company]"></span> Publisher, edition</a>
-//	    <div class="… text-gray-600 …">Description</div>
+//	    <div>Description</div> <a class="js-aarecord-list-read-more">…</a>
 //	    <div class="text-gray-800 …">English [en] · EPUB · 3.8MB · 2008 · 📘 Book (non-fiction) · 🚀/lgli/zlib<a>Save</a>…</div>
 //	  </div>
 //	</div>
 //
-// opacity-40 marks a file Anna's Archive warns might have issues. Cards
-// inside .js-partial-matches-show are looser matches, which can ignore the
+// opacity-40 marks a file Anna's Archive warns might have issues. The list
+// inside .js-partial-matches-show holds looser matches, which can ignore the
 // page's filters.
 type Card struct {
 	// Prefix and ID name the record, as in /md5/<hash> or /isbndb/<isbn>.
@@ -56,47 +58,37 @@ var (
 )
 
 // SearchCards reads the result cards of a search page, partial matches
-// included, in page order. Cards without a record link or title are skipped.
+// included, in page order. A card is a child of a results list with a title
+// linking to a record; the list's scripts and ads are skipped.
 func SearchCards(doc *goquery.Document) []Card {
 	if doc == nil {
 		return nil
 	}
 	var cards []Card
-	doc.Find("a.custom-a.block[href]").Each(func(_ int, link *goquery.Selection) {
-		href, _ := link.Attr("href")
-		prefix, id, ok := RecordPath(href)
-		if !ok {
-			return
-		}
-		container := link.Parent()
-		info := container.Find("div.max-w-full").First()
-		if info.Length() == 0 {
-			return
-		}
-		title := ""
-		info.Find("a[href]").EachWithBreak(func(_ int, anchor *goquery.Selection) bool {
-			if target, _ := anchor.Attr("href"); target == href {
-				title = CleanText(anchor.Text())
-				return false
+	doc.Find(resultsListSelector).Each(func(_ int, list *goquery.Selection) {
+		partial := list.Closest(partialMatchesSelector).Length() > 0
+		list.Children().Each(func(_ int, card *goquery.Selection) {
+			link := card.Find(titleSelector).First()
+			href := link.AttrOr("href", "")
+			prefix, id, ok := RecordPath(href)
+			title := CleanText(link.Text())
+			if !ok || title == "" {
+				return
 			}
-			return true
-		})
-		if title == "" {
-			return
-		}
-		publisher, edition := publisherAndEdition(info.Find(publisherSelector).Parent())
-		cards = append(cards, Card{
-			Prefix:         prefix,
-			ID:             id,
-			Href:           href,
-			Title:          title,
-			Authors:        CleanAuthors(CleanText(info.Find(authorSelector).Parent().Text())),
-			Publisher:      publisher,
-			Edition:        edition,
-			Description:    Snippet(CleanText(info.Find(descriptionSelector).First().Text())),
-			Meta:           ParseCardMeta(ownText(info.Find("div.text-gray-800").First())),
-			PossibleIssues: hasClass(container, "opacity-40"),
-			Partial:        link.Closest(".js-partial-matches-show").Length() > 0,
+			publisher, edition := publisherAndEdition(card.Find(publisherSelector).First().Parent())
+			cards = append(cards, Card{
+				Prefix:         prefix,
+				ID:             id,
+				Href:           href,
+				Title:          title,
+				Authors:        CleanAuthors(CleanText(card.Find(authorSelector).First().Parent().Text())),
+				Publisher:      publisher,
+				Edition:        edition,
+				Description:    Snippet(CleanText(card.Find(descriptionLinkSelector).First().Prev().Text())),
+				Meta:           ParseCardMeta(ownText(card.Find(metadataLineSelector).First())),
+				PossibleIssues: hasClass(card, possibleIssuesClass),
+				Partial:        partial,
+			})
 		})
 	})
 	return cards
@@ -189,7 +181,8 @@ func resultsCount(doc *goquery.Document) resultsLine {
 	if doc == nil {
 		return line
 	}
-	doc.Find("div.uppercase").EachWithBreak(func(_ int, node *goquery.Selection) bool {
+	// The count stands just before the first results list's wrapper.
+	doc.Find(resultsListSelector).First().Parent().PrevAll().EachWithBreak(func(_ int, node *goquery.Selection) bool {
 		match := resultsTotalPattern.FindStringSubmatch(strings.TrimSpace(node.Text()))
 		if match == nil {
 			return true

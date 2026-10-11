@@ -266,9 +266,9 @@ func TestSearchNeedsAQueryOrAField(t *testing.T) {
 
 func TestSearchPageWithResultsItCannotReadIsAnError(t *testing.T) {
 	t.Parallel()
-	// Anna renamed the card classes: the count and the file links remain,
-	// but no card parses.
-	drifted := strings.ReplaceAll(fixtureText(t, "pages/search_filtered_partial.html.gz"), "custom-a block", "result-link")
+	// Anna renamed the hook on card titles: the count and the file links
+	// remain, but no card parses.
+	drifted := strings.ReplaceAll(fixtureText(t, "pages/search_filtered_partial.html.gz"), "js-vim-focus", "js-title")
 	for name, test := range map[string]struct {
 		page    string
 		pageNum int

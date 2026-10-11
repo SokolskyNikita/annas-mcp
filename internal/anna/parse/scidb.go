@@ -37,7 +37,7 @@ func SciDBFile(doc *goquery.Document, pageURL string) (downloadURL, hash string,
 			return
 		}
 		viewer := page.ResolveReference(ref)
-		if !sameOrigin(page, viewer) || viewer.User != nil || viewer.Path != "/pdfjs/web/viewer.html" {
+		if !sameOrigin(page, viewer) || viewer.User != nil || viewer.Path != viewerPath {
 			return
 		}
 		if file, ok := resolveFile(page, viewer.Query().Get("file")); ok {

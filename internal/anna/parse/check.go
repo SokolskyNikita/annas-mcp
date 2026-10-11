@@ -45,12 +45,14 @@ func CheckSearchPage(doc *goquery.Document, cards []Card) Report {
 		for _, part := range card.Meta.Unparsed {
 			report.Add(ProblemUnparsedMeta, part)
 		}
-		container := doc.Find("a.custom-a.block[href='" + card.Href + "']").First().Parent()
-		if strings.Contains(container.Text(), issuesLine) != card.PossibleIssues {
-			report.Add(ProblemIssueMismatch, card.Href)
-		}
 	}
-	doc.Find(".js-aarecord-list-outer a.custom-a.block[href]").Each(func(_ int, link *goquery.Selection) {
+	doc.Find(resultsListSelector).Children().Each(func(_ int, card *goquery.Selection) {
+		link := card.Find(titleSelector).First()
+		if link.Length() > 0 && strings.Contains(card.Text(), issuesLine) != hasClass(card, possibleIssuesClass) {
+			report.Add(ProblemIssueMismatch, link.AttrOr("href", ""))
+		}
+	})
+	doc.Find(resultsListSelector + " a[href]").Each(func(_ int, link *goquery.Selection) {
 		href := link.AttrOr("href", "")
 		if _, _, ok := RecordPath(href); ok && !read[href] {
 			read[href] = true
@@ -63,7 +65,7 @@ func CheckSearchPage(doc *goquery.Document, cards []Card) Report {
 		}
 	}
 	shown := 0
-	if button := doc.Find(".js-partial-matches-remove button").First(); button.Length() > 0 {
+	if button := doc.Find(partialButtonSelector).First(); button.Length() > 0 {
 		shown, _ = strconv.Atoi(firstNumber.FindString(button.Text()))
 	}
 	if shown != partial {

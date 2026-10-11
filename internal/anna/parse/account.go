@@ -30,8 +30,8 @@ func ParseAccountPage(doc *goquery.Document) AccountPage {
 	if doc == nil {
 		return page
 	}
-	page.SignedIn = doc.Find("a[href='/account/secret_key']").Length() > 0
-	doc.Find("a[href='/account/downloaded']").EachWithBreak(func(_ int, link *goquery.Selection) bool {
+	page.SignedIn = doc.Find(secretKeySelector).Length() > 0
+	doc.Find(downloadsSelector).EachWithBreak(func(_ int, link *goquery.Selection) bool {
 		line := link.Parent()
 		match := downloadsUsedPattern.FindStringSubmatch(line.Find("strong").First().Text())
 		if match == nil {
@@ -45,10 +45,10 @@ func ParseAccountPage(doc *goquery.Document) AccountPage {
 		return false
 	})
 	// Expired memberships stay listed with line-through.
-	doc.Find("a[href^='/donate?tier=']").Each(func(_ int, link *goquery.Selection) {
+	doc.Find(tierSelector).Each(func(_ int, link *goquery.Selection) {
 		line := link.Parent()
 		tier := strings.Join(strings.Fields(line.Find("strong").First().Text()), " ")
-		if tier == "" || hasClass(line, "line-through") {
+		if tier == "" || hasClass(line, expiredClass) {
 			return
 		}
 		text := strings.Join(strings.Fields(line.Clone().Find("a").Remove().End().Text()), " ")

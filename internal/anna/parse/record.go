@@ -31,36 +31,12 @@ func RecordIdentity(doc *goquery.Document) Identity {
 	identity.Title = recordTitle(doc)
 
 	var authorTexts []string
-	doc.Find("[data-content][class*=amber-900]").Each(func(_ int, node *goquery.Selection) {
-		if value := CleanText(attr(node, "data-content")); value != "" {
-			authorTexts = append(authorTexts, value)
-		}
-	})
-	if len(authorTexts) == 0 {
-		doc.Find("meta[name=citation_author], meta[name='DC.Creator']").Each(func(_ int, node *goquery.Selection) {
-			if value := strings.TrimSpace(node.AttrOr("content", "")); value != "" {
-				authorTexts = append(authorTexts, value)
-			}
-		})
-	}
-	if len(authorTexts) == 0 {
-		doc.Find(authorSelector).Each(func(_ int, node *goquery.Selection) {
-			if value := strings.TrimSpace(node.Parent().Text()); value != "" {
-				authorTexts = append(authorTexts, value)
-			}
-		})
+	if authors := CleanText(attr(doc.Find(fallbackCoverSelector).Eq(1), "data-content")); authors != "" {
+		authorTexts = append(authorTexts, authors)
 	}
 	identity.Authors = splitAuthors(authorTexts)
 
 	dois := make(map[string]struct{})
-	doc.Find("meta[name=citation_doi], meta[name='DC.Identifier.DOI'], meta[property='og:doi']").Each(func(_ int, node *goquery.Selection) {
-		if candidate := NormalizeDOI(node.AttrOr("content", "")); candidate != "" && !placeholderDOI(candidate) {
-			dois[strings.ToLower(candidate)] = struct{}{}
-			if identity.DOI == "" {
-				identity.DOI = candidate
-			}
-		}
-	})
 	for _, code := range archiveRecordCodes(doc) {
 		switch strings.ToLower(code.key) {
 		case "doi":
@@ -85,9 +61,6 @@ func RecordIdentity(doc *goquery.Document) Identity {
 	if identity.DOI != "" {
 		identity.DOI = NormalizeDOI(identity.DOI)
 	}
-	if identity.Year == "" {
-		identity.Year = archiveYear(doc)
-	}
 	return identity
 }
 
@@ -99,7 +72,7 @@ type archiveCode struct{ key, value string }
 // deliberately ignored.
 func archiveRecordCodes(doc *goquery.Document) []archiveCode {
 	var codes []archiveCode
-	doc.Find(".js-md5-codes-container a[href^='/search']").Each(func(_ int, node *goquery.Selection) {
+	doc.Find(codesSelector + " a[href^='/search']").Each(func(_ int, node *goquery.Selection) {
 		href := node.AttrOr("href", "")
 		parsed, err := url.Parse(href)
 		if err != nil {
@@ -119,36 +92,6 @@ func archiveRecordCodes(doc *goquery.Document) []archiveCode {
 // without a DOI. No DOI registrant has the code 0000.
 func placeholderDOI(doi string) bool {
 	return strings.HasPrefix(doi, "10.0000/")
-}
-
-func archiveYear(doc *goquery.Document) string {
-	var year string
-	doc.Find(".js-md5-codes-container [id^='md5-codes-panel-']").EachWithBreak(func(_ int, panel *goquery.Selection) bool {
-		text := strings.ToLower(strings.Join(strings.Fields(panel.Text()), " "))
-		if !strings.Contains(text, "year:") {
-			return true
-		}
-		panel.Find("span.bg-gray-200").EachWithBreak(func(_ int, value *goquery.Selection) bool {
-			year = yearValue(value.Text())
-			return year == ""
-		})
-		return year == ""
-	})
-	if year != "" {
-		return year
-	}
-	doc.Find("meta[name=citation_publication_date], meta[name=citation_date], meta[name='DC.Date']").EachWithBreak(func(_ int, node *goquery.Selection) bool {
-		year = yearValue(node.AttrOr("content", ""))
-		return year == ""
-	})
-	if year != "" {
-		return year
-	}
-	doc.Find("time[datetime]").EachWithBreak(func(_ int, node *goquery.Selection) bool {
-		year = yearValue(node.AttrOr("datetime", ""))
-		return year == ""
-	})
-	return year
 }
 
 func yearValue(value string) string {
@@ -183,25 +126,13 @@ func attr(node *goquery.Selection, name string) string {
 	return value
 }
 
-// recordTitle is the record's full title. The current record page provides
-// it in a data-content node; older title, meta and heading selectors remain
-// as fallbacks.
+// recordTitle is the record's full title, from its fallback cover, or from
+// the page's <title> when the cover has none.
 func recordTitle(doc *goquery.Document) string {
-	var title string
-	doc.Find("[data-content][class*=violet-900]").EachWithBreak(func(_ int, node *goquery.Selection) bool {
-		title = CleanText(attr(node, "data-content"))
-		return title == ""
-	})
-	if title == "" {
-		title = strings.TrimSpace(doc.Find("meta[name=citation_title], meta[property='og:title']").First().AttrOr("content", ""))
+	if title := CleanText(attr(doc.Find(fallbackCoverSelector).Eq(0), "data-content")); title != "" {
+		return title
 	}
-	if title == "" {
-		title = strings.TrimSpace(doc.Find("h1").First().Text())
-	}
-	if title == "" {
-		title = titleFromArchiveDocument(doc)
-	}
-	return title
+	return titleFromArchiveDocument(doc)
 }
 
 // RecordDetails is how a record page describes its file. The page's header
@@ -224,9 +155,9 @@ func ReadRecordDetails(doc *goquery.Document) RecordDetails {
 	publisher, edition := publisherAndEdition(doc.Find(publisherSelector).First().Parent())
 	return RecordDetails{
 		Title:     recordTitle(doc),
-		Authors:   CleanAuthors(CleanText(doc.Find(authorSelector).First().Parent().Text())),
+		Authors:   CleanAuthors(CleanText(attr(doc.Find(fallbackCoverSelector).Eq(1), "data-content"))),
 		Publisher: publisher,
 		Edition:   edition,
-		Meta:      ParseCardMeta(ownText(doc.Find("div.text-gray-800").First())),
+		Meta:      ParseCardMeta(ownText(doc.Find(metadataLineSelector).First())),
 	}
 }

@@ -58,7 +58,7 @@ func TestSearchCardsSkipsMalformedCards(t *testing.T) {
 	if cards := SearchCards(nil); cards != nil {
 		t.Fatalf("no page: %+v", cards)
 	}
-	noLink := htmlDocument(t, `<div><a class="custom-a block" href="https://other.example/md5/x"></a><div class="max-w-full"><a href="https://other.example/md5/x">Title</a></div></div>`)
+	noLink := htmlDocument(t, `<div class="js-aarecord-list-outer"><script>var x = 1;</script><div><a class="js-vim-focus" href="https://other.example/md5/x">Title</a></div><div><a class="js-vim-focus" href="/md5/x"></a></div></div>`)
 	if cards := SearchCards(noLink); len(cards) != 0 {
 		t.Fatalf("a card linking off the archive was read: %+v", cards)
 	}
@@ -104,6 +104,11 @@ func TestPublisherAndEdition(t *testing.T) {
 	}
 }
 
+// countPage is a page with count above its results list, as Anna's are.
+func countPage(count string) string {
+	return `<div>` + count + `</div><div><div class="js-aarecord-list-outer"></div></div>`
+}
+
 func TestResultsTotal(t *testing.T) {
 	t.Parallel()
 
@@ -112,11 +117,11 @@ func TestResultsTotal(t *testing.T) {
 		total             int
 		lowerBound, found bool
 	}{
-		{`<div class="uppercase">Results 1-50 (500+ total)</div>`, 500, true, true},
-		{`<div class="uppercase">Results 1-9 (9 total)</div>`, 9, false, true},
-		{`<div class="uppercase">Résultats 51–100 (76 au total)</div>`, 76, false, true},
-		{`<div class="uppercase">Results 1-50 (99999999999999999999 total)</div>`, 0, false, false},
-		{`<div class="uppercase">No files found</div>`, 0, false, false},
+		{countPage(`Results 1-50 (500+ total)`), 500, true, true},
+		{countPage(`Results 1-9 (9 total)`), 9, false, true},
+		{countPage(`Résultats 51–100 (76 au total)`), 76, false, true},
+		{countPage(`Results 1-50 (99999999999999999999 total)`), 0, false, false},
+		{countPage(`No files found`), 0, false, false},
 	} {
 		total, lowerBound, found := ResultsTotal(htmlDocument(t, tc.html))
 		if total != tc.total || lowerBound != tc.lowerBound || found != tc.found {
@@ -131,7 +136,7 @@ func TestResultsTotal(t *testing.T) {
 func TestShowsResults(t *testing.T) {
 	t.Parallel()
 
-	count := `<div class="uppercase">Results 1-50 (76 total)</div>`
+	count := countPage("Results 1-50 (76 total)")
 	if !ShowsResults(htmlDocument(t, count), 1) || !ShowsResults(htmlDocument(t, count), 2) {
 		t.Fatal("a count covering the page was missed")
 	}
