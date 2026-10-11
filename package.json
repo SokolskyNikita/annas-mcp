@@ -1,6 +1,6 @@
 {
   "name": "annas-mcp",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "license": "MIT",
   "description": "MCP server and CLI for Anna's Archive: search books, ebooks and journal articles by title, author or DOI, and download them",
   "mcpName": "io.github.SokolskyNikita/annas-mcp",

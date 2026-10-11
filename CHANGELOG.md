@@ -2,6 +2,19 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.6.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.0) - 2026-10-11
+
+- `book_search` and `metadata_search` results get an `edition` field. A result's publisher line reads "publisher, edition", and the whole line used to be returned as the publisher, so a record without a publisher reported "2019" or "2nd ed" as one. `publisher` now holds the publisher alone. Articles still report the whole line as `journal`.
+- Fix DOI lookup accepting a record that names a different paper's DOI whenever its title and authors matched. Anna now writes the identifier links on record pages as exact searches, and the quotes kept any DOI, arXiv id or year from being read there.
+- Clean up text from publishers' records. Titles, authors and descriptions that were HTML-escaped twice ("Trengove &amp; coll") are decoded. Formatting markup is removed: `<i>`, `<p>` and similar tags, Crossref's `jats:` tags, Wiley's `<scp>` and the `<title>` SPIE wraps paper titles in. Text such as "AT&T" or "Vector<T>" is left alone. Right-to-left marks in Hebrew titles and publishers no longer show up as escape codes; joiners that shape Bengali and Hindi letters are kept.
+- Drop more affiliations from author lists: ones after a short note such as "(Pandha, Hardev)", blocks holding an e-mail address, text after "Affiliation:", Scopus-style "Hamel, R.. Alzheimer Centre Limburg, …" lists, and short affiliations in full-width parentheses. Roles, notes and corporate authors stay.
+- DOI lookup folds the accents of any Latin letter when comparing author names, so "Gülşen Özdemir-Ağaoğlu" matches "Gulsen Ozdemir-Agaoglu"; marks that tell letters apart in other scripts are kept. A pasted DOI with repeated prefixes, such as `https://doi.org/doi:10.1000/x`, is accepted.
+- A paper found through SciDB reports its year, size, source libraries and `fast_download` from its record page, with the whole publisher line as `journal`, the way search results do. The journal used to come out as a year or the publisher alone, and the size was missing.
+- A page past the last result reports no more pages and a total of at least 0, instead of a total guessed from the page number.
+- `ANNAS_BASE_URL` refuses a language version of an official mirror, such as `es.annas-archive.gl`, with a `[CONFIG]` error naming the mirror to use. The server reads Anna's pages in English.
+- Read Anna's pages through the hooks its own scripts use instead of styling classes, so a restyling no longer breaks search results or record pages. When part of a page can't be read, the server logs one short warning, without search terms or account details, and returns what it read.
+- For contributors: the parsers live in `internal/anna/parse` and DOI matching in `internal/anna/match`, each with 95% test coverage. They are tested on pages captured from the live archive, including searches in ten languages besides English, on about 11,600 strings from real search cards, and with fuzz tests. `npm run check:upstream`, and a weekly workflow that opens an issue, flag changes to Anna's Archive's source that the parsers depend on. Test data lives in files rather than in Go source.
+
 ## [v0.5.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.5.0) - 2026-10-11
 
 - Pick mirrors without SLUM (open-slum.org). The server checks the official mirrors itself, all at once on Anna's small `/dyn/up/` endpoint, and keeps using one for as long as it works. `ANNAS_BASE_URL` is now the mirror tried first, with the official mirrors standing in for it while it fails; before, it was only used, unchecked, when automatic selection failed.
