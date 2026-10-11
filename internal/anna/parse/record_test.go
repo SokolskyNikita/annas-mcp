@@ -2,27 +2,13 @@ package parse
 
 import (
 	"reflect"
-	"strings"
 	"testing"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 func TestRecordIdentityUsesRecordFieldsNotCitations(t *testing.T) {
 	t.Parallel()
 
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(`<!doctype html>
-		<title>Attention Is All You Need - Anna’s Archive</title>
-		<meta name="description" content="A citation to 10.9999/unrelated">
-		<a href="/search?q=doi%3A10.9999%2Funrelated">citation DOI</a>
-		<div class="js-aarecord-list-fallback-cover"><div data-content="Attention Is All You Need"></div><div data-content="Ashish Vaswani, Noam Shazeer"></div></div>
-		<div class="js-md5-codes-container hidden">
-			<div id="md5-codes-panel-year"><span>Year:</span><span class="bg-gray-200">2017</span>
-				<a href="/search?q=year%3A2017">Search year</a></div>
-		</div>`))
-	if err != nil {
-		t.Fatal(err)
-	}
+	doc := snippetDocument(t, "record_citation_mention.html")
 
 	identity := RecordIdentity(doc)
 	if identity.Title != "Attention Is All You Need" {
@@ -39,27 +25,26 @@ func TestRecordIdentityUsesRecordFieldsNotCitations(t *testing.T) {
 	}
 }
 
+// recordCases are the record page parts in testdata/cases/record.json.
+type recordCases struct {
+	Comment string
+	DOIs    []struct {
+		Name, HTML, DOI string
+		Conflict        bool
+	}
+	Years []struct{ In, Want string }
+}
+
 func TestRecordIdentityReadsStructuredDOIAndDetectsConflict(t *testing.T) {
 	t.Parallel()
 
-	for _, test := range []struct {
-		name         string
-		codes        string
-		wantDOI      string
-		wantConflict bool
-	}{
-		{name: "one DOI", codes: `<a href="/search?q=doi%3A10.1000%2Frecord">DOI</a>`, wantDOI: "10.1000/record"},
-		{name: "exact search link", codes: `<a href='/search?q="doi:10.1000/record"'>DOI</a>`, wantDOI: "10.1000/record"},
-		{name: "conflicting DOI fields", codes: `<a href="/search?q=doi%3A10.1000%2Frecord">DOI</a><a href="/search?q=doi%3A10.1000%2Fother">DOI</a>`, wantDOI: "10.1000/record", wantConflict: true},
-	} {
-		t.Run(test.name, func(t *testing.T) {
-			doc, err := goquery.NewDocumentFromReader(strings.NewReader(`<div class="js-md5-codes-container">` + test.codes + `</div>`))
-			if err != nil {
-				t.Fatal(err)
-			}
-			identity := RecordIdentity(doc)
-			if identity.DOI != test.wantDOI || identity.DOIConflict != test.wantConflict {
-				t.Fatalf("identity = %+v, want DOI %q conflict %v", identity, test.wantDOI, test.wantConflict)
+	var cases recordCases
+	loadCases(t, "record", &cases)
+	for _, test := range cases.DOIs {
+		t.Run(test.Name, func(t *testing.T) {
+			identity := RecordIdentity(htmlDocument(t, test.HTML))
+			if identity.DOI != test.DOI || identity.DOIConflict != test.Conflict {
+				t.Fatalf("identity = %+v, want DOI %q conflict %v", identity, test.DOI, test.Conflict)
 			}
 		})
 	}
@@ -68,9 +53,11 @@ func TestRecordIdentityReadsStructuredDOIAndDetectsConflict(t *testing.T) {
 func TestYearValue(t *testing.T) {
 	t.Parallel()
 
-	for value, want := range map[string]string{"2017": "2017", " 2017-06-12 ": "2017", "17": "", "3000": "", "20a7": "", "": ""} {
-		if got := yearValue(value); got != want {
-			t.Errorf("yearValue(%q) = %q, want %q", value, got, want)
+	var cases recordCases
+	loadCases(t, "record", &cases)
+	for _, tc := range cases.Years {
+		if got := yearValue(tc.In); got != tc.Want {
+			t.Errorf("yearValue(%q) = %q, want %q", tc.In, got, tc.Want)
 		}
 	}
 }
@@ -100,18 +87,14 @@ func TestRecordIdentityReadsOnlyTheRecordsOwnParts(t *testing.T) {
 	}
 	// Anna emits no citation meta tags, and its only <h1> is the site's
 	// name; neither is read as the record's.
-	ignored := RecordIdentity(htmlDocument(t, `<title>Page Title - Anna’s Archive</title><h1>Anna’s Archive</h1>
-		<meta name="citation_title" content="Meta Title"><meta name="citation_author" content="A Author"><meta name="citation_doi" content="10.1000/meta">`))
+	ignored := RecordIdentity(snippetDocument(t, "record_citation_tags.html"))
 	if ignored.Title != "Page Title" || ignored.Authors != nil || ignored.DOI != "" {
 		t.Fatalf("read parts that are not the record's: %+v", ignored)
 	}
-	if untitled := RecordIdentity(htmlDocument(t, `<title>Anna’s Archive</title><h1>Anna’s Archive</h1>`)); untitled.Title != "" {
+	if untitled := RecordIdentity(snippetDocument(t, "record_site_name.html")); untitled.Title != "" {
 		t.Fatalf("the site's name was read as the title: %+v", untitled)
 	}
-	codes := RecordIdentity(htmlDocument(t, `<div class="js-md5-codes-container">
-		<a href='/search?q="arxiv:1706.03762v2"'>arxiv</a><a href='/search?q="year:2017"'>year</a>
-		<a href="/search?q=%zz">bad</a><a href="/search?q=nokey">bad</a><a href="/search?q=doi:">empty</a>
-		<a href='/search?q="doi:10.0000/0123456789abcdef0123456789abcdef"'>placeholder</a></div>`))
+	codes := RecordIdentity(snippetDocument(t, "record_codes.html"))
 	if codes.ArxivID != "1706.03762" || codes.Year != "2017" || codes.DOI != "" {
 		t.Fatalf("codes: %+v", codes)
 	}

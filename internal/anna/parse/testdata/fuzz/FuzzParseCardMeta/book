@@ -1,0 +1,2 @@
+go test fuzz v1
+string("English [en] · EPUB · 3.8MB · 2008 · 📘 Book (non-fiction) · 🚀/lgli/zlib")

@@ -5,20 +5,36 @@ import (
 	"testing"
 )
 
+type doiCases struct {
+	Comment string
+	Queries []struct {
+		Query string
+		DOI   bool
+	}
+	Suffixes         []string
+	Wrapped          []string
+	RepeatedPrefixes []string `json:"repeated_prefixes"`
+	Valid            []struct {
+		DOI   string
+		Valid bool
+	}
+	ArxivIDs           []struct{ DOI, Want string } `json:"arxiv_ids"`
+	NormalizedArxivIDs []struct{ In, Want string }  `json:"normalized_arxiv_ids"`
+}
+
+func loadDOICases(t *testing.T) doiCases {
+	t.Helper()
+	var cases doiCases
+	loadCases(t, "doi", &cases)
+	return cases
+}
+
 func TestIsDOIQueryRecognizesDOIForms(t *testing.T) {
 	t.Parallel()
 
-	tests := map[string]bool{
-		"10.1000/example":                          true,
-		" DOI:10.1000/example ":                    true,
-		"https://doi.org/10.1000/example":          true,
-		"https://dx.doi.org/10.1000/example":       true,
-		"attention is all you need":                false,
-		"doi.org/10.1000/example without protocol": false,
-	}
-	for query, want := range tests {
-		if got := IsDOIQuery(query); got != want {
-			t.Errorf("IsDOIQuery(%q) = %v, want %v", query, got, want)
+	for _, tc := range loadDOICases(t).Queries {
+		if got := IsDOIQuery(tc.Query); got != tc.DOI {
+			t.Errorf("IsDOIQuery(%q) = %v, want %v", tc.Query, got, tc.DOI)
 		}
 	}
 }
@@ -26,10 +42,11 @@ func TestIsDOIQueryRecognizesDOIForms(t *testing.T) {
 func TestNormalizeDOIPreservesSuffixPunctuation(t *testing.T) {
 	t.Parallel()
 
+	cases := loadDOICases(t)
 	if got := NormalizeDOI("https://doi.org/10.1000%2Fexample?utm_source=test#fragment"); got != "10.1000/example" {
 		t.Fatalf("DOI URL was not decoded/cleaned: %q", got)
 	}
-	for _, suffix := range []string{"(02)", "(02).", ").", ".", ",", ";", ":", "]", "}", ">", "'", "\"", "?", "#"} {
+	for _, suffix := range cases.Suffixes {
 		want := "10.1000/example" + suffix
 		for _, input := range []string{want + " ", "doi: " + want, "https://doi.org/" + url.PathEscape(want)} {
 			got, valid := ParseDOI(input)
@@ -38,7 +55,7 @@ func TestNormalizeDOIPreservesSuffixPunctuation(t *testing.T) {
 			}
 		}
 	}
-	for _, input := range []string{"<https://doi.org/10.1000/example(02)>", "\"10.1000/example(02)\"", "doi: <10.1000/example(02)>", "(10.1000/example(02))", "doi: https://doi.org/10.1000/example(02)"} {
+	for _, input := range cases.Wrapped {
 		got, valid := ParseDOI(input)
 		if got != "10.1000/example(02)" || !valid || !IsDOIQuery(input) {
 			t.Errorf("enclosing DOI wrapper was not recognized: input=%q got=%q valid=%v", input, got, valid)
@@ -49,19 +66,9 @@ func TestNormalizeDOIPreservesSuffixPunctuation(t *testing.T) {
 func TestArxivIDRequiresCanonicalDOIPrefixAndPreservesSuffix(t *testing.T) {
 	t.Parallel()
 
-	for _, test := range []struct {
-		doi, want string
-	}{
-		{"10.48550/arXiv.1706.03762", "1706.03762"},
-		{"https://doi.org/10.48550/arXiv.1706.03762v3", "1706.03762"},
-		{"10.48550/arXiv.1706.03762.", "1706.03762."},
-		{"10.1234/example.arxiv.1706.03762", ""},
-		{"10.48550/other.1706.03762", ""},
-		{"prefix-10.48550/arxiv.1706.03762", ""},
-		{"10.48550/arxiv.", ""},
-	} {
-		if got := ArxivID(test.doi); got != test.want {
-			t.Errorf("arxivID(%q) = %q, want %q", test.doi, got, test.want)
+	for _, tc := range loadDOICases(t).ArxivIDs {
+		if got := ArxivID(tc.DOI); got != tc.Want {
+			t.Errorf("ArxivID(%q) = %q, want %q", tc.DOI, got, tc.Want)
 		}
 	}
 }
@@ -69,14 +76,9 @@ func TestArxivIDRequiresCanonicalDOIPrefixAndPreservesSuffix(t *testing.T) {
 func TestNormalizeArxivIDStripsOnlyExplicitNumericVersion(t *testing.T) {
 	t.Parallel()
 
-	for input, want := range map[string]string{
-		"arxiv:1706.03762v2":       "1706.03762",
-		"1706.03762.":              "1706.03762.",
-		"notarxiv.1706.03762":      "notarxiv.1706.03762",
-		"10.1234/arxiv.1706.03762": "10.1234/arxiv.1706.03762",
-	} {
-		if got := NormalizeArxivID(input); got != want {
-			t.Errorf("normalizeArxivID(%q) = %q, want %q", input, got, want)
+	for _, tc := range loadDOICases(t).NormalizedArxivIDs {
+		if got := NormalizeArxivID(tc.In); got != tc.Want {
+			t.Errorf("NormalizeArxivID(%q) = %q, want %q", tc.In, got, tc.Want)
 		}
 	}
 }
@@ -84,12 +86,9 @@ func TestNormalizeArxivIDStripsOnlyExplicitNumericVersion(t *testing.T) {
 func TestValidDOI(t *testing.T) {
 	t.Parallel()
 
-	for doi, want := range map[string]bool{
-		"10.1000/example": true, "10.48550/arXiv.1706.03762": true, "10.123/short-registrant": false,
-		"10.1000/": false, "11.1000/x": false, "10.1000/with space": false, "": false,
-	} {
-		if got := ValidDOI(doi); got != want {
-			t.Errorf("ValidDOI(%q) = %v, want %v", doi, got, want)
+	for _, tc := range loadDOICases(t).Valid {
+		if got := ValidDOI(tc.DOI); got != tc.Valid {
+			t.Errorf("ValidDOI(%q) = %v, want %v", tc.DOI, got, tc.Valid)
 		}
 	}
 	// A DOI URL that does not parse still loses its prefix.
@@ -104,7 +103,7 @@ func TestValidDOI(t *testing.T) {
 func TestNormalizeDOIRemovesRepeatedPrefixes(t *testing.T) {
 	t.Parallel()
 
-	for _, input := range []string{"doi:doi:10.1000/x", "https://doi.org/doi:10.1000/x", "<https://doi.org/https://dx.doi.org/10.1000/x>"} {
+	for _, input := range loadDOICases(t).RepeatedPrefixes {
 		if doi, valid := ParseDOI(input); doi != "10.1000/x" || !valid {
 			t.Errorf("ParseDOI(%q) = %q, %v", input, doi, valid)
 		}

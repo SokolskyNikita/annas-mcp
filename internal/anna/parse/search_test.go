@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 func TestSearchCardsOnCapturedPages(t *testing.T) {
@@ -58,27 +60,46 @@ func TestSearchCardsSkipsMalformedCards(t *testing.T) {
 	if cards := SearchCards(nil); cards != nil {
 		t.Fatalf("no page: %+v", cards)
 	}
-	noLink := htmlDocument(t, `<div class="js-aarecord-list-outer"><script>var x = 1;</script><div><a class="js-vim-focus" href="https://other.example/md5/x">Title</a></div><div><a class="js-vim-focus" href="/md5/x"></a></div></div>`)
+	noLink := snippetDocument(t, "cards_off_archive.html")
 	if cards := SearchCards(noLink); len(cards) != 0 {
 		t.Fatalf("a card linking off the archive was read: %+v", cards)
 	}
 }
 
+// searchCases are the parts of search pages in testdata/cases/search.json.
+type searchCases struct {
+	Comment     string
+	RecordPaths struct {
+		Valid   []struct{ Href, Prefix, ID string }
+		Invalid []string
+	} `json:"record_paths"`
+	PublisherLinks []struct{ Link, Publisher, Edition string } `json:"publisher_links"`
+	ResultCounts   []struct {
+		Count      string
+		Total      int
+		LowerBound bool `json:"lower_bound"`
+		Found      bool
+	} `json:"result_counts"`
+}
+
+func loadSearchCases(t *testing.T) searchCases {
+	t.Helper()
+	var cases searchCases
+	loadCases(t, "search", &cases)
+	return cases
+}
+
 func TestRecordPath(t *testing.T) {
 	t.Parallel()
 
-	for href, want := range map[string][2]string{
-		"/md5/0123":              {"md5", "0123"},
-		"/isbndb/9780521879286/": {"isbndb", "9780521879286"},
-		"/doi/10.1000/x":         {"doi", "10.1000/x"},
-		"/ol/OL1M?x=1":           {"ol", "OL1M"},
-	} {
-		prefix, id, ok := RecordPath(href)
-		if !ok || prefix != want[0] || id != want[1] {
-			t.Errorf("RecordPath(%q) = %q, %q, %v", href, prefix, id, ok)
+	paths := loadSearchCases(t).RecordPaths
+	for _, tc := range paths.Valid {
+		prefix, id, ok := RecordPath(tc.Href)
+		if !ok || prefix != tc.Prefix || id != tc.ID {
+			t.Errorf("RecordPath(%q) = %q, %q, %v", tc.Href, prefix, id, ok)
 		}
 	}
-	for _, href := range []string{"https://annas.test/md5/x", "//annas.test/md5/x", "md5/x", "/md5/", "/md5", "/MD5/x", "/1x/y", "%zz"} {
+	for _, href := range paths.Invalid {
 		if _, _, ok := RecordPath(href); ok {
 			t.Errorf("RecordPath(%q) accepted", href)
 		}
@@ -88,47 +109,28 @@ func TestRecordPath(t *testing.T) {
 func TestPublisherAndEdition(t *testing.T) {
 	t.Parallel()
 
-	for _, tc := range []struct{ link, publisher, edition string }{
-		{`<a href="/search?q=MIT Press">MIT Press, 2nd, 2019</a>`, "MIT Press", "2nd, 2019"},
-		{`<a href="/search?q=">2019</a>`, "", "2019"},
-		{`<a href="/search?q=Simon &amp; Schuster">Simon &amp; Schuster</a>`, "Simon & Schuster", ""},
-		{`<a href="/search?q=Cambridge%20University%20Press">Cambridge University Press, 2008</a>`, "Cambridge University Press", "2008"},
-		{`<a href="/search?q=Other">Cambridge University Press, 2008</a>`, "Cambridge University Press, 2008", ""},
-		{`<a href="/elsewhere">Press, 2008</a>`, "Press, 2008", ""},
-		{`<a href="/search?q=Press"></a>`, "", ""},
-	} {
-		link := htmlDocument(t, tc.link).Find("a")
+	for _, tc := range loadSearchCases(t).PublisherLinks {
+		link := htmlDocument(t, tc.Link).Find("a")
 		publisher, edition := publisherAndEdition(link.Text(), link.AttrOr("href", ""))
-		if publisher != tc.publisher || edition != tc.edition {
-			t.Errorf("%s: %q, %q; want %q, %q", tc.link, publisher, edition, tc.publisher, tc.edition)
+		if publisher != tc.Publisher || edition != tc.Edition {
+			t.Errorf("%s: %q, %q; want %q, %q", tc.Link, publisher, edition, tc.Publisher, tc.Edition)
 		}
 	}
 }
 
 // countPage is a page with count above its results list, as Anna's are.
-func countPage(count string) string {
-	return `<div>` + count + `</div><div><div class="js-aarecord-list-outer"></div></div>`
+func countPage(t *testing.T, count string) *goquery.Document {
+	t.Helper()
+	return htmlDocument(t, strings.ReplaceAll(snippet(t, "count_page.html"), "{{COUNT}}", count))
 }
 
 func TestResultsTotal(t *testing.T) {
 	t.Parallel()
 
-	for _, tc := range []struct {
-		html              string
-		total             int
-		lowerBound, found bool
-	}{
-		{countPage(`Results 1-50 (500+ total)`), 500, true, true},
-		{countPage(`Results 1-9 (9 total)`), 9, false, true},
-		{countPage(`Results 4,951–5,000 (5,000+ total)`), 5000, true, true},
-		// Pages are read in English: a translated count is not one.
-		{countPage(`Résultats 51-100 (76 au total)`), 0, false, false},
-		{countPage(`Results 1-50 (99999999999999999999 total)`), 0, false, false},
-		{countPage(`No files found`), 0, false, false},
-	} {
-		total, lowerBound, found := ResultsTotal(htmlDocument(t, tc.html))
-		if total != tc.total || lowerBound != tc.lowerBound || found != tc.found {
-			t.Errorf("%s: %d %v %v", tc.html, total, lowerBound, found)
+	for _, tc := range loadSearchCases(t).ResultCounts {
+		total, lowerBound, found := ResultsTotal(countPage(t, tc.Count))
+		if total != tc.Total || lowerBound != tc.LowerBound || found != tc.Found {
+			t.Errorf("%s: %d %v %v", tc.Count, total, lowerBound, found)
 		}
 	}
 	if _, _, found := ResultsTotal(nil); found {
@@ -139,14 +141,14 @@ func TestResultsTotal(t *testing.T) {
 func TestShowsResults(t *testing.T) {
 	t.Parallel()
 
-	count := countPage("Results 1-50 (76 total)")
-	if !ShowsResults(htmlDocument(t, count), 1) || !ShowsResults(htmlDocument(t, count), 2) {
+	count := countPage(t, "Results 1-50 (76 total)")
+	if !ShowsResults(count, 1) || !ShowsResults(count, 2) {
 		t.Fatal("a count covering the page was missed")
 	}
-	if ShowsResults(htmlDocument(t, count), 3) {
+	if ShowsResults(count, 3) {
 		t.Fatal("a count that ends before the page was read as results")
 	}
-	if !ShowsResults(htmlDocument(t, `<a href="/md5/x">file</a>`), 1) {
+	if !ShowsResults(snippetDocument(t, "file_link.html"), 1) {
 		t.Fatal("links to files were missed")
 	}
 	if ShowsResults(pageDocument(t, "search_empty.html.gz"), 1) || ShowsResults(nil, 1) {
@@ -157,7 +159,7 @@ func TestShowsResults(t *testing.T) {
 func TestFacetValues(t *testing.T) {
 	t.Parallel()
 
-	doc := htmlDocument(t, `<input name="src" value="lgli"><input name="src" value="anti__lgli"><input name="src" value="lgli"><input name="src" value=""><input name="src" value="zlib"><input name="lang" value="en">`)
+	doc := snippetDocument(t, "facet_inputs.html")
 	if got := FacetValues(doc, "src"); !reflect.DeepEqual(got, []string{"lgli", "zlib"}) {
 		t.Fatalf("FacetValues = %v", got)
 	}

@@ -1,0 +1,16 @@
+{
+  "comment": "Record pages. dois: identifier panels and the DOI RecordIdentity reads from them, flagging a conflict when the record names two. years: values and the year yearValue reads from each.",
+  "dois": [
+    {"name": "one DOI", "html": "<div class=\"js-md5-codes-container\"><a href=\"/search?q=doi%3A10.1000%2Frecord\">DOI</a></div>", "doi": "10.1000/record"},
+    {"name": "exact search link", "html": "<div class=\"js-md5-codes-container\"><a href='/search?q=\"doi:10.1000/record\"'>DOI</a></div>", "doi": "10.1000/record"},
+    {"name": "conflicting DOI fields", "html": "<div class=\"js-md5-codes-container\"><a href=\"/search?q=doi%3A10.1000%2Frecord\">DOI</a><a href=\"/search?q=doi%3A10.1000%2Fother\">DOI</a></div>", "doi": "10.1000/record", "conflict": true}
+  ],
+  "years": [
+    {"in": "2017", "want": "2017"},
+    {"in": " 2017-06-12 ", "want": "2017"},
+    {"in": "17", "want": ""},
+    {"in": "3000", "want": ""},
+    {"in": "20a7", "want": ""},
+    {"in": "", "want": ""}
+  ]
+}

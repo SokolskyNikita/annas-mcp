@@ -1,0 +1,20 @@
+{
+  "comment": "Text as Anna's pages and APIs give it, and what CleanText makes of it: entities decoded, formatting markup removed but literal angle brackets kept, spaces collapsed, direction marks dropped and joiners kept.",
+  "cases": [
+    {"in": "Smith &amp; Jones", "want": "Smith & Jones"},
+    {"in": "&#x201C;Quoted&#x201D; &#8212; text", "want": "“Quoted” — text"},
+    {"in": "AT&T and R&D", "want": "AT&T and R&D"},
+    {"in": "Cats &para no semicolon", "want": "Cats &para no semicolon"},
+    {"in": "Protein prediction by <i>AlphaFold</i>2", "want": "Protein prediction by AlphaFold2"},
+    {"in": "<jats:p>Abstract <jats:italic>text</jats:italic></jats:p>", "want": "Abstract text"},
+    {"in": "<p>One<p>Two<br/>Three</p>", "want": "One Two Three"},
+    {"in": "Vector<T> in C++", "want": "Vector<T> in C++"},
+    {"in": "a < b and c > d", "want": "a < b and c > d"},
+    {"in": "<scp>CompTIA</scp> A+ Core 1 Exam", "want": "CompTIA A+ Core 1 Exam"},
+    {"in": "Photonic Quantum Computing - <title>Hamiltonians for quantum computing</title>", "want": "Photonic Quantum Computing - Hamiltonians for quantum computing"},
+    {"in": "  spaced\n\tout  ", "want": "spaced out"},
+    {"in": "\u200fהאיחוד האירופי :\u200f \u200fהיסטוריה", "want": "האיחוד האירופי : היסטוריה"},
+    {"in": "\u202bembedded\u202c \u2067isolated\u2069 \ufeffmarked", "want": "embedded isolated marked"},
+    {"in": "খুল্\u200cনার", "want": "খুল্\u200cনার", "note": "joiners shape Bengali letters and stay"}
+  ]
+}

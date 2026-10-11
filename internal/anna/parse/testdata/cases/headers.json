@@ -1,0 +1,26 @@
+{
+  "comment": "Download response headers. formats: the extension DownloadFormat picks from a response's headers and URL: the attachment's filename, then the media type, then the URL path, else bin. content_ranges: Content-Range values and the offset ContentRangeStart reads, and ones it refuses. html: media types and bodies LooksLikeHTML takes for a web page, and ones it does not. media_type_extensions: the extension of a media type, empty when it names no file type.",
+  "formats": [
+    {"name": "filename", "headers": {"Content-Disposition": ["attachment; filename=\"paper.epub\""], "Content-Type": ["application/octet-stream"]}, "format": "epub"},
+    {"name": "media type", "headers": {"Content-Type": ["application/pdf; charset=binary"]}, "format": "pdf"},
+    {"name": "URL path", "headers": {"Content-Disposition": ["attachment"], "Content-Type": ["application/octet-stream"]}, "url": "https://cdn.example/d3/Pride%20--%20Anna%E2%80%99s.azw3", "format": "azw3"},
+    {"name": "no hints", "headers": {"Content-Type": ["application/octet-stream"]}, "url": "https://cdn.example/file", "format": "bin"}
+  ],
+  "content_ranges": {"valid": [{"value": "bytes 1000-1999/2000", "start": 1000}, {"value": "bytes 0-9/*", "start": 0}], "invalid": ["", "items 0-9/10", "bytes -5/10", "bytes x-9/10", "bytes 9"]},
+  "html": [
+    {"content_type": "text/html; charset=utf-8", "body": "", "html": true},
+    {"content_type": "application/xhtml+html", "body": "", "html": true},
+    {"content_type": "application/octet-stream", "body": "  <!DOCTYPE html><html>", "html": true},
+    {"content_type": "", "body": "<html lang=en>", "html": true},
+    {"content_type": "application/pdf", "body": "%PDF-1.7", "html": false},
+    {"content_type": "invalid;;", "body": "", "html": false}
+  ],
+  "media_type_extensions": [
+    {"content_type": "application/pdf", "extension": "pdf"},
+    {"content_type": "application/octet-stream", "extension": ""},
+    {"content_type": "binary/octet-stream", "extension": ""},
+    {"content_type": "application/x-not-a-real-type", "extension": ""},
+    {"content_type": "invalid;;", "extension": ""},
+    {"content_type": "", "extension": ""}
+  ]
+}

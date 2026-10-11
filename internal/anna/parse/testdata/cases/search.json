@@ -1,0 +1,21 @@
+{
+  "comment": "Parts of search pages. record_paths: the record links RecordPath reads, and ones it refuses. publisher_links: a card's publisher link and the publisher and edition publisherAndEdition splits it into, using the search the link makes. result_counts: the count above the results and what ResultsTotal reads from it; pages are read in English, so a translated count is not one.",
+  "record_paths": {"valid": [{"href": "/md5/0123", "prefix": "md5", "id": "0123"}, {"href": "/isbndb/9780521879286/", "prefix": "isbndb", "id": "9780521879286"}, {"href": "/doi/10.1000/x", "prefix": "doi", "id": "10.1000/x"}, {"href": "/ol/OL1M?x=1", "prefix": "ol", "id": "OL1M"}], "invalid": ["https://annas.test/md5/x", "//annas.test/md5/x", "md5/x", "/md5/", "/md5", "/MD5/x", "/1x/y", "%zz"]},
+  "publisher_links": [
+    {"link": "<a href=\"/search?q=MIT Press\">MIT Press, 2nd, 2019</a>", "publisher": "MIT Press", "edition": "2nd, 2019"},
+    {"link": "<a href=\"/search?q=\">2019</a>", "publisher": "", "edition": "2019"},
+    {"link": "<a href=\"/search?q=Simon &amp; Schuster\">Simon &amp; Schuster</a>", "publisher": "Simon & Schuster", "edition": ""},
+    {"link": "<a href=\"/search?q=Cambridge%20University%20Press\">Cambridge University Press, 2008</a>", "publisher": "Cambridge University Press", "edition": "2008"},
+    {"link": "<a href=\"/search?q=Other\">Cambridge University Press, 2008</a>", "publisher": "Cambridge University Press, 2008", "edition": ""},
+    {"link": "<a href=\"/elsewhere\">Press, 2008</a>", "publisher": "Press, 2008", "edition": ""},
+    {"link": "<a href=\"/search?q=Press\"></a>", "publisher": "", "edition": ""}
+  ],
+  "result_counts": [
+    {"count": "Results 1-50 (500+ total)", "total": 500, "lower_bound": true, "found": true},
+    {"count": "Results 1-9 (9 total)", "total": 9, "lower_bound": false, "found": true},
+    {"count": "Results 4,951–5,000 (5,000+ total)", "total": 5000, "lower_bound": true, "found": true},
+    {"count": "Résultats 51-100 (76 au total)", "total": 0, "lower_bound": false, "found": false},
+    {"count": "Results 1-50 (99999999999999999999 total)", "total": 0, "lower_bound": false, "found": false},
+    {"count": "No files found", "total": 0, "lower_bound": false, "found": false}
+  ]
+}

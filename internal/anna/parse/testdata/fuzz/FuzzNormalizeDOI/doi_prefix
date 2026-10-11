@@ -1,0 +1,2 @@
+go test fuzz v1
+string("doi:10.1000/x")

@@ -1,0 +1,2 @@
+go test fuzz v1
+string("https://a/md5/x")

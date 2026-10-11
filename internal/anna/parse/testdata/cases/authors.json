@@ -1,0 +1,29 @@
+{
+  "comment": "Author lists as Anna's pages give them. clean: what CleanAuthors keeps, dropping affiliations (numbered, labelled, parenthesized or after each name) and e-mail addresses but not roles, notes or corporate authors. split: the people splitAuthors reads from one or more lists.",
+  "clean": [
+    {"in": "Yann Lecun , Yoshua Bengio , Geoffrey Hinton ;1 FAIR - Facebook AI Research [New York] ( 545378 ) - New York 2 NYU", "want": "Yann Lecun, Yoshua Bengio, Geoffrey Hinton"},
+    {"in": "  Austen, Jane  ", "want": "Austen, Jane"},
+    {"in": "Ayr, Bray; Lady, a", "want": "Ayr, Bray; Lady, a"},
+    {"in": "Cinnamon Worth & JAff", "want": "Cinnamon Worth & JAff"},
+    {"in": "", "want": ""},
+    {"in": "Yang Zhang;Lin Ning(Innovative Institute of Chinese Medicine, Chengdu University;Department of Oncology (Quzhou))", "want": "Yang Zhang; Lin Ning"},
+    {"in": "Li Wei（Institute of Physics, Chinese Academy of Sciences, Beijing, China）", "want": "Li Wei"},
+    {"in": "Ada Lovelace (ed.); Charles Babbage (Translator)", "want": "Ada Lovelace (ed.); Charles Babbage (Translator)"},
+    {"in": "Smith (a long note that mentions nothing about where the author works)", "want": "Smith (a long note that mentions nothing about where the author works)"},
+    {"in": "Jones(University of Somewhere, Department of Things, which never closes", "want": "Jones"},
+    {"in": "A. One;B. Two( A. One ( Department of Radiology, X University) Hope Center, X University) ; B. Two ( Division of Biostatistics, X University) )", "want": "A. One; B. Two"},
+    {"in": "Le, Minh-Quy( quy@example.edu)（Department of Mechanics, Hanoi University）", "want": "Le, Minh-Quy"},
+    {"in": "Birch, Eugenie L（University of Pennsylvania）", "want": "Birch, Eugenie L"},
+    {"in": "Pandha, H (Pandha, Hardev); Pawelec, G (Pawelec, Graham)(Section of Oncology, School of Biosciences, University of Surrey)", "want": "Pandha, H (Pandha, Hardev); Pawelec, G (Pawelec, Graham)"},
+    {"in": "Carolee Caffrey; Tiffany J Weston Affiliation: Zoology Department, Oklahoma State University", "want": "Carolee Caffrey; Tiffany J Weston"},
+    {"in": "Hamel, R.. Alzheimer Centre Limburg, Maastricht University, r.hamel@example.nl;Leuzy, Antoine. Department NVS, Karolinska Institutet, Sweden", "want": "Hamel, R.; Leuzy, Antoine"},
+    {"in": "Kate L. Turabian, Wayne C. Booth, University of Chicago Press Editorial Staff", "want": "Kate L. Turabian, Wayne C. Booth, University of Chicago Press Editorial Staff"},
+    {"in": "Ramaswamy Govindan; Washington University (Saint Louis, Mo). School of Medicine", "want": "Ramaswamy Govindan; Washington University (Saint Louis, Mo). School of Medicine"}
+  ],
+  "split": [
+    {"values": ["Ashish Vaswani, Noam Shazeer"], "want": ["Ashish Vaswani", "Noam Shazeer"]},
+    {"values": ["Kingma, Diederik P. (author); Ba, Jimmy Lei (author)"], "want": ["Diederik P. Kingma", "Jimmy Lei Ba"]},
+    {"values": ["One, Two, Three; Four"], "want": ["One, Two, Three", "Four"]},
+    {"values": [" ; "], "want": null}
+  ]
+}

@@ -42,9 +42,7 @@ func TestParseAccountPage(t *testing.T) {
 	if page := ParseAccountPage(nil); !reflect.DeepEqual(page, AccountPage{}) {
 		t.Fatalf("no page: %+v", page)
 	}
-	odd := htmlDocument(t, `<div>Fast downloads used: <strong>many</strong> <a href="/account/downloaded">which?</a></div>
-		<div>Fast downloads used: <strong>1 / 10</strong> <a href="/account/downloaded">which?</a></div>
-		<div><strong></strong><a href="/donate?tier=1">x</a></div>`)
+	odd := snippetDocument(t, "account_odd_allowance.html")
 	if page := ParseAccountPage(odd); page.Used != 1 || page.Limit != 10 || page.WindowHours != 0 || page.Memberships != nil {
 		t.Fatalf("odd allowance lines: %+v", page)
 	}

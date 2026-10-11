@@ -81,6 +81,7 @@ func pageOutput(t *testing.T, page capturedPage) any {
 	switch page.Kind {
 	case "books", "articles", "metadata":
 		total, lowerBound, found := ResultsTotal(doc)
+		// literal: the field names of the expected output.
 		return map[string]any{
 			"total":         map[string]any{"total": total, "lower_bound": lowerBound, "found": found},
 			"shows_results": ShowsResults(doc, max(page.Page, 1)),
@@ -113,6 +114,7 @@ func firstDifference(got, want []byte) string {
 			w = wantLines[i]
 		}
 		if g != w {
+			// literal: a message format.
 			return fmt.Sprintf("line %d\n got %s\nwant %s", i+1, g, w)
 		}
 	}

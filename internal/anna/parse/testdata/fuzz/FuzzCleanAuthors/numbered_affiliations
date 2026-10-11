@@ -1,0 +1,2 @@
+go test fuzz v1
+string("Yann Lecun , Yoshua Bengio ;1 FAIR - Facebook AI Research")

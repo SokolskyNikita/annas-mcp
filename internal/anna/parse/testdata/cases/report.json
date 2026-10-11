@@ -1,0 +1,7 @@
+{
+  "comment": "Samples for the parse report. long is repeated to make samples far over the limits, with markup, control characters and line breaks to clean; spaced is a sample whose spacing the report collapses into spaced_report.",
+  "long": "<div class=\"x\">\u0000markup\t\n</div> ",
+  "repeat": 2000,
+  "spaced": "  spaced \n out ",
+  "spaced_report": "kind: 1 (e.g. \"spaced out\")"
+}

@@ -7,6 +7,9 @@ import (
 	"unicode/utf8"
 )
 
+// Seeds live in testdata/fuzz/<FuzzName>, where go test finds them, and in
+// the corpus files.
+
 // corpusSeeds adds the lines of a corpus file, when there is one, as seeds.
 func corpusSeeds(f *testing.F, name string) {
 	lines, err := corpusFileLines(name)
@@ -19,9 +22,6 @@ func corpusSeeds(f *testing.F, name string) {
 }
 
 func FuzzNormalizeDOI(f *testing.F) {
-	for _, seed := range []string{"10.1000/x", "doi:10.1000/x", "https://doi.org/10.1000%2Fx?utm=1", "<doi: (10.1000/x(02))>", "doi:doi:10.1/x", "https://doi.org/doi:10.1/x", " \"'10.1/x'\" "} {
-		f.Add(seed)
-	}
 	f.Fuzz(func(t *testing.T, input string) {
 		once := NormalizeDOI(input)
 		if twice := NormalizeDOI(once); twice != once {
@@ -34,12 +34,6 @@ func FuzzNormalizeDOI(f *testing.F) {
 }
 
 func FuzzCleanAuthors(f *testing.F) {
-	for _, seed := range []string{"Kingma, Diederik P. (author); Ba, Jimmy Lei (author)", "Yann Lecun , Yoshua Bengio ;1 FAIR - Facebook AI Research", "Lin Ning(Innovative Institute (Quzhou);University)", "（Institute）", " ; , ;",
-		// Measured before its commas were spaced, this block was under the
-		// 40 characters of an affiliation, and over them once cleaned.
-		"(0000000000 Institut00(0000000,00000000"} {
-		f.Add(seed)
-	}
 	corpusSeeds(f, "authors.txt.gz")
 	f.Fuzz(func(t *testing.T, input string) {
 		once := CleanAuthors(input)
@@ -53,9 +47,6 @@ func FuzzCleanAuthors(f *testing.F) {
 }
 
 func FuzzCleanText(f *testing.F) {
-	for _, seed := range []string{"Smith &amp;amp; Jones", "<i>AlphaFold</i>2", "Vector<T>", "&#x201C;x&#x201D;", "<jats:p>a</jats:p>"} {
-		f.Add(seed)
-	}
 	corpusSeeds(f, "titles.txt.gz")
 	f.Fuzz(func(t *testing.T, input string) {
 		got := CleanText(input)
@@ -69,9 +60,6 @@ func FuzzCleanText(f *testing.F) {
 }
 
 func FuzzParseCardMeta(f *testing.F) {
-	for _, seed := range []string{"English [en] · EPUB · 3.8MB · 2008 · 📘 Book (non-fiction) · 🚀/lgli/zlib", "Metadata · English [en] · 📗 Book (unknown) · ol · OL1M", "· · ✅ ·", "PDF · lgli/Some Label"} {
-		f.Add(seed)
-	}
 	corpusSeeds(f, "metadata_lines.txt.gz")
 	f.Fuzz(func(t *testing.T, line string) {
 		meta := ParseCardMeta(line)
@@ -88,9 +76,6 @@ func FuzzParseCardMeta(f *testing.F) {
 }
 
 func FuzzRecordPath(f *testing.F) {
-	for _, seed := range []string{"/md5/0123", "/isbndb/978/", "/doi/10.1000/x?y=1#z", "https://a/md5/x", "/%zz/x", "//x/y", "/a/0//"} {
-		f.Add(seed)
-	}
 	f.Fuzz(func(t *testing.T, href string) {
 		prefix, id, ok := RecordPath(href)
 		if !ok {

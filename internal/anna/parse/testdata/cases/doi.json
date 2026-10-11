@@ -1,0 +1,38 @@
+{
+  "comment": "DOI forms. queries: whether IsDOIQuery takes a search for a DOI. suffixes: punctuation a DOI may end in, which ParseDOI keeps whether the DOI comes bare, after doi: or in a URL. wrapped: wrappers around 10.1000/example(02) that ParseDOI removes. repeated_prefixes: inputs that all mean 10.1000/x. valid: what ValidDOI accepts. arxiv_ids: the arXiv ID ArxivID reads from a DOI, if any. normalized_arxiv_ids: NormalizeArxivID, which strips only a version.",
+  "queries": [
+    {"query": "10.1000/example", "doi": true},
+    {"query": " DOI:10.1000/example ", "doi": true},
+    {"query": "https://doi.org/10.1000/example", "doi": true},
+    {"query": "https://dx.doi.org/10.1000/example", "doi": true},
+    {"query": "attention is all you need", "doi": false},
+    {"query": "doi.org/10.1000/example without protocol", "doi": false}
+  ],
+  "suffixes": ["(02)", "(02).", ").", ".", ",", ";", ":", "]", "}", ">", "'", "\"", "?", "#"],
+  "wrapped": ["<https://doi.org/10.1000/example(02)>", "\"10.1000/example(02)\"", "doi: <10.1000/example(02)>", "(10.1000/example(02))", "doi: https://doi.org/10.1000/example(02)"],
+  "repeated_prefixes": ["doi:doi:10.1000/x", "https://doi.org/doi:10.1000/x", "<https://doi.org/https://dx.doi.org/10.1000/x>"],
+  "valid": [
+    {"doi": "10.1000/example", "valid": true},
+    {"doi": "10.48550/arXiv.1706.03762", "valid": true},
+    {"doi": "10.123/short-registrant", "valid": false},
+    {"doi": "10.1000/", "valid": false},
+    {"doi": "11.1000/x", "valid": false},
+    {"doi": "10.1000/with space", "valid": false},
+    {"doi": "", "valid": false}
+  ],
+  "arxiv_ids": [
+    {"doi": "10.48550/arXiv.1706.03762", "want": "1706.03762"},
+    {"doi": "https://doi.org/10.48550/arXiv.1706.03762v3", "want": "1706.03762"},
+    {"doi": "10.48550/arXiv.1706.03762.", "want": "1706.03762."},
+    {"doi": "10.1234/example.arxiv.1706.03762", "want": ""},
+    {"doi": "10.48550/other.1706.03762", "want": ""},
+    {"doi": "prefix-10.48550/arxiv.1706.03762", "want": ""},
+    {"doi": "10.48550/arxiv.", "want": ""}
+  ],
+  "normalized_arxiv_ids": [
+    {"in": "arxiv:1706.03762v2", "want": "1706.03762"},
+    {"in": "1706.03762.", "want": "1706.03762."},
+    {"in": "notarxiv.1706.03762", "want": "notarxiv.1706.03762"},
+    {"in": "10.1234/arxiv.1706.03762", "want": "10.1234/arxiv.1706.03762"}
+  ]
+}

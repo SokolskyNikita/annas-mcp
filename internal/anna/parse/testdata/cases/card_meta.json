@@ -1,0 +1,15 @@
+{
+  "comment": "Metadata lines from search cards and what ParseCardMeta reads from each. A line without a language starts with the extension; without 🚀 the file has no fast download; a catalog record has no file, and its record id after the sources is not an extension; a single word before the content type is not a source; a part with a slash that is not a list of known sources is unparsed.",
+  "cases": [
+    {"line": "English [en] · EPUB · 3.8MB · 2008 · 📘\u00a0Book (non-fiction) · 🚀/lgli/zlib    · ", "want": {"language": "English", "format": "EPUB", "size": "3.8MB", "year": "2008", "content": "book_nonfiction", "sources": ["lgli", "zlib"], "fast_download": true}},
+    {"line": "English [en] · PDF · 0.2MB · 2006 · 📄\u00a0Journal article · 🧬/🚀/lgli/scihub", "want": {"language": "English", "format": "PDF", "size": "0.2MB", "year": "2006", "content": "journal_article", "sources": ["lgli", "scihub"], "fast_download": true}},
+    {"line": "PDF · 1.5MB · 2008 · 📕\u00a0Book (fiction) · 🚀/lgli", "want": {"format": "PDF", "size": "1.5MB", "year": "2008", "content": "book_fiction", "sources": ["lgli"], "fast_download": true}},
+    {"line": "English [en] · German [de] · 7Z · 1.2GB · 💬\u00a0Comic book · lgli/lgrs", "want": {"language": "English, German", "format": "7Z", "size": "1.2GB", "content": "book_comic", "sources": ["lgli", "lgrs"]}},
+    {"line": "Metadata · English [en] · 📗\u00a0Book (unknown) · ol · OL1M", "want": {"language": "English", "content": "book_unknown", "sources": ["ol"]}},
+    {"line": "Metadata · Spanish [es] · 1999 · 📗\u00a0Book (unknown) · isbndb", "want": {"language": "Spanish", "year": "1999", "content": "book_unknown", "sources": ["isbndb"]}},
+    {"line": "Metadata · English [en] · 2008 · 📗\u00a0Book (unknown) · isbndb · ISBNdb 9780521879286", "want": {"language": "English", "year": "2008", "content": "book_unknown", "sources": ["isbndb"]}},
+    {"line": "✅ English [en] · EPUB · 1.2MB · 2020", "want": {"language": "English", "format": "EPUB", "size": "1.2MB", "year": "2020"}},
+    {"line": "unstructured metadata", "want": {}},
+    {"line": "English [en] · PDF · 1MB · 📘 Book (non-fiction) · lgli/Some Label", "want": {"language": "English", "format": "PDF", "size": "1MB", "content": "book_nonfiction", "unparsed": ["lgli/Some Label"]}}
+  ]
+}

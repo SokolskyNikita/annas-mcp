@@ -12,6 +12,8 @@ import (
 
 // corpora are the real strings collected by TestCrawlCorpus in package anna,
 // with the rule each goes through.
+//
+// literal: the corpus file names, each with its rule.
 var corpora = []struct {
 	name string
 	read func(line string) (any, error)

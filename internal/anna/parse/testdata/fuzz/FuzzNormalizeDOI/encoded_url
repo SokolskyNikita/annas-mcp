@@ -1,0 +1,2 @@
+go test fuzz v1
+string("https://doi.org/10.1000%2Fx?utm=1")

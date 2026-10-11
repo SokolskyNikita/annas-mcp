@@ -80,7 +80,7 @@ func TestCheckSearchPageNoticesWhatItCannotRead(t *testing.T) {
 func TestCheckRecordDetails(t *testing.T) {
 	t.Parallel()
 
-	report := CheckRecordDetails(RecordDetails{Meta: ParseCardMeta("English [en] · PDF · 1MB · 2020 · 📄 Journal article · odd/Part · lgli")})
+	report := CheckRecordDetails(RecordDetails{Meta: ParseCardMeta("PDF · 2020 · 📄 Journal article · odd/Part · lgli")})
 	if len(report.Problems) != 1 || report.Problems[0].Samples[0] != "odd/Part" {
 		t.Fatalf("report = %s", report)
 	}
@@ -89,8 +89,14 @@ func TestCheckRecordDetails(t *testing.T) {
 func TestReportLimits(t *testing.T) {
 	t.Parallel()
 
+	var samples struct {
+		Comment, Long, Spaced string
+		SpacedReport          string `json:"spaced_report"`
+		Repeat                int
+	}
+	loadCases(t, "report", &samples)
 	var report Report
-	long := strings.Repeat("<div class=\"x\">\x00markup\t\n</div> ", 2000)
+	long := strings.Repeat(samples.Long, samples.Repeat)
 	for i := 0; i < 10; i++ {
 		report.Add("first kind", string(rune('a'+i))+long)
 	}
@@ -111,8 +117,8 @@ func TestReportLimits(t *testing.T) {
 		t.Fatalf("line of %d bytes: %q", len(line), line)
 	}
 	short := Report{}
-	short.Add("kind", "  spaced \n out ")
-	if got := short.String(); got != `kind: 1 (e.g. "spaced out")` {
+	short.Add("kind", samples.Spaced)
+	if got := short.String(); got != samples.SpacedReport {
 		t.Fatalf("String = %q", got)
 	}
 	kept := report.Filter(func(kind, sample string) bool { return kind == "first kind" && strings.HasPrefix(sample, "b") })

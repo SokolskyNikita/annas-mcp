@@ -1,0 +1,11 @@
+{
+  "comment": "JSON answers. malformed_records: record JSON that must not decode. up_answers: answers to /dyn/up/ and whether IsUpAnswer takes each for a mirror that is up.",
+  "malformed_records": ["{\"file_unified_data\":{\"title_best\":\"unterminated}}", "{\"file_unified_data\":{\"title_additional\":[\"a\",}}"],
+  "up_answers": [
+    {"body": "{\"aa_logged_in\":0}", "up": true},
+    {"body": "{\"aa_logged_in\":1}", "up": true},
+    {"body": "{\"other\":1}", "up": false},
+    {"body": "<html>check</html>", "up": false},
+    {"body": "", "up": false}
+  ]
+}
