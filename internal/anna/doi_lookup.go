@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
@@ -69,9 +70,12 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 	if id := arxivID(doi); id != "" {
 		queries = append(queries, id)
 	}
+	// Each query's candidates are checked before the next query is searched,
+	// so a paper the title search finds costs no further searches. The order
+	// of checking, and so the result, is the same as checking all at the end.
 	seenQueries := make(map[string]struct{}, len(queries))
 	seenBooks := make(map[string]struct{})
-	var candidates []*Book
+	checked := 0
 	for _, query := range queries {
 		key := normalizeTitle(query)
 		if key == "" {
@@ -81,13 +85,13 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 			continue
 		}
 		seenQueries[key] = struct{}{}
-		for _, index := range []string{"", "journals"} {
-			results, searchErr := c.search(ctx, query, SearchOptions{Index: index, Page: 1}, "")
-			if searchErr != nil {
-				if ctx.Err() != nil {
-					return nil, ctx.Err()
-				}
-				noteFailure(searchErr)
+		var candidates []*Book
+		for _, results := range c.searchIndexes(ctx, query) {
+			if ctx.Err() != nil {
+				return nil, ctx.Err()
+			}
+			if results.err != nil {
+				noteFailure(results.err)
 				continue
 			}
 			// Partial matches are welcome here: each candidate must still
@@ -105,37 +109,21 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 				if _, seen := seenBooks[book.Hash]; seen {
 					continue
 				}
-				seenBooks[book.Hash] = struct{}{}
-				candidates = append(candidates, book)
 				// A common title may have many identical editions. Keep DOI
 				// lookup bounded to a small set of likely record pages.
-				if len(candidates) >= 12 {
+				if checked+len(candidates) >= maxDOICandidates {
 					break
 				}
-			}
-			if len(candidates) >= 12 {
-				break
+				seenBooks[book.Hash] = struct{}{}
+				candidates = append(candidates, book)
 			}
 		}
-		if len(candidates) >= 12 {
+		paper, err := c.verifyCandidates(ctx, doi, metadata, candidates, noteFailure)
+		if err != nil || paper != nil {
+			return paper, err
+		}
+		if checked += len(candidates); checked >= maxDOICandidates {
 			break
-		}
-	}
-
-	for _, book := range candidates {
-		if err := ctx.Err(); err != nil {
-			return nil, err
-		}
-		identity, detailErr := c.archiveIdentityForBook(ctx, book)
-		if detailErr != nil {
-			if ctx.Err() != nil {
-				return nil, ctx.Err()
-			}
-			noteFailure(detailErr)
-			continue
-		}
-		if verifyDOIIdentity(doi, metadata, identity) {
-			return paperFromBook(book, doi), nil
 		}
 	}
 	if err := ctx.Err(); err != nil {
@@ -165,6 +153,63 @@ func (c *Client) paperFromSciDBPage(ctx context.Context, base, doi string) (*Pap
 		return nil, apperr.New(apperr.NotFound, "SciDB has no page for this DOI")
 	}
 	return c.paperFromSciDB(ctx, doc, doi, finalURL.String(), base)
+}
+
+const (
+	// maxDOICandidates bounds how many record pages one DOI lookup reads.
+	maxDOICandidates = 12
+	// doiRecordChecks is how many record pages are read at once.
+	doiRecordChecks = 4
+)
+
+// indexResults is one index's search for a DOI lookup.
+type indexResults struct {
+	searchResults
+	err error
+}
+
+// searchIndexes searches the main and journal indexes for query at once, and
+// returns them in that order.
+func (c *Client) searchIndexes(ctx context.Context, query string) [2]indexResults {
+	var results [2]indexResults
+	var wait sync.WaitGroup
+	for i, index := range []string{"", "journals"} {
+		wait.Go(func() {
+			results[i].searchResults, results[i].err = c.search(ctx, query, SearchOptions{Index: index, Page: 1}, "")
+		})
+	}
+	wait.Wait()
+	return results
+}
+
+// verifyCandidates reads the candidates' record pages a few at a time and
+// returns the first, in candidate order, whose record carries the DOI.
+// It returns an error only when ctx ends.
+func (c *Client) verifyCandidates(ctx context.Context, doi string, metadata doiMetadata, candidates []*Book, noteFailure func(error)) (*Paper, error) {
+	for len(candidates) > 0 {
+		batch := candidates[:min(doiRecordChecks, len(candidates))]
+		candidates = candidates[len(batch):]
+		identities := make([]archiveIdentity, len(batch))
+		errs := make([]error, len(batch))
+		var wait sync.WaitGroup
+		for i, book := range batch {
+			wait.Go(func() { identities[i], errs[i] = c.archiveIdentityForBook(ctx, book) })
+		}
+		wait.Wait()
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		for i, book := range batch {
+			if errs[i] != nil {
+				noteFailure(errs[i])
+				continue
+			}
+			if verifyDOIIdentity(doi, metadata, identities[i]) {
+				return paperFromBook(book, doi), nil
+			}
+		}
+	}
+	return nil, nil
 }
 
 func (c *Client) archiveIdentityForBook(ctx context.Context, book *Book) (archiveIdentity, error) {

@@ -2,8 +2,13 @@ package anna
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"net/http"
+	"path"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -163,5 +168,84 @@ func TestDownloadArticleByDOIReportsArchiveOutage(t *testing.T) {
 	_, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: outageDOI}, time.Second, nil)
 	if code := apperr.CodeOf(err); err == nil || code != apperr.Upstream {
 		t.Fatalf("article download during an outage: code=%s err=%v", code, err)
+	}
+}
+
+// editions is a search page with n editions of the outage paper, each
+// with its own hash.
+func editions(t *testing.T, n int) string {
+	card := fixtureText(t, "search_result.html")
+	var page strings.Builder
+	for i := range n {
+		page.WriteString(strings.ReplaceAll(card, "0123456789abcdef0123456789abcdef", fmt.Sprintf("%032x", i+1)))
+	}
+	return page.String()
+}
+
+func TestLookupDOIStopsAtTheFirstQueryThatFindsThePaper(t *testing.T) {
+	t.Parallel()
+	var searches atomic.Int32
+	client := doiArchiveClient(t, http.StatusOK, func(req *http.Request) (*http.Response, error) {
+		switch {
+		case strings.HasPrefix(req.URL.Path, "/scidb/"):
+			return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
+		case req.URL.Path == "/search":
+			searches.Add(1)
+			if q := req.URL.Query().Get("q"); q != outageTitle {
+				t.Errorf("searched %q after the title search found the paper", q)
+			}
+			return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+		}
+		return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{"<head>": `<head><meta name="citation_doi" content="` + outageDOI + `">`}), nil
+	})
+	if paper, err := client.LookupDOI(context.Background(), outageDOI, time.Minute); err != nil || paper == nil {
+		t.Fatalf("lookup: %+v %v", paper, err)
+	}
+	if searches.Load() != 2 {
+		t.Fatalf("expected the title searched on both indexes, got %d searches", searches.Load())
+	}
+}
+
+func TestLookupDOIReadsRecordPagesTogetherAndKeepsTheirOrder(t *testing.T) {
+	t.Parallel()
+	var started sync.WaitGroup
+	started.Add(doiRecordChecks)
+	allStarted := make(chan struct{})
+	go func() { started.Wait(); close(allStarted) }()
+	var records atomic.Int32
+	client := doiArchiveClient(t, http.StatusOK, func(req *http.Request) (*http.Response, error) {
+		switch {
+		case strings.HasPrefix(req.URL.Path, "/scidb/"):
+			return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
+		case req.URL.Path == "/search":
+			response := fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil)
+			page := editions(t, 2*doiRecordChecks)
+			response.Body, response.ContentLength = io.NopCloser(strings.NewReader(page)), int64(len(page))
+			return response, nil
+		}
+		// Each of the first pages answers only once all of them were
+		// requested, which reading one page at a time would never reach.
+		if records.Add(1) <= doiRecordChecks {
+			started.Done()
+			select {
+			case <-allStarted:
+			case <-req.Context().Done():
+				return nil, req.Context().Err()
+			}
+		}
+		// Only the second and third editions are the paper; the others name
+		// another author.
+		detail := map[string]string{"Ashish Vaswani": "Unrelated Author"}
+		if hash := path.Base(req.URL.Path); hash == fmt.Sprintf("%032x", 2) || hash == fmt.Sprintf("%032x", 3) {
+			detail = nil
+		}
+		return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", detail), nil
+	})
+	paper, err := client.LookupDOI(context.Background(), outageDOI, 10*time.Second)
+	if err != nil || paper == nil || paper.Hash != fmt.Sprintf("%032x", 2) {
+		t.Fatalf("lookup: %+v %v", paper, err)
+	}
+	if records.Load() != doiRecordChecks {
+		t.Fatalf("read %d record pages, want one batch of %d", records.Load(), doiRecordChecks)
 	}
 }
