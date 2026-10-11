@@ -150,11 +150,13 @@ The server uses that cookie first and still signs in with the secret key once it
 | `ANNAS_SECRET_KEY` | Everything | Your Anna's Archive secret key. The server signs in with it and uses it for downloads. |
 | `ANNAS_DOWNLOAD_PATH` | Optional | Folder for downloaded files. Defaults to `annas-archive` in your home folder. See [Choosing the download folder](#choosing-the-download-folder). |
 | `ANNAS_ACCOUNT_COOKIE` | Optional | An `aa_account_id2` cookie to use before signing in. See [Signing in](#signing-in). |
-| `ANNAS_BASE_URL` | Optional | Mirror to fall back on when automatic selection fails. Defaults to `annas-archive.gl`. |
+| `ANNAS_BASE_URL` | Optional | Mirror to try first. The official mirrors stand in for it while it fails. Defaults to `annas-archive.gl`. |
 | `ANNAS_AUTO_BASE_URL` | Optional | Set to `false` to always use `ANNAS_BASE_URL` instead of picking a mirror automatically. |
 | `ANNAS_MCP_CACHE_DIR` | Optional | Where the server saves its session and `npx` caches release binaries. |
 
-The server picks a working mirror by itself, and only among the official domains `annas-archive.gl`, `.pk` and `.gd`. Whatever host you set in `ANNAS_BASE_URL` receives your credentials, so only use one you trust.
+The server picks a working mirror by itself, and only among `ANNAS_BASE_URL` and the official domains `annas-archive.gl`, `.pk` and `.gd`. Whatever host you set in `ANNAS_BASE_URL` receives your credentials, so only use one you trust.
+
+It contacts the mirrors only while a tool call is running and keeps using one for as long as it works. A mirror that fails is set aside for 15 seconds, then longer with each further failure, up to 5 minutes, and a call that hits a failing mirror is retried once on another. When every mirror is failing, calls report what each one last did and when to try again, without contacting any of them. Which mirrors worked recently is saved as `mirrors.json` next to the session, so later runs and other clients skip the mirrors that just failed.
 
 ### Choosing the download folder
 
