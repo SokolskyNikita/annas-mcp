@@ -117,8 +117,8 @@ func parseArchiveIdentity(doc *goquery.Document) archiveIdentity {
 type archiveCode struct{ key, value string }
 
 // The codes panels are generated from the record's structured identifier
-// fields. Their search links encode the key/value pair (for example
-// q=doi%3A10.1234%2Fexample); similarly shaped links elsewhere on the page are
+// fields. Each panel links to an exact search for its key/value pair, such as
+// q="doi:10.1234%2Fexample"; similarly shaped links elsewhere on the page are
 // deliberately ignored.
 func archiveRecordCodes(doc *goquery.Document) []archiveCode {
 	var codes []archiveCode
@@ -128,7 +128,7 @@ func archiveRecordCodes(doc *goquery.Document) []archiveCode {
 		if err != nil {
 			return
 		}
-		query := parsed.Query().Get("q")
+		query := strings.Trim(strings.TrimSpace(parsed.Query().Get("q")), `"`)
 		key, value, ok := strings.Cut(query, ":")
 		if !ok || strings.TrimSpace(key) == "" || strings.TrimSpace(value) == "" {
 			return

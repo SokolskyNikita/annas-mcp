@@ -50,6 +50,7 @@ func TestParseArchiveIdentityReadsStructuredDOIAndDetectsConflict(t *testing.T) 
 		wantConflict bool
 	}{
 		{name: "one DOI", codes: `<a href="/search?q=doi%3A10.1000%2Frecord">DOI</a>`, wantDOI: "10.1000/record"},
+		{name: "exact search link", codes: `<a href='/search?q="doi:10.1000/record"'>DOI</a>`, wantDOI: "10.1000/record"},
 		{name: "conflicting DOI fields", codes: `<a href="/search?q=doi%3A10.1000%2Frecord">DOI</a><a href="/search?q=doi%3A10.1000%2Fother">DOI</a>`, wantDOI: "10.1000/record", wantConflict: true},
 	} {
 		t.Run(test.name, func(t *testing.T) {

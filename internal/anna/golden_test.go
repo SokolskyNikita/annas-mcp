@@ -133,3 +133,19 @@ func TestDOIIdentityCases(t *testing.T) {
 		})
 	}
 }
+
+// TestDOIIdentityRejectsAnotherDOI checks that a record carrying another real
+// DOI is rejected even when its title and authors agree with DOI.org's.
+func TestDOIIdentityRejectsAnotherDOI(t *testing.T) {
+	record := parseArchiveIdentity(fixtureDocument(t, "pages/record_liang_2016.html.gz"))
+	if record.DOI != "10.1002/chin.201627137" {
+		t.Fatalf("record DOI = %q, want the one in its identifiers panel", record.DOI)
+	}
+	metadata := doiMetadata{Title: record.Title, Authors: record.Authors, Year: record.Year}
+	if verifyDOIIdentity("10.1000/another", metadata, record) {
+		t.Fatal("a record with another DOI matched on title and authors alone")
+	}
+	if !verifyDOIIdentity("10.1002/chin.201627137", metadata, record) {
+		t.Fatal("the record did not match its own DOI")
+	}
+}
