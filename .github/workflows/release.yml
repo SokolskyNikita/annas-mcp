@@ -84,7 +84,7 @@ jobs:
     needs: [verify, bundle]
     if: vars.PUBLISH_REGISTRIES == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     permissions:
       contents: read
       id-token: write
@@ -100,8 +100,8 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      # Both steps skip a version that is already published, so the job can
-      # be re-run after a partial failure.
+      # The publish steps skip a version that is already published, so the job
+      # can be re-run after a partial failure.
       - name: Publish to npm
         shell: bash
         run: |
@@ -111,6 +111,17 @@ jobs:
           else
             npm publish --provenance --access public
           fi
+
+      # npm can take several minutes to serve a new version after publishing,
+      # and the MCP Registry rejects a version that npm does not serve yet.
+      - name: Wait for npm to serve the version
+        shell: bash
+        timeout-minutes: 15
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          until curl --fail --silent --output /dev/null "https://registry.npmjs.org/annas-mcp/$version"; do
+            sleep 15
+          done
 
       - name: Publish to the MCP Registry
         shell: bash
@@ -124,9 +135,9 @@ jobs:
           curl --fail --silent --show-error --location \
             https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz \
             | tar xz mcp-publisher
-          # The registry checks npm for the version, which can take a few
-          # minutes to appear after publishing. Log in each time: tokens are short-lived.
-          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+          # The registry's view of npm can still lag behind the runner's for a
+          # moment. Log in each time: tokens are short-lived.
+          for attempt in 1 2 3 4 5; do
             ./mcp-publisher login github-oidc
             if ./mcp-publisher publish; then
               exit 0
