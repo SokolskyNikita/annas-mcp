@@ -23,6 +23,8 @@ type capturedPage struct {
 	Path string `json:"path,omitempty"`
 	DOI  string `json:"doi,omitempty"`
 	Page int    `json:"page,omitempty"`
+	// KeepScripts marks the page that keeps its scripts when captured.
+	KeepScripts bool `json:"keep_scripts,omitempty"`
 }
 
 func (p capturedPage) file() string {
@@ -41,6 +43,24 @@ func readManifest(t testing.TB) []capturedPage {
 		t.Fatal(err)
 	}
 	return manifest.Pages
+}
+
+// TestCapturedPagesKeepScriptsOnlyWhereMarked keeps the captured pages
+// small: scripts are about half of each page, and the parsers never read
+// them. The page marked keep_scripts keeps them, so the tests still see
+// script text in the places Anna puts it.
+func TestCapturedPagesKeepScriptsOnlyWhereMarked(t *testing.T) {
+	t.Parallel()
+
+	for _, page := range readManifest(t) {
+		if page.Kind == "csl" {
+			continue
+		}
+		hasScripts := bytes.Contains(readPage(t, page.file()), []byte("<script"))
+		if hasScripts != page.KeepScripts {
+			t.Errorf("%s: scripts %v, keep_scripts %v; capture it again", page.Name, hasScripts, page.KeepScripts)
+		}
+	}
 }
 
 // TestCapturedPages reads every captured page and compares what the parsers

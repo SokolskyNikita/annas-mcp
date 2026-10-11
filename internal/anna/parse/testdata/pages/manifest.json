@@ -1,7 +1,7 @@
 {
-  "comment": "Pages captured from the live archive by TestCapturePages (ANNAS_MCP_CAPTURE=1, or a comma-separated list of names). Pages are stored gzipped as <name>.html.gz and DOI.org's answers as <name>.json, each with its parsed output in <name>.golden.json. Paths are fetched from whichever mirror answers; csl entries come from doi.org.",
+  "comment": "Pages captured from the live archive by TestCapturePages (ANNAS_MCP_CAPTURE=1, or a comma-separated list of names). Pages are stored gzipped as <name>.html.gz and DOI.org's answers as <name>.json, each with its parsed output in <name>.golden.json. Pages are saved without their scripts, which the parsers never read, unless marked keep_scripts. Paths are fetched from whichever mirror answers; csl entries come from doi.org.",
   "pages": [
-    {"name": "search_books", "kind": "books", "path": "/search?q=structure+and+interpretation+of+computer+programs", "note": "plain search; several cards Anna flags as possibly broken"},
+    {"name": "search_books", "kind": "books", "path": "/search?q=structure+and+interpretation+of+computer+programs", "note": "plain search; several cards Anna flags as possibly broken; keeps its scripts, so the tests check that the parsers ignore them", "keep_scripts": true},
     {"name": "search_filtered_partial", "kind": "books", "path": "/search?q=against+intellectual+monopoly&ext=epub&lang=en", "note": "format and language filters; a short first page, so Anna adds partial matches"},
     {"name": "search_past_end", "kind": "books", "path": "/search?q=against+intellectual+monopoly&ext=epub&lang=en&page=3", "page": 3, "note": "a page past the last result"},
     {"name": "search_empty", "kind": "books", "path": "/search?q=qxzvbnmlkjhgf+wqpzmxvt", "note": "no results at all"},

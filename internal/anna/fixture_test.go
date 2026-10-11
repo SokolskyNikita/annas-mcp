@@ -75,6 +75,8 @@ type capturedPage struct {
 	DOI  string `json:"doi,omitempty"`
 	Page int    `json:"page,omitempty"`
 	Note string `json:"note,omitempty"`
+	// KeepScripts keeps the page's scripts when it is captured.
+	KeepScripts bool `json:"keep_scripts,omitempty"`
 }
 
 // file is the captured page's name under parse/testdata/pages.

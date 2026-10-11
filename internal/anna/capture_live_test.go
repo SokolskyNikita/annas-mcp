@@ -25,8 +25,9 @@ import (
 // signs in with ANNAS_SECRET_KEY and reads search, record and SciDB pages as
 // that account, but downloads no files, so it uses no fast downloads.
 // ANNAS_MCP_CAPTURE=1 captures every page in the manifest; a comma-separated
-// list of names captures only those. Afterwards, run TestCapturedPages in
-// package parse with -update and review what changed.
+// list of names captures only those. Pages are saved without their scripts
+// unless the manifest marks them keep_scripts. Afterwards, run
+// TestCapturedPages in package parse with -update and review what changed.
 func TestCapturePages(t *testing.T) {
 	selection := os.Getenv("ANNAS_MCP_CAPTURE")
 	if selection == "" {
@@ -70,6 +71,9 @@ func TestCapturePages(t *testing.T) {
 		}
 		if err != nil {
 			t.Fatalf("%s: %v", page.Name, err)
+		}
+		if page.Kind != "csl" && !page.KeepScripts {
+			body = stripScripts(body)
 		}
 		body = scrubCapture(body, secrets)
 		for _, secret := range secrets {
@@ -159,6 +163,19 @@ func captureCSL(ctx context.Context, doi string) ([]byte, error) {
 
 // literal: a pattern is code, not data.
 var sciDBViewerFile = regexp.MustCompile(`/pdfjs/web/viewer\.html\?file=https(?:%3A|:)(?://|%2F%2F)([^/%"'\s<>]+)`)
+
+// pageScripts are a page's inline scripts: about half of its bytes, none of
+// them read by the parsers.
+//
+// literal: a pattern is code, not data.
+var pageScripts = regexp.MustCompile(`(?is)<script\b[^>]*>.*?</script>`)
+
+// stripScripts removes a page's scripts. One page keeps them (keep_scripts
+// in the manifest), so the tests still check that the parsers ignore script
+// text.
+func stripScripts(body []byte) []byte {
+	return pageScripts.ReplaceAll(body, nil)
+}
 
 // scrubCapture removes account data and SciDB's signed file links, which
 // work for anyone holding them until they expire. Both the viewer's file
