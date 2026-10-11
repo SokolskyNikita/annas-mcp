@@ -63,6 +63,7 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 		t.Fatalf("validation made %d network calls", calls)
 	}
 	var previous string
+	callsAfterFirst := 0
 	for i := 0; i < 2; i++ {
 		result, err := session.CallTool(ctx, &mcp.CallToolParams{Name: "book_download", Arguments: map[string]any{"hash": hash, "title": "Test", "format": "pdf"}})
 		if err != nil {
@@ -78,8 +79,18 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 		if downloaded.Bytes != int64(len(body)) || filepath.Dir(downloaded.Path) != dir {
 			t.Fatalf("wrong result: %+v", downloaded)
 		}
-		if downloaded.Path == previous {
-			t.Fatal("second call replaced the first file")
+		if i == 0 {
+			callsAfterFirst = calls
+		} else {
+			if downloaded.Path != previous {
+				t.Fatalf("second call did not reuse the first file: first=%q second=%q", previous, downloaded.Path)
+			}
+			if calls != callsAfterFirst {
+				t.Fatalf("second call made %d additional HTTP requests", calls-callsAfterFirst)
+			}
+			if downloaded.DownloadsLeft != nil {
+				t.Fatalf("reused file reported downloads left: %v", downloaded.DownloadsLeft)
+			}
 		}
 		actual, err := os.ReadFile(downloaded.Path)
 		if err != nil || !bytes.Equal(actual, body) {

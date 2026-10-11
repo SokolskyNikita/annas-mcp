@@ -1,0 +1,9 @@
+{
+  "books": [
+    {"query": "Pride and Prejudice", "title": "Pride and Prejudice", "author": "Jane Austen"},
+    {"query": "Frankenstein", "title": "Frankenstein", "author": "Mary Shelley"},
+    {"query": "Alice's Adventures in Wonderland", "title": "Alice's Adventures in Wonderland", "author": "Lewis Carroll"},
+    {"query": "The Time Machine", "title": "The Time Machine", "author": "H. G. Wells"},
+    {"query": "The Adventures of Sherlock Holmes", "title": "The Adventures of Sherlock Holmes", "author": "Arthur Conan Doyle"}
+  ]
+}

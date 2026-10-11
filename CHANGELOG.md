@@ -2,6 +2,10 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.6.1](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.1) - 2026-10-11
+
+- Reuse a file in the download folder when its content matches the requested MD5, returning its existing path and byte count without downloading it again. DOI downloads resolve the record first; concurrent requests for the same hash share the first download. When no match exists, save the new download with the next unused filename, with no fixed collision limit.
+
 ## [v0.6.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.0) - 2026-10-11
 
 - `book_search` and `metadata_search` results get an `edition` field. A result's publisher line reads "publisher, edition", and the whole line used to be returned as the publisher, so a record without a publisher reported "2019" or "2nd ed" as one. `publisher` now holds the publisher alone. Articles still report the whole line as `journal`.

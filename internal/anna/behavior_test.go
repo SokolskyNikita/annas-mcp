@@ -201,7 +201,7 @@ func TestDownloadMethodsRequireAPIKeyBeforeNetwork(t *testing.T) {
 			return err
 		},
 		"DownloadArticle": func(client *Client) error {
-			_, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "10.1000/example"}, 0, nil)
+			_, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{Hash: "0123456789abcdef0123456789abcdef"}, 0, nil)
 			return err
 		},
 	} {

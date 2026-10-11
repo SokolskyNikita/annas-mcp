@@ -40,9 +40,9 @@ Give `article_search` a DOI (`10.1038/nature14539`, `doi:…` or `https://doi.or
 
 ### Downloading
 
-`book_download` takes the `hash` and a `title`. `article_download` takes either a `doi` or a `hash`, plus an optional `title`. Both return the saved file's `path`, its size in `bytes` and `downloads_left`, the account's remaining fast downloads. `account_status` returns `member`, `downloads_left`, `downloads_limit`, `window_hours` and your active `memberships`; the [README](README.md#tools) explains the allowance.
+`book_download` takes the `hash` and a `title`. `article_download` takes either a `doi` or a `hash`, plus an optional `title`. Both return the file's `path` and size in `bytes`; a fresh fast download also returns `downloads_left`, the account's remaining fast downloads. Local reuse omits `downloads_left` because it makes no fresh account request. `account_status` returns `member`, `downloads_left`, `downloads_limit`, `window_hours` and your active `memberships`; the [README](README.md#tools) explains the allowance.
 
-`title` becomes the filename. Pass `format` (such as `epub` or `pdf`) to set the extension; this doesn't convert the file, and without it the extension is detected from the download. An existing file is never overwritten: a name clash gets a short suffix.
+Before downloading file bytes, the server checks completed regular files directly in the configured download folder against the full MD5 hash. A match is reused regardless of filename or extension, so the returned path can differ from the requested title. `article_download` by DOI resolves the DOI to a hash before this check. If there is no match, `title` becomes the filename. Pass `format` (such as `epub` or `pdf`) to set the extension; this doesn't convert the file, and without it the extension is detected from the download. An existing file is never overwritten: a name clash gets a short suffix.
 
 Files are checked against the archive's MD5 hash, and incomplete or corrupt downloads are deleted. A download tries three fast servers, and when the file is stored in more than one collection and every server fails, up to two more collections. When the fast download servers don't have a paper, or the account has no fast downloads left, `article_download` by DOI falls back to the PDF on Anna's SciDB page.
 

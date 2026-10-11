@@ -99,6 +99,7 @@ A workflow runs the same check every Monday. It opens an issue labelled `upstrea
 These use real credentials from your environment or `.env`.
 
 - `node scripts/smoke-mcp.mjs ./annas-mcp` exercises all seven MCP tools against the live archive, including real downloads (so it uses download quota), and verifies sizes and checksums. It ignores `ANNAS_ACCOUNT_COOKIE` and saves the session in a temporary folder, so it always tests signing in with `ANNAS_SECRET_KEY`.
+- `ANNAS_MCP_TEST_DEDUPE_LIVE=1 go test ./internal/anna -run '^TestLiveDownloadDeduplicationAcrossFiveBooks$' -count=1 -v` checks five live book downloads and confirms repeats reuse the matching local file. It reads credentials and the saved session from the configured environment or `.env`; any new file downloads use quota.
 - `scripts/healthcheck.sh --live` runs real searches without downloading anything.
 - `ANNAS_MCP_TEST_SCIDB_LIVE=1 go test ./internal/anna -run '^TestLiveSciDBFallback$' -count=1 -v` tests the SciDB PDF fallback on its own.
 - `ANNAS_MCP_TEST_LIVE=1 go test ./internal/anna -run '^TestLiveSearchDetailsAndAccount$' -count=1 -v` checks search filters and result cards, catalog search, `book_details` and the account page against the live archive. It downloads nothing, so it uses no download quota.

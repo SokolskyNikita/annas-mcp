@@ -154,6 +154,9 @@ func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 	if result.Bytes != int64(len(body)) {
 		t.Fatalf("bytes: %d", result.Bytes)
 	}
+	if err := os.Remove(result.Path); err != nil {
+		t.Fatal(err)
+	}
 	corrupt = true
 	if _, err := client.DownloadArticle(context.Background(), ArticleDownloadOptions{DOI: "10.1000/example"}, callTimeout, nil); err == nil {
 		t.Fatal("SciDB checksum mismatch was accepted")
@@ -162,7 +165,7 @@ func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(entries) != 1 {
+	if len(entries) != 0 {
 		t.Fatalf("failed download left files behind: %v", entries)
 	}
 }

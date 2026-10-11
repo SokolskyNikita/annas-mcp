@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"iter"
 	"net/http"
 	"net/url"
 	"os"
@@ -114,8 +115,10 @@ func downloadFileWithGetter(ctx context.Context, client *http.Client, rawURL, fo
 		return DownloadResult{}, fmt.Errorf("failed to close downloaded file: %w", err)
 	}
 
-	paths := downloadPathCandidates(folderPath, title, format, expectedMD5)
-	for _, path := range paths {
+	for path := range downloadPathCandidates(folderPath, title, format, expectedMD5) {
+		if err := ctx.Err(); err != nil {
+			return DownloadResult{}, err
+		}
 		if err := os.Link(temp.Name(), path); err == nil {
 			return DownloadResult{Path: path, Bytes: transfer.written}, nil
 		} else if !errors.Is(err, os.ErrExist) {
@@ -258,7 +261,7 @@ func normalizeFormat(format string) (string, error) {
 	return format, nil
 }
 
-func downloadPathCandidates(folder, title, format, hash string) []string {
+func downloadPathCandidates(folder, title, format, hash string) iter.Seq[string] {
 	safeTitle := sanitizeFilename(title)
 	if safeTitle == "" {
 		safeTitle = "untitled"
@@ -276,18 +279,19 @@ func downloadPathCandidates(folder, title, format, hash string) []string {
 		}
 	}
 	suffix = b.String()
-	names := []string{safeTitle + "." + format}
-	if suffix != "" {
-		names = append(names, safeTitle+"-"+suffix+"."+format)
+	return func(yield func(string) bool) {
+		if !yield(filepath.Join(folder, safeTitle+"."+format)) {
+			return
+		}
+		if suffix != "" && !yield(filepath.Join(folder, safeTitle+"-"+suffix+"."+format)) {
+			return
+		}
+		for i := 2; ; i++ {
+			if !yield(filepath.Join(folder, fmt.Sprintf("%s-%s-%d.%s", safeTitle, suffix, i, format))) {
+				return
+			}
+		}
 	}
-	for i := 2; i <= 20; i++ {
-		names = append(names, fmt.Sprintf("%s-%s-%d.%s", safeTitle, suffix, i, format))
-	}
-	paths := make([]string, 0, len(names))
-	for _, name := range names {
-		paths = append(paths, filepath.Join(folder, name))
-	}
-	return paths
 }
 
 type bufferedReadCloser struct {

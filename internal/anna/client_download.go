@@ -50,6 +50,18 @@ type fastDownloadGrant struct {
 }
 
 func (c *Client) validateDownload(ctx context.Context, format string) error {
+	if err := c.validateDownloadTarget(ctx, format); err != nil {
+		return err
+	}
+	if strings.TrimSpace(c.config.SecretKey) == "" {
+		return apperr.New(apperr.Config, "ANNAS_SECRET_KEY is required for downloads")
+	}
+	return prepareDownloadFolder(c.config.DownloadPath)
+}
+
+// A local match only needs a valid target; credentials and write access are
+// checked later if a new file must be downloaded.
+func (c *Client) validateDownloadTarget(ctx context.Context, format string) error {
 	if ctx != nil {
 		if err := ctx.Err(); err != nil {
 			return err
@@ -66,10 +78,7 @@ func (c *Client) validateDownload(ctx context.Context, format string) error {
 	if !filepath.IsAbs(c.config.DownloadPath) {
 		return apperr.New(apperr.Config, "ANNAS_DOWNLOAD_PATH must be an absolute folder path")
 	}
-	if strings.TrimSpace(c.config.SecretKey) == "" {
-		return apperr.New(apperr.Config, "ANNAS_SECRET_KEY is required for downloads")
-	}
-	return prepareDownloadFolder(c.config.DownloadPath)
+	return nil
 }
 
 // prepareDownloadFolder creates the download folder and checks that a file
@@ -108,6 +117,15 @@ func (c *Client) downloadBook(ctx context.Context, book *Book, progress Progress
 	if err != nil {
 		return DownloadResult{}, err
 	}
+	if err := c.validateDownloadTarget(ctx, book.Format); err != nil {
+		return DownloadResult{}, err
+	}
+	return c.reuseOrDownload(ctx, hash, func() (DownloadResult, error) {
+		return c.downloadBookFromArchive(ctx, book, hash, progress)
+	})
+}
+
+func (c *Client) downloadBookFromArchive(ctx context.Context, book *Book, hash string, progress ProgressFunc) (DownloadResult, error) {
 	if err := c.validateDownload(ctx, book.Format); err != nil {
 		return DownloadResult{}, err
 	}
@@ -208,7 +226,7 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 	if _, ok := parse.ParseDOI(doi); !ok {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "doi must be a valid DOI or DOI URL")
 	}
-	if err := c.validateDownload(ctx, options.Format); err != nil {
+	if err := c.validateDownloadTarget(ctx, options.Format); err != nil {
 		return DownloadResult{}, err
 	}
 	paper, err := c.lookupDOI(ctx, doi)
@@ -255,7 +273,7 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 	if paper == nil {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "paper is required")
 	}
-	if err := c.validateDownload(ctx, format); err != nil {
+	if err := c.validateDownloadTarget(ctx, format); err != nil {
 		return DownloadResult{}, err
 	}
 	expectedMD5 := ""
@@ -266,6 +284,17 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 			return DownloadResult{}, err
 		}
 	}
+	return c.reuseOrDownload(ctx, expectedMD5, func() (DownloadResult, error) {
+		return c.downloadPaperFromArchive(ctx, paper, format, expectedMD5, progress)
+	})
+}
+
+func (c *Client) downloadPaperFromArchive(ctx context.Context, paper *Paper, format, expectedMD5 string, progress ProgressFunc) (DownloadResult, error) {
+	if err := c.validateDownload(ctx, format); err != nil {
+		return DownloadResult{}, err
+	}
+	knownHash := expectedMD5 != ""
+	var err error
 	var base string
 	sourceURL := paper.DownloadURL
 	if sourceURL == "" {
@@ -295,7 +324,14 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 	if format == "" {
 		format = "pdf"
 	}
-	return downloadFileWithGetter(ctx, c.requestClient(0), downloadURL, c.config.DownloadPath, name, format, expectedMD5, progress, c.getSciDBPDF)
+	download := func() (DownloadResult, error) {
+		return downloadFileWithGetter(ctx, c.requestClient(0), downloadURL, c.config.DownloadPath, name, format, expectedMD5, progress, c.getSciDBPDF)
+	}
+	if !knownHash {
+		// SciDB may have supplied the hash while resolving the PDF URL.
+		return c.reuseOrDownload(ctx, expectedMD5, download)
+	}
+	return download()
 }
 
 func (c *Client) resolveDownloadURL(ctx context.Context, client *http.Client, base, hash, secretKey string, pathIndex, domainIndex int) (fastDownloadGrant, error) {

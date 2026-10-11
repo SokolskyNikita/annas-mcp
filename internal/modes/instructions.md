@@ -9,8 +9,8 @@ Raise limit before increasing page.
 book_details takes a hash or a metadata_search id and returns identifiers such as ISBN and DOI, the edition, description, subjects and problems reported for the file. Use it to confirm an edition or cite a work.
 Pass the selected 32-character hash to a download tool, or a DOI to article_download.
 Download format only names the extension; it does not convert files.
-Each new file uses one fast download from the account's allowance for a rolling window; downloading a recent file again is free. Downloads report downloads_left; account_status shows the allowance, so check it before downloading many files.
-Downloads write under ANNAS_DOWNLOAD_PATH (by default annas-archive in the user's home folder) and never overwrite existing files. They return path and bytes; tell the user where the file was saved.
+Downloads check completed files directly under ANNAS_DOWNLOAD_PATH (by default annas-archive in the user's home folder) against the full MD5. A match returns the existing path and bytes regardless of filename or extension, without downloading again; downloads_left is omitted. article_download resolves a DOI to its hash before checking.
+If no file matches, downloads save a verified copy using a unique name and never overwrite an existing file. A fresh fast download may use the account's rolling-window allowance. Downloads return path and bytes, and downloads_left when available after a fast download; account_status shows the allowance. Tell the user the returned file path.
 Errors begin with a stable code: INVALID_ARGUMENT, CONFIG, NOT_FOUND, UPSTREAM_BLOCKED, REQUEST_TIMEOUT or UPSTREAM.
 Report errors; do not claim a file was downloaded unless the tool succeeded.
 When an error says sign-in failed or mentions ANNAS_ACCOUNT_COOKIE, give the user its steps for setting the cookie by hand.

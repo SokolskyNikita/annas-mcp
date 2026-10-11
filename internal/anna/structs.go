@@ -101,9 +101,9 @@ type SearchPage[T any] struct {
 	MorePages         bool
 }
 
-// DownloadResult is the file written by a successful download.
-// DownloadsLeft is the account's remaining fast downloads afterwards, when
-// the file came from a fast download server.
+// DownloadResult is the file returned by a successful download request.
+// DownloadsLeft is included when a fresh fast download reports the account's
+// allowance, and omitted when an existing local file is reused.
 type DownloadResult struct {
 	Path          string `json:"path"`
 	Bytes         int64  `json:"bytes"`

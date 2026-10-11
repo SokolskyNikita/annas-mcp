@@ -56,6 +56,9 @@ type Client struct {
 	signingIn        chan struct{}
 	signedInAt       time.Time
 	signInErr        error
+	// downloads makes concurrent requests for the same hash reuse one file.
+	downloadMu sync.Mutex
+	downloads  map[string]chan struct{}
 	// Limits on how long one request may wait; tests shorten them.
 	headerTimeout time.Duration
 	idleTimeout   time.Duration

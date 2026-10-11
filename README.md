@@ -158,7 +158,7 @@ On macOS, Desktop, Documents, Downloads and iCloud Drive are protected: the firs
 
 The AI fills in each tool's options from your request. [HOW-IT-WORKS.md](HOW-IT-WORKS.md#tools) lists them and what each tool returns, and `--help` shows them on the [command line](#command-line).
 
-Each new file uses one fast download from your membership's allowance, which Anna's Archive counts over a rolling 18- or 24-hour window. Downloading a file again within that window is free, and `account_status` shows how many are left.
+Before downloading, the server checks completed regular files directly in your download folder against the full MD5 hash. If one matches, it returns that file's path and size regardless of its name or extension, without downloading it or making a fresh account request; `downloads_left` is omitted. For article downloads by DOI, the DOI is resolved to a hash first. If no local file matches, the server downloads a verified copy and chooses a unique filename without overwriting an existing file. A fast download may use your membership's allowance, which Anna's Archive counts over a rolling 18- or 24-hour window. Downloading a file again within that window is free, and `account_status` shows how many are left.
 
 ## Troubleshooting
 
