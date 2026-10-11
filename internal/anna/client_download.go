@@ -21,7 +21,13 @@ import (
 	"github.com/SokolskyNikita/annas-mcp/internal/env"
 )
 
-var domainIndexes = []int{0, 1, 2}
+// domainIndexes picks Anna's download servers in the order they are tried.
+// Each index names a server and one of its storage areas, and these name one
+// of each server: the three fast partner servers, then the one Anna calls
+// hybrid and the three it calls slow, which serve members at the same speed.
+// Later servers are asked only after the earlier ones fail, and asking again
+// for the same file uses no more of the allowance.
+var domainIndexes = []int{0, 1, 2, 6, 12, 13, 14}
 
 // maxDownloadPaths bounds how many of a file's collections are tried when
 // it is stored in more than one. Only the first API answer for a file counts
@@ -138,7 +144,7 @@ collections:
 		// API itself failed, the next collection would ask the same API.
 		granted := false
 	servers:
-		for _, domainIndex := range domainIndexes {
+		for position, domainIndex := range domainIndexes {
 			if err := ctx.Err(); err != nil {
 				return DownloadResult{}, failedDownload(attempts, err)
 			}
@@ -146,7 +152,7 @@ collections:
 			if err != nil {
 				return DownloadResult{}, failedDownload(attempts, err)
 			}
-			server := fastServerLabel(pathIndex, domainIndex)
+			server := fastServerLabel(pathIndex, position)
 			// A mirror that fails here is retried on another mirror for
 			// the same server, so it does not use up one of the servers.
 			var grant fastDownloadGrant
@@ -157,10 +163,10 @@ collections:
 			})
 			if errors.Is(err, errNoFastDownload) {
 				switch {
-				case pathIndex == 0 && domainIndex == 0:
+				case pathIndex == 0 && position == 0:
 					attempts = append(attempts, fmt.Errorf("%s (API): %w", server, err))
 					break collections
-				case domainIndex == 0:
+				case position == 0:
 					// The file is in fewer collections than this.
 					break collections
 				default:
@@ -193,13 +199,14 @@ collections:
 	return DownloadResult{}, failedDownload(attempts, ctx.Err())
 }
 
-// fastServerLabel names an attempt in diagnostics. Most files are in one
-// collection, so the first keeps the short form.
-func fastServerLabel(pathIndex, domainIndex int) string {
+// fastServerLabel names an attempt in diagnostics by the server's place in
+// domainIndexes. Most files are in one collection, so the first keeps the
+// short form.
+func fastServerLabel(pathIndex, position int) string {
 	if pathIndex == 0 {
-		return fmt.Sprintf("fast server %d", domainIndex+1)
+		return fmt.Sprintf("fast server %d", position+1)
 	}
-	return fmt.Sprintf("collection %d, fast server %d", pathIndex+1, domainIndex+1)
+	return fmt.Sprintf("collection %d, fast server %d", pathIndex+1, position+1)
 }
 
 // downloadsLeftAfter adjusts the allowance the API read before counting this

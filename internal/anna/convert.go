@@ -100,6 +100,7 @@ func paperFromBook(book *Book, doi string) *Paper {
 		Hash:           book.Hash,
 		Description:    book.Description,
 		PageURL:        book.URL,
+		Stats:          book.Stats,
 	}
 	return paper
 }

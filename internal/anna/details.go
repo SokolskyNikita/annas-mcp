@@ -219,7 +219,14 @@ func (c *Client) fetchSummary(ctx context.Context, base, hash string) (*parse.MD
 // fetchJSON reads an archive JSON endpoint. An HTML body where JSON was
 // expected is a browser check or an error page, not record data.
 func (c *Client) fetchJSON(ctx context.Context, rawURL string, target any, what string) error {
-	response, err := c.doGet(ctx, c.requestClient(0), rawURL)
+	return c.fetchJSONWithHeaders(ctx, rawURL, target, what, nil)
+}
+
+// fetchJSONWithHeaders reads an archive JSON endpoint with additional request
+// headers. Some JSON endpoints use a non-JSON content type, so the body is
+// decoded as JSON regardless of Content-Type.
+func (c *Client) fetchJSONWithHeaders(ctx context.Context, rawURL string, target any, what string, header http.Header) error {
+	response, err := c.doGetWith(ctx, c.requestClient(0), rawURL, header)
 	if err != nil {
 		return err
 	}

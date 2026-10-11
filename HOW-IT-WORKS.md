@@ -23,6 +23,7 @@ Optional fields:
 | `sort` | Relevance | `newest` or `oldest` (publication year), `largest` or `smallest` (file size), `newest_added` or `oldest_added`, or `random`. |
 | `downloadable_only` | `false` | Only files the download tools can fetch: fast downloads, plus SciDB for `article_search`. |
 | `search_descriptions` | `false` | Also match `query` against descriptions and metadata comments. |
+| `include_stats` | `false` | Add public activity counts to returned file hits when available. This adds requests and may add latency. |
 | `limit` | 10 | Results to return from the page. Raise this before asking for another page. |
 | `page` | 1 | Result page. Anna's Archive pages hold 50 results. |
 
@@ -31,6 +32,8 @@ Optional fields:
 Every result in `results` matches all filters. `total` counts all matches (it is a lower bound when `total_is_lower_bound` is set), and `more_pages` says whether another page exists. When a first page has fewer results than `limit`, Anna's Archive suggests looser matches; these come back separately as `partial_matches` and may ignore the filters.
 
 Give `article_search` a DOI (`10.1038/nature14539`, `doi:…` or `https://doi.org/…`) to get that one article instead of a page of results.
+
+With `include_stats: true`, returned book and article hits (including partial matches) can include a `stats` object with `downloads`, `great_quality`, `reports`, `lists` and `comments`, matching the counters in `book_details`. These are counts for that file's MD5 hash: recorded downloads are the main popularity signal, lists count list membership, quality counts positive quality votes, reports count problem reports, and comments count direct comments. Counts are per file, not combined across editions or formats; they may be cached upstream for up to a day. An unavailable lookup omits the whole `stats` field, while a confirmed zero is returned as `0`. DOI results include stats when a file hash is available. Catalog records from `metadata_search` do not have file stats. The option does not change search ordering or produce a combined popularity score.
 
 ### Catalogs and details
 
@@ -44,7 +47,7 @@ Give `article_search` a DOI (`10.1038/nature14539`, `doi:…` or `https://doi.or
 
 Before downloading file bytes, the server checks completed regular files directly in the configured download folder against the full MD5 hash. A match is reused regardless of filename or extension, so the returned path can differ from the requested title. `article_download` by DOI resolves the DOI to a hash before this check. If there is no match, `title` becomes the filename. Pass `format` (such as `epub` or `pdf`) to set the extension; this doesn't convert the file, and without it the extension is detected from the download. An existing file is never overwritten: a name clash gets a short suffix.
 
-Files are checked against the archive's MD5 hash, and incomplete or corrupt downloads are deleted. A download tries three fast servers, and when the file is stored in more than one collection and every server fails, up to two more collections. When the fast download servers don't have a paper, or the account has no fast downloads left, `article_download` by DOI falls back to the PDF on Anna's SciDB page.
+Files are checked against the archive's MD5 hash, and incomplete or corrupt downloads are deleted. A download tries up to seven download servers in turn, and when the file is stored in more than one collection and every server fails, up to two more collections. Trying another server or collection doesn't use another fast download. When the fast download servers don't have a paper, or the account has no fast downloads left, `article_download` by DOI falls back to the PDF on Anna's SciDB page.
 
 ## Choosing a mirror
 

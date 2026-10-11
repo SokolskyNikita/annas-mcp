@@ -57,7 +57,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 		Instructions: serverInstructions,
 		Capabilities: &mcp.ServerCapabilities{},
 	})
-	mcp.AddTool(server, tool("book_search", "Search books", "Search books, textbooks, manuals and standards by title, author or topic, optionally filtered by format, language, content type, source library or year and sorted. Returns one page with hash, format, year, fast_download and metadata. Pass a selected hash to book_download, or to book_details for ISBNs, edition and file problems.", true),
+	mcp.AddTool(server, tool("book_search", "Search books", "Search books, textbooks, manuals and standards by title, author or topic, optionally filtered by format, language, content type, source library or year and sorted. Returns one page with hash, format, year, fast_download and metadata. Set include_stats to add public per-file downloads, quality votes, reports, lists and comments. Pass a selected hash to book_download, or to book_details for ISBNs, edition and file problems.", true),
 		func(ctx context.Context, req *mcp.CallToolRequest, params SearchParams) (*mcp.CallToolResult, searchResult[*anna.Book], error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, searchTimeout)
 			if err != nil {
@@ -69,7 +69,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 			}
 			return nil, result, nil
 		})
-	mcp.AddTool(server, tool("article_search", "Search articles", "Find a paper by DOI (including DOI URLs), or search journal articles by keywords, author, title or year. DOI lookup returns one paper; keyword search returns one page. Compare metadata before downloading by hash or DOI.", true),
+	mcp.AddTool(server, tool("article_search", "Search articles", "Find a paper by DOI (including DOI URLs), or search journal articles by keywords, author, title or year. DOI lookup returns one paper; keyword search returns one page. Set include_stats to add public per-file downloads, quality votes, reports, lists and comments. Compare metadata before downloading by hash or DOI.", true),
 		func(ctx context.Context, req *mcp.CallToolRequest, params SearchParams) (*mcp.CallToolResult, any, error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, searchTimeout)
 			if err != nil {

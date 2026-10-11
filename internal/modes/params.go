@@ -17,6 +17,7 @@ type SearchParams struct {
 	Sort               string `json:"sort,omitempty" jsonschema:"Optional order: relevance (default), newest or oldest (publication year), largest or smallest (file size), newest_added or oldest_added (date added to the archive), or random"`
 	DownloadableOnly   bool   `json:"downloadable_only,omitempty" jsonschema:"Only return files the download tools can fetch: fast downloads, and for article_search also SciDB"`
 	SearchDescriptions bool   `json:"search_descriptions,omitempty" jsonschema:"Also match query against descriptions and metadata comments"`
+	IncludeStats       bool   `json:"include_stats,omitempty" jsonschema:"Include public per-file community counts (downloads, quality votes, reports, lists and comments). Adds a statistics lookup for returned file hashes"`
 	Page               int    `json:"page,omitempty" jsonschema:"Result page starting at 1. Defaults to 1"`
 	Limit              int    `json:"limit,omitempty" jsonschema:"Maximum results from this page. Defaults to 10; raise this before requesting another page"`
 	TimeoutSeconds     int    `json:"timeout_seconds,omitempty" jsonschema:"Total operation timeout in seconds, including retries. Defaults to 60; maximum 86400"`

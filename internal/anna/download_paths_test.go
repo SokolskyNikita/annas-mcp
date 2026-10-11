@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -52,7 +53,7 @@ func (api *fastAPI) roundTrip(req *http.Request) (*http.Response, error) {
 	api.mu.Lock()
 	api.calls = append(api.calls, fmt.Sprintf("%d/%d", path, domain))
 	api.mu.Unlock()
-	if path >= api.collections || domain >= len(domainIndexes) {
+	if path >= api.collections || !slices.Contains(domainIndexes, domain) {
 		return testDownloadResponse(req, http.StatusBadRequest, "text/json", api.noCopy), nil
 	}
 	status, body := api.answer(path, domain)
@@ -91,7 +92,7 @@ func TestDownloadTriesAnotherCollectionAfterFileFailures(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := strings.Join(api.calls, " "); got != "0/0 0/1 0/2 1/0" {
+	if got := strings.Join(api.calls, " "); got != "0/0 0/1 0/2 0/6 0/12 0/13 0/14 1/0" {
 		t.Fatalf("API calls = %s", got)
 	}
 	if result.DownloadsLeft == nil || *result.DownloadsLeft != 9 {
@@ -113,11 +114,11 @@ func TestDownloadStopsAfterTheFilesLastCollection(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected failure")
 	}
-	if got := strings.Join(api.calls, " "); got != "0/0 0/1 0/2 1/0" {
+	if got := strings.Join(api.calls, " "); got != "0/0 0/1 0/2 0/6 0/12 0/13 0/14 1/0" {
 		t.Fatalf("API calls = %s", got)
 	}
 	// Running out of collections is not itself a failure worth reporting.
-	if message := err.Error(); strings.Contains(message, "collection 2") || strings.Contains(message, "no fast download") || !strings.Contains(message, "fast server 3 (file)") {
+	if message := err.Error(); strings.Contains(message, "collection 2") || strings.Contains(message, "no fast download") || !strings.Contains(message, "fast server 7 (file)") {
 		t.Fatalf("diagnostic = %v", err)
 	}
 	if apperr.CodeOf(err) != apperr.Upstream {
@@ -136,7 +137,7 @@ func TestDownloadTriesAtMostThreeCollections(t *testing.T) {
 	if err == nil || len(api.calls) != maxDownloadPaths*len(domainIndexes) {
 		t.Fatalf("calls = %v, err = %v", api.calls, err)
 	}
-	if !strings.Contains(err.Error(), "collection 3, fast server 3 (file)") || !strings.Contains(err.Error(), "fast server 1 (file)") {
+	if !strings.Contains(err.Error(), "collection 3, fast server 7 (file)") || !strings.Contains(err.Error(), "fast server 1 (file)") {
 		t.Fatalf("diagnostic = %v", err)
 	}
 }
@@ -197,7 +198,7 @@ func TestDownloadRetriesServerErrorsWithoutMovingCollection(t *testing.T) {
 	_, err := api.client(t).DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef", Title: "X", Format: "pdf"}, callTimeout, nil)
 	// The API answers for every collection, so a failing API is retried per
 	// server but not once more per collection.
-	if err == nil || strings.Join(api.calls, " ") != "0/0 0/1 0/2" || !strings.Contains(err.Error(), "Error during fetching") {
+	if err == nil || strings.Join(api.calls, " ") != "0/0 0/1 0/2 0/6 0/12 0/13 0/14" || !strings.Contains(err.Error(), "Error during fetching") {
 		t.Fatalf("calls = %v, err = %v", api.calls, err)
 	}
 }

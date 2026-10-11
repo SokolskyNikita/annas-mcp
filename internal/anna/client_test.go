@@ -190,7 +190,7 @@ func TestDownloadRetriesShareOneDeadline(t *testing.T) {
 	if _, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef"}, callTimeout, nil); err == nil {
 		t.Fatal("expected failure")
 	}
-	if calls != 3 {
-		t.Fatalf("expected three domain attempts: %d", calls)
+	if calls != len(domainIndexes) {
+		t.Fatalf("expected one attempt per download server: %d", calls)
 	}
 }

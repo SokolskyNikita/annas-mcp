@@ -37,7 +37,7 @@ func TestDownloadFailureDiagnosticsIncludeAllFastAttempts(t *testing.T) {
 					return testDownloadResponse(req, http.StatusBadGateway, "text/html", errorPage(t, apiHTMLMarker+" "+configuredSecret)), nil
 				case "1":
 					return testDownloadURLResponse(req, "https://cdn-two.example/private/cook.pdf?token="+querySecret), nil
-				case "2":
+				default:
 					return testDownloadURLResponse(req, "https://cdn-three.example/private/cook.pdf?token="+querySecret), nil
 				}
 			}
@@ -89,7 +89,7 @@ func TestDOIDownloadFailureDiagnosticsIncludeFastAndSciDBAttempts(t *testing.T) 
 					return testDownloadResponse(req, http.StatusBadGateway, "text/html", errorPage(t, bodyMarker)), nil
 				case "1":
 					return testDownloadURLResponse(req, "https://cdn-two.example/private/cook.pdf?token="+querySecret), nil
-				case "2":
+				default:
 					return testDownloadURLResponse(req, "https://cdn-three.example/private/cook.pdf?token="+querySecret), nil
 				}
 			}
@@ -137,10 +137,8 @@ func TestDownloadFailureDiagnosticsRedactAPIErrorAndPreserveTransportCause(t *te
 				return nil, transportCause
 			case "1":
 				return testDownloadResponse(req, http.StatusBadRequest, "application/json", strings.ReplaceAll(fixtureText(t, "fast_download_rejected_key.json"), "{{SECRET}}", configuredSecret)), nil
-			case "2":
-				return testDownloadResponse(req, http.StatusServiceUnavailable, "text/html", errorPage(t, bodyMarker)), nil
 			default:
-				return nil, fmt.Errorf("unexpected domain index %q", req.URL.Query().Get("domain_index"))
+				return testDownloadResponse(req, http.StatusServiceUnavailable, "text/html", errorPage(t, bodyMarker)), nil
 			}
 		})},
 	})

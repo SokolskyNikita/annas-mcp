@@ -11,8 +11,8 @@ It signs in with your membership's secret key and renews the session by itself, 
 
 | Tool | What it does |
 | --- | --- |
-| `book_search` | Finds books, textbooks, manuals and standards by title, author or topic, filtered by format, language, source or year |
-| `article_search` | Finds journal articles by keyword, author or year, or looks one up by DOI |
+| `book_search` | Finds books, textbooks, manuals and standards by title, author or topic, filtered by format, language, source or year; can include file activity counts |
+| `article_search` | Finds journal articles by keyword, author or year, or looks one up by DOI; can include file activity counts |
 | `metadata_search` | Searches library catalogs such as Open Library, WorldCat and ISBNdb for editions and ISBNs |
 | `book_details` | Shows a result's ISBNs and other identifiers, edition, description and reported file problems |
 | `account_status` | Shows your membership and how many fast downloads are left |
@@ -182,7 +182,7 @@ If the server doesn't start at all, run `npx -y annas-mcp --version` in a termin
 Every tool is also a command. Set the same variables (or put them in a `.env` file), then:
 
 ```bash
-npx -y annas-mcp book-search "pride and prejudice" --language en --format epub
+npx -y annas-mcp book-search "pride and prejudice" --language en --format epub --include-stats
 npx -y annas-mcp book-search --author "Jane Austen" --year 1813 --sort oldest
 npx -y annas-mcp article-search 10.1038/nature14539
 npx -y annas-mcp metadata-search 9780141439518
@@ -192,7 +192,7 @@ npx -y annas-mcp book-download <hash> "Pride and Prejudice.epub"
 npx -y annas-mcp article-download 10.1038/nature14539
 ```
 
-Add `--json` for machine-readable output, `--timeout 10m` to change the timeout and `--help` to any command for all of its options.
+Add `--include-stats` to a book or article search to include per-file download, list, quality-vote, report and comment counts when available. Add `--json` for machine-readable output, `--timeout 10m` to change the timeout and `--help` to any command for all of its options.
 
 ## Privacy
 

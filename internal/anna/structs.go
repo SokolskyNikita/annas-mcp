@@ -10,22 +10,23 @@ import (
 // which book_download needs; PossibleIssues mirrors the archive's warning
 // that the file may be broken or mislabeled.
 type Book struct {
-	Title          string   `json:"title"`
-	Authors        string   `json:"authors"`
-	Publisher      string   `json:"publisher"`
-	Edition        string   `json:"edition,omitempty"`
-	Language       string   `json:"language"`
-	Format         string   `json:"format"`
-	Size           string   `json:"size"`
-	Year           string   `json:"year,omitempty"`
-	Content        string   `json:"content,omitempty"`
-	Sources        []string `json:"sources,omitempty"`
-	FastDownload   bool     `json:"fast_download"`
-	PossibleIssues bool     `json:"possible_issues,omitempty"`
-	Hash           string   `json:"hash"`
-	URL            string   `json:"url"`
-	DOI            string   `json:"doi,omitempty"`
-	Description    string   `json:"description,omitempty"`
+	Title          string       `json:"title"`
+	Authors        string       `json:"authors"`
+	Publisher      string       `json:"publisher"`
+	Edition        string       `json:"edition,omitempty"`
+	Language       string       `json:"language"`
+	Format         string       `json:"format"`
+	Size           string       `json:"size"`
+	Year           string       `json:"year,omitempty"`
+	Content        string       `json:"content,omitempty"`
+	Sources        []string     `json:"sources,omitempty"`
+	FastDownload   bool         `json:"fast_download"`
+	PossibleIssues bool         `json:"possible_issues,omitempty"`
+	Hash           string       `json:"hash"`
+	URL            string       `json:"url"`
+	DOI            string       `json:"doi,omitempty"`
+	Description    string       `json:"description,omitempty"`
+	Stats          *RecordStats `json:"stats,omitempty"`
 }
 
 // Paper is a journal article found by DOI or keyword search. DownloadURL is
@@ -35,20 +36,21 @@ type Book struct {
 // Journal is the record's publisher and edition line, which for articles
 // usually names the journal, volume and issue.
 type Paper struct {
-	DOI            string   `json:"doi,omitempty"`
-	Title          string   `json:"title,omitempty"`
-	Authors        string   `json:"authors"`
-	Journal        string   `json:"journal"`
-	Year           string   `json:"year,omitempty"`
-	Format         string   `json:"format,omitempty"`
-	Size           string   `json:"size"`
-	Sources        []string `json:"sources,omitempty"`
-	FastDownload   bool     `json:"fast_download,omitempty"`
-	PossibleIssues bool     `json:"possible_issues,omitempty"`
-	Hash           string   `json:"hash,omitempty"`
-	Description    string   `json:"description,omitempty"`
-	DownloadURL    string   `json:"-"`
-	PageURL        string   `json:"page_url"`
+	DOI            string       `json:"doi,omitempty"`
+	Title          string       `json:"title,omitempty"`
+	Authors        string       `json:"authors"`
+	Journal        string       `json:"journal"`
+	Year           string       `json:"year,omitempty"`
+	Format         string       `json:"format,omitempty"`
+	Size           string       `json:"size"`
+	Sources        []string     `json:"sources,omitempty"`
+	FastDownload   bool         `json:"fast_download,omitempty"`
+	PossibleIssues bool         `json:"possible_issues,omitempty"`
+	Hash           string       `json:"hash,omitempty"`
+	Description    string       `json:"description,omitempty"`
+	DownloadURL    string       `json:"-"`
+	PageURL        string       `json:"page_url"`
+	Stats          *RecordStats `json:"stats,omitempty"`
 }
 
 // MetadataRecord is a catalog entry from a source such as Open Library,
@@ -115,21 +117,35 @@ type ProgressFunc func(done, total int64)
 
 // String renders the CLI's plain-text view of a search hit.
 func (b *Book) String() string {
-	return labeled(
+	pairs := []string{
 		"Title", b.Title, "Authors", b.Authors, "Publisher", b.Publisher, "Edition", b.Edition,
 		"Language", b.Language, "Format", b.Format, "Size", b.Size,
 		"Year", b.Year, "Content", b.Content, "Sources", strings.Join(b.Sources, ", "),
 		"Fast download", yesNo(b.FastDownload), "Possible issues", yesOrEmpty(b.PossibleIssues),
 		"URL", b.URL, "Hash", b.Hash,
-	)
+	}
+	return labeled(appendStats(pairs, b.Stats)...)
 }
 
 // String renders the CLI's plain-text view of an article.
 func (p *Paper) String() string {
-	return labeled(
+	pairs := []string{
 		"DOI", p.DOI, "Title", p.Title, "Authors", p.Authors, "Journal", p.Journal,
 		"Year", p.Year, "Size", p.Size, "Possible issues", yesOrEmpty(p.PossibleIssues),
 		"Hash", p.Hash, "Page", p.PageURL,
+	}
+	return labeled(appendStats(pairs, p.Stats)...)
+}
+
+// appendStats keeps confirmed zero counts visible and unknown stats absent.
+func appendStats(pairs []string, stats *RecordStats) []string {
+	if stats == nil {
+		return pairs
+	}
+	return append(pairs,
+		"Downloads", strconv.Itoa(stats.Downloads), "Lists", strconv.Itoa(stats.Lists),
+		"Great quality votes", strconv.Itoa(stats.GreatQuality), "Issue reports", strconv.Itoa(stats.Reports),
+		"Comments", strconv.Itoa(stats.Comments),
 	)
 }
 

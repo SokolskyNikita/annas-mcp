@@ -3,6 +3,7 @@ package parse
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 )
 
 // Record holds the parts of /db/aarecord_elasticsearch/<id>.json that
@@ -102,6 +103,59 @@ type MD5Summary struct {
 	DownloadsLeft       int `json:"downloads_left"`
 	IsMember            int `json:"is_member"`
 	DownloadStillActive int `json:"download_still_active"`
+}
+
+// MD5InlineInfo is the public counter response from
+// /dyn/md5/inline_info/<md5>. It deliberately excludes account-specific
+// fields from /dyn/md5/summary/<md5>.
+type MD5InlineInfo struct {
+	ReportsCount      int `json:"reports_count"`
+	CommentsCount     int `json:"comments_count"`
+	ListsCount        int `json:"lists_count"`
+	DownloadsTotal    int `json:"downloads_total"`
+	GreatQualityCount int `json:"great_quality_count"`
+}
+
+// UnmarshalJSON requires each public counter to be present as a nonnegative
+// integer. Unknown fields are ignored because Anna may add public counters.
+func (info *MD5InlineInfo) UnmarshalJSON(data []byte) error {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	if fields == nil {
+		return fmt.Errorf("statistics response must be an object")
+	}
+	var parsed MD5InlineInfo
+	values := []struct {
+		name string
+		dest *int
+	}{
+		{"reports_count", &parsed.ReportsCount},
+		{"comments_count", &parsed.CommentsCount},
+		{"lists_count", &parsed.ListsCount},
+		{"downloads_total", &parsed.DownloadsTotal},
+		{"great_quality_count", &parsed.GreatQualityCount},
+	}
+	for _, field := range values {
+		raw, ok := fields[field.name]
+		if !ok {
+			return fmt.Errorf("statistics response is missing %s", field.name)
+		}
+		if bytes.Equal(bytes.TrimSpace(raw), []byte("null")) {
+			return fmt.Errorf("statistics field %s must be an integer", field.name)
+		}
+		var value int
+		if err := json.Unmarshal(raw, &value); err != nil {
+			return fmt.Errorf("statistics field %s must be an integer: %w", field.name, err)
+		}
+		if value < 0 {
+			return fmt.Errorf("statistics field %s must not be negative", field.name)
+		}
+		*field.dest = value
+	}
+	*info = parsed
+	return nil
 }
 
 // FastDownloadAnswer is the body of /dyn/api/fast_download.json. A failed

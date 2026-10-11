@@ -38,6 +38,39 @@ func TestIsUpAnswer(t *testing.T) {
 	}
 }
 
+func TestMD5InlineInfoRequiresPublicCounters(t *testing.T) {
+	t.Parallel()
+
+	var info MD5InlineInfo
+	if err := json.Unmarshal(readInlineInfoFixture(t, "md5_inline_info.json"), &info); err != nil {
+		t.Fatal(err)
+	}
+	want := MD5InlineInfo{ReportsCount: 2, CommentsCount: 0, ListsCount: 4, DownloadsTotal: 345, GreatQualityCount: 1}
+	if info != want {
+		t.Fatalf("statistics = %+v, want %+v", info, want)
+	}
+	var zero MD5InlineInfo
+	if err := json.Unmarshal(readInlineInfoFixture(t, "md5_inline_info_zero.json"), &zero); err != nil {
+		t.Fatalf("zero counters: %v", err)
+	}
+	if zero != (MD5InlineInfo{}) {
+		t.Fatalf("zero counters = %+v", zero)
+	}
+
+	valid := string(readInlineInfoFixture(t, "md5_inline_info.json"))
+	for _, value := range loadInlineInfoCases(t).InvalidCounterValues {
+		body := strings.Replace(valid, `"reports_count": 2`, `"reports_count": `+value, 1)
+		var bad MD5InlineInfo
+		if err := json.Unmarshal([]byte(body), &bad); err == nil {
+			t.Errorf("accepted invalid reports_count %s", value)
+		}
+	}
+	var missing MD5InlineInfo
+	if err := json.Unmarshal([]byte(`{}`), &missing); err == nil {
+		t.Error("accepted response without required counters")
+	}
+}
+
 // jsonCases are the JSON answers in testdata/cases/json.json.
 type jsonCases struct {
 	Comment          string
@@ -46,6 +79,27 @@ type jsonCases struct {
 		Body string
 		Up   bool
 	} `json:"up_answers"`
+}
+
+type inlineInfoCases struct {
+	Comment              string
+	InvalidCounterValues []string `json:"invalid_counter_values"`
+}
+
+func loadInlineInfoCases(t *testing.T) inlineInfoCases {
+	t.Helper()
+	var cases inlineInfoCases
+	loadCases(t, "md5_inline_info", &cases)
+	return cases
+}
+
+func readInlineInfoFixture(t testing.TB, name string) []byte {
+	t.Helper()
+	data, err := readTestdata(name)
+	if err != nil {
+		t.Fatalf("read %s: %v", name, err)
+	}
+	return data
 }
 
 func loadJSONCases(t *testing.T) jsonCases {

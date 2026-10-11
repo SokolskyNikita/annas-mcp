@@ -1,0 +1,4 @@
+{
+  "comment": "Public file counters must all be present as nonnegative integers; unknown additions are tolerated.",
+  "invalid_counter_values": ["null", "-1", "1.5", "\"1\"", "[]"]
+}

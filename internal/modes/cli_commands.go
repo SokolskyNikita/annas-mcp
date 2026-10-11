@@ -24,6 +24,7 @@ func newSearchCommand(options *cliOptions, article bool) *cobra.Command {
 	cmd.Flags().StringVar(&params.Content, "content", "", "Content types, comma-separated, for example book_nonfiction")
 	cmd.Flags().BoolVar(&params.DownloadableOnly, "downloadable-only", false, "Only list files the download commands can fetch")
 	cmd.Flags().BoolVar(&params.SearchDescriptions, "search-descriptions", false, "Also match the query against descriptions")
+	cmd.Flags().BoolVar(&params.IncludeStats, "include-stats", false, "Include public downloads, quality, report, list and comment counts")
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
 			params.Query = args[0]

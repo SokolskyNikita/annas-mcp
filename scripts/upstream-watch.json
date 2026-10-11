@@ -39,7 +39,7 @@
     },
     {
       "path": "allthethings/dyn/views.py",
-      "regions": ["@dyn\\.get\\(\"/dyn/up/\"\\)", "@dyn\\.get\\(\"/dyn/api/fast_download\\.json\"\\)", "@dyn\\.get\\(\"/dyn/md5/summary/"]
+      "regions": ["@dyn\\.get\\(\"/dyn/up/\"\\)", "@dyn\\.get\\(\"/dyn/api/fast_download\\.json\"\\)", "@dyn\\.get\\(\"/dyn/md5/summary/", "@dyn\\.get\\(\"/dyn/md5/inline_info/"]
     },
     {
       "path": "allthethings/translations/en/LC_MESSAGES/messages.po",

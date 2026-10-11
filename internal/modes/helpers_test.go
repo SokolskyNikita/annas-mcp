@@ -43,28 +43,38 @@ func loadCases(t testing.TB, name string, into any) {
 }
 
 type fakeArchive struct {
-	calls    int
-	query    string
-	options  anna.SearchOptions
-	article  anna.ArticleDownloadOptions
-	books    []*anna.Book
-	partial  []*anna.Book
-	papers   []*anna.Paper
-	records  []*anna.MetadataRecord
-	total    int
-	details  *anna.Details
-	status   *anna.AccountStatus
-	detailID string
-	book     *anna.Book
-	timeout  time.Duration
-	failure  error
+	calls           int
+	statsCalls      int
+	query           string
+	options         anna.SearchOptions
+	article         anna.ArticleDownloadOptions
+	books           []*anna.Book
+	partial         []*anna.Book
+	papers          []*anna.Paper
+	articlePartial  []*anna.Paper
+	records         []*anna.MetadataRecord
+	total           int
+	details         *anna.Details
+	status          *anna.AccountStatus
+	detailID        string
+	book            *anna.Book
+	doiPaper        *anna.Paper
+	timeout         time.Duration
+	bookDeadline    time.Time
+	hasBookDeadline bool
+	failure         error
+	stats           map[string]anna.RecordStats
+	statsFailure    error
+	statsHashes     []string
+	statsFunc       func(context.Context, []string) (map[string]anna.RecordStats, error)
 }
 
-func (f *fakeArchive) FindBook(_ context.Context, q string, o anna.SearchOptions, timeout time.Duration) (anna.SearchPage[*anna.Book], error) {
+func (f *fakeArchive) FindBook(ctx context.Context, q string, o anna.SearchOptions, timeout time.Duration) (anna.SearchPage[*anna.Book], error) {
 	f.calls++
 	f.timeout = timeout
 	f.query = q
 	f.options = o
+	f.bookDeadline, f.hasBookDeadline = ctx.Deadline()
 	return anna.SearchPage[*anna.Book]{Results: f.books, Partial: f.partial, Total: max(f.total, len(f.books))}, f.failure
 }
 func (f *fakeArchive) FindArticle(_ context.Context, q string, o anna.SearchOptions, timeout time.Duration) (anna.SearchPage[*anna.Paper], error) {
@@ -72,7 +82,7 @@ func (f *fakeArchive) FindArticle(_ context.Context, q string, o anna.SearchOpti
 	f.timeout = timeout
 	f.query = q
 	f.options = o
-	return anna.SearchPage[*anna.Paper]{Results: f.papers, Total: len(f.papers)}, f.failure
+	return anna.SearchPage[*anna.Paper]{Results: f.papers, Partial: f.articlePartial, Total: len(f.papers)}, f.failure
 }
 func (f *fakeArchive) FindMetadata(_ context.Context, q string, o anna.SearchOptions, timeout time.Duration) (anna.SearchPage[*anna.MetadataRecord], error) {
 	f.calls++
@@ -102,7 +112,18 @@ func (f *fakeArchive) LookupDOI(_ context.Context, q string, timeout time.Durati
 	f.calls++
 	f.timeout = timeout
 	f.query = q
+	if f.doiPaper != nil {
+		return f.doiPaper, f.failure
+	}
 	return &anna.Paper{DOI: "10.1000/example", Title: "Example"}, f.failure
+}
+func (f *fakeArchive) FileStats(ctx context.Context, hashes []string) (map[string]anna.RecordStats, error) {
+	f.statsCalls++
+	f.statsHashes = append([]string(nil), hashes...)
+	if f.statsFunc != nil {
+		return f.statsFunc(ctx, hashes)
+	}
+	return f.stats, f.statsFailure
 }
 func (f *fakeArchive) DownloadBook(_ context.Context, book *anna.Book, timeout time.Duration, progress anna.ProgressFunc) (anna.DownloadResult, error) {
 	f.calls++

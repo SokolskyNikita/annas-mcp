@@ -59,6 +59,11 @@ type Client struct {
 	// downloads makes concurrent requests for the same hash reuse one file.
 	downloadMu sync.Mutex
 	downloads  map[string]chan struct{}
+	// fileStatsSlots bounds optional public-statistics requests across calls.
+	fileStatsSlots   chan struct{}
+	fileStatsInitMu  sync.Mutex
+	fileStatsCache   statsCache
+	fileStatsTimeout time.Duration
 	// Limits on how long one request may wait; tests shorten them.
 	headerTimeout time.Duration
 	idleTimeout   time.Duration
@@ -80,7 +85,8 @@ func NewClient(config Config) *Client {
 	c := &Client{
 		config: config, http: transport, baseURL: defaultClientBaseURL,
 		headerTimeout: responseHeaderTimeout, idleTimeout: bodyIdleTimeout, doiTimeout: doiMetadataTimeout,
-		signInTimeout: signInTimeout,
+		signInTimeout: signInTimeout, fileStatsSlots: make(chan struct{}, maxConcurrentFileStats),
+		fileStatsCache: newStatsCache(), fileStatsTimeout: fileStatsBudget,
 	}
 	if config.BaseURL != "" {
 		host, err := mirror.ParseBaseURL(config.BaseURL)
