@@ -8,7 +8,7 @@ import { bumpVersion, nextVersion } from "./bump-version.mjs";
 import { checkVersion } from "./check-version.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const FILES = ["package.json", "server.json", "manifest.json", "internal/version/version.txt", "CHANGELOG.md"];
+const FILES = ["package.json", "server.json", "manifest.json", "gemini-extension.json", "internal/version/version.txt", "CHANGELOG.md"];
 
 // Copies the repository's version files into a temporary directory.
 function fixture(t, edit = (text) => text) {
@@ -42,7 +42,7 @@ test("bump rewrites only the version values and adds a changelog heading", (t) =
 
   assert.equal(bumpVersion(dir, "patch", "2030-01-02"), `v${next}`);
   assert.equal(checkVersion(dir, {}), `v${next}`);
-  for (const file of ["package.json", "server.json", "manifest.json", "internal/version/version.txt"]) {
+  for (const file of ["package.json", "server.json", "manifest.json", "gemini-extension.json", "internal/version/version.txt"]) {
     const before = readFileSync(path.join(root, file), "utf8");
     const after = readFileSync(path.join(dir, file), "utf8");
     assert.equal(after, before.replaceAll(`"version": "${current}"`, `"version": "${next}"`).replace(`v${current}`, `v${next}`), file);

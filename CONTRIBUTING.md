@@ -39,7 +39,7 @@ The `npx` launcher always runs the latest published release, never your checkout
 | `internal/env`, `internal/apperr`, `internal/version` | Configuration, stable error codes, embedded version |
 | `internal/testpolicy` | Checks on the repository's own tests (see [Test data](#test-data)) |
 | `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
-| `server.json`, `manifest.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery) and Glama |
+| `server.json`, `manifest.json`, `gemini-extension.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery), the Gemini CLI extension gallery and Glama |
 | `Dockerfile` | Container image for `docker run -i` and Docker's MCP Catalog |
 | `HOW-IT-WORKS.md` | Tool options and results, downloads, mirror selection, the cache folder and the saved session; shipped in release archives and the MCP Bundle |
 | `llms-install.md` | Setup steps for AI agents that install MCP servers for a user, such as Cline |
@@ -107,7 +107,7 @@ These use real credentials from your environment or `.env`.
 
 ## Releasing
 
-1. Run `npm run bump patch` (or `minor`, `major` or an explicit `X.Y.Z`). It sets the version in `internal/version/version.txt`, `package.json`, `server.json` and `manifest.json`, and adds the release's heading to [CHANGELOG.md](CHANGELOG.md). Write the release notes under that heading.
+1. Run `npm run bump patch` (or `minor`, `major` or an explicit `X.Y.Z`). It sets the version in `internal/version/version.txt`, `package.json`, `server.json`, `manifest.json` and `gemini-extension.json`, and adds the release's heading to [CHANGELOG.md](CHANGELOG.md). Write the release notes under that heading.
 2. Run the checks above, `goreleaser check -f .goreleaser`, `npm run check:upstream` and the live smoke test.
 3. Commit, push to `main` and wait for CI to pass.
 4. Run `scripts/manage-tag.sh add` to create and push the annotated tag.

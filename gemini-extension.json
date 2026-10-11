@@ -1,0 +1,30 @@
+{
+  "name": "annas-mcp",
+  "version": "0.6.3",
+  "description": "Search Anna's Archive for books and papers and download the file you pick.",
+  "mcpServers": {
+    "annas-mcp": {
+      "command": "npx",
+      "args": ["-y", "annas-mcp"]
+    }
+  },
+  "settings": [
+    {
+      "name": "Secret key",
+      "description": "The secret key you log in to Anna's Archive with, from your account page. The server signs in with it and uses it for downloads.",
+      "envVar": "ANNAS_SECRET_KEY",
+      "sensitive": true
+    },
+    {
+      "name": "Download folder (optional)",
+      "description": "Where downloaded files are saved. Leave empty for annas-archive in your home folder.",
+      "envVar": "ANNAS_DOWNLOAD_PATH"
+    },
+    {
+      "name": "Account cookie (optional)",
+      "description": "Leave empty. Only needed if signing in with the secret key fails: the aa_account_id2 cookie from a signed-in browser.",
+      "envVar": "ANNAS_ACCOUNT_COOKIE",
+      "sensitive": true
+    }
+  ]
+}

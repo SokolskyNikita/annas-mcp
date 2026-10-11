@@ -13,7 +13,7 @@ import { checkVersion, validateMetadataVersions, validateVersion } from "./check
 const root = fileURLToPath(new URL("../", import.meta.url));
 const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const VERSION_FILE = "internal/version/version.txt";
-const JSON_FILES = ["package.json", "server.json", "manifest.json"];
+const JSON_FILES = ["package.json", "server.json", "manifest.json", "gemini-extension.json"];
 
 export function nextVersion(current, spec) {
   const [major, minor, patch] = SEMVER.exec(current)?.slice(1).map(Number) ?? [];
@@ -71,7 +71,7 @@ export function bumpVersion(directory, spec, today = new Date().toISOString().sl
   // Check the result before writing anything.
   const json = (file) => JSON.parse(updated.get(file));
   const pkg = json("package.json");
-  validateMetadataVersions(pkg, json("server.json"), json("manifest.json"));
+  validateMetadataVersions(pkg, json("server.json"), json("manifest.json"), json("gemini-extension.json"));
   validateVersion(updated.get(VERSION_FILE), pkg.version);
   for (const [file, text] of updated) {
     writeFileSync(path.join(directory, file), text);

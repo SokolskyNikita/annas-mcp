@@ -76,6 +76,14 @@ args = ["-y", "annas-mcp"]
 ANNAS_SECRET_KEY = "your-secret-key"
 ```
 
+#### Gemini CLI
+
+```bash
+gemini extensions install https://github.com/SokolskyNikita/annas-mcp
+```
+
+Gemini CLI asks for your secret key, which it keeps in the system keychain, then for two optional settings; press Enter to skip them. Change them later with `gemini extensions config annas-mcp`.
+
 #### Docker
 
 Build the image straight from this repository:

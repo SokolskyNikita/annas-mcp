@@ -18,13 +18,15 @@ export function validateVersion(embedded, packageVersion, env = {}) {
   return version;
 }
 
-// server.json (MCP Registry) and manifest.json (MCP Bundle) repeat the version.
-export function validateMetadataVersions(packageJSON, serverJSON, manifestJSON) {
+// server.json (MCP Registry), manifest.json (MCP Bundle) and
+// gemini-extension.json (Gemini CLI extension) repeat the version.
+export function validateMetadataVersions(packageJSON, serverJSON, manifestJSON, extensionJSON) {
   const expected = packageJSON.version;
   const found = {
     "server.json version": serverJSON.version,
     "server.json npm package version": serverJSON.packages?.find((p) => p.registryType === "npm")?.version,
     "manifest.json version": manifestJSON.version,
+    "gemini-extension.json version": extensionJSON.version,
   };
   for (const [label, version] of Object.entries(found)) {
     if (version !== expected) {
@@ -39,7 +41,12 @@ export function validateMetadataVersions(packageJSON, serverJSON, manifestJSON) 
 export function checkVersion(directory = root, env = process.env) {
   const read = (file) => readFileSync(path.join(directory, file), "utf8");
   const packageJSON = JSON.parse(read("package.json"));
-  validateMetadataVersions(packageJSON, JSON.parse(read("server.json")), JSON.parse(read("manifest.json")));
+  validateMetadataVersions(
+    packageJSON,
+    JSON.parse(read("server.json")),
+    JSON.parse(read("manifest.json")),
+    JSON.parse(read("gemini-extension.json")),
+  );
   return validateVersion(read("internal/version/version.txt"), packageJSON.version, env);
 }
 

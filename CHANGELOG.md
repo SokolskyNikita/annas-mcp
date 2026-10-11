@@ -2,6 +2,11 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.6.3](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.3) - 2026-10-11
+
+- Install as a Gemini CLI extension with `gemini extensions install https://github.com/SokolskyNikita/annas-mcp`. Gemini CLI asks for the secret key, which it keeps in the system keychain, and for the optional download folder and account cookie. The extension runs the server through `npx`, like the other clients.
+- For contributors: `npm run bump` also sets the version in `gemini-extension.json`, and `npm run check:version` fails when it differs from `package.json`.
+
 ## [v0.6.2](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.2) - 2026-10-11
 
 - Add opt-in `include_stats` to `book_search` and `article_search`, plus `--include-stats` in the CLI, for public per-file downloads, quality votes, reports, lists and comments. It is off by default; lookups use bounded concurrency, a five-second budget and a one-hour bounded cache. Unavailable counts are omitted, while confirmed zeroes are returned.

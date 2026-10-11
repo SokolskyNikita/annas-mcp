@@ -16,16 +16,18 @@ test("repository version metadata is consistent", () => {
   assert.match(checkVersion(), /^v\d+\.\d+\.\d+$/);
 });
 
-test("registry and bundle metadata must match package.json", () => {
+test("registry, bundle and extension metadata must match package.json", () => {
   const pkg = { version: "1.2.3", mcpName: "io.github.example/server" };
   const server = { name: pkg.mcpName, version: "1.2.3", packages: [{ registryType: "npm", version: "1.2.3" }] };
   const manifest = { version: "1.2.3" };
-  validateMetadataVersions(pkg, server, manifest);
-  assert.throws(() => validateMetadataVersions(pkg, { ...server, version: "1.2.2" }, manifest), /server.json version/);
+  const extension = { version: "1.2.3" };
+  validateMetadataVersions(pkg, server, manifest, extension);
+  assert.throws(() => validateMetadataVersions(pkg, { ...server, version: "1.2.2" }, manifest, extension), /server.json version/);
   assert.throws(
-    () => validateMetadataVersions(pkg, { ...server, packages: [{ registryType: "npm", version: "1.2.2" }] }, manifest),
+    () => validateMetadataVersions(pkg, { ...server, packages: [{ registryType: "npm", version: "1.2.2" }] }, manifest, extension),
     /npm package version/,
   );
-  assert.throws(() => validateMetadataVersions(pkg, server, { version: "1.2.2" }), /manifest.json version/);
-  assert.throws(() => validateMetadataVersions(pkg, { ...server, name: "io.github.other/server" }, manifest), /mcpName/);
+  assert.throws(() => validateMetadataVersions(pkg, server, { version: "1.2.2" }, extension), /manifest.json version/);
+  assert.throws(() => validateMetadataVersions(pkg, server, manifest, { version: "1.2.2" }), /gemini-extension.json version/);
+  assert.throws(() => validateMetadataVersions(pkg, { ...server, name: "io.github.other/server" }, manifest, extension), /mcpName/);
 });
