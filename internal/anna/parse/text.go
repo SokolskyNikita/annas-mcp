@@ -21,11 +21,12 @@ func decodeEntities(text string) string {
 }
 
 // Records imported from publishers can carry formatting markup in their
-// text, such as "<i>AlphaFold</i>2" or Crossref's <jats:p>. Only known
-// formatting tags are removed, so text such as "Vector<T>" is kept.
+// text, such as "<i>AlphaFold</i>2", Crossref's <jats:p>, Wiley's <scp> or
+// the <title> SPIE wraps paper titles in. Only known formatting tags are
+// removed, so text such as "Vector<T>" is kept.
 var (
-	inlineMarkup = regexp.MustCompile(`(?i)</?(?:a|b|i|em|strong|sub|sup|u|span|small|sc|tt|code|(?:jats|mml):[a-z-]+)(?:\s[^<>]*)?/?>`)
-	blockMarkup  = regexp.MustCompile(`(?i)</?(?:p|br|div|li|ul|ol|h[1-6])(?:\s[^<>]*)?/?>`)
+	inlineMarkup = regexp.MustCompile(`(?i)</?(?:a|b|i|em|strong|sub|sup|u|span|small|sc|scp|tt|code|(?:jats|mml):[a-z-]+)(?:\s[^<>]*)?/?>`)
+	blockMarkup  = regexp.MustCompile(`(?i)</?(?:p|br|div|li|ul|ol|h[1-6]|title)(?:\s[^<>]*)?/?>`)
 )
 
 // CleanText decodes doubly escaped entities, removes formatting markup and

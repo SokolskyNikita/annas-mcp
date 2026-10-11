@@ -13,6 +13,8 @@ func TestCleanText(t *testing.T) {
 		{"<p>One<p>Two<br/>Three</p>", "One Two Three"},
 		{"Vector<T> in C++", "Vector<T> in C++"},
 		{"a < b and c > d", "a < b and c > d"},
+		{"<scp>CompTIA</scp> A+ Core 1 Exam", "CompTIA A+ Core 1 Exam"},
+		{"Photonic Quantum Computing - <title>Hamiltonians for quantum computing</title>", "Photonic Quantum Computing - Hamiltonians for quantum computing"},
 		{"  spaced\n\tout  ", "spaced out"},
 		{"\u200fהאיחוד האירופי :\u200f \u200fהיסטוריה", "האיחוד האירופי : היסטוריה"},
 		{"\u202bembedded\u202c \u2067isolated\u2069 \ufeffmarked", "embedded isolated marked"},
