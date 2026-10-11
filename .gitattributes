@@ -1,0 +1,3 @@
+# The parser tests compare their output with these files byte for byte, so
+# Git must not convert their line endings, as it does on Windows by default.
+internal/anna/parse/testdata/** -text
