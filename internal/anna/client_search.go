@@ -45,6 +45,7 @@ func (c *Client) searchOn(ctx context.Context, base, query string, options Searc
 		return searchResults{pageURL: pageURL}, err
 	}
 	cards := parse.SearchCards(doc)
+	logUnread("search", max(options.Page, 1), parse.CheckSearchPage(doc, cards))
 	if len(cards) == 0 && !parse.IsArchivePage(doc) {
 		c.mirrorFailed(pageURL, mirror.Failure{Reason: "answered a search with a page that is not Anna's Archive", Blocked: true})
 		return searchResults{pageURL: pageURL}, apperr.New(apperr.UpstreamBlocked, "archive returned an unexpected page; check the mirror and account access")
@@ -93,7 +94,9 @@ func (c *Client) paperFromSciDB(ctx context.Context, doc *goquery.Document, doi,
 		}
 		return paper, nil
 	}
-	addRecordDetails(paper, detail)
+	details := parse.ReadRecordDetails(detail)
+	logUnread("record", 0, parse.CheckRecordDetails(details))
+	addRecordDetails(paper, details)
 	return paper, nil
 }
 

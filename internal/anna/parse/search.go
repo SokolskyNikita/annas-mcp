@@ -52,7 +52,7 @@ var (
 	cardSizePattern     = regexp.MustCompile(`(?i)^\d+(?:[.,]\d+)?\s*[KMGT]?B$`)
 	cardYearPattern     = regexp.MustCompile(`^\d{1,4}$`)
 	sourceNamePattern   = regexp.MustCompile(`^[a-z0-9_]+$`)
-	resultsTotalPattern = regexp.MustCompile(`^\D*\d+\s*[-–]\s*\d+\D*?(\d+)(\+?)`)
+	resultsTotalPattern = regexp.MustCompile(`^\D*(\d+)\s*[-–]\s*(\d+)\D*?(\d+)(\+?)`)
 )
 
 // SearchCards reads the result cards of a search page, partial matches
@@ -173,22 +173,37 @@ func hasClass(selection *goquery.Selection, class string) bool {
 // ResultsTotal reads "Results 1-50 (500+ total)". The words are
 // translated, but the numbers keep their order.
 func ResultsTotal(doc *goquery.Document) (total int, lowerBound, found bool) {
+	count := resultsCount(doc)
+	return count.total, count.lowerBound, count.found
+}
+
+// resultsLine is Anna's "Results 1-50 (500+ total)": the page shows results
+// from to to, of total.
+type resultsLine struct {
+	from, to, total   int
+	lowerBound, found bool
+}
+
+func resultsCount(doc *goquery.Document) resultsLine {
+	var line resultsLine
 	if doc == nil {
-		return 0, false, false
+		return line
 	}
 	doc.Find("div.uppercase").EachWithBreak(func(_ int, node *goquery.Selection) bool {
 		match := resultsTotalPattern.FindStringSubmatch(strings.TrimSpace(node.Text()))
 		if match == nil {
 			return true
 		}
-		value, err := strconv.Atoi(match[1])
-		if err != nil {
+		from, err1 := strconv.Atoi(match[1])
+		to, err2 := strconv.Atoi(match[2])
+		total, err3 := strconv.Atoi(match[3])
+		if err1 != nil || err2 != nil || err3 != nil {
 			return true
 		}
-		total, lowerBound, found = value, match[2] == "+", true
+		line = resultsLine{from: from, to: to, total: total, lowerBound: match[4] == "+", found: true}
 		return false
 	})
-	return total, lowerBound, found
+	return line
 }
 
 // ShowsResults reports whether a page with no parsed cards still shows

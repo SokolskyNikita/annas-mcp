@@ -17,6 +17,10 @@ type CardMeta struct {
 	Content      string   `json:"content,omitempty"`
 	Sources      []string `json:"sources,omitempty"`
 	FastDownload bool     `json:"fast_download,omitempty"`
+	// Unparsed holds parts of the line that were not recognized, apart from
+	// a leading label such as "Metadata" and the record id after the
+	// sources.
+	Unparsed []string `json:"unparsed,omitempty"`
 }
 
 // The content label is translated, but its emoji is not.
@@ -41,11 +45,13 @@ func ParseCardMeta(line string) CardMeta {
 	)
 	var meta CardMeta
 	stage := stageLanguage
+	index, recordID := -1, false
 	for _, part := range strings.Split(line, "·") {
 		part = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(part), "✅"))
 		if part == "" {
 			continue
 		}
+		index++
 		if stage <= stageLanguage {
 			// A record can list up to three languages, most likely first.
 			if match := cardLanguagePattern.FindStringSubmatch(part); match != nil {
@@ -82,6 +88,14 @@ func ParseCardMeta(line string) CardMeta {
 				meta.Sources, meta.FastDownload, stage = sources, fast, stageDone
 				continue
 			}
+		}
+		switch {
+		case index == 0 && stage == stageLanguage:
+			// A label such as "Metadata" leads catalog records' lines.
+		case stage == stageDone && !recordID:
+			recordID = true
+		default:
+			meta.Unparsed = append(meta.Unparsed, part)
 		}
 	}
 	return meta

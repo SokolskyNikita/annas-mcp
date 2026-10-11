@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"net/http"
@@ -189,6 +190,11 @@ func searchPageWith(t testing.TB, cards ...string) string {
 	doc := fixtureDocument(t, searchAttentionPage)
 	doc.Find(".js-aarecord-list-outer").First().SetHtml(strings.Join(cards, "\n"))
 	doc.Find(".js-partial-matches-show, .js-partial-matches-remove").Remove()
+	doc.Find("div.uppercase").Each(func(_ int, count *goquery.Selection) {
+		if strings.HasPrefix(strings.TrimSpace(count.Text()), "Results ") {
+			count.SetText(fmt.Sprintf("Results 1-%d (%d total)", len(cards), len(cards)))
+		}
+	})
 	page, err := doc.Html()
 	if err != nil {
 		t.Fatal(err)
