@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -60,7 +62,7 @@ func TestCapturedPages(t *testing.T) {
 				return
 			}
 			if want := readPage(t, name); !bytes.Equal(got, want) {
-				t.Errorf("%s changed; if the change is right, rerun with -update and review the diff\n%s", name, got)
+				t.Errorf("%s changed; if the change is right, rerun with -update and review the diff:\n%s", name, firstDifference(got, want))
 			}
 		})
 	}
@@ -97,4 +99,22 @@ func pageOutput(t *testing.T, page capturedPage) any {
 	}
 	t.Fatalf("unknown page kind %q", page.Kind)
 	return nil
+}
+
+// firstDifference shows the first differing line of two outputs.
+func firstDifference(got, want []byte) string {
+	gotLines, wantLines := strings.Split(string(got), "\n"), strings.Split(string(want), "\n")
+	for i := 0; i < max(len(gotLines), len(wantLines)); i++ {
+		var g, w string
+		if i < len(gotLines) {
+			g = gotLines[i]
+		}
+		if i < len(wantLines) {
+			w = wantLines[i]
+		}
+		if g != w {
+			return fmt.Sprintf("line %d\n got %s\nwant %s", i+1, g, w)
+		}
+	}
+	return ""
 }
