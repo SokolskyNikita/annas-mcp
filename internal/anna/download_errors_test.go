@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -352,7 +353,7 @@ func TestDownloadStopsWhenFileHasNoFastDownload(t *testing.T) {
 }
 
 func testDownloadURLResponse(req *http.Request, downloadURL string) *http.Response {
-	payload, _ := json.Marshal(fastDownloadResponse{DownloadURL: &downloadURL})
+	payload, _ := json.Marshal(parse.FastDownloadAnswer{DownloadURL: &downloadURL})
 	return testDownloadResponse(req, http.StatusOK, "application/json", string(payload))
 }
 

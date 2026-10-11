@@ -2,9 +2,7 @@ package anna
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -187,7 +185,7 @@ func (c *Client) searchIndexes(ctx context.Context, query string) [2]indexResult
 // returns the first, in candidate order, whose record carries the DOI. It
 // returns as soon as that candidate and every one before it have been read,
 // and cancels the rest. It returns an error only when ctx ends.
-func (c *Client) verifyCandidates(ctx context.Context, doi string, metadata doiMetadata, candidates []*Book, noteFailure func(error)) (*Paper, error) {
+func (c *Client) verifyCandidates(ctx context.Context, doi string, metadata parse.Citation, candidates []*Book, noteFailure func(error)) (*Paper, error) {
 	type checked struct {
 		identity parse.Identity
 		err      error
@@ -272,7 +270,7 @@ func (c *Client) archiveIdentityOn(ctx context.Context, base, hash string) (pars
 //
 // DOI.org has its own deadline: the archive can find the paper without it, so
 // a DOI.org that hangs must not use up the whole lookup.
-func (c *Client) citationMetadataFromDOI(ctx context.Context, doi string) (doiMetadata, error) {
+func (c *Client) citationMetadataFromDOI(ctx context.Context, doi string) (parse.Citation, error) {
 	parent := ctx
 	ctx, cancel := context.WithTimeout(ctx, c.doiTimeout)
 	defer cancel()
@@ -283,44 +281,23 @@ func (c *Client) citationMetadataFromDOI(ctx context.Context, doi string) (doiMe
 	return metadata, err
 }
 
-func (c *Client) fetchCitationMetadata(ctx context.Context, doi string) (doiMetadata, error) {
+func (c *Client) fetchCitationMetadata(ctx context.Context, doi string) (parse.Citation, error) {
 	metadataURL := &url.URL{Scheme: "https", Host: "doi.org", Path: "/" + doi}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, metadataURL.String(), nil)
 	if err != nil {
-		return doiMetadata{}, err
+		return parse.Citation{}, err
 	}
 	request.Header.Set("Accept", "application/vnd.citationstyles.csl+json")
 	request.Header.Set("User-Agent", BrowserUserAgent)
 	response, err := c.requestClient(0).Do(request)
 	if err != nil {
-		return doiMetadata{}, err
+		return parse.Citation{}, err
 	}
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		return doiMetadata{}, fmt.Errorf("doi.org returned status %d", response.StatusCode)
+		return parse.Citation{}, fmt.Errorf("doi.org returned status %d", response.StatusCode)
 	}
-	return parseCitationMetadata(response.Body)
-}
-
-// parseCitationMetadata reads DOI.org's CSL JSON.
-func parseCitationMetadata(body io.Reader) (doiMetadata, error) {
-	var payload map[string]json.RawMessage
-	if err := json.NewDecoder(io.LimitReader(body, 1<<20)).Decode(&payload); err != nil {
-		return doiMetadata{}, err
-	}
-	metadata := doiMetadata{
-		DOI:     jsonString(payload["DOI"]),
-		Title:   jsonStringOrArray(payload["title"]),
-		Authors: cslAuthors(payload["author"]),
-		Year:    cslYear(payload),
-	}
-	if metadata.DOI == "" {
-		metadata.DOI = jsonString(payload["doi"])
-	}
-	if metadata.Title == "" {
-		return metadata, fmt.Errorf("doi.org metadata had no title")
-	}
-	return metadata, nil
+	return parse.ParseCitation(response.Body)
 }
 
 // titleFromDOI remains as a small compatibility helper for package callers
@@ -328,57 +305,4 @@ func parseCitationMetadata(body io.Reader) (doiMetadata, error) {
 func (c *Client) titleFromDOI(ctx context.Context, doi string) (string, error) {
 	metadata, err := c.citationMetadataFromDOI(ctx, doi)
 	return metadata.Title, err
-}
-
-func jsonString(raw json.RawMessage) string {
-	var value string
-	if json.Unmarshal(raw, &value) == nil {
-		return strings.TrimSpace(value)
-	}
-	return ""
-}
-
-func jsonStringOrArray(raw json.RawMessage) string {
-	if value := jsonString(raw); value != "" {
-		return value
-	}
-	var values []string
-	if json.Unmarshal(raw, &values) == nil && len(values) > 0 {
-		return strings.TrimSpace(values[0])
-	}
-	return ""
-}
-
-func cslAuthors(raw json.RawMessage) []string {
-	var authors []struct {
-		Given   string `json:"given"`
-		Family  string `json:"family"`
-		Literal string `json:"literal"`
-	}
-	if json.Unmarshal(raw, &authors) != nil {
-		return nil
-	}
-	names := make([]string, 0, len(authors))
-	for _, author := range authors {
-		name := strings.TrimSpace(author.Literal)
-		if name == "" {
-			name = strings.TrimSpace(strings.TrimSpace(author.Given) + " " + strings.TrimSpace(author.Family))
-		}
-		if name != "" {
-			names = append(names, name)
-		}
-	}
-	return names
-}
-
-func cslYear(payload map[string]json.RawMessage) string {
-	for _, key := range []string{"issued", "published-print", "published-online", "published"} {
-		var date struct {
-			DateParts [][]int `json:"date-parts"`
-		}
-		if json.Unmarshal(payload[key], &date) == nil && len(date.DateParts) > 0 && len(date.DateParts[0]) > 0 && date.DateParts[0][0] > 0 {
-			return fmt.Sprint(date.DateParts[0][0])
-		}
-	}
-	return ""
 }

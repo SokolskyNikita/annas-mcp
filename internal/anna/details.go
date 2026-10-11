@@ -130,7 +130,7 @@ func (c *Client) Details(ctx context.Context, id string, timeout time.Duration) 
 }
 
 func (c *Client) detailsOn(ctx context.Context, base, prefix, value string) (*Details, error) {
-	var summary *md5Summary
+	var summary *parse.MD5Summary
 	var wait sync.WaitGroup
 	if prefix == "md5" {
 		wait.Add(1)
@@ -140,7 +140,7 @@ func (c *Client) detailsOn(ctx context.Context, base, prefix, value string) (*De
 			summary, _ = c.fetchSummary(ctx, base, value)
 		}()
 	}
-	var record aaRecord
+	var record parse.Record
 	recordURL := buildPathURL(base, "/db/aarecord_elasticsearch/"+prefix+":"+escapeRecordValue(value)+".json")
 	err := c.fetchJSON(ctx, recordURL, &record, "record details")
 	wait.Wait()
@@ -207,23 +207,9 @@ func escapeRecordValue(value string) string {
 	return strings.Join(segments, "/")
 }
 
-// md5Summary is /dyn/md5/summary/<md5>. Its account fields describe the
-// session that asked, so requests carry a unique cachebust parameter: the
-// archive's CDN would otherwise cache one member's answer for everyone.
-type md5Summary struct {
-	ReportsCount        int `json:"reports_count"`
-	CommentsCount       int `json:"comments_count"`
-	ListsCount          int `json:"lists_count"`
-	DownloadsTotal      int `json:"downloads_total"`
-	GreatQualityCount   int `json:"great_quality_count"`
-	DownloadsLeft       int `json:"downloads_left"`
-	IsMember            int `json:"is_member"`
-	DownloadStillActive int `json:"download_still_active"`
-}
-
-func (c *Client) fetchSummary(ctx context.Context, base, hash string) (*md5Summary, error) {
+func (c *Client) fetchSummary(ctx context.Context, base, hash string) (*parse.MD5Summary, error) {
 	summaryURL := buildPathURL(base, "/dyn/md5/summary/"+hash) + "?cachebust=" + strconv.FormatInt(time.Now().UnixNano(), 36)
-	var summary md5Summary
+	var summary parse.MD5Summary
 	if err := c.fetchJSON(ctx, summaryURL, &summary, "file statistics"); err != nil {
 		return nil, err
 	}
@@ -264,45 +250,7 @@ func (c *Client) fetchJSON(ctx context.Context, rawURL string, target any, what 
 	return nil
 }
 
-// aaRecord holds the parts of /db/aarecord_elasticsearch/<id>.json that
-// Details uses. Lists tolerate numbers and nulls in place of strings.
-type aaRecord struct {
-	ID              string `json:"id"`
-	FileUnifiedData struct {
-		TitleBest               looseString             `json:"title_best"`
-		TitleAdditional         looseStrings            `json:"title_additional"`
-		AuthorBest              looseString             `json:"author_best"`
-		AuthorAdditional        looseStrings            `json:"author_additional"`
-		PublisherBest           looseString             `json:"publisher_best"`
-		PublisherAdditional     looseStrings            `json:"publisher_additional"`
-		EditionVariaBest        looseString             `json:"edition_varia_best"`
-		EditionVariaAdditional  looseStrings            `json:"edition_varia_additional"`
-		YearBest                looseString             `json:"year_best"`
-		ExtensionBest           looseString             `json:"extension_best"`
-		FilesizeBest            looseString             `json:"filesize_best"`
-		ContentTypeBest         looseString             `json:"content_type_best"`
-		StrippedDescriptionBest looseString             `json:"stripped_description_best"`
-		MostLikelyLanguageCodes looseStrings            `json:"most_likely_language_codes"`
-		AddedDateBest           looseString             `json:"added_date_best"`
-		OriginalFilenameBest    looseString             `json:"original_filename_best"`
-		HasAADownloads          looseString             `json:"has_aa_downloads"`
-		IdentifiersUnified      map[string]looseStrings `json:"identifiers_unified"`
-		ClassificationsUnified  map[string]looseStrings `json:"classifications_unified"`
-		Problems                []struct {
-			Type             looseString `json:"type"`
-			Descr            looseString `json:"descr"`
-			BetterAarecordID looseString `json:"better_aarecord_id"`
-		} `json:"problems"`
-	} `json:"file_unified_data"`
-	SearchOnlyFields struct {
-		SearchRecordSources looseStrings `json:"search_record_sources"`
-	} `json:"search_only_fields"`
-	Additional struct {
-		Path looseString `json:"path"`
-	} `json:"additional"`
-}
-
-func detailsFromRecord(record *aaRecord, base, prefix, value string) *Details {
+func detailsFromRecord(record *parse.Record, base, prefix, value string) *Details {
 	file := &record.FileUnifiedData
 	id := record.ID
 	if id == "" {
@@ -355,7 +303,7 @@ func detailsFromRecord(record *aaRecord, base, prefix, value string) *Details {
 			details.Classifications[key] = values
 		}
 	}
-	var subjects looseStrings
+	var subjects parse.LooseStrings
 	for _, key := range detailSubjectKeys {
 		for _, subject := range file.ClassificationsUnified[key] {
 			// EBSCOhost subjects carry a scheme prefix such as "bisac/".
@@ -384,7 +332,7 @@ func detailsFromRecord(record *aaRecord, base, prefix, value string) *Details {
 
 // distinct trims and de-duplicates values case-insensitively, skipping
 // empty ones and any equal to except. limit 0 keeps every value.
-func distinct(values looseStrings, limit int, except looseString) []string {
+func distinct(values parse.LooseStrings, limit int, except parse.LooseString) []string {
 	seen := map[string]bool{strings.ToLower(strings.TrimSpace(string(except))): true}
 	var out []string
 	for _, value := range values {
@@ -414,51 +362,4 @@ func truncateText(text string, limit int) string {
 		cut = cut[:i]
 	}
 	return cut + "…"
-}
-
-// looseString accepts a JSON string, number, boolean or null.
-type looseString string
-
-func (s *looseString) UnmarshalJSON(data []byte) error {
-	data = bytes.TrimSpace(data)
-	switch {
-	case bytes.Equal(data, []byte("null")):
-		*s = ""
-	case len(data) > 0 && data[0] == '"':
-		var value string
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		*s = looseString(value)
-	default:
-		*s = looseString(data)
-	}
-	return nil
-}
-
-// looseStrings accepts a JSON list of loose strings, or a single value.
-type looseStrings []string
-
-func (s *looseStrings) UnmarshalJSON(data []byte) error {
-	data = bytes.TrimSpace(data)
-	if len(data) == 0 || data[0] != '[' {
-		var value looseString
-		if err := value.UnmarshalJSON(data); err != nil {
-			return err
-		}
-		*s = nil
-		if value != "" {
-			*s = looseStrings{string(value)}
-		}
-		return nil
-	}
-	var values []looseString
-	if err := json.Unmarshal(data, &values); err != nil {
-		return err
-	}
-	*s = make(looseStrings, 0, len(values))
-	for _, value := range values {
-		*s = append(*s, string(value))
-	}
-	return nil
 }

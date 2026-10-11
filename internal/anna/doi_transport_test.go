@@ -82,7 +82,7 @@ func TestDOIAuthorNormalizationPreservesNonLatinNames(t *testing.T) {
 func TestDOIAuthorNormalizationPreservesDistinctLetters(t *testing.T) {
 	t.Parallel()
 	for _, pair := range [][2]string{{"Ægir Smith", "Agir Smith"}, {"Œdipe Smith", "Odipe Smith"}, {"Þor Smith", "Tor Smith"}} {
-		metadata := doiMetadata{Title: "Shared title", Authors: []string{pair[0]}}
+		metadata := parse.Citation{Title: "Shared title", Authors: []string{pair[0]}}
 		record := parse.Identity{Title: "Shared title", Authors: []string{pair[1]}}
 		if verifyDOIIdentity("10.1000/example", metadata, record) {
 			t.Errorf("accepted different authors %q and %q", pair[0], pair[1])

@@ -2,12 +2,13 @@ package mirror
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
 // probePath is Anna's uptime endpoint. It answers from the archive's own
@@ -74,7 +75,7 @@ func (p *Prober) Check(ctx context.Context, host string) error {
 	if err != nil {
 		return err
 	}
-	if !isAnnaUpResponse(body) {
+	if !parse.IsUpAnswer(body) {
 		return errNotUptime
 	}
 	return nil
@@ -103,15 +104,4 @@ func (p *Prober) do(req *http.Request) (*http.Response, error) {
 		return nil
 	}
 	return client.Do(req)
-}
-
-// isAnnaUpResponse accepts the uptime endpoint's JSON object, such as
-// {"aa_logged_in":0}. A DDoS-Guard page or another site's response fails.
-func isAnnaUpResponse(body []byte) bool {
-	var status map[string]json.RawMessage
-	if err := json.Unmarshal(body, &status); err != nil {
-		return false
-	}
-	_, ok := status["aa_logged_in"]
-	return ok
 }

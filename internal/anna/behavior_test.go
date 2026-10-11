@@ -7,7 +7,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -75,29 +74,6 @@ func TestDownloadInputNormalizersRejectUnsafeValues(t *testing.T) {
 	}
 	if _, err := normalizeFormat("../pdf"); apperr.CodeOf(err) != apperr.InvalidArgument {
 		t.Fatalf("normalizeFormat traversal error = %v", err)
-	}
-}
-
-func TestFormatFromResponseUsesFilenameAndMediaType(t *testing.T) {
-	t.Parallel()
-
-	withFilename := &http.Response{Header: http.Header{"Content-Disposition": {`attachment; filename="paper.epub"`}, "Content-Type": {"application/octet-stream"}}}
-	if got := formatFromResponse(withFilename); got != "epub" {
-		t.Fatalf("filename format = %q", got)
-	}
-	withMediaType := &http.Response{Header: http.Header{"Content-Type": {"application/pdf; charset=binary"}}}
-	if got := formatFromResponse(withMediaType); got != "pdf" {
-		t.Fatalf("media type format = %q", got)
-	}
-	// Anna's file servers: bare "attachment", generic type, filename in the URL.
-	request := httptest.NewRequest(http.MethodGet, "https://cdn.example/d3/y/abc/Pride%20--%20Anna%E2%80%99s%20Archive.azw3", nil)
-	withURLPath := &http.Response{Header: http.Header{"Content-Disposition": {"attachment"}, "Content-Type": {"application/octet-stream"}}, Request: request}
-	if got := formatFromResponse(withURLPath); got != "azw3" {
-		t.Fatalf("URL path format = %q", got)
-	}
-	withoutHints := &http.Response{Header: http.Header{"Content-Type": {"application/octet-stream"}}, Request: httptest.NewRequest(http.MethodGet, "https://cdn.example/file", nil)}
-	if got := formatFromResponse(withoutHints); got != "bin" {
-		t.Fatalf("fallback format = %q", got)
 	}
 }
 

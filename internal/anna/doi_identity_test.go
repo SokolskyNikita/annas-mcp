@@ -13,7 +13,7 @@ func TestVerifyDOIIdentityRequiresFullTitleAndAuthorsWithoutIdentifier(t *testin
 	t.Parallel()
 
 	doi := "10.1000/example"
-	metadata := doiMetadata{
+	metadata := parse.Citation{
 		DOI:     doi,
 		Title:   "Attention Is All You Need",
 		Authors: []string{"Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones", "Aidan N. Gomez", "Łukasz Kaiser", "Illia Polosukhin"},
@@ -55,7 +55,7 @@ func TestVerifyDOIIdentityAcceptsExactRecordDOIWithoutOptionalAuthors(t *testing
 	t.Parallel()
 
 	doi := "10.1000/example"
-	metadata := doiMetadata{DOI: doi, Title: "A Paper", Authors: []string{"An Author"}}
+	metadata := parse.Citation{DOI: doi, Title: "A Paper", Authors: []string{"An Author"}}
 	if !verifyDOIIdentity(doi, metadata, parse.Identity{DOI: doi, Title: "A Paper"}) {
 		t.Fatal("an exact structured record DOI should not require optional author fields")
 	}
@@ -86,7 +86,7 @@ func TestVerifyDOIIdentityAcceptsThePublishedVersionOfAnArxivPreprint(t *testing
 
 	// DOI.org's metadata for arXiv:1412.6980 and the archive's ICLR record.
 	doi := "10.48550/arXiv.1412.6980"
-	metadata := doiMetadata{DOI: doi, Title: "Adam: A Method for Stochastic Optimization", Authors: []string{"Diederik P. Kingma", "Jimmy Ba"}, Year: "2014"}
+	metadata := parse.Citation{DOI: doi, Title: "Adam: A Method for Stochastic Optimization", Authors: []string{"Diederik P. Kingma", "Jimmy Ba"}, Year: "2014"}
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(`<html><body>
 		<div class="font-bold text-violet-900" data-content="Adam: A method for stochastic optimization"></div>
 		<div class="text-amber-900" data-content="Kingma, Diederik P. (author); Ba, Jimmy Lei (author)"></div>
@@ -120,7 +120,7 @@ func TestVerifyDOIIdentityAcceptsThePublishedVersionOfAnArxivPreprint(t *testing
 	}
 	// The year after is only allowed for preprints.
 	journal := record
-	if verifyDOIIdentity("10.1000/journal", doiMetadata{Title: metadata.Title, Authors: metadata.Authors, Year: "2014"}, journal) {
+	if verifyDOIIdentity("10.1000/journal", parse.Citation{Title: metadata.Title, Authors: metadata.Authors, Year: "2014"}, journal) {
 		t.Error("a journal DOI accepted a record from the following year")
 	}
 }
@@ -129,7 +129,7 @@ func TestVerifyDOIIdentityKeepsDOISuffixPunctuation(t *testing.T) {
 	t.Parallel()
 
 	for _, suffix := range []string{"(02)", "(02).", ").", ".", ",", ";", ":", "]", "}", ">", "'", "\"", "?", "#"} {
-		if verifyDOIIdentity("10.1000/example", doiMetadata{}, parse.Identity{DOI: "10.1000/example" + suffix}) {
+		if verifyDOIIdentity("10.1000/example", parse.Citation{}, parse.Identity{DOI: "10.1000/example" + suffix}) {
 			t.Errorf("distinct DOI suffix %q matched the unpunctuated DOI", suffix)
 		}
 	}

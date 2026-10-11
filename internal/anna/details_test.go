@@ -13,6 +13,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -212,7 +213,7 @@ func TestDetailsErrors(t *testing.T) {
 func TestLooseJSONValuesTolerateNumbersAndNulls(t *testing.T) {
 	t.Parallel()
 
-	var record aaRecord
+	var record parse.Record
 	body := `{"id":"md5:x","file_unified_data":{"year_best":2008,"filesize_best":12,"has_aa_downloads":true,"title_additional":["a",null,3],"identifiers_unified":{"isbn13":"9780000000002"}}}`
 	if err := json.Unmarshal([]byte(body), &record); err != nil {
 		t.Fatal(err)

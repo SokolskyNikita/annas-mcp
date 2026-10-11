@@ -9,14 +9,7 @@ import (
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
-type doiMetadata struct {
-	DOI     string   `json:"doi"`
-	Title   string   `json:"title"`
-	Authors []string `json:"authors"`
-	Year    string   `json:"year"`
-}
-
-func verifyDOIIdentity(doi string, metadata doiMetadata, record parse.Identity) bool {
+func verifyDOIIdentity(doi string, metadata parse.Citation, record parse.Identity) bool {
 	if record.DOIConflict {
 		return false
 	}

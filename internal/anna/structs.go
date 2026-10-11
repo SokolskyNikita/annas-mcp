@@ -65,21 +65,6 @@ type MetadataRecord struct {
 	URL         string `json:"url"`
 }
 
-// fastDownloadResponse is the body of /dyn/api/fast_download.json. A failed
-// request sets Error and leaves DownloadURL null. AccountInfo is read before
-// the request is counted, so it does not yet include the download it allows.
-type fastDownloadResponse struct {
-	DownloadURL *string               `json:"download_url"`
-	Error       string                `json:"error"`
-	AccountInfo *fastDownloadAccounts `json:"account_fast_download_info"`
-}
-
-type fastDownloadAccounts struct {
-	DownloadsLeft          int      `json:"downloads_left"`
-	DownloadsPerDay        int      `json:"downloads_per_day"`
-	RecentlyDownloadedMD5s []string `json:"recently_downloaded_md5s"`
-}
-
 // SearchOptions narrows one page of Anna's Archive results. Index is an
 // Anna search tab such as "journals" or "meta". The list filters take
 // upstream values; a leading "-" excludes a value instead of requiring it.

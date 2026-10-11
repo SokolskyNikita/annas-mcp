@@ -47,7 +47,7 @@ func goldenOutput(t *testing.T, page capturedPage) any {
 	t.Helper()
 	body := readFixture(t, "pages/"+page.file())
 	if page.Kind == "csl" {
-		metadata, err := parseCitationMetadata(bytes.NewReader(body))
+		metadata, err := parse.ParseCitation(bytes.NewReader(body))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -123,7 +123,7 @@ func TestDOIIdentityCases(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.csl+"/"+tc.record, func(t *testing.T) {
 			csl := capturedPageNamed(t, tc.csl)
-			metadata, err := parseCitationMetadata(bytes.NewReader(readFixture(t, "pages/"+csl.file())))
+			metadata, err := parse.ParseCitation(bytes.NewReader(readFixture(t, "pages/"+csl.file())))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -142,7 +142,7 @@ func TestDOIIdentityRejectsAnotherDOI(t *testing.T) {
 	if record.DOI != "10.1002/chin.201627137" {
 		t.Fatalf("record DOI = %q, want the one in its identifiers panel", record.DOI)
 	}
-	metadata := doiMetadata{Title: record.Title, Authors: record.Authors, Year: record.Year}
+	metadata := parse.Citation{Title: record.Title, Authors: record.Authors, Year: record.Year}
 	if verifyDOIIdentity("10.1000/another", metadata, record) {
 		t.Fatal("a record with another DOI matched on title and authors alone")
 	}

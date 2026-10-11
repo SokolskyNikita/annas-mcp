@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -245,13 +246,13 @@ func TestDownloadsLeftAfterCountsOnlyNewFiles(t *testing.T) {
 	if left := downloadsLeftAfter(nil, "a"); left != nil {
 		t.Fatal("unknown allowance must stay unknown")
 	}
-	if left := downloadsLeftAfter(&fastDownloadAccounts{DownloadsLeft: 5}, "a"); *left != 4 {
+	if left := downloadsLeftAfter(&parse.FastDownloadAccount{DownloadsLeft: 5}, "a"); *left != 4 {
 		t.Fatalf("new file: %d", *left)
 	}
-	if left := downloadsLeftAfter(&fastDownloadAccounts{DownloadsLeft: 5, RecentlyDownloadedMD5s: []string{"a"}}, "a"); *left != 5 {
+	if left := downloadsLeftAfter(&parse.FastDownloadAccount{DownloadsLeft: 5, RecentlyDownloadedMD5s: []string{"a"}}, "a"); *left != 5 {
 		t.Fatalf("recent file: %d", *left)
 	}
-	if left := downloadsLeftAfter(&fastDownloadAccounts{DownloadsLeft: 0}, "a"); *left != 0 {
+	if left := downloadsLeftAfter(&parse.FastDownloadAccount{DownloadsLeft: 0}, "a"); *left != 0 {
 		t.Fatalf("never negative: %d", *left)
 	}
 }

@@ -2,7 +2,6 @@ package anna
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"crypto/md5"
 	"encoding/hex"
@@ -10,16 +9,15 @@ import (
 	"fmt"
 	"hash"
 	"io"
-	"mime"
 	"net/http"
+	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"unicode/utf8"
 
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -62,7 +60,7 @@ func downloadFileWithGetter(ctx context.Context, client *http.Client, rawURL, fo
 	}
 
 	if format == "" {
-		format = formatFromResponse(resp)
+		format = parse.DownloadFormat(resp.Header, requestURL(resp))
 	}
 	format, err = normalizeFormat(format)
 	if err != nil {
@@ -213,26 +211,11 @@ func (t *transfer) resume(ctx context.Context, client *http.Client, rawURL strin
 	if err != nil {
 		return nil, requestFailure(err, rawURL)
 	}
-	if start, ok := contentRangeStart(resp.Header.Get("Content-Range")); resp.StatusCode != http.StatusPartialContent || !ok || start != t.written {
+	if start, ok := parse.ContentRangeStart(resp.Header.Get("Content-Range")); resp.StatusCode != http.StatusPartialContent || !ok || start != t.written {
 		resp.Body.Close()
 		return nil, fmt.Errorf("%s did not continue the download (HTTP status %d)", responseHost(resp, rawURL), resp.StatusCode)
 	}
 	return resp, nil
-}
-
-// contentRangeStart reads the first byte of a Content-Range such as
-// "bytes 1000-1999/2000".
-func contentRangeStart(value string) (int64, bool) {
-	spec, ok := strings.CutPrefix(strings.TrimSpace(value), "bytes ")
-	if !ok {
-		return 0, false
-	}
-	first, _, ok := strings.Cut(spec, "-")
-	if !ok {
-		return 0, false
-	}
-	start, err := strconv.ParseInt(first, 10, 64)
-	return start, err == nil && start >= 0
 }
 
 // finish checks the complete download.
@@ -316,62 +299,6 @@ func (b *bufferedReadCloser) Close() error {
 	return b.closer.Close()
 }
 
-func isHTMLResponse(resp *http.Response) (bool, error) {
-	if resp == nil {
-		return false, errors.New("download response is nil")
-	}
-	mediaType, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
-	if err == nil && (mediaType == "text/html" || strings.HasSuffix(mediaType, "+html")) {
-		return true, nil
-	}
-	if resp.Body == nil {
-		return false, errors.New("download response has no body")
-	}
-	reader := bufio.NewReader(resp.Body)
-	resp.Body = &bufferedReadCloser{Reader: reader, closer: resp.Body}
-	peek, peekErr := reader.Peek(512)
-	if peekErr != nil && !errors.Is(peekErr, io.EOF) {
-		return false, fmt.Errorf("failed to inspect download response: %w", peekErr)
-	}
-	lower := bytes.ToLower(bytes.TrimSpace(peek))
-	return bytes.HasPrefix(lower, []byte("<!doctype html")) || bytes.HasPrefix(lower, []byte("<html")), nil
-}
-
-func formatFromResponse(resp *http.Response) string {
-	if cd := resp.Header.Get("Content-Disposition"); cd != "" {
-		if _, params, err := mime.ParseMediaType(cd); err == nil {
-			if filename, ok := params["filename"]; ok {
-				if ext := strings.TrimPrefix(filepath.Ext(filename), "."); ext != "" {
-					return ext
-				}
-			}
-		}
-	}
-	if ext := extensionFromMediaType(resp.Header.Get("Content-Type")); ext != "" {
-		return ext
-	}
-	// Anna's file servers send "attachment" without a filename and a generic
-	// octet-stream type, but the signed URL ends in the archived filename.
-	if resp.Request != nil && resp.Request.URL != nil {
-		if ext := strings.TrimPrefix(path.Ext(resp.Request.URL.Path), "."); formatPattern.MatchString(ext) {
-			return ext
-		}
-	}
-	return "bin"
-}
-
-func extensionFromMediaType(contentType string) string {
-	mediaType, _, err := mime.ParseMediaType(contentType)
-	if err != nil || mediaType == "" || mediaType == "application/octet-stream" || mediaType == "binary/octet-stream" {
-		return ""
-	}
-	extensions, _ := mime.ExtensionsByType(mediaType)
-	if len(extensions) == 0 {
-		return ""
-	}
-	return strings.TrimPrefix(extensions[0], ".")
-}
-
 func sanitizeFilename(filename string) string {
 	safe := unsafeFilenameChars.ReplaceAllString(filename, "_")
 	safe = strings.ReplaceAll(safe, "..", "_")
@@ -406,4 +333,31 @@ func sanitizeFilename(filename string) string {
 		safe = strings.TrimRight(b.String(), " .")
 	}
 	return safe
+}
+
+func isHTMLResponse(resp *http.Response) (bool, error) {
+	if resp == nil {
+		return false, errors.New("download response is nil")
+	}
+	if parse.LooksLikeHTML(resp.Header.Get("Content-Type"), nil) {
+		return true, nil
+	}
+	if resp.Body == nil {
+		return false, errors.New("download response has no body")
+	}
+	reader := bufio.NewReader(resp.Body)
+	resp.Body = &bufferedReadCloser{Reader: reader, closer: resp.Body}
+	peek, peekErr := reader.Peek(512)
+	if peekErr != nil && !errors.Is(peekErr, io.EOF) {
+		return false, fmt.Errorf("failed to inspect download response: %w", peekErr)
+	}
+	return parse.LooksLikeHTML("", peek), nil
+}
+
+// requestURL is the URL a response answered, after redirects.
+func requestURL(resp *http.Response) *url.URL {
+	if resp.Request == nil {
+		return nil
+	}
+	return resp.Request.URL
 }

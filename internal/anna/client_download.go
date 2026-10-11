@@ -46,7 +46,7 @@ func (e stopDownload) Unwrap() error { return e.error }
 // reported with it.
 type fastDownloadGrant struct {
 	url     string
-	account *fastDownloadAccounts
+	account *parse.FastDownloadAccount
 }
 
 func (c *Client) validateDownload(ctx context.Context, format string) error {
@@ -113,7 +113,7 @@ func (c *Client) downloadBook(ctx context.Context, book *Book, progress Progress
 	}
 	client := c.requestClient(0)
 	var attempts []error
-	var account *fastDownloadAccounts
+	var account *parse.FastDownloadAccount
 collections:
 	for pathIndex := 0; pathIndex < maxDownloadPaths; pathIndex++ {
 		// Another collection only helps when this one's files failed. When the
@@ -186,7 +186,7 @@ func fastServerLabel(pathIndex, domainIndex int) string {
 
 // downloadsLeftAfter adjusts the allowance the API read before counting this
 // download: a file fetched recently is free, anything else uses one.
-func downloadsLeftAfter(account *fastDownloadAccounts, hash string) *int {
+func downloadsLeftAfter(account *parse.FastDownloadAccount, hash string) *int {
 	if account == nil {
 		return nil
 	}
@@ -314,7 +314,7 @@ func (c *Client) resolveDownloadURL(ctx context.Context, client *http.Client, ba
 	if err != nil {
 		return fastDownloadGrant{}, fmt.Errorf("could not read API response from %s: %w", responseHost(response, apiURL), err)
 	}
-	var payload fastDownloadResponse
+	var payload parse.FastDownloadAnswer
 	jsonErr := json.Unmarshal(body, &payload)
 	apiError := strings.TrimSpace(payload.Error)
 	if jsonErr != nil || (response.StatusCode != http.StatusOK && apiError == "") {
