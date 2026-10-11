@@ -152,7 +152,8 @@ func ReadRecordDetails(doc *goquery.Document) RecordDetails {
 	if doc == nil {
 		return RecordDetails{}
 	}
-	publisher, edition := publisherAndEdition(doc.Find(publisherSelector).First().Parent())
+	publisherLink := doc.Find(publisherSelector).First().Parent()
+	publisher, edition := publisherAndEdition(publisherLink.Text(), publisherLink.AttrOr("href", ""))
 	return RecordDetails{
 		Title:     recordTitle(doc),
 		Authors:   CleanAuthors(CleanText(attr(doc.Find(fallbackCoverSelector).Eq(1), "data-content"))),

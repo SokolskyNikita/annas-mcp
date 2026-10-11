@@ -57,40 +57,85 @@ var (
 	resultsTotalPattern = regexp.MustCompile(`^Results ([\d,]+)\s*[-–]\s*([\d,]+) \(([\d,]+)(\+?) total\)$`)
 )
 
-// SearchCards reads the result cards of a search page, partial matches
-// included, in page order. A card is a child of a results list with a title
-// linking to a record; the list's scripts and ads are skipped.
-func SearchCards(doc *goquery.Document) []Card {
+// CardText is a search card's parts as the page has them, before any
+// cleanup: what CardTexts extracts and ReadCard interprets.
+type CardText struct {
+	Href           string `json:"href"`
+	Title          string `json:"title"`
+	Authors        string `json:"authors,omitempty"`
+	PublisherLine  string `json:"publisher_line,omitempty"`
+	PublisherLink  string `json:"publisher_link,omitempty"`
+	Description    string `json:"description,omitempty"`
+	MetadataLine   string `json:"metadata_line,omitempty"`
+	PossibleIssues bool   `json:"possible_issues,omitempty"`
+	Partial        bool   `json:"partial,omitempty"`
+}
+
+// CardTexts extracts the cards of a search page, partial matches included,
+// in page order. A card is a child of a results list with a title link; the
+// list's scripts and ads are skipped.
+func CardTexts(doc *goquery.Document) []CardText {
 	if doc == nil {
 		return nil
 	}
-	var cards []Card
+	var texts []CardText
 	doc.Find(resultsListSelector).Each(func(_ int, list *goquery.Selection) {
 		partial := list.Closest(partialMatchesSelector).Length() > 0
 		list.Children().Each(func(_ int, card *goquery.Selection) {
 			link := card.Find(titleSelector).First()
-			href := link.AttrOr("href", "")
-			prefix, id, ok := RecordPath(href)
-			title := CleanText(link.Text())
-			if !ok || title == "" {
+			if link.Length() == 0 {
 				return
 			}
-			publisher, edition := publisherAndEdition(card.Find(publisherSelector).First().Parent())
-			cards = append(cards, Card{
-				Prefix:         prefix,
-				ID:             id,
-				Href:           href,
-				Title:          title,
-				Authors:        CleanAuthors(CleanText(card.Find(authorSelector).First().Parent().Text())),
-				Publisher:      publisher,
-				Edition:        edition,
-				Description:    Snippet(CleanText(card.Find(descriptionLinkSelector).First().Prev().Text())),
-				Meta:           ParseCardMeta(ownText(card.Find(metadataLineSelector).First())),
+			publisher := card.Find(publisherSelector).First().Parent()
+			texts = append(texts, CardText{
+				Href:           link.AttrOr("href", ""),
+				Title:          link.Text(),
+				Authors:        card.Find(authorSelector).First().Parent().Text(),
+				PublisherLine:  publisher.Text(),
+				PublisherLink:  publisher.AttrOr("href", ""),
+				Description:    card.Find(descriptionLinkSelector).First().Prev().Text(),
+				MetadataLine:   ownText(card.Find(metadataLineSelector).First()),
 				PossibleIssues: hasClass(card, possibleIssuesClass),
 				Partial:        partial,
 			})
 		})
 	})
+	return texts
+}
+
+// ReadCard interprets a card's text. A card without a record link or a
+// title is not read.
+func ReadCard(text CardText) (Card, bool) {
+	prefix, id, ok := RecordPath(text.Href)
+	title := CleanText(text.Title)
+	if !ok || title == "" {
+		return Card{}, false
+	}
+	publisher, edition := publisherAndEdition(text.PublisherLine, text.PublisherLink)
+	return Card{
+		Prefix:         prefix,
+		ID:             id,
+		Href:           text.Href,
+		Title:          title,
+		Authors:        CleanAuthors(CleanText(text.Authors)),
+		Publisher:      publisher,
+		Edition:        edition,
+		Description:    Snippet(CleanText(text.Description)),
+		Meta:           ParseCardMeta(text.MetadataLine),
+		PossibleIssues: text.PossibleIssues,
+		Partial:        text.Partial,
+	}, true
+}
+
+// SearchCards reads the result cards of a search page, partial matches
+// included, in page order.
+func SearchCards(doc *goquery.Document) []Card {
+	var cards []Card
+	for _, text := range CardTexts(doc) {
+		if card, ok := ReadCard(text); ok {
+			cards = append(cards, card)
+		}
+	}
 	return cards
 }
 
@@ -98,12 +143,12 @@ func SearchCards(doc *goquery.Document) []Card {
 // for the publisher alone, so the link's query says where the publisher ends;
 // a record without a publisher links to an empty search. When the link and
 // the line disagree, the whole line counts as the publisher.
-func publisherAndEdition(link *goquery.Selection) (publisher, edition string) {
-	line := CleanText(link.Text())
+func publisherAndEdition(line, link string) (publisher, edition string) {
+	line = CleanText(line)
 	if line == "" {
 		return "", ""
 	}
-	query, ok := strings.CutPrefix(link.AttrOr("href", ""), "/search?q=")
+	query, ok := strings.CutPrefix(link, "/search?q=")
 	if !ok {
 		return line, ""
 	}

@@ -221,3 +221,14 @@ func withCode(key, value string) map[string]string {
 		`<div class="js-md5-codes-container hidden">`: `<div class="js-md5-codes-container hidden"><a href='/search?q="` + key + ":" + url.QueryEscape(value) + `"'>` + key + `</a>`,
 	}
 }
+
+// decodeFixture reads a JSON fixture into v. Unknown fields are an error,
+// so a misspelled field in a case cannot pass unnoticed.
+func decodeFixture(t testing.TB, name string, v any) {
+	t.Helper()
+	decoder := json.NewDecoder(bytes.NewReader(readFixture(t, name)))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(v); err != nil {
+		t.Fatalf("%s: %v", name, err)
+	}
+}

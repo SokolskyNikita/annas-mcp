@@ -1,3 +1,7 @@
 # The parser tests compare their output with these files byte for byte, so
 # Git must not convert their line endings, as it does on Windows by default.
 internal/anna/parse/testdata/** -text
+
+# The corpus is gzipped. With `git config diff.gzip.textconv "gzip -dc"`,
+# git diff and git log -p show it as text.
+internal/anna/parse/testdata/corpus/*.gz diff=gzip

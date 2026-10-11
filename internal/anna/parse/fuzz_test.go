@@ -1,8 +1,6 @@
 package parse
 
 import (
-	"bufio"
-	"bytes"
 	"strings"
 	"testing"
 	"unicode"
@@ -11,14 +9,12 @@ import (
 
 // corpusSeeds adds the lines of a corpus file, when there is one, as seeds.
 func corpusSeeds(f *testing.F, name string) {
-	data, err := testdataFS.ReadFile("testdata/corpus/" + name)
+	lines, err := corpusFileLines(name)
 	if err != nil {
-		return
+		f.Fatal(err)
 	}
-	scanner := bufio.NewScanner(bytes.NewReader(data))
-	scanner.Buffer(make([]byte, 1<<20), 1<<20)
-	for scanner.Scan() {
-		f.Add(scanner.Text())
+	for _, line := range lines {
+		f.Add(line)
 	}
 }
 
@@ -44,7 +40,7 @@ func FuzzCleanAuthors(f *testing.F) {
 		"(0000000000 Institut00(0000000,00000000"} {
 		f.Add(seed)
 	}
-	corpusSeeds(f, "authors.txt")
+	corpusSeeds(f, "authors.txt.gz")
 	f.Fuzz(func(t *testing.T, input string) {
 		once := CleanAuthors(input)
 		if twice := CleanAuthors(once); twice != once {
@@ -60,7 +56,7 @@ func FuzzCleanText(f *testing.F) {
 	for _, seed := range []string{"Smith &amp;amp; Jones", "<i>AlphaFold</i>2", "Vector<T>", "&#x201C;x&#x201D;", "<jats:p>a</jats:p>"} {
 		f.Add(seed)
 	}
-	corpusSeeds(f, "titles.txt")
+	corpusSeeds(f, "titles.txt.gz")
 	f.Fuzz(func(t *testing.T, input string) {
 		got := CleanText(input)
 		if strings.TrimSpace(got) != got || strings.Contains(got, "  ") || strings.ContainsFunc(got, func(r rune) bool { return unicode.IsSpace(r) && r != ' ' }) {
@@ -76,7 +72,7 @@ func FuzzParseCardMeta(f *testing.F) {
 	for _, seed := range []string{"English [en] · EPUB · 3.8MB · 2008 · 📘 Book (non-fiction) · 🚀/lgli/zlib", "Metadata · English [en] · 📗 Book (unknown) · ol · OL1M", "· · ✅ ·", "PDF · lgli/Some Label"} {
 		f.Add(seed)
 	}
-	corpusSeeds(f, "metadata_lines.txt")
+	corpusSeeds(f, "metadata_lines.txt.gz")
 	f.Fuzz(func(t *testing.T, line string) {
 		meta := ParseCardMeta(line)
 		parts := map[string]bool{}

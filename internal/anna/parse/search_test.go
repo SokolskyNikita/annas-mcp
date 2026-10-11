@@ -97,7 +97,8 @@ func TestPublisherAndEdition(t *testing.T) {
 		{`<a href="/elsewhere">Press, 2008</a>`, "Press, 2008", ""},
 		{`<a href="/search?q=Press"></a>`, "", ""},
 	} {
-		publisher, edition := publisherAndEdition(htmlDocument(t, tc.link).Find("a"))
+		link := htmlDocument(t, tc.link).Find("a")
+		publisher, edition := publisherAndEdition(link.Text(), link.AttrOr("href", ""))
 		if publisher != tc.publisher || edition != tc.edition {
 			t.Errorf("%s: %q, %q; want %q, %q", tc.link, publisher, edition, tc.publisher, tc.edition)
 		}
