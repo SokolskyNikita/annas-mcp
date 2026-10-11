@@ -1,59 +1,10 @@
-package anna
+package match
 
 import (
-	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
-
-	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
-
-func verifyDOIIdentity(doi string, metadata parse.Citation, record parse.Identity) bool {
-	if record.DOIConflict {
-		return false
-	}
-	if record.DOI != "" && !strings.EqualFold(parse.NormalizeDOI(record.DOI), doi) {
-		return false
-	}
-	wantArxiv := parse.ArxivID(doi)
-	if record.ArxivID != "" && wantArxiv != "" && parse.NormalizeArxivID(record.ArxivID) != wantArxiv {
-		return false
-	}
-
-	ownIdentifierMatches := record.DOI != "" && strings.EqualFold(parse.NormalizeDOI(record.DOI), doi) ||
-		wantArxiv != "" && record.ArxivID == wantArxiv
-	if ownIdentifierMatches {
-		if metadata.Title != "" && record.Title != "" && normalizeTitle(metadata.Title) != normalizeTitle(record.Title) {
-			return false
-		}
-		if len(metadata.Authors) > 0 && len(record.Authors) > 0 && !sameAuthorSet(metadata.Authors, record.Authors) {
-			return false
-		}
-		if metadata.Year != "" && record.Year != "" && !sameYear(doi, metadata.Year, record.Year) {
-			return false
-		}
-		return true
-	}
-	// Some genuine Anna records do not expose a DOI code. In that case require
-	// the CSL title and every author to agree; a title by itself is never enough.
-	return metadata.Title != "" && len(metadata.Authors) > 0 &&
-		normalizeTitle(metadata.Title) != "" && normalizeTitle(metadata.Title) == normalizeTitle(record.Title) &&
-		len(record.Authors) > 0 && sameAuthorSet(metadata.Authors, record.Authors) &&
-		(metadata.Year == "" || record.Year == "" || sameYear(doi, metadata.Year, record.Year))
-}
-
-// sameYear compares publication years. An arXiv DOI is dated by the
-// preprint, and the journal or conference version the archive holds is often
-// published the following year.
-func sameYear(doi, want, got string) bool {
-	if want == got {
-		return true
-	}
-	wantYear, err1 := strconv.Atoi(want)
-	gotYear, err2 := strconv.Atoi(got)
-	return err1 == nil && err2 == nil && parse.ArxivID(doi) != "" && gotYear == wantYear+1
-}
 
 // sameAuthorSet compares authors by family name and first initial, so
 // "Diederik P. Kingma" and "Jimmy Lei Ba" match "Diederik Kingma" and

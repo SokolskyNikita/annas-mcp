@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
 func TestSciDBViewerExtraction(t *testing.T) {
@@ -126,5 +127,22 @@ func TestSciDBRejectsHTMLInsteadOfPDF(t *testing.T) {
 	})}})
 	if _, err := client.getSciDBPDF(context.Background(), client.requestClient(0), "https://downloads.example/paper.pdf", nil); err == nil {
 		t.Fatal("HTML from the PDF CDN was accepted")
+	}
+}
+
+func TestBuildSciDBURLPreservesBalancedDOISuffix(t *testing.T) {
+	t.Parallel()
+
+	input := "https://doi.org/10.1000/example(suffix)"
+	doi := parse.NormalizeDOI(input)
+	if doi != "10.1000/example(suffix)" {
+		t.Fatalf("normalized DOI suffix = %q", doi)
+	}
+	page, err := url.Parse(buildSciDBURL("annas.test", doi))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if page.Path != "/scidb/10.1000/example(suffix)/" || page.RawQuery != "" || page.Fragment != "" {
+		t.Fatalf("SciDB URL corrupted DOI suffix: %s", page.String())
 	}
 }

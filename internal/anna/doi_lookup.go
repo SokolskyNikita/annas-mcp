@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/match"
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
@@ -76,7 +77,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 	seenBooks := make(map[string]struct{})
 	checked := 0
 	for _, query := range queries {
-		key := normalizeTitle(query)
+		key := match.NormalizeTitle(query)
 		if key == "" {
 			continue
 		}
@@ -102,7 +103,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 				// When CSL identity is available, only inspect cards whose own
 				// title agrees. A conflicting title cannot be repaired by a DOI
 				// mention in its search parse.Snippet.
-				if metadata.Title != "" && normalizeTitle(book.Title) != normalizeTitle(metadata.Title) {
+				if metadata.Title != "" && match.NormalizeTitle(book.Title) != match.NormalizeTitle(metadata.Title) {
 					continue
 				}
 				if _, seen := seenBooks[book.Hash]; seen {
@@ -214,7 +215,7 @@ func (c *Client) verifyCandidates(ctx context.Context, doi string, metadata pars
 				noteFailure(result.err)
 				continue
 			}
-			if verifyDOIIdentity(doi, metadata, result.identity) {
+			if match.SameWork(doi, metadata, result.identity) {
 				cancel()
 				return paperFromBook(book, doi), nil
 			}

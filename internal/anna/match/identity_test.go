@@ -1,7 +1,6 @@
-package anna
+package match
 
 import (
-	"net/url"
 	"strings"
 	"testing"
 
@@ -9,7 +8,7 @@ import (
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
-func TestVerifyDOIIdentityRequiresFullTitleAndAuthorsWithoutIdentifier(t *testing.T) {
+func TestSameWorkRequiresFullTitleAndAuthorsWithoutIdentifier(t *testing.T) {
 	t.Parallel()
 
 	doi := "10.1000/example"
@@ -24,64 +23,47 @@ func TestVerifyDOIIdentityRequiresFullTitleAndAuthorsWithoutIdentifier(t *testin
 		Authors: []string{"Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones", "Aidan N. Gomez", "Lukasz Kaiser", "Illia Polosukhin"},
 		Year:    "2017",
 	}
-	if !verifyDOIIdentity(doi, metadata, record) {
+	if !SameWork(doi, metadata, record) {
 		t.Fatal("matching CSL title, full authors, and year should verify")
 	}
 
 	wrongAuthors := record
 	wrongAuthors.Authors = append([]string(nil), record.Authors...)
 	wrongAuthors.Authors[len(wrongAuthors.Authors)-1] = "A Different Author"
-	if verifyDOIIdentity(doi, metadata, wrongAuthors) {
+	if SameWork(doi, metadata, wrongAuthors) {
 		t.Fatal("same title with a different author list must be rejected")
 	}
 	missingAuthors := record
 	missingAuthors.Authors = nil
-	if verifyDOIIdentity(doi, metadata, missingAuthors) {
+	if SameWork(doi, metadata, missingAuthors) {
 		t.Fatal("title-only fallback must be rejected")
 	}
 	wrongYear := record
 	wrongYear.Year = "2018"
-	if verifyDOIIdentity(doi, metadata, wrongYear) {
+	if SameWork(doi, metadata, wrongYear) {
 		t.Fatal("mismatched publication years must be rejected")
 	}
 	wrongDOI := record
 	wrongDOI.DOI = "10.1000/other"
-	if verifyDOIIdentity(doi, metadata, wrongDOI) {
+	if SameWork(doi, metadata, wrongDOI) {
 		t.Fatal("a conflicting record DOI must be rejected even when title and authors match")
 	}
 }
 
-func TestVerifyDOIIdentityAcceptsExactRecordDOIWithoutOptionalAuthors(t *testing.T) {
+func TestSameWorkAcceptsExactRecordDOIWithoutOptionalAuthors(t *testing.T) {
 	t.Parallel()
 
 	doi := "10.1000/example"
 	metadata := parse.Citation{DOI: doi, Title: "A Paper", Authors: []string{"An Author"}}
-	if !verifyDOIIdentity(doi, metadata, parse.Identity{DOI: doi, Title: "A Paper"}) {
+	if !SameWork(doi, metadata, parse.Identity{DOI: doi, Title: "A Paper"}) {
 		t.Fatal("an exact structured record DOI should not require optional author fields")
 	}
-	if verifyDOIIdentity(doi, metadata, parse.Identity{DOI: doi, DOIConflict: true, Title: "A Paper"}) {
+	if SameWork(doi, metadata, parse.Identity{DOI: doi, DOIConflict: true, Title: "A Paper"}) {
 		t.Fatal("conflicting structured DOIs must be rejected")
 	}
 }
 
-func TestBuildSciDBURLPreservesBalancedDOISuffix(t *testing.T) {
-	t.Parallel()
-
-	input := "https://doi.org/10.1000/example(suffix)"
-	doi := parse.NormalizeDOI(input)
-	if doi != "10.1000/example(suffix)" {
-		t.Fatalf("normalized DOI suffix = %q", doi)
-	}
-	page, err := url.Parse(buildSciDBURL("annas.test", doi))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if page.Path != "/scidb/10.1000/example(suffix)/" || page.RawQuery != "" || page.Fragment != "" {
-		t.Fatalf("SciDB URL corrupted DOI suffix: %s", page.String())
-	}
-}
-
-func TestVerifyDOIIdentityAcceptsThePublishedVersionOfAnArxivPreprint(t *testing.T) {
+func TestSameWorkAcceptsThePublishedVersionOfAnArxivPreprint(t *testing.T) {
 	t.Parallel()
 
 	// DOI.org's metadata for arXiv:1412.6980 and the archive's ICLR record.
@@ -101,7 +83,7 @@ func TestVerifyDOIIdentityAcceptsThePublishedVersionOfAnArxivPreprint(t *testing
 	if record.DOI != "" || len(record.Authors) != 2 || record.Authors[0] != "Diederik P. Kingma" {
 		t.Fatalf("parsed record: %+v", record)
 	}
-	if !verifyDOIIdentity(doi, metadata, record) {
+	if !SameWork(doi, metadata, record) {
 		t.Fatal("the published version of the preprint was rejected")
 	}
 
@@ -114,22 +96,22 @@ func TestVerifyDOIIdentityAcceptsThePublishedVersionOfAnArxivPreprint(t *testing
 	} {
 		changed := record
 		change(&changed)
-		if verifyDOIIdentity(doi, metadata, changed) {
+		if SameWork(doi, metadata, changed) {
 			t.Errorf("%s was accepted", name)
 		}
 	}
 	// The year after is only allowed for preprints.
 	journal := record
-	if verifyDOIIdentity("10.1000/journal", parse.Citation{Title: metadata.Title, Authors: metadata.Authors, Year: "2014"}, journal) {
+	if SameWork("10.1000/journal", parse.Citation{Title: metadata.Title, Authors: metadata.Authors, Year: "2014"}, journal) {
 		t.Error("a journal DOI accepted a record from the following year")
 	}
 }
 
-func TestVerifyDOIIdentityKeepsDOISuffixPunctuation(t *testing.T) {
+func TestSameWorkKeepsDOISuffixPunctuation(t *testing.T) {
 	t.Parallel()
 
 	for _, suffix := range []string{"(02)", "(02).", ").", ".", ",", ";", ":", "]", "}", ">", "'", "\"", "?", "#"} {
-		if verifyDOIIdentity("10.1000/example", parse.Citation{}, parse.Identity{DOI: "10.1000/example" + suffix}) {
+		if SameWork("10.1000/example", parse.Citation{}, parse.Identity{DOI: "10.1000/example" + suffix}) {
 			t.Errorf("distinct DOI suffix %q matched the unpunctuated DOI", suffix)
 		}
 	}

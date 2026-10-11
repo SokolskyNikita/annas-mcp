@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/SokolskyNikita/annas-mcp/internal/anna/match"
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
 )
 
@@ -128,7 +129,7 @@ func TestDOIIdentityCases(t *testing.T) {
 				t.Fatal(err)
 			}
 			record := parse.RecordIdentity(fixtureDocument(t, "pages/"+capturedPageNamed(t, tc.record).file()))
-			if got := verifyDOIIdentity(parse.NormalizeDOI(csl.DOI), metadata, record); got != tc.want {
+			if got := match.SameWork(parse.NormalizeDOI(csl.DOI), metadata, record); got != tc.want {
 				t.Fatalf("verifyDOIIdentity = %v, want %v\nCSL: %+v\nrecord: %+v", got, tc.want, metadata, record)
 			}
 		})
@@ -143,10 +144,10 @@ func TestDOIIdentityRejectsAnotherDOI(t *testing.T) {
 		t.Fatalf("record DOI = %q, want the one in its identifiers panel", record.DOI)
 	}
 	metadata := parse.Citation{Title: record.Title, Authors: record.Authors, Year: record.Year}
-	if verifyDOIIdentity("10.1000/another", metadata, record) {
+	if match.SameWork("10.1000/another", metadata, record) {
 		t.Fatal("a record with another DOI matched on title and authors alone")
 	}
-	if !verifyDOIIdentity("10.1002/chin.201627137", metadata, record) {
+	if !match.SameWork("10.1002/chin.201627137", metadata, record) {
 		t.Fatal("the record did not match its own DOI")
 	}
 }

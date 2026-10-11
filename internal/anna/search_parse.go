@@ -4,7 +4,6 @@ import (
 	"net/url"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
@@ -155,21 +154,4 @@ func joinNonEmpty(separator string, values ...string) string {
 		}
 	}
 	return strings.Join(kept, separator)
-}
-
-func normalizeTitle(title string) string {
-	var b strings.Builder
-	lastSpace := true
-	for _, r := range strings.ToLower(title) {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) {
-			b.WriteRune(r)
-			lastSpace = false
-			continue
-		}
-		if !lastSpace {
-			b.WriteByte(' ')
-			lastSpace = true
-		}
-	}
-	return strings.TrimSpace(b.String())
 }
