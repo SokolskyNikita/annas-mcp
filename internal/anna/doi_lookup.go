@@ -47,6 +47,18 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 		scidbErr = parseErr
 	}
 
+	// A miss is only conclusive when every archive request answered: SciDB
+	// without the record and each search with a page. Remember the last
+	// request that failed instead, so an outage is not reported as the paper
+	// being absent. A NOT_FOUND answer is itself one of those misses.
+	var failure error
+	noteFailure := func(err error) {
+		if err != nil && apperr.CodeOf(err) != apperr.NotFound {
+			failure = err
+		}
+	}
+	noteFailure(scidbErr)
+
 	metadata, metadataErr := c.citationMetadataFromDOI(ctx, doi)
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -66,7 +78,6 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 	seenQueries := make(map[string]struct{}, len(queries))
 	seenBooks := make(map[string]struct{})
 	var candidates []*Book
-	var lastSearchErr error
 	for _, query := range queries {
 		key := normalizeTitle(query)
 		if key == "" {
@@ -82,7 +93,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 				if ctx.Err() != nil {
 					return nil, ctx.Err()
 				}
-				lastSearchErr = searchErr
+				noteFailure(searchErr)
 				continue
 			}
 			for _, book := range books {
@@ -115,7 +126,6 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 		}
 	}
 
-	var lastDetailErr error
 	for _, book := range candidates {
 		if err := ctx.Err(); err != nil {
 			return nil, err
@@ -125,7 +135,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 			if ctx.Err() != nil {
 				return nil, ctx.Err()
 			}
-			lastDetailErr = detailErr
+			noteFailure(detailErr)
 			continue
 		}
 		if verifyDOIIdentity(doi, metadata, identity) {
@@ -135,14 +145,13 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if lastSearchErr != nil && len(candidates) == 0 {
-		return nil, lastSearchErr
-	}
-	if lastDetailErr != nil && len(candidates) == 1 {
-		return nil, lastDetailErr
-	}
-	if metadataErr != nil && len(candidates) == 0 && scidbErr != nil && apperr.CodeOf(scidbErr) != apperr.NotFound {
-		return nil, fmt.Errorf("DOI lookup failed (SciDB: %v; metadata: %w)", scidbErr, metadataErr)
+	// The archive failure keeps its own code (UPSTREAM, UPSTREAM_BLOCKED or
+	// REQUEST_TIMEOUT); DOI.org's failure is context only.
+	if failure != nil {
+		if metadataErr != nil {
+			return nil, fmt.Errorf("could not check Anna's Archive for DOI %s (DOI metadata: %v): %w", doi, metadataErr, failure)
+		}
+		return nil, fmt.Errorf("could not check Anna's Archive for DOI %s: %w", doi, failure)
 	}
 	return nil, apperr.New(apperr.NotFound, fmt.Sprintf("no verified archive record found for DOI: %s", doi))
 }

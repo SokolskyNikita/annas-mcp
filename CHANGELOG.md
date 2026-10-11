@@ -2,6 +2,11 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.3.1](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.3.1) - 2026-10-11
+
+- A DOI lookup in `article_search` or `article_download` no longer reports `[NOT_FOUND]` when Anna's Archive could not be checked. If SciDB, a search or a record page fails, for example with a 502 while the archive is down, the error reports that failure as `[UPSTREAM]`, `[UPSTREAM_BLOCKED]` or `[REQUEST_TIMEOUT]`. `[NOT_FOUND]` now means every request was answered and none of them found the paper.
+- Automatic mirror selection probes every mirror at once on Anna's `/dyn/up/` endpoint and uses the first one that answers, instead of running a full search on each mirror in turn. A fresh start now selects a mirror in under a second, where a slow minute could previously spend the whole 15-second selection budget. While every mirror is failing, a single call no longer selects again on each request.
+
 ## [v0.3.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.3.0) - 2026-10-11
 
 - Save downloads to `annas-archive` in the home folder (`~/annas-archive`, `%USERPROFILE%\annas-archive` on Windows) when `ANNAS_DOWNLOAD_PATH` is unset, so the secret key is the only setting a client needs. The folder is created on the first download, and unlike Desktop, Documents and Downloads it needs no macOS privacy permission. A leading `~` in `ANNAS_DOWNLOAD_PATH` now stands for the home folder. The MCP Bundle's download folder defaults to the same folder instead of Downloads.
