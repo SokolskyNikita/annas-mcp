@@ -36,7 +36,7 @@ func (c *Client) search(ctx context.Context, query string, options SearchOptions
 	}
 	cards := parseSearchCards(doc)
 	if len(cards) == 0 && !isArchiveDocument(doc) {
-		c.invalidateMirror(pageURL)
+		c.reportMirror(pageURL, outcomeBlocked)
 		return searchResults{pageURL: pageURL}, apperr.New(apperr.UpstreamBlocked, "archive returned an unexpected page; check the mirror and account access")
 	}
 	if err := checkFacetFilter(doc, "src", "source", options.Source); err != nil {

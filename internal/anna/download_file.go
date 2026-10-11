@@ -148,7 +148,7 @@ func copyWithHash(ctx context.Context, destination io.Writer, source io.Reader, 
 			break
 		}
 		if readErr != nil {
-			return written, fmt.Errorf("failed to write file (wrote %d bytes): %w", written, readErr)
+			return written, fmt.Errorf("download stopped after %d bytes: %w", written, readErr)
 		}
 	}
 

@@ -240,7 +240,7 @@ func (c *Client) fetchJSON(ctx context.Context, rawURL string, target any, what 
 		return apperr.New(apperr.Upstream, what+" exceeded the size limit")
 	}
 	if trimmed := bytes.TrimSpace(body); len(trimmed) > 0 && trimmed[0] == '<' {
-		c.invalidateMirror(rawURL)
+		c.reportMirror(rawURL, outcomeBlocked)
 		return apperr.New(apperr.UpstreamBlocked, "archive returned a web page instead of "+what+"; check the mirror and account access")
 	}
 	if err := json.Unmarshal(body, target); err != nil {

@@ -72,10 +72,12 @@ func (c *Client) doGet(ctx context.Context, client *http.Client, rawURL string) 
 		if cookie != "" {
 			request.Header.Set("Cookie", cookie)
 		}
-		response, err := client.Do(request)
+		response, err := c.send(client, request)
 		if err != nil {
+			// The caller's own deadline or cancellation says nothing about
+			// the mirror; a refused connection or a server gone quiet does.
 			if ctx.Err() == nil {
-				c.invalidateMirror(rawURL)
+				c.reportMirror(rawURL, outcomeUnreachable)
 			}
 			return nil, redactErr(err, c.config.SecretKey)
 		}
@@ -93,9 +95,7 @@ func (c *Client) doGet(ctx context.Context, client *http.Client, rawURL string) 
 				continue
 			}
 		}
-		if response.StatusCode == http.StatusForbidden || response.StatusCode >= 500 {
-			c.invalidateMirror(rawURL)
-		}
+		c.reportMirror(rawURL, statusOutcome(request, response.StatusCode))
 		return response, nil
 	}
 }

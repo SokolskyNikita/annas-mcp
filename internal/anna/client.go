@@ -63,6 +63,10 @@ type Client struct {
 	signingIn        chan struct{}
 	signedInAt       time.Time
 	signInErr        error
+	// Limits on how long one request may wait; tests shorten them.
+	headerTimeout time.Duration
+	idleTimeout   time.Duration
+	doiTimeout    time.Duration
 }
 
 const defaultClientBaseURL = "https://annas-archive.gl"
@@ -72,9 +76,12 @@ const mirrorFailureTTL = 30 * time.Second
 func NewClient(config Config) *Client {
 	transport := config.HTTPClient
 	if transport == nil {
-		transport = &http.Client{}
+		transport = &http.Client{Transport: newTransport()}
 	}
-	c := &Client{config: config, http: transport, baseURL: defaultClientBaseURL}
+	c := &Client{
+		config: config, http: transport, baseURL: defaultClientBaseURL,
+		headerTimeout: responseHeaderTimeout, idleTimeout: bodyIdleTimeout, doiTimeout: doiMetadataTimeout,
+	}
 	if config.BaseURL != "" {
 		host, err := mirror.ParseBaseURL(config.BaseURL)
 		if err != nil {
@@ -231,6 +238,45 @@ func (c *Client) baseURLFor(ctx context.Context) (string, error) {
 			return "", err
 		}
 		return base, nil
+	}
+}
+
+// outcome is what one archive request showed about the mirror that served it.
+type outcome int
+
+const (
+	outcomeNone        outcome = iota // says nothing about the mirror
+	outcomeOK                         // the mirror answered
+	outcomeUnreachable                // no connection, or no answer in time
+	outcomeServerError                // HTTP 5xx
+	outcomeBlocked                    // 403, or a web page where data was expected
+	outcomeRateLimited                // HTTP 429
+)
+
+func (o outcome) failed() bool { return o > outcomeOK }
+
+// statusOutcome classifies an archive response by its status. The fast
+// download API answers 403 about the account, not the mirror.
+func statusOutcome(request *http.Request, status int) outcome {
+	switch {
+	case status >= 500:
+		return outcomeServerError
+	case status == http.StatusTooManyRequests:
+		return outcomeRateLimited
+	case status == http.StatusForbidden:
+		if request.URL.Query().Has("key") {
+			return outcomeNone
+		}
+		return outcomeBlocked
+	default:
+		return outcomeOK
+	}
+}
+
+// reportMirror records what a request to rawURL showed about its mirror.
+func (c *Client) reportMirror(rawURL string, result outcome) {
+	if result.failed() {
+		c.invalidateMirror(rawURL)
 	}
 }
 

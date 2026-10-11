@@ -192,7 +192,21 @@ func (c *Client) archiveIdentityForBook(ctx context.Context, book *Book) (archiv
 // citationMetadataFromDOI reads DOI.org's CSL representation. Search snippets
 // are only candidate generators; this metadata is the external work identity
 // used to verify the archive's own title and complete author list.
+//
+// DOI.org has its own deadline: the archive can find the paper without it, so
+// a DOI.org that hangs must not use up the whole lookup.
 func (c *Client) citationMetadataFromDOI(ctx context.Context, doi string) (doiMetadata, error) {
+	parent := ctx
+	ctx, cancel := context.WithTimeout(ctx, c.doiTimeout)
+	defer cancel()
+	metadata, err := c.fetchCitationMetadata(ctx, doi)
+	if err != nil && parent.Err() == nil && ctx.Err() != nil {
+		err = fmt.Errorf("doi.org did not answer within %s", c.doiTimeout)
+	}
+	return metadata, err
+}
+
+func (c *Client) fetchCitationMetadata(ctx context.Context, doi string) (doiMetadata, error) {
 	metadataURL := &url.URL{Scheme: "https", Host: "doi.org", Path: "/" + doi}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, metadataURL.String(), nil)
 	if err != nil {
