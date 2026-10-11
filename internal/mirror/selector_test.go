@@ -83,9 +83,10 @@ func TestHoldsGrowWithFailuresAndStopAtTheMaximum(t *testing.T) {
 		if got := health.State("a.example").HeldUntil.Sub(clk.Now()); got != want {
 			t.Fatalf("failure %d: held for %s, want %s", i+1, got, want)
 		}
-	}
-	if health.Eligible("a.example") {
-		t.Fatal("a held mirror is eligible")
+		if health.Eligible("a.example") {
+			t.Fatal("a held mirror is eligible")
+		}
+		clk.Advance(want)
 	}
 	health.Succeeded("a.example")
 	if state := health.State("a.example"); !health.Eligible("a.example") || state.Failures != 0 {
@@ -97,6 +98,7 @@ func TestPassedCheckEndsTheHoldButKeepsTheFailures(t *testing.T) {
 	t.Parallel()
 	health, clk := testHealth()
 	health.Failed("a.example", Failure{})
+	health.Passed("a.example")
 	health.Failed("a.example", Failure{})
 	health.Passed("a.example")
 	if !health.Eligible("a.example") || health.State("a.example").Failures != 2 {
@@ -107,6 +109,21 @@ func TestPassedCheckEndsTheHoldButKeepsTheFailures(t *testing.T) {
 	health.Failed("a.example", Failure{})
 	if got := health.State("a.example").HeldUntil.Sub(clk.Now()); got != time.Minute {
 		t.Fatalf("third failure held for %s, want 1m", got)
+	}
+}
+
+func TestFailuresDuringAHoldDoNotLengthenIt(t *testing.T) {
+	t.Parallel()
+	health, clk := testHealth()
+	// Four requests under way at once all fail in the same outage.
+	for range 4 {
+		health.Failed("a.example", Failure{Reason: "answered HTTP 502"})
+	}
+	clk.Advance(5 * time.Second)
+	health.Failed("a.example", Failure{Reason: "did not answer"})
+	state := health.State("a.example")
+	if state.Failures != 1 || !state.HeldUntil.Equal(clk.Now().Add(10*time.Second)) || state.Reason != "did not answer" {
+		t.Fatalf("one outage counted as several failures: %+v", state)
 	}
 }
 
@@ -246,9 +263,7 @@ func TestEveryMirrorHeldFailsFastAndIsCheckedAgainEvery30Seconds(t *testing.T) {
 	health, clk := testHealth()
 	// Long holds, so only the 30-second rule lets a call check again.
 	for _, host := range hosts {
-		for range 4 {
-			health.Failed(host, Failure{Reason: "did not answer"})
-		}
+		health.Failed(host, Failure{Reason: "did not answer", RetryAfter: maxHold})
 	}
 	checks := newChecker(map[string]error{"a.example": errDown, "b.example": errDown, "c.example": errDown})
 	selector := NewSelector(hosts, health, checks.check)

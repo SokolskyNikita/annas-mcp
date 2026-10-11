@@ -77,16 +77,22 @@ func (h *Health) Passed(host string) {
 	})
 }
 
-// Failed holds the mirror back from selection.
+// Failed holds the mirror back from selection. Requests that were already
+// under way when the mirror was set aside report the same outage, so a
+// failure during a hold does not lengthen it; only one after the hold ends
+// counts as another failure in a row.
 func (h *Health) Failed(host string, failure Failure) {
 	h.update(host, func(s *HostState, now time.Time) {
+		s.LastFail, s.Reason, s.Blocked = now, failure.Reason, failure.Blocked
+		if now.Before(s.HeldUntil) && failure.RetryAfter <= 0 {
+			return
+		}
 		s.Failures++
 		hold := failure.RetryAfter
 		if hold <= 0 {
 			hold = h.jitter(holdFor(s.Failures))
 		}
-		s.LastFail, s.HeldUntil = now, now.Add(min(hold, maxHold))
-		s.Reason, s.Blocked = failure.Reason, failure.Blocked
+		s.HeldUntil = now.Add(min(hold, maxHold))
 	})
 }
 
