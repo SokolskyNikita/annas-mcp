@@ -47,11 +47,22 @@ func TestPersonKey(t *testing.T) {
 	}
 }
 
-func TestFoldNameRune(t *testing.T) {
+func TestNormalizePersonNameFoldsLatinAccents(t *testing.T) {
 	t.Parallel()
 
-	if got := normalizePersonName("Łø Đð Àé Íò Ùý Ćś Ńź Řď Ť"); got != "lo dd ae io uy cs nz rd t" {
-		t.Fatalf("normalizePersonName = %q", got)
+	for name, want := range map[string]string{
+		"Łø Đð Àé Íò Ùý Ćś Ńź Řď Ť": "lo dd ae io uy cs nz rd t",
+		"Gülşen Özdemir-Ağaoğlu":    "gulsen ozdemir agaoglu",
+		"Ştefan Ţurcanu":            "stefan turcanu",
+		"İsmail Kılıç":              "ismail kilic",
+		"Ægir Œdipe Þor":            "ægir œdipe þor",
+		"Йошкар Иванов":             "йошкар иванов",
+		"ガウス 李 Ли":                  "ガウス 李 ли",
+		"A\u0301ngel":               "angel",
+	} {
+		if got := normalizePersonName(name); got != want {
+			t.Errorf("normalizePersonName(%q) = %q, want %q", name, got, want)
+		}
 	}
 }
 

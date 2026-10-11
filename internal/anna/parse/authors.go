@@ -15,12 +15,19 @@ var (
 )
 
 // CleanAuthors removes affiliations appended to an author field and
-// normalizes the spacing around its commas and semicolons.
+// normalizes the spacing around its commas and semicolons. The spacing is
+// normalized first, so cleaning a cleaned field changes nothing.
 func CleanAuthors(authors string) string {
+	authors = spaceSeparators(authors)
 	if loc := numberedAffiliations.FindStringIndex(authors); loc != nil {
 		authors = authors[:loc[0]]
 	}
-	authors = trimAffiliationBlock(authors)
+	return spaceSeparators(trimAffiliationBlock(authors))
+}
+
+// spaceSeparators writes the names of an author field separated by ", "
+// and groups by "; ", dropping empty ones.
+func spaceSeparators(authors string) string {
 	var groups []string
 	for _, group := range strings.Split(authors, ";") {
 		var names []string

@@ -100,3 +100,13 @@ func TestValidDOI(t *testing.T) {
 		t.Errorf("NormalizeArxivID = %q", got)
 	}
 }
+
+func TestNormalizeDOIRemovesRepeatedPrefixes(t *testing.T) {
+	t.Parallel()
+
+	for _, input := range []string{"doi:doi:10.1000/x", "https://doi.org/doi:10.1000/x", "<https://doi.org/https://dx.doi.org/10.1000/x>"} {
+		if doi, valid := ParseDOI(input); doi != "10.1000/x" || !valid {
+			t.Errorf("ParseDOI(%q) = %q, %v", input, doi, valid)
+		}
+	}
+}

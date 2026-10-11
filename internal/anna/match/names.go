@@ -4,6 +4,8 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"golang.org/x/text/unicode/norm"
 )
 
 // sameAuthorSet compares authors by family name and first initial, so
@@ -59,11 +61,12 @@ func personKey(name string) string {
 	return family + " " + string(initial)
 }
 
+// normalizePersonName lowercases a name, folds the accents of Latin letters
+// and keeps letters and digits, separated by single spaces.
 func normalizePersonName(name string) string {
 	var normalized strings.Builder
 	space := true
-	for _, r := range strings.ToLower(name) {
-		r = foldNameRune(r)
+	for _, r := range foldLatinAccents(strings.ToLower(name)) {
 		if unicode.IsLetter(r) || unicode.IsDigit(r) {
 			normalized.WriteRune(r)
 			space = false
@@ -75,55 +78,30 @@ func normalizePersonName(name string) string {
 	return strings.TrimSpace(normalized.String())
 }
 
-func foldNameRune(r rune) rune {
-	switch r {
-	case 'ł':
-		return 'l'
-	case 'ø':
-		return 'o'
-	case 'đ', 'ð':
-		return 'd'
+// latinLetters are the Latin letters that carry their difference in the
+// letter itself rather than in a combining accent.
+var latinLetters = map[rune]rune{'ł': 'l', 'ø': 'o', 'đ': 'd', 'ð': 'd', 'ı': 'i'}
+
+// foldLatinAccents drops the accents of Latin letters, so the archive's
+// ASCII transliteration and DOI.org's native spelling can agree: "Łukasz
+// Kaiser" and "Lukasz Kaiser", "Gülşen" and "Gulsen". Marks on other scripts
+// are kept: they tell letters apart there, as in Cyrillic "й" and "и".
+// Letters such as "æ", "œ" and "þ" stay as they are.
+func foldLatinAccents(text string) string {
+	var folded strings.Builder
+	var base rune
+	for _, r := range norm.NFD.String(text) {
+		if unicode.Is(unicode.Mn, r) {
+			if unicode.Is(unicode.Latin, base) {
+				continue
+			}
+		} else {
+			base = r
+			if plain, ok := latinLetters[r]; ok {
+				r = plain
+			}
+		}
+		folded.WriteRune(r)
 	}
-	// Common precomposed Latin accents are compared without diacritics so the
-	// archive's ASCII transliteration and CSL's native spelling can still agree.
-	if strings.ContainsRune("àáâãäåāăąǎǟǡǻ", r) {
-		return 'a'
-	}
-	if strings.ContainsRune("èéêëēĕėęě", r) {
-		return 'e'
-	}
-	if strings.ContainsRune("ìíîïĩīĭįǐ", r) {
-		return 'i'
-	}
-	if strings.ContainsRune("òóôõöōŏőǒ", r) {
-		return 'o'
-	}
-	if strings.ContainsRune("ùúûüũūŭůűųǔ", r) {
-		return 'u'
-	}
-	if r == 'ý' || r == 'ÿ' || r == 'ŷ' {
-		return 'y'
-	}
-	if r == 'ć' || r == 'ĉ' || r == 'ċ' || r == 'č' {
-		return 'c'
-	}
-	if r == 'ś' || r == 'ŝ' || r == 'ş' || r == 'š' {
-		return 's'
-	}
-	if r == 'ń' || r == 'ņ' || r == 'ň' || r == 'ñ' {
-		return 'n'
-	}
-	if r == 'ź' || r == 'ż' || r == 'ž' {
-		return 'z'
-	}
-	if r == 'ř' {
-		return 'r'
-	}
-	if r == 'ď' {
-		return 'd'
-	}
-	if r == 'ť' {
-		return 't'
-	}
-	return r
+	return norm.NFC.String(folded.String())
 }

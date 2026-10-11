@@ -8,9 +8,21 @@ import (
 
 var validDOI = regexp.MustCompile(`(?i)^10\.\d{4,9}/\S+$`)
 
-// NormalizeDOI removes common DOI URL/label prefixes and enclosing wrappers.
-// Suffix punctuation is significant and must not be guessed away as prose.
+// NormalizeDOI removes common DOI URL/label prefixes and enclosing wrappers,
+// as often as they occur, as in "https://doi.org/doi:10.1000/x". Suffix
+// punctuation is significant and must not be guessed away as prose.
 func NormalizeDOI(doi string) string {
+	for {
+		// Each round only shortens the text, so this ends.
+		next := normalizeDOIOnce(doi)
+		if next == doi {
+			return next
+		}
+		doi = next
+	}
+}
+
+func normalizeDOIOnce(doi string) string {
 	doi = unwrapDOI(doi)
 	if strings.HasPrefix(strings.ToLower(doi), "doi:") {
 		doi = unwrapDOI(doi[len("doi:"):])
