@@ -61,6 +61,9 @@ func ParseBaseURL(raw string) (string, error) {
 	if host == "" || strings.ContainsAny(host, "\\/\x00\r\n") {
 		return "", errors.New("base URL has an invalid hostname")
 	}
+	if official, ok := languageVersion(host); ok {
+		return "", fmt.Errorf("%s is a translated version of %s; use %s, since this server reads Anna's Archive in English", host, official, official)
+	}
 	if port := parsed.Port(); port != "" {
 		if strings.Contains(host, ":") {
 			host = "[" + host + "]"
@@ -68,6 +71,23 @@ func ParseBaseURL(raw string) (string, error) {
 		host += ":" + port
 	}
 	return host, nil
+}
+
+// languageVersion reports whether host is a language subdomain of an
+// official mirror, such as es.annas-archive.gl, and which mirror. Anna's
+// Archive picks a page's language from the subdomain alone, so the bare host
+// serves English.
+func languageVersion(host string) (string, bool) {
+	label, rest, found := strings.Cut(host, ".")
+	if !found || label == "www" || len(label) < 2 || len(label) > 3 || strings.Trim(label, "abcdefghijklmnopqrstuvwxyz") != "" {
+		return "", false
+	}
+	for _, official := range officialHosts {
+		if rest == official {
+			return official, true
+		}
+	}
+	return "", false
 }
 
 func sameOrigin(left, right *url.URL) bool {

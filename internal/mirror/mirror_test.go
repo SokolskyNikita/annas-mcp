@@ -141,6 +141,10 @@ func TestParseBaseURLRejectsDowngradeAndURLParts(t *testing.T) {
 		{name: "http", raw: "http://fallback.example"},
 		{name: "path", raw: "https://fallback.example/path"},
 		{name: "userinfo", raw: "https://user:fallback@example.com"},
+		{name: "a language version of an official mirror", raw: "https://es.annas-archive.gl"},
+		{name: "a three-letter language version", raw: "kmr.annas-archive.pk"},
+		{name: "www is not a language", raw: "www.annas-archive.gl", want: "www.annas-archive.gl"},
+		{name: "a subdomain of another host", raw: "es.example.com", want: "es.example.com"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -155,5 +159,13 @@ func TestParseBaseURLRejectsDowngradeAndURLParts(t *testing.T) {
 				t.Fatalf("ParseBaseURL(%q) = %q, %v; want %q", test.raw, got, err, test.want)
 			}
 		})
+	}
+}
+
+func TestParseBaseURLNamesTheEnglishMirror(t *testing.T) {
+	t.Parallel()
+
+	if _, err := ParseBaseURL("de.annas-archive.gd"); err == nil || !strings.Contains(err.Error(), "use annas-archive.gd") {
+		t.Fatalf("err = %v", err)
 	}
 }

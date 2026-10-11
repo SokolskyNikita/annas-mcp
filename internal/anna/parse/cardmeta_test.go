@@ -37,9 +37,9 @@ func TestParseCardMetaReadsEveryPart(t *testing.T) {
 			want: CardMeta{Language: "English", Content: "book_unknown", Sources: []string{"ol"}},
 		},
 		{
-			// A lowercase label before the content type is not a source.
-			line: "metadatos · Español [es] · 1999 · 📗\u00a0Libro (desconocido) · isbndb",
-			want: CardMeta{Language: "Español", Year: "1999", Content: "book_unknown", Sources: []string{"isbndb"}},
+			// A single word before the content type is not a source.
+			line: "Metadata · Spanish [es] · 1999 · 📗\u00a0Book (unknown) · isbndb",
+			want: CardMeta{Language: "Spanish", Year: "1999", Content: "book_unknown", Sources: []string{"isbndb"}},
 		},
 		{
 			line: "Metadata · English [en] · 2008 · 📗 Book (unknown) · isbndb · ISBNdb 9780521879286",

@@ -146,7 +146,7 @@ The server uses that cookie first and still signs in with the secret key once it
 | `ANNAS_SECRET_KEY` | Everything | Your Anna's Archive secret key. The server signs in with it and uses it for downloads. |
 | `ANNAS_DOWNLOAD_PATH` | Optional | Folder for downloaded files. Defaults to `annas-archive` in your home folder. See [Choosing the download folder](#choosing-the-download-folder). |
 | `ANNAS_ACCOUNT_COOKIE` | Optional | An `aa_account_id2` cookie to use before signing in. See [Signing in](#signing-in). |
-| `ANNAS_BASE_URL` | Optional | Mirror to try first. The official mirrors stand in for it while it fails. Defaults to `annas-archive.gl`. |
+| `ANNAS_BASE_URL` | Optional | Mirror to try first. The official mirrors stand in for it while it fails. Defaults to `annas-archive.gl`. Language versions such as `es.annas-archive.gl` are refused: the server reads the archive in English. |
 | `ANNAS_AUTO_BASE_URL` | Optional | Set to `false` to always use `ANNAS_BASE_URL` instead of picking a mirror automatically. |
 | `ANNAS_MCP_CACHE_DIR` | Optional | Where the server saves its session and `npx` caches release binaries. See [The cache folder](HOW-IT-WORKS.md#the-cache-folder). |
 

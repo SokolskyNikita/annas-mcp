@@ -23,7 +23,7 @@ type CardMeta struct {
 	Unparsed []string `json:"unparsed,omitempty"`
 }
 
-// The content label is translated, but its emoji is not.
+// Content types are recognized by the emoji before their label.
 var contentEmoji = map[rune]string{
 	'📗': "book_unknown", '📘': "book_nonfiction", '📕': "book_fiction",
 	'📄': "journal_article", '📝': "standards_document", '📰': "magazine",
@@ -81,8 +81,8 @@ func ParseCardMeta(line string) CardMeta {
 				continue
 			}
 		}
-		// Sources follow the content type, which every record has; a lone
-		// lowercase word earlier on, such as a translated label, is not one.
+		// Sources follow the content type, which every record has. Before it,
+		// only a part with a slash, such as "🚀/lgli", can be the sources.
 		if stage == stageSources || (stage < stageSources && strings.Contains(part, "/")) {
 			if sources, fast, ok := parseSources(part); ok {
 				meta.Sources, meta.FastDownload, stage = sources, fast, stageDone

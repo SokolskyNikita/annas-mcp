@@ -119,7 +119,9 @@ func TestResultsTotal(t *testing.T) {
 	}{
 		{countPage(`Results 1-50 (500+ total)`), 500, true, true},
 		{countPage(`Results 1-9 (9 total)`), 9, false, true},
-		{countPage(`Résultats 51–100 (76 au total)`), 76, false, true},
+		{countPage(`Results 4,951–5,000 (5,000+ total)`), 5000, true, true},
+		// Pages are read in English: a translated count is not one.
+		{countPage(`Résultats 51-100 (76 au total)`), 0, false, false},
 		{countPage(`Results 1-50 (99999999999999999999 total)`), 0, false, false},
 		{countPage(`No files found`), 0, false, false},
 	} {

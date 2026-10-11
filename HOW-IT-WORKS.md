@@ -52,7 +52,7 @@ Each new file uses one fast download from your membership's allowance, which Ann
 
 ## Choosing a mirror
 
-The server uses `ANNAS_BASE_URL` (`annas-archive.gl` unless you set it) and the official mirrors `annas-archive.gl`, `.pk` and `.gd`. Set `ANNAS_AUTO_BASE_URL=false` to use only `ANNAS_BASE_URL`.
+The server uses `ANNAS_BASE_URL` (`annas-archive.gl` unless you set it) and the official mirrors `annas-archive.gl`, `.pk` and `.gd`. Set `ANNAS_AUTO_BASE_URL=false` to use only `ANNAS_BASE_URL`. It reads the archive's pages in English, so a language version of a mirror, such as `es.annas-archive.gl`, is refused with a `[CONFIG]` error naming the mirror to use instead.
 
 It contacts the mirrors only while a tool call is running, never in the background. The first call checks them all at once on Anna's small uptime endpoint and uses the first that answers. After that it keeps using that mirror for as long as it works, without checking it again.
 

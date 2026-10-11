@@ -54,7 +54,7 @@ var (
 	cardSizePattern     = regexp.MustCompile(`(?i)^\d+(?:[.,]\d+)?\s*[KMGT]?B$`)
 	cardYearPattern     = regexp.MustCompile(`^\d{1,4}$`)
 	sourceNamePattern   = regexp.MustCompile(`^[a-z0-9_]+$`)
-	resultsTotalPattern = regexp.MustCompile(`^\D*(\d+)\s*[-–]\s*(\d+)\D*?(\d+)(\+?)`)
+	resultsTotalPattern = regexp.MustCompile(`^Results ([\d,]+)\s*[-–]\s*([\d,]+) \(([\d,]+)(\+?) total\)$`)
 )
 
 // SearchCards reads the result cards of a search page, partial matches
@@ -162,8 +162,8 @@ func hasClass(selection *goquery.Selection, class string) bool {
 	return false
 }
 
-// ResultsTotal reads "Results 1-50 (500+ total)". The words are
-// translated, but the numbers keep their order.
+// ResultsTotal reads Anna's count, "Results 1-50 (500+ total)". The client
+// reads Anna's pages in English; see mirror.ParseBaseURL.
 func ResultsTotal(doc *goquery.Document) (total int, lowerBound, found bool) {
 	count := resultsCount(doc)
 	return count.total, count.lowerBound, count.found
@@ -187,9 +187,10 @@ func resultsCount(doc *goquery.Document) resultsLine {
 		if match == nil {
 			return true
 		}
-		from, err1 := strconv.Atoi(match[1])
-		to, err2 := strconv.Atoi(match[2])
-		total, err3 := strconv.Atoi(match[3])
+		number := func(text string) (int, error) { return strconv.Atoi(strings.ReplaceAll(text, ",", "")) }
+		from, err1 := number(match[1])
+		to, err2 := number(match[2])
+		total, err3 := number(match[3])
 		if err1 != nil || err2 != nil || err3 != nil {
 			return true
 		}
