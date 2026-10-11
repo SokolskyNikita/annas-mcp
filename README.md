@@ -3,8 +3,11 @@
 [![Tests](https://github.com/SokolskyNikita/annas-mcp/actions/workflows/test.yml/badge.svg)](https://github.com/SokolskyNikita/annas-mcp/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/SokolskyNikita/annas-mcp)](https://github.com/SokolskyNikita/annas-mcp/releases)
 [![npm](https://img.shields.io/npm/v/annas-mcp)](https://www.npmjs.com/package/annas-mcp)
+[![annas-mcp MCP server](https://glama.ai/mcp/servers/SokolskyNikita/annas-mcp/badges/score.svg)](https://glama.ai/mcp/servers/SokolskyNikita/annas-mcp)
 
 An MCP server that lets Claude, Cursor, Codex and other AI clients search [Anna's Archive](https://annas-archive.gl) for books and papers and download the file you pick. It also works as a command-line tool.
+
+It signs in with your membership's secret key and renews the session by itself, so you never copy cookies from a browser. Coming from iosifache/annas-mcp? See [Switching](#switching-from-iosifacheannas-mcp); it's a one-line change.
 
 | Tool | What it does |
 | --- | --- |
@@ -80,11 +83,52 @@ ANNAS_SECRET_KEY = "your-secret-key"
 ANNAS_DOWNLOAD_PATH = "/absolute/path/to/downloads"
 ```
 
+#### Docker
+
+Build the image straight from this repository:
+
+```bash
+docker build -t annas-mcp https://github.com/SokolskyNikita/annas-mcp.git
+```
+
+Then have your client run it, mounting your download folder at `/downloads`:
+
+```json
+{
+  "mcpServers": {
+    "annas-mcp": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "ANNAS_SECRET_KEY", "-v", "/absolute/path/to/downloads:/downloads", "annas-mcp"],
+      "env": { "ANNAS_SECRET_KEY": "your-secret-key" }
+    }
+  }
+}
+```
+
+On Linux, add `"--user", "1000:1000"` with your own user and group IDs before `"annas-mcp"`, so the container can write to the folder. Each container signs in again when it starts, since `--rm` discards the saved session.
+
 ### 3. Try it
 
 Restart your client and ask something like *"Find the EPUB of Pride and Prejudice and download it."* The AI searches, picks a copy and returns the path of the saved file.
 
 On first run `npx` downloads the latest release and caches it once its checksum matches. Later runs start from the cache and pick up new releases automatically.
+
+## Switching from iosifache/annas-mcp
+
+This server has the same four tools and reads the same `ANNAS_SECRET_KEY`, `ANNAS_DOWNLOAD_PATH` and `ANNAS_BASE_URL` variables. In your client's config, replace the path to the old binary with `npx`:
+
+```diff
+-      "command": "/path/to/annas-mcp",
+-      "args": ["mcp"],
++      "command": "npx",
++      "args": ["-y", "annas-mcp"],
+```
+
+What changes:
+
+- Searches run as your signed-in member account, so they aren't turned away with `403` by the archive's browser check. Searching needs Lucky Librarian or higher.
+- The server picks a working official mirror by itself. Set `ANNAS_AUTO_BASE_URL=false` to use only `ANNAS_BASE_URL`.
+- Downloads are checked against the archive's MD5 hash, and `npx` picks up new releases without a manual download.
 
 ## Signing in
 

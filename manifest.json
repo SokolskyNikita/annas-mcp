@@ -19,7 +19,7 @@
   "support": "https://github.com/SokolskyNikita/annas-mcp/issues",
   "license": "MIT",
   "icon": "icon.png",
-  "keywords": ["books", "papers", "doi", "annas-archive", "library"],
+  "keywords": ["books", "ebooks", "epub", "pdf", "papers", "doi", "annas-archive", "library"],
   "server": {
     "type": "node",
     "entry_point": "bin/annas-mcp.js",

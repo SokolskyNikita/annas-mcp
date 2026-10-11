@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>annas-mcp: Anna's Archive MCP server for Claude, Cursor and Codex</title>
+<meta name="description" content="Search Anna's Archive for books, ebooks and journal articles by title, author or DOI from Claude, Cursor, Codex or the command line, and download the EPUB or PDF you pick. Free and open source.">
+<link rel="canonical" href="https://sokolskynikita.github.io/annas-mcp/">
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="annas-mcp: Anna's Archive MCP server">
+<meta property="og:description" content="Search and download books and papers from Anna's Archive in Claude, Cursor, Codex and the CLI.">
+<meta property="og:url" content="https://sokolskynikita.github.io/annas-mcp/">
+<meta property="og:image" content="https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "annas-mcp",
+  "alternateName": "Anna's Archive MCP server",
+  "description": "MCP server and CLI that searches Anna's Archive for books and journal articles by title, author or DOI and downloads the file you pick.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Windows, Linux, FreeBSD",
+  "license": "https://opensource.org/licenses/MIT",
+  "url": "https://sokolskynikita.github.io/annas-mcp/",
+  "downloadUrl": "https://www.npmjs.com/package/annas-mcp",
+  "codeRepository": "https://github.com/SokolskyNikita/annas-mcp",
+  "author": {"@type": "Person", "name": "Nikita Sokolsky", "url": "https://github.com/SokolskyNikita"},
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
+}
+</script>
+<style>
+  :root {
+    --bg: #f6f8f6;
+    --surface: #ffffff;
+    --text: #13241b;
+    --muted: #4c5d53;
+    --border: #d5e0d8;
+    --accent: #14532d;
+    --accent-text: #ffffff;
+    --code-bg: #0b3b2e;
+    --code-text: #e7efe9;
+    --link: #17663a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c1511;
+      --surface: #13201a;
+      --text: #e4ece7;
+      --muted: #a3b5aa;
+      --border: #26392f;
+      --accent: #2f9e5f;
+      --accent-text: #06120c;
+      --code-bg: #08261d;
+      --code-text: #e7efe9;
+      --link: #7fc79c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c1511;
+    --surface: #13201a;
+    --text: #e4ece7;
+    --muted: #a3b5aa;
+    --border: #26392f;
+    --accent: #2f9e5f;
+    --accent-text: #06120c;
+    --code-bg: #08261d;
+    --code-text: #e7efe9;
+    --link: #7fc79c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+  a { color: var(--link); }
+  header { display: flex; gap: 20px; align-items: center; margin-bottom: 8px; }
+  header img { width: 72px; height: 72px; flex: none; }
+  h1 { font-size: 2.1rem; line-height: 1.15; margin: 0; letter-spacing: -0.02em; }
+  h1 span { display: block; font-size: 1.05rem; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-top: 4px; }
+  h2 { font-size: 1.3rem; margin: 44px 0 12px; }
+  h3 { font-size: 1.02rem; margin: 26px 0 8px; }
+  .lede { font-size: 1.15rem; margin: 24px 0; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 8px; padding: 0; list-style: none; }
+  .links a {
+    display: inline-block; padding: 8px 14px; border-radius: 8px; text-decoration: none;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 500;
+  }
+  .links a.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  .code { position: relative; }
+  pre {
+    margin: 0; padding: 14px 16px; border-radius: 10px; overflow-x: auto;
+    background: var(--code-bg); color: var(--code-text);
+    font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .code button {
+    position: absolute; top: 8px; right: 8px; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid #2f7a55; background: #0a2e23; color: var(--code-text); font: 13px/1.4 inherit;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  .note { color: var(--muted); font-size: 0.95rem; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
+  @media (max-width: 520px) {
+    header { align-items: flex-start; }
+    header img { width: 56px; height: 56px; }
+    h1 { font-size: 1.7rem; }
+    td, th { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.png" alt="" width="72" height="72">
+    <h1>annas-mcp <span>Anna's Archive MCP server for Claude, Cursor and Codex</span></h1>
+  </header>
+
+  <p class="lede">Ask your AI client for a book or paper. It searches <a href="https://annas-archive.gl">Anna's Archive</a> by title, author or DOI, compares the copies and downloads the one you pick to a folder on your computer. It also works as a command-line tool.</p>
+
+  <ul class="links">
+    <li><a class="primary" href="https://github.com/SokolskyNikita/annas-mcp#setup">Set it up</a></li>
+    <li><a href="https://github.com/SokolskyNikita/annas-mcp">GitHub</a></li>
+    <li><a href="https://www.npmjs.com/package/annas-mcp">npm</a></li>
+    <li><a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.SokolskyNikita/annas-mcp">MCP Registry</a></li>
+    <li><a href="https://glama.ai/mcp/servers/SokolskyNikita/annas-mcp">Glama</a></li>
+  </ul>
+
+  <h2>What it does</h2>
+  <table>
+    <thead><tr><th>Tool</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>book_search</code></td><td>Finds books, textbooks, manuals and standards by title, author or topic</td></tr>
+      <tr><td><code>article_search</code></td><td>Finds journal articles by keyword, or looks one up by DOI</td></tr>
+      <tr><td><code>book_download</code></td><td>Downloads a book using the hash from a search result</td></tr>
+      <tr><td><code>article_download</code></td><td>Downloads an article by DOI or hash</td></tr>
+    </tbody>
+  </table>
+  <p>Downloads are checked against the archive's MD5 hash. The server signs in with your membership's secret key and renews the session by itself, so you never copy cookies from a browser.</p>
+
+  <h2>Setup</h2>
+  <p>You need Node.js 18 or newer and an Anna's Archive <a href="https://annas-archive.gl/donate">membership</a>: Lucky Librarian or higher to search, any tier to download. Copy your secret key from your <a href="https://annas-archive.gl/account/">account page</a>.</p>
+
+  <h3>Claude Code</h3>
+  <div class="code"><pre><code>claude mcp add annas-mcp \
+  --env ANNAS_SECRET_KEY=your-secret-key \
+  --env ANNAS_DOWNLOAD_PATH=/absolute/path/to/downloads \
+  -- npx -y annas-mcp</code></pre></div>
+
+  <h3>Claude Desktop</h3>
+  <p>Download <a href="https://github.com/SokolskyNikita/annas-mcp/releases/latest/download/annas-mcp.mcpb">annas-mcp.mcpb</a> and open it. Claude Desktop asks for your secret key and download folder.</p>
+
+  <h3>Cursor, or Claude Desktop by hand</h3>
+  <div class="code"><pre><code>{
+  "mcpServers": {
+    "annas-mcp": {
+      "command": "npx",
+      "args": ["-y", "annas-mcp"],
+      "env": {
+        "ANNAS_SECRET_KEY": "your-secret-key",
+        "ANNAS_DOWNLOAD_PATH": "/absolute/path/to/downloads"
+      }
+    }
+  }
+}</code></pre></div>
+
+  <h3>Codex</h3>
+  <div class="code"><pre><code>[mcp_servers.annas-mcp]
+command = "npx"
+args = ["-y", "annas-mcp"]
+
+[mcp_servers.annas-mcp.env]
+ANNAS_SECRET_KEY = "your-secret-key"
+ANNAS_DOWNLOAD_PATH = "/absolute/path/to/downloads"</code></pre></div>
+
+  <p>Then ask something like <em>"Find the EPUB of Pride and Prejudice and download it."</em> Docker, the command line and every option are in the <a href="https://github.com/SokolskyNikita/annas-mcp#readme">README</a>.</p>
+
+  <h2>Coming from iosifache/annas-mcp?</h2>
+  <p>It has the same four tools and reads the same <code>ANNAS_SECRET_KEY</code>, <code>ANNAS_DOWNLOAD_PATH</code> and <code>ANNAS_BASE_URL</code> variables. Replace the path to the old binary with <code>npx -y annas-mcp</code>. Searches then run as your signed-in member account, so they aren't turned away with <code>403</code>. <a href="https://github.com/SokolskyNikita/annas-mcp#switching-from-iosifacheannas-mcp">What changes</a>.</p>
+
+  <footer>
+    <p>annas-mcp is free and open source under the <a href="https://github.com/SokolskyNikita/annas-mcp/blob/main/LICENSE">MIT license</a>. It runs on your machine and has no telemetry. It is not affiliated with Anna's Archive. Use it only for material you are entitled to obtain, under the laws and terms that apply to you.</p>
+  </footer>
+</main>
+<script>
+  for (const block of document.querySelectorAll(".code")) {
+    if (!navigator.clipboard) break;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "Copy";
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(block.querySelector("code").textContent);
+        button.textContent = "Copied";
+      } catch {
+        button.textContent = "Select and copy";
+      }
+      setTimeout(() => { button.textContent = "Copy"; }, 1500);
+    });
+    block.appendChild(button);
+  }
+</script>
+</body>
+</html>

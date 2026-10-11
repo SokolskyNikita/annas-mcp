@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.SokolskyNikita/annas-mcp",
   "title": "Anna's Archive",
-  "description": "Search Anna's Archive for books and papers (by title, author or DOI) and download the file you pick.",
+  "description": "Search Anna's Archive for ebooks and papers by title, author or DOI and download the file you pick.",
   "websiteUrl": "https://github.com/SokolskyNikita/annas-mcp",
   "repository": {
     "url": "https://github.com/SokolskyNikita/annas-mcp",
