@@ -15,6 +15,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/internal/mirror"
 )
 
 // Details is the full record for a file or catalog entry, trimmed to the
@@ -111,10 +112,22 @@ func (c *Client) Details(ctx context.Context, id string, timeout time.Duration) 
 	if err := c.requireArchiveAccess(ctx); err != nil {
 		return nil, err
 	}
-	base, err := c.baseURLFor(ctx)
+	var details *Details
+	err = c.onMirror(ctx, func(base string) error {
+		var err error
+		details, err = c.detailsOn(ctx, base, prefix, value)
+		return err
+	})
 	if err != nil {
+		if apperr.CodeOf(err) == apperr.NotFound {
+			return nil, apperr.New(apperr.NotFound, fmt.Sprintf("Anna's Archive has no record %s:%s", prefix, value))
+		}
 		return nil, err
 	}
+	return details, nil
+}
+
+func (c *Client) detailsOn(ctx context.Context, base, prefix, value string) (*Details, error) {
 	var summary *md5Summary
 	var wait sync.WaitGroup
 	if prefix == "md5" {
@@ -127,12 +140,9 @@ func (c *Client) Details(ctx context.Context, id string, timeout time.Duration) 
 	}
 	var record aaRecord
 	recordURL := buildPathURL(base, "/db/aarecord_elasticsearch/"+prefix+":"+escapeRecordValue(value)+".json")
-	err = c.fetchJSON(ctx, recordURL, &record, "record details")
+	err := c.fetchJSON(ctx, recordURL, &record, "record details")
 	wait.Wait()
 	if err != nil {
-		if apperr.CodeOf(err) == apperr.NotFound {
-			return nil, apperr.New(apperr.NotFound, fmt.Sprintf("Anna's Archive has no record %s:%s", prefix, value))
-		}
 		return nil, err
 	}
 	details := detailsFromRecord(&record, base, prefix, value)
@@ -240,7 +250,7 @@ func (c *Client) fetchJSON(ctx context.Context, rawURL string, target any, what 
 		return apperr.New(apperr.Upstream, what+" exceeded the size limit")
 	}
 	if trimmed := bytes.TrimSpace(body); len(trimmed) > 0 && trimmed[0] == '<' {
-		c.reportMirror(rawURL, outcomeBlocked)
+		c.mirrorFailed(rawURL, mirror.Failure{Reason: "returned a web page instead of " + what, Blocked: true})
 		return apperr.New(apperr.UpstreamBlocked, "archive returned a web page instead of "+what+"; check the mirror and account access")
 	}
 	if err := json.Unmarshal(body, target); err != nil {

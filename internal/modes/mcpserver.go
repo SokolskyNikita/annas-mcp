@@ -145,7 +145,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 }
 
 func runMCP(ctx context.Context, svc *service, searchTimeout, downloadTimeout time.Duration) error {
-	// Configuration is local and mirror discovery is lazy: the transport can
-	// negotiate and list tools without contacting the archive or status page.
+	// Configuration is local and mirror selection is lazy: the transport can
+	// negotiate and list tools without contacting the archive.
 	return newMCPServer(svc, searchTimeout, downloadTimeout).Run(ctx, &mcp.StdioTransport{MaxLineLength: 1 << 20})
 }

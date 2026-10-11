@@ -35,7 +35,7 @@ The `npx` launcher always runs the latest published release, never your checkout
 | `cmd/annas-mcp` | Executable entry point |
 | `internal/modes` | MCP server and CLI, sharing one service layer for validation and output |
 | `internal/anna` | Archive search and result parsing, record details, account status, DOI lookup, downloads and sign-in, including the saved session |
-| `internal/mirror` | Mirror discovery and probing |
+| `internal/mirror` | Mirror selection: health checks, holds on failing mirrors and the official mirror list |
 | `internal/env`, `internal/apperr`, `internal/version` | Configuration, stable error codes, embedded version |
 | `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
 | `server.json`, `manifest.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery) and Glama |
@@ -68,7 +68,7 @@ These use real credentials from your environment or `.env`.
 - `scripts/healthcheck.sh --live` runs real searches without downloading anything.
 - `ANNAS_MCP_TEST_SCIDB_LIVE=1 go test ./internal/anna -run '^TestLiveSciDBFallback$' -count=1 -v` tests the SciDB PDF fallback on its own.
 - `ANNAS_MCP_TEST_LIVE=1 go test ./internal/anna -run '^TestLiveSearchDetailsAndAccount$' -count=1 -v` checks search filters and result cards, catalog search, `book_details` and the account page against the live archive. It downloads nothing, so it uses no download quota.
-- `ANNAS_MCP_TEST_MIRROR_LIVE=1 go test ./internal/mirror -run '^TestLiveResolve$' -count=1 -v` selects a mirror the way a first run does, then probes each official mirror and logs how long it took. It needs no credentials.
+- `ANNAS_MCP_TEST_MIRROR_LIVE=1 go test ./internal/mirror -run '^TestLiveSelect$' -count=1 -v` selects a mirror the way a first run does, then checks each official mirror and logs how long it took. It needs no credentials.
 
 ## Releasing
 

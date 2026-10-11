@@ -6,6 +6,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/internal/mirror"
 )
 
 // searchResults is one parsed results page.
@@ -24,11 +25,17 @@ func (c *Client) search(ctx context.Context, query string, options SearchOptions
 	if err := c.requireArchiveAccess(ctx); err != nil {
 		return searchResults{}, err
 	}
-	base, err := c.baseURLFor(ctx)
-	if err != nil {
-		return searchResults{}, err
-	}
 	options = ResolveSearch(options, defaultContent)
+	var results searchResults
+	err := c.onMirror(ctx, func(base string) error {
+		var err error
+		results, err = c.searchOn(ctx, base, query, options)
+		return err
+	})
+	return results, err
+}
+
+func (c *Client) searchOn(ctx context.Context, base, query string, options SearchOptions) (searchResults, error) {
 	pageURL := buildSearchURL(base, query, options)
 	doc, _, err := c.fetchDocument(ctx, pageURL)
 	if err != nil {
@@ -36,7 +43,7 @@ func (c *Client) search(ctx context.Context, query string, options SearchOptions
 	}
 	cards := parseSearchCards(doc)
 	if len(cards) == 0 && !isArchiveDocument(doc) {
-		c.reportMirror(pageURL, outcomeBlocked)
+		c.mirrorFailed(pageURL, mirror.Failure{Reason: "answered a search with a page that is not Anna's Archive", Blocked: true})
 		return searchResults{pageURL: pageURL}, apperr.New(apperr.UpstreamBlocked, "archive returned an unexpected page; check the mirror and account access")
 	}
 	if err := checkFacetFilter(doc, "src", "source", options.Source); err != nil {

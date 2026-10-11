@@ -23,28 +23,22 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 	if err := c.requireArchiveAccess(ctx); err != nil {
 		return nil, err
 	}
-	base, err := c.baseURLFor(ctx)
-	if err != nil {
+	// Without a session or a mirror, every step below would fail the same way.
+	if _, err := c.baseURLFor(ctx); err != nil {
 		return nil, err
 	}
 
-	// A canonical SciDB record path is an authoritative DOI-to-file mapping.
-	// Mirrors sometimes redirect this route to a generic search page, so only
-	// accept its contents when the final URL is still the exact requested path.
-	scidbURL := buildSciDBURL(base, doi)
-	doc, finalURL, scidbErr := c.fetchDocument(ctx, scidbURL)
+	var paper *Paper
+	scidbErr := c.onMirror(ctx, func(base string) error {
+		var err error
+		paper, err = c.paperFromSciDBPage(ctx, base, doi)
+		return err
+	})
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if doc != nil && isSciDBDOIPage(finalURL, base, doi) {
-		paper, parseErr := c.paperFromSciDB(ctx, doc, doi, finalURL.String(), base)
-		if parseErr == nil {
-			return paper, nil
-		}
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
-		}
-		scidbErr = parseErr
+	if scidbErr == nil {
+		return paper, nil
 	}
 
 	// A miss is only conclusive when every archive request answered: SciDB
@@ -158,6 +152,21 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 	return nil, apperr.New(apperr.NotFound, fmt.Sprintf("no verified archive record found for DOI: %s", doi))
 }
 
+// paperFromSciDBPage reads the SciDB page for doi. A canonical SciDB record
+// path is an authoritative DOI-to-file mapping. Mirrors sometimes redirect
+// this route to a generic search page, so its contents only count when the
+// final URL is still the exact requested path.
+func (c *Client) paperFromSciDBPage(ctx context.Context, base, doi string) (*Paper, error) {
+	doc, finalURL, err := c.fetchDocument(ctx, buildSciDBURL(base, doi))
+	if err != nil {
+		return nil, err
+	}
+	if !isSciDBDOIPage(finalURL, base, doi) {
+		return nil, apperr.New(apperr.NotFound, "SciDB has no page for this DOI")
+	}
+	return c.paperFromSciDB(ctx, doc, doi, finalURL.String(), base)
+}
+
 func (c *Client) archiveIdentityForBook(ctx context.Context, book *Book) (archiveIdentity, error) {
 	if book == nil || book.Hash == "" {
 		return archiveIdentity{}, apperr.New(apperr.NotFound, "archive search result has no record hash")
@@ -166,11 +175,17 @@ func (c *Client) archiveIdentityForBook(ctx context.Context, book *Book) (archiv
 	if err != nil {
 		return archiveIdentity{}, err
 	}
-	currentBase, err := c.baseURLFor(ctx)
-	if err != nil {
-		return archiveIdentity{}, err
-	}
-	requestedURL, err := url.Parse(buildPathURL(currentBase, "/md5/"+hash))
+	var identity archiveIdentity
+	err = c.onMirror(ctx, func(base string) error {
+		var err error
+		identity, err = c.archiveIdentityOn(ctx, base, hash)
+		return err
+	})
+	return identity, err
+}
+
+func (c *Client) archiveIdentityOn(ctx context.Context, base, hash string) (archiveIdentity, error) {
+	requestedURL, err := url.Parse(buildPathURL(base, "/md5/"+hash))
 	if err != nil {
 		return archiveIdentity{}, err
 	}

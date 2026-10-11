@@ -150,6 +150,7 @@ collections:
 				continue
 			}
 			granted = true
+			c.mirrorSucceeded(base)
 			if grant.account != nil {
 				account = grant.account
 			}
@@ -258,19 +259,23 @@ func (c *Client) downloadPaper(ctx context.Context, paper *Paper, format string,
 			return DownloadResult{}, err
 		}
 	}
-	base, err := c.baseURLFor(ctx)
-	if err != nil {
-		return DownloadResult{}, err
-	}
+	var base string
 	sourceURL := paper.DownloadURL
 	if sourceURL == "" {
 		if _, valid := ParseDOI(paper.DOI); !valid {
 			return DownloadResult{}, apperr.New(apperr.NotFound, "no DOI is available for SciDB lookup")
 		}
-		sourceURL, expectedMD5, err = c.resolveSciDBFile(ctx, base, paper)
-		if err != nil {
-			return DownloadResult{}, err
-		}
+		err = c.onMirror(ctx, func(mirrorBase string) error {
+			base = mirrorBase
+			var err error
+			sourceURL, expectedMD5, err = c.resolveSciDBFile(ctx, base, paper)
+			return err
+		})
+	} else {
+		base, err = c.baseURLFor(ctx)
+	}
+	if err != nil {
+		return DownloadResult{}, err
 	}
 	downloadURL, err := resolvePaperDownloadURL(base, sourceURL)
 	if err != nil {

@@ -6,127 +6,124 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/internal/mirror"
 )
 
-func TestAutomaticMirrorDiscoveryIsLazyAndUsesInjectedTransport(t *testing.T) {
+// mirrorUp answers the uptime check on the mirrors up reports as working.
+// The others hang until the check gives up, so they never win a round and
+// leave no failure behind once another mirror answers.
+func mirrorUp(t *testing.T, req *http.Request, up func(host string) bool) (*http.Response, error) {
+	if up(req.URL.Host) {
+		return fixtureResponse(t, req, http.StatusOK, "mirror_up.json", "application/json", nil), nil
+	}
+	return hang(req)
+}
+
+func TestMirrorSelectionIsLazyAndKeepsAWorkingMirror(t *testing.T) {
 	t.Parallel()
 	var calls atomic.Int32
-	client := NewClient(Config{BaseURL: "fallback.example", AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		calls.Add(1)
-		if req.URL.Host == "open-slum.org" {
-			if req.Header.Get("Cookie") != "" {
-				t.Error("sent account cookie to discovery service")
-			}
-			return fixtureResponse(t, req, http.StatusOK, "mirror_discovery.html", "text/html", nil), nil
-		}
-		if req.URL.Host != "annas-archive.gl" {
-			t.Errorf("request used %s", req.URL.Host)
+		if !slices.Contains(mirror.OfficialHosts(), req.URL.Host) {
+			t.Errorf("request to %s", req.URL.Host)
 		}
 		if req.Header.Get("Cookie") != "aa_account_id2=test" {
 			t.Error("missing cookie on archive request")
 		}
 		if req.URL.Path == "/dyn/up/" {
-			return fixtureResponse(t, req, http.StatusOK, "mirror_up.json", "text/json", nil), nil
+			return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.gl" })
 		}
 		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
 	})}})
 	if calls.Load() != 0 {
 		t.Fatal("constructor contacted upstream")
 	}
-	page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
-	if err != nil || len(page.Results) != 0 {
+	if page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err != nil || len(page.Results) != 0 {
 		t.Fatalf("search: %v %v", page.Results, err)
 	}
-	if calls.Load() != 3 {
-		t.Fatalf("expected discovery, probe, search; got %d requests", calls.Load())
-	}
-	if _, err := client.FindBook(context.Background(), "again", SearchOptions{}, time.Second); err != nil {
-		t.Fatal(err)
-	}
 	if calls.Load() != 4 {
-		t.Fatal("successful mirror was not cached")
+		t.Fatalf("expected three checks and a search; got %d requests", calls.Load())
+	}
+	for range 3 {
+		if _, err := client.FindBook(context.Background(), "again", SearchOptions{}, time.Second); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if calls.Load() != 7 {
+		t.Fatalf("a working mirror was checked again: %d requests", calls.Load())
 	}
 }
 
-func TestMirrorWaiterCanCancelAndFailuresRetryAfterExpiry(t *testing.T) {
+func TestFailedArchiveRequestMovesTheNextCallToAnotherMirror(t *testing.T) {
 	t.Parallel()
-	started, release := make(chan struct{}), make(chan struct{})
-	client := NewClient(Config{BaseURL: "fallback.example", AutoBaseURL: true, Resolver: func(ctx context.Context) (string, error) {
-		close(started)
-		select {
-		case <-release:
-			return "annas-archive.gl", nil
-		case <-ctx.Done():
-			return "", ctx.Err()
+	var pkUp atomic.Bool
+	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		if req.URL.Path == "/dyn/up/" {
+			return mirrorUp(t, req, func(host string) bool {
+				return host == "annas-archive.gl" || host == "annas-archive.pk" && pkUp.Load()
+			})
 		}
-	}})
-	finished := make(chan error, 1)
-	go func() { _, err := client.baseURLFor(context.Background()); finished <- err }()
-	<-started
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-	if _, err := client.baseURLFor(ctx); !errors.Is(err, context.Canceled) {
-		t.Fatalf("cancellation: %v", err)
-	}
-	close(release)
-	if err := <-finished; err != nil {
-		t.Fatal(err)
-	}
-
-	var resolves int
-	client = NewClient(Config{BaseURL: "fallback.example", AutoBaseURL: true, Resolver: func(context.Context) (string, error) {
-		resolves++
-		if resolves == 1 {
-			return "", errors.New("temporary discovery failure")
-		}
-		return "annas-archive.gl", nil
-	}})
-	for i := 0; i < 2; i++ {
-		base, err := client.baseURLFor(context.Background())
-		if err != nil || base != "https://fallback.example" {
-			t.Fatalf("fallback: %s %v", base, err)
-		}
-	}
-	if resolves != 1 {
-		t.Fatal("failure cache did not prevent repeated discovery")
-	}
-	client.baseMu.Lock()
-	client.baseExpires = time.Now().Add(-time.Second)
-	client.baseMu.Unlock()
-	base, err := client.baseURLFor(context.Background())
-	if err != nil || base != "https://annas-archive.gl" || resolves != 2 {
-		t.Fatalf("did not retry: %s %v %d", base, err, resolves)
-	}
-}
-
-func TestFailedArchiveRequestRefreshesMirrorOnNextCall(t *testing.T) {
-	t.Parallel()
-	resolves := 0
-	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", Resolver: func(context.Context) (string, error) {
-		resolves++
-		if resolves == 1 {
-			return "annas-archive.gl", nil
-		}
-		return "annas-archive.pk", nil
-	}, HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		if req.URL.Host == "annas-archive.gl" {
-			return fixtureResponse(t, req, http.StatusForbidden, "blocked.txt", "text/plain", nil), nil
+			return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
 		}
 		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
 	})}})
-	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); apperr.CodeOf(err) != apperr.UpstreamBlocked {
+	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); apperr.CodeOf(err) != apperr.Upstream {
 		t.Fatalf("wrong error: %v", err)
 	}
+	if state := client.health.State("annas-archive.gl"); client.health.Eligible("annas-archive.gl") || state.Reason != "answered HTTP 502" {
+		t.Fatalf("failed mirror was not held: %+v", state)
+	}
+	pkUp.Store(true)
 	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err != nil {
 		t.Fatal(err)
 	}
-	if resolves != 2 {
-		t.Fatalf("mirror not refreshed: %d", resolves)
+	if current := client.mirrors.Current(); current != "annas-archive.pk" {
+		t.Fatalf("mirror not replaced: %s", current)
+	}
+}
+
+func TestEveryMirrorDownFailsFastWithASummary(t *testing.T) {
+	t.Parallel()
+	var calls atomic.Int32
+	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		calls.Add(1)
+		if req.URL.Host == "annas-archive.pk" {
+			return fixtureResponse(t, req, http.StatusForbidden, "challenge.html", "text/html", nil), nil
+		}
+		return nil, errors.New("connection refused")
+	})}})
+	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
+	if apperr.CodeOf(err) != apperr.Upstream {
+		t.Fatalf("wrong code for an outage: %v", err)
+	}
+	for _, want := range []string{
+		"no Anna's Archive mirror is working",
+		"annas-archive.gl could not be reached just now",
+		"annas-archive.pk answered its check with HTTP 403 just now",
+		"annas-archive.gd could not be reached just now",
+		"Try again in",
+	} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error lacks %q: %v", want, err)
+		}
+	}
+	// Until a hold ends or 30 seconds pass, calls fail without contacting
+	// any mirror.
+	for range 3 {
+		if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second); err == nil {
+			t.Fatal("search succeeded while every mirror was down")
+		}
+	}
+	if calls.Load() != 3 {
+		t.Fatalf("calls while every mirror was held contacted them: %d requests", calls.Load())
 	}
 }
 
@@ -216,33 +213,5 @@ func TestDownloadRetriesShareOneDeadline(t *testing.T) {
 	}
 	if calls != 3 {
 		t.Fatalf("expected three domain attempts: %d", calls)
-	}
-}
-
-func TestMirrorFailureFallsBackToConfiguredOrigin(t *testing.T) {
-	t.Parallel()
-	resolves := 0
-	client := NewClient(Config{BaseURL: "configured.example", AutoBaseURL: true, Resolver: func(context.Context) (string, error) {
-		resolves++
-		if resolves == 1 {
-			return "annas-archive.gl", nil
-		}
-		return "", errors.New("discovery unavailable")
-	}})
-	base, err := client.baseURLFor(context.Background())
-	if err != nil || base != "https://annas-archive.gl" {
-		t.Fatalf("initial selection: %s %v", base, err)
-	}
-	client.invalidateMirror(base)
-	base, err = client.baseURLFor(context.Background())
-	if err != nil || base != "https://configured.example" {
-		t.Fatalf("fallback: %s %v", base, err)
-	}
-	// A failing fallback waits out mirrorFailureTTL instead of selecting
-	// again on every request while the mirrors are down.
-	client.invalidateMirror(base)
-	base, err = client.baseURLFor(context.Background())
-	if err != nil || base != "https://configured.example" || resolves != 2 {
-		t.Fatalf("fallback after a failed request: %s %v, %d selections", base, err, resolves)
 	}
 }

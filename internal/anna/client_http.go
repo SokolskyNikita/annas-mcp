@@ -60,11 +60,7 @@ func (c *Client) doGet(ctx context.Context, client *http.Client, rawURL string) 
 			return nil, apperr.New(apperr.Upstream, "upstream URL must be HTTPS without credentials")
 		}
 		request.Header.Set("User-Agent", BrowserUserAgent)
-		c.baseMu.Lock()
-		base := c.baseURL
-		c.baseMu.Unlock()
-		baseURL, _ := url.Parse(base)
-		archive := sameOrigin(request.URL, baseURL)
+		_, archive := c.archiveHost(request.URL)
 		cookie := ""
 		if archive {
 			cookie = c.sessionCookie()
@@ -77,7 +73,7 @@ func (c *Client) doGet(ctx context.Context, client *http.Client, rawURL string) 
 			// The caller's own deadline or cancellation says nothing about
 			// the mirror; a refused connection or a server gone quiet does.
 			if ctx.Err() == nil {
-				c.reportMirror(rawURL, outcomeUnreachable)
+				c.mirrorFailed(rawURL, unreachable(err))
 			}
 			return nil, redactErr(err, c.config.SecretKey)
 		}
@@ -95,7 +91,9 @@ func (c *Client) doGet(ctx context.Context, client *http.Client, rawURL string) 
 				continue
 			}
 		}
-		c.reportMirror(rawURL, statusOutcome(request, response.StatusCode))
+		if failure := responseFailure(request, response); failure != nil {
+			c.mirrorFailed(rawURL, *failure)
+		}
 		return response, nil
 	}
 }

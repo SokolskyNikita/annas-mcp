@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
-	"github.com/SokolskyNikita/annas-mcp/internal/mirror"
 )
 
 // Anna's Archive only serves search to a signed-in member: without a valid
@@ -101,17 +100,20 @@ func (c *Client) signIn(ctx context.Context, rejected string) (bool, error) {
 	}
 }
 
-// signInAnyMirror tries the current mirror first. With automatic mirror
-// selection the other official mirrors are fallbacks, because sign-in runs
-// before the resolver has found a working one.
+// signInAnyMirror tries the mirror in use first. With automatic mirror
+// selection the other mirrors are fallbacks, because sign-in runs before a
+// mirror has been selected.
 func (c *Client) signInAnyMirror(ctx context.Context) (string, error) {
-	c.baseMu.Lock()
 	origins := []string{c.baseURL}
-	c.baseMu.Unlock()
-	if c.config.AutoBaseURL {
-		for _, host := range mirror.OfficialHosts() {
-			if origin := "https://" + host; origin != origins[0] {
-				origins = append(origins, origin)
+	if c.mirrors != nil {
+		current := c.mirrors.Current()
+		origins = origins[:0]
+		if current != "" {
+			origins = append(origins, "https://"+current)
+		}
+		for _, host := range c.mirrors.Hosts() {
+			if host != current {
+				origins = append(origins, "https://"+host)
 			}
 		}
 	}

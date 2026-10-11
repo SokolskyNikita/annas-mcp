@@ -4,23 +4,23 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
 
 func TestDOILookupUsesCurrentMirrorForIdentity(t *testing.T) {
 	t.Parallel()
-	resolved, details := 0, 0
+	var details atomic.Int32
+	var glFailed atomic.Bool
 	client := NewClient(Config{
 		BaseURL: "annas-archive.gl", AutoBaseURL: true, AccountCookie: "aa_account_id2=test",
-		Resolver: func(context.Context) (string, error) {
-			resolved++
-			if resolved == 1 {
-				return "annas-archive.gl", nil
-			}
-			return "annas-archive.gd", nil
-		},
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if req.URL.Path == "/dyn/up/" {
+				return mirrorUp(t, req, func(host string) bool {
+					return host == "annas-archive.gl" || host == "annas-archive.gd" && glFailed.Load()
+				})
+			}
 			if req.URL.Host == "doi.org" {
 				if req.Header.Get("Cookie") != "" {
 					t.Fatal("sent account cookie to DOI.org")
@@ -31,21 +31,22 @@ func TestDOILookupUsesCurrentMirrorForIdentity(t *testing.T) {
 				t.Fatal("archive request used a stale mirror without its cookie")
 			}
 			if strings.HasPrefix(req.URL.Path, "/scidb/") {
-				return fixtureResponse(t, req, http.StatusForbidden, "blocked.txt", "text/plain", nil), nil
+				glFailed.Store(true)
+				return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
 			}
 			if req.URL.Host != "annas-archive.gd" {
 				t.Fatal("search/detail request did not move to the current mirror")
 			}
 			if strings.HasPrefix(req.URL.Path, "/md5/") {
-				details++
+				details.Add(1)
 				return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", nil), nil
 			}
 			return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
 		})},
 	})
 	paper, err := client.LookupDOI(context.Background(), "10.1000/example", time.Second)
-	if err != nil || paper == nil || paper.DOI != "10.1000/example" || details != 1 || resolved != 2 {
-		t.Fatalf("mirror change broke DOI identity validation: paper=%+v error=%v details=%d resolutions=%d", paper, err, details, resolved)
+	if err != nil || paper == nil || paper.DOI != "10.1000/example" || details.Load() != 1 || client.mirrors.Current() != "annas-archive.gd" {
+		t.Fatalf("mirror change broke DOI identity validation: paper=%+v error=%v details=%d mirror=%s", paper, err, details.Load(), client.mirrors.Current())
 	}
 }
 

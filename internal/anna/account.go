@@ -35,10 +35,16 @@ func (c *Client) AccountStatus(ctx context.Context, timeout time.Duration) (*Acc
 	if err := c.requireArchiveAccess(ctx); err != nil {
 		return nil, err
 	}
-	base, err := c.baseURLFor(ctx)
-	if err != nil {
-		return nil, err
-	}
+	var status *AccountStatus
+	err := c.onMirror(ctx, func(base string) error {
+		var err error
+		status, err = c.accountStatusOn(ctx, base)
+		return err
+	})
+	return status, err
+}
+
+func (c *Client) accountStatusOn(ctx context.Context, base string) (*AccountStatus, error) {
 	page, err := c.fetchAccountPage(ctx, base)
 	if err != nil {
 		return nil, err

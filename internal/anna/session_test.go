@@ -189,9 +189,13 @@ func TestSignInFallsBackToAnotherOfficialMirror(t *testing.T) {
 		BaseURL:     "annas-archive.gl",
 		AutoBaseURL: true,
 		SecretKey:   "test-secret",
-		Resolver:    func(context.Context) (string, error) { return "https://annas-archive.pk", nil },
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			switch req.URL.Path {
+			case "/dyn/up/":
+				if req.URL.Host == "annas-archive.gl" {
+					return nil, errors.New("connection refused")
+				}
+				return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.pk" })
 			case "/account/":
 				hosts = append(hosts, req.URL.Host)
 				if req.URL.Host == "annas-archive.gl" {
@@ -232,7 +236,7 @@ func TestFailedSignInExplainsHowToSetTheCookieByHand(t *testing.T) {
 		reasons []string
 	}{
 		"every mirror refuses": {
-			config: Config{BaseURL: "annas-archive.gl", AutoBaseURL: true, Resolver: func(context.Context) (string, error) { return "https://annas-archive.gl", nil }},
+			config: Config{BaseURL: "annas-archive.gl", AutoBaseURL: true},
 			answers: map[string]func(*http.Request) *http.Response{
 				"annas-archive.gl": blocked,
 				"annas-archive.gd": noSession,

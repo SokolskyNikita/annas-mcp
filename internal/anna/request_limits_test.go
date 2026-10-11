@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -38,14 +39,13 @@ func (b *stallingBody) Close() error { return nil }
 
 func TestQuietMirrorFailsBeforeTheDeadlineAndIsReplaced(t *testing.T) {
 	t.Parallel()
-	resolves := 0
-	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", Resolver: func(context.Context) (string, error) {
-		resolves++
-		if resolves == 1 {
-			return "annas-archive.gl", nil
+	var pkUp atomic.Bool
+	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		if req.URL.Path == "/dyn/up/" {
+			return mirrorUp(t, req, func(host string) bool {
+				return host == "annas-archive.gl" || host == "annas-archive.pk" && pkUp.Load()
+			})
 		}
-		return "annas-archive.pk", nil
-	}, HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		if req.URL.Host == "annas-archive.gl" {
 			return hang(req)
 		}
@@ -63,27 +63,32 @@ func TestQuietMirrorFailsBeforeTheDeadlineAndIsReplaced(t *testing.T) {
 	}
 	// Unlike the operation's own deadline, the quiet mirror counts against
 	// it, so the next call selects again.
+	if state := client.health.State("annas-archive.gl"); state.Reason != "did not answer" {
+		t.Fatalf("quiet mirror was not held: %+v", state)
+	}
+	pkUp.Store(true)
 	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Minute); err != nil {
 		t.Fatal(err)
 	}
-	if resolves != 2 {
-		t.Fatalf("quiet mirror was kept: %d selections", resolves)
+	if current := client.mirrors.Current(); current != "annas-archive.pk" {
+		t.Fatalf("quiet mirror was kept: %s", current)
 	}
 }
 
 func TestCallerDeadlineDoesNotCountAgainstTheMirror(t *testing.T) {
 	t.Parallel()
-	resolves := 0
-	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", Resolver: func(context.Context) (string, error) {
-		resolves++
-		return "annas-archive.gl", nil
-	}, HTTPClient: &http.Client{Transport: roundTripFunc(hang)}})
+	client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		if req.URL.Path == "/dyn/up/" {
+			return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.gl" })
+		}
+		return hang(req)
+	})}})
 
 	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, 50*time.Millisecond); apperr.CodeOf(err) != apperr.RequestTimeout {
 		t.Fatalf("deadline: %v", err)
 	}
-	if _, err := client.baseURLFor(context.Background()); err != nil || resolves != 1 {
-		t.Fatalf("the caller's deadline replaced the mirror: %d selections, %v", resolves, err)
+	if state := client.health.State("annas-archive.gl"); state.Failures != 0 || !client.health.Eligible("annas-archive.gl") {
+		t.Fatalf("the caller's deadline counted against the mirror: %+v", state)
 	}
 }
 

@@ -3,25 +3,19 @@ package anna
 import (
 	"context"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
-	"github.com/SokolskyNikita/annas-mcp/internal/logger"
 	"github.com/SokolskyNikita/annas-mcp/internal/mirror"
-	"go.uber.org/zap"
 )
-
-// BaseURLResolver resolves an Anna mirror. It is deliberately a small
-// function type so callers can wrap their mirror resolver and tests can use a
-// deterministic result without reading process environment state.
-type BaseURLResolver func(context.Context) (string, error)
 
 // Config contains all state needed by a Client. AccountCookie may be either
 // the complete Cookie header value or the raw aa_account_id2 value.
 // SessionFile keeps the signed-in session between runs; empty disables it.
+// With AutoBaseURL, BaseURL is the preferred mirror and the official mirrors
+// stand in for it; without it, BaseURL is the only mirror.
 type Config struct {
 	BaseURL       string
 	SecretKey     string
@@ -30,7 +24,6 @@ type Config struct {
 	SessionFile   string
 	AutoBaseURL   bool
 	HTTPClient    *http.Client
-	Resolver      BaseURLResolver
 }
 
 // ArticleDownloadOptions describes an article download request. DOI and Hash
@@ -46,18 +39,16 @@ type ArticleDownloadOptions struct {
 // Client performs Anna Archive searches and downloads with injected
 // configuration and HTTP transport.
 type Client struct {
-	config      Config
-	http        *http.Client
-	configErr   error
-	baseMu      sync.Mutex
-	baseURL     string
-	baseExpires time.Time
-	// baseFallback is set while the configured mirror stands in for a
-	// failed selection, which failed requests must not cut short.
-	baseFallback bool
-	resolving    chan struct{}
-	sessionMu    sync.Mutex
-	cookie       string
+	config    Config
+	http      *http.Client
+	configErr error
+	// baseURL is the configured mirror's origin.
+	baseURL string
+	// mirrors and health choose the mirror when AutoBaseURL is set.
+	mirrors   *mirror.Selector
+	health    *mirror.Health
+	sessionMu sync.Mutex
+	cookie    string
 	// configuredCookie is ANNAS_ACCOUNT_COOKIE, kept to recognize it later.
 	configuredCookie string
 	signingIn        chan struct{}
@@ -70,8 +61,6 @@ type Client struct {
 }
 
 const defaultClientBaseURL = "https://annas-archive.gl"
-const mirrorCacheTTL = 10 * time.Minute
-const mirrorFailureTTL = 30 * time.Second
 
 func NewClient(config Config) *Client {
 	transport := config.HTTPClient
@@ -94,10 +83,10 @@ func NewClient(config Config) *Client {
 	c.configuredCookie = normalizeCookieHeader(config.AccountCookie)
 	c.cookie = c.configuredCookie
 	c.restoreSession()
-	if c.config.AutoBaseURL && c.config.Resolver == nil {
-		resolver := mirror.NewResolver(c.requestClient(5*time.Second), mirror.DefaultStatusPageURL, nil)
-		resolver.SetAccountCookie(c.sessionCookie)
-		c.config.Resolver = func(ctx context.Context) (string, error) { return resolver.Resolve(ctx, mirror.ResolveOptions{}) }
+	if c.config.AutoBaseURL && c.configErr == nil {
+		c.health = mirror.NewHealth()
+		prober := mirror.NewProber(c.requestClient(0), c.sessionCookie)
+		c.mirrors = mirror.NewSelector(mirror.Candidates(strings.TrimPrefix(c.baseURL, "https://")), c.health, prober.Check)
 	}
 	return c
 }
@@ -173,131 +162,6 @@ func (c *Client) DownloadArticle(ctx context.Context, options ArticleDownloadOpt
 	ctx, cancel := operationContext(ctx, timeout)
 	defer cancel()
 	return c.downloadArticle(ctx, options, progress)
-}
-
-func (c *Client) baseURLFor(ctx context.Context) (string, error) {
-	if c.configErr != nil {
-		return "", c.configErr
-	}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if err := c.ensureSession(ctx); err != nil {
-		return "", err
-	}
-	for {
-		if err := ctx.Err(); err != nil {
-			return "", err
-		}
-		c.baseMu.Lock()
-		if !c.config.AutoBaseURL || time.Now().Before(c.baseExpires) {
-			base := c.baseURL
-			c.baseMu.Unlock()
-			return base, nil
-		}
-		if pending := c.resolving; pending != nil {
-			c.baseMu.Unlock()
-			select {
-			case <-ctx.Done():
-				return "", ctx.Err()
-			case <-pending:
-				continue
-			}
-		}
-		pending := make(chan struct{})
-		c.resolving = pending
-		fallback := c.config.BaseURL
-		c.baseMu.Unlock()
-		resolveCtx, cancel := context.WithTimeout(ctx, mirror.DefaultResolveTimeout)
-		resolved, err := c.config.Resolver(resolveCtx)
-		cancel()
-		if err == nil {
-			var host string
-			host, err = mirror.ParseCandidateURL(resolved)
-			if err == nil {
-				resolved = "https://" + host
-			}
-		}
-		c.baseMu.Lock()
-		if ctx.Err() == nil {
-			c.baseFallback = err != nil
-			if err == nil {
-				c.baseURL = resolved
-				c.baseExpires = time.Now().Add(mirrorCacheTTL)
-			} else {
-				c.baseURL = fallback
-				c.baseExpires = time.Now().Add(mirrorFailureTTL)
-				logger.GetLogger().Warn("Automatic mirror selection failed; using the configured mirror", zap.String("baseURL", fallback), zap.Duration("retryAfter", mirrorFailureTTL), zap.Error(err))
-			}
-		}
-		base := c.baseURL
-		c.resolving = nil
-		close(pending)
-		c.baseMu.Unlock()
-		if err := ctx.Err(); err != nil {
-			return "", err
-		}
-		return base, nil
-	}
-}
-
-// outcome is what one archive request showed about the mirror that served it.
-type outcome int
-
-const (
-	outcomeNone        outcome = iota // says nothing about the mirror
-	outcomeOK                         // the mirror answered
-	outcomeUnreachable                // no connection, or no answer in time
-	outcomeServerError                // HTTP 5xx
-	outcomeBlocked                    // 403, or a web page where data was expected
-	outcomeRateLimited                // HTTP 429
-)
-
-func (o outcome) failed() bool { return o > outcomeOK }
-
-// statusOutcome classifies an archive response by its status. The fast
-// download API answers 403 about the account, not the mirror.
-func statusOutcome(request *http.Request, status int) outcome {
-	switch {
-	case status >= 500:
-		return outcomeServerError
-	case status == http.StatusTooManyRequests:
-		return outcomeRateLimited
-	case status == http.StatusForbidden:
-		if request.URL.Query().Has("key") {
-			return outcomeNone
-		}
-		return outcomeBlocked
-	default:
-		return outcomeOK
-	}
-}
-
-// reportMirror records what a request to rawURL showed about its mirror.
-func (c *Client) reportMirror(rawURL string, result outcome) {
-	if result.failed() {
-		c.invalidateMirror(rawURL)
-	}
-}
-
-// Failed archive requests invalidate only the matching selection; another
-// concurrent request may already have moved the client to a healthy mirror.
-// The fallback after a failed selection keeps its retry delay, so requests
-// do not select again one after another while every mirror is failing.
-func (c *Client) invalidateMirror(rawURL string) {
-	if !c.config.AutoBaseURL {
-		return
-	}
-	target, err := url.Parse(rawURL)
-	if err != nil {
-		return
-	}
-	c.baseMu.Lock()
-	defer c.baseMu.Unlock()
-	current, _ := url.Parse(c.baseURL)
-	if !c.baseFallback && sameOrigin(target, current) {
-		c.baseExpires = time.Time{}
-	}
 }
 
 func normalizeCookieHeader(raw string) string {
