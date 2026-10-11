@@ -153,7 +153,7 @@ func TestHangingDOIOrgDoesNotEndTheLookup(t *testing.T) {
 		switch {
 		case req.URL.Host == "doi.org":
 			return hang(req)
-		case req.URL.Path == "/scidb/"+outageDOI:
+		case req.URL.Path == "/scidb/"+strings.ToLower(outageDOI)+"/":
 			return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 		case req.URL.Path == "/search":
 			return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil

@@ -145,7 +145,7 @@ func (c *Client) lookupDOI(ctx context.Context, input string) (*Paper, error) {
 // this route to a generic search page, so its contents only count when the
 // final URL is still the exact requested path.
 func (c *Client) paperFromSciDBPage(ctx context.Context, base, doi string) (*Paper, error) {
-	doc, finalURL, err := c.fetchDocument(ctx, buildSciDBURL(base, doi))
+	doc, finalURL, err := c.fetchSciDBPage(ctx, buildSciDBURL(base, doi))
 	if err != nil {
 		return nil, err
 	}
@@ -183,30 +183,46 @@ func (c *Client) searchIndexes(ctx context.Context, query string) [2]indexResult
 }
 
 // verifyCandidates reads the candidates' record pages a few at a time and
-// returns the first, in candidate order, whose record carries the DOI.
-// It returns an error only when ctx ends.
+// returns the first, in candidate order, whose record carries the DOI. It
+// returns as soon as that candidate and every one before it have been read,
+// and cancels the rest. It returns an error only when ctx ends.
 func (c *Client) verifyCandidates(ctx context.Context, doi string, metadata doiMetadata, candidates []*Book, noteFailure func(error)) (*Paper, error) {
+	type checked struct {
+		identity archiveIdentity
+		err      error
+	}
 	for len(candidates) > 0 {
 		batch := candidates[:min(doiRecordChecks, len(candidates))]
 		candidates = candidates[len(batch):]
-		identities := make([]archiveIdentity, len(batch))
-		errs := make([]error, len(batch))
-		var wait sync.WaitGroup
+		batchCtx, cancel := context.WithCancel(ctx)
+		results := make([]chan checked, len(batch))
 		for i, book := range batch {
-			wait.Go(func() { identities[i], errs[i] = c.archiveIdentityForBook(ctx, book) })
-		}
-		wait.Wait()
-		if err := ctx.Err(); err != nil {
-			return nil, err
+			results[i] = make(chan checked, 1)
+			go func() {
+				identity, err := c.archiveIdentityForBook(batchCtx, book)
+				results[i] <- checked{identity, err}
+			}()
 		}
 		for i, book := range batch {
-			if errs[i] != nil {
-				noteFailure(errs[i])
+			var result checked
+			select {
+			case result = <-results[i]:
+			case <-ctx.Done():
+				cancel()
+				return nil, ctx.Err()
+			}
+			if result.err != nil {
+				noteFailure(result.err)
 				continue
 			}
-			if verifyDOIIdentity(doi, metadata, identities[i]) {
+			if verifyDOIIdentity(doi, metadata, result.identity) {
+				cancel()
 				return paperFromBook(book, doi), nil
 			}
+		}
+		cancel()
+		if err := ctx.Err(); err != nil {
+			return nil, err
 		}
 	}
 	return nil, nil

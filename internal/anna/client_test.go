@@ -127,7 +127,7 @@ func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 		switch req.URL.Path {
 		case "/dyn/api/fast_download.json":
 			return fixtureResponse(t, req, http.StatusBadRequest, "fast_download_error.json", "application/json", nil), nil
-		case "/scidb/10.1000/example":
+		case "/scidb/10.1000/example/":
 			return fixtureResponse(t, req, http.StatusOK, "scidb_result.html", "text/html", map[string]string{"{{HASH}}": hash}), nil
 		case "/md5/" + hash:
 			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", nil), nil

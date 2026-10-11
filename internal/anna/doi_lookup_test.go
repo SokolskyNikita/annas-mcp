@@ -87,7 +87,7 @@ func TestLookupDOIReportsArchiveOutage(t *testing.T) {
 		{"search finds editions whose records answer 502", http.StatusOK, failingEditions(t), apperr.Upstream},
 		{"a search answers 502 and the other finds a different paper", http.StatusOK, func(req *http.Request) (*http.Response, error) {
 			switch {
-			case req.URL.Path == "/scidb/"+outageDOI:
+			case req.URL.Path == "/scidb/"+strings.ToLower(outageDOI)+"/":
 				return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 			case req.URL.Path == "/search" && req.URL.Query().Get("index") == "journals":
 				return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
@@ -130,7 +130,7 @@ func TestLookupDOIKeepsNotFoundForGenuineMiss(t *testing.T) {
 			t.Parallel()
 			client := doiArchiveClient(t, http.StatusOK, func(req *http.Request) (*http.Response, error) {
 				switch {
-				case req.URL.Path == "/scidb/"+outageDOI:
+				case req.URL.Path == "/scidb/"+strings.ToLower(outageDOI)+"/":
 					return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 				case req.URL.Path == "/search" && test.detail != 0 && req.URL.Query().Get("q") == outageTitle:
 					return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
@@ -247,5 +247,59 @@ func TestLookupDOIReadsRecordPagesTogetherAndKeepsTheirOrder(t *testing.T) {
 	}
 	if records.Load() != doiRecordChecks {
 		t.Fatalf("read %d record pages, want one batch of %d", records.Load(), doiRecordChecks)
+	}
+}
+
+func TestLookupDOIDoesNotFollowSciDBToASearch(t *testing.T) {
+	t.Parallel()
+	client := doiArchiveClient(t, http.StatusOK, func(req *http.Request) (*http.Response, error) {
+		switch {
+		case req.URL.Path == "/scidb/"+strings.ToLower(outageDOI)+"/":
+			// SciDB sends a DOI it does not have to a search for it.
+			response := fixtureResponse(t, req, http.StatusFound, "blocked.txt", "text/plain", nil)
+			response.Header.Set("Location", `/search?index=journals&q="doi:`+strings.ToLower(outageDOI)+`"`)
+			return response, nil
+		case strings.HasPrefix(req.URL.Path, "/scidb/"):
+			t.Errorf("requested a non-canonical SciDB address %s", req.URL.Path)
+		case req.URL.Path == "/search" && strings.HasPrefix(req.URL.Query().Get("q"), `"doi:`):
+			t.Error("followed SciDB's redirect to a search")
+		case req.URL.Path == "/search":
+			return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+		}
+		return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{"<head>": `<head><meta name="citation_doi" content="` + outageDOI + `">`}), nil
+	})
+	if paper, err := client.LookupDOI(context.Background(), outageDOI, time.Minute); err != nil || paper == nil {
+		t.Fatalf("lookup: %+v %v", paper, err)
+	}
+}
+
+func TestLookupDOIDoesNotWaitForLaterRecordPages(t *testing.T) {
+	t.Parallel()
+	client := doiArchiveClient(t, http.StatusOK, func(req *http.Request) (*http.Response, error) {
+		switch {
+		case strings.HasPrefix(req.URL.Path, "/scidb/"):
+			return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
+		case req.URL.Path == "/search":
+			response := fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil)
+			page := editions(t, doiRecordChecks)
+			response.Body, response.ContentLength = io.NopCloser(strings.NewReader(page)), int64(len(page))
+			return response, nil
+		}
+		switch path.Base(req.URL.Path) {
+		case fmt.Sprintf("%032x", 1):
+			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{"Ashish Vaswani": "Unrelated Author"}), nil
+		case fmt.Sprintf("%032x", 2):
+			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", nil), nil
+		}
+		// The later editions' pages never answer.
+		return hang(req)
+	})
+	start := time.Now()
+	paper, err := client.LookupDOI(context.Background(), outageDOI, time.Minute)
+	if err != nil || paper == nil || paper.Hash != fmt.Sprintf("%032x", 2) {
+		t.Fatalf("lookup: %+v %v", paper, err)
+	}
+	if elapsed := time.Since(start); elapsed > 5*time.Second {
+		t.Fatalf("waited %s for record pages after the paper was found", elapsed)
 	}
 }

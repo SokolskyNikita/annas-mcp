@@ -15,7 +15,13 @@ import (
 )
 
 func (c *Client) fetchDocument(ctx context.Context, rawURL string) (*goquery.Document, *url.URL, error) {
-	response, err := c.doGet(ctx, c.requestClient(0), rawURL)
+	return c.fetchDocumentWith(ctx, c.requestClient(0), rawURL)
+}
+
+// fetchDocumentWith is fetchDocument with a client of the caller's. A
+// redirect the client did not follow is reported as NOT_FOUND.
+func (c *Client) fetchDocumentWith(ctx context.Context, client *http.Client, rawURL string) (*goquery.Document, *url.URL, error) {
+	response, err := c.doGet(ctx, client, rawURL)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -29,6 +35,9 @@ func (c *Client) fetchDocument(ctx context.Context, rawURL string) (*goquery.Doc
 	}
 	if response.StatusCode == http.StatusNotFound {
 		return nil, finalURL, apperr.New(apperr.NotFound, "archive record was not found")
+	}
+	if response.StatusCode >= http.StatusMultipleChoices && response.StatusCode < http.StatusBadRequest {
+		return nil, finalURL, apperr.New(apperr.NotFound, "archive redirected away from the requested page")
 	}
 	if response.StatusCode != http.StatusOK {
 		return nil, finalURL, httpResponseError(response, rawURL)

@@ -48,7 +48,7 @@ func TestLookupDOIReadsSciDBAndDetailPages(t *testing.T) {
 		AccountCookie: "aa_account_id2=test",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			switch req.URL.Path {
-			case "/scidb/10.1000/example":
+			case "/scidb/10.1000/example/":
 				return fixtureResponse(t, req, http.StatusOK, "scidb_result.html", "text/html", map[string]string{"{{HASH}}": hash}), nil
 			case "/md5/" + hash:
 				return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", nil), nil
@@ -80,7 +80,7 @@ func TestLookupDOIFallsBackToArchiveSearchAfterSciDBMiss(t *testing.T) {
 			if req.URL.Host == "doi.org" {
 				return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 			}
-			if req.URL.Path == "/scidb/10.48550/arXiv.1706.03762" {
+			if req.URL.Path == "/scidb/10.48550/arxiv.1706.03762/" {
 				return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 			}
 			if req.URL.Path == "/search" {
@@ -125,7 +125,7 @@ func TestLookupDOIRequiresVerifiedCitationIdentity(t *testing.T) {
 						}
 						return fixtureResponse(t, req, http.StatusOK, "doi_metadata.json", "application/json", nil), nil
 					}
-					if req.URL.Path == "/scidb/10.1000/example" {
+					if req.URL.Path == "/scidb/10.1000/example/" {
 						return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 					}
 					if req.URL.Path == "/search" {

@@ -13,17 +13,35 @@ import (
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
+// buildSciDBURL is the SciDB page for doi in the form SciDB redirects to:
+// lowercase with a trailing slash. Asking for it directly saves up to four
+// redirects, each of which takes the archive seconds to answer.
 func buildSciDBURL(base, doi string) string {
 	u, _ := url.Parse(buildPathURL(base, "/scidb"))
-	u.Path += "/" + NormalizeDOI(doi)
+	u.Path += "/" + strings.ToLower(NormalizeDOI(doi)) + "/"
 	u.RawPath, u.RawQuery, u.Fragment = "", "", ""
 	return u.String()
 }
 
 func isSciDBDOIPage(page *url.URL, base, doi string) bool {
 	want, err := url.Parse(buildSciDBURL(base, doi))
-	return err == nil && sameOrigin(page, want) &&
-		(strings.EqualFold(page.Path, want.Path) || strings.EqualFold(page.Path, want.Path+"/"))
+	return err == nil && page != nil && sameOrigin(page, want) &&
+		strings.EqualFold(strings.TrimSuffix(page.Path, "/"), strings.TrimSuffix(want.Path, "/"))
+}
+
+// fetchSciDBPage reads a SciDB page without following a redirect off SciDB.
+// For a DOI it does not have, SciDB redirects to a search for the DOI, which
+// costs another slow request and is not the paper's page anyway.
+func (c *Client) fetchSciDBPage(ctx context.Context, rawURL string) (*goquery.Document, *url.URL, error) {
+	client := c.requestClient(0)
+	follow := client.CheckRedirect
+	client.CheckRedirect = func(next *http.Request, via []*http.Request) error {
+		if !strings.HasPrefix(next.URL.Path, "/scidb/") {
+			return http.ErrUseLastResponse
+		}
+		return follow(next, via)
+	}
+	return c.fetchDocumentWith(ctx, client, rawURL)
 }
 
 // SciDB embeds its PDF in the same-origin PDF.js viewer. Only read that
@@ -94,7 +112,7 @@ func (c *Client) getSciDBPDF(ctx context.Context, client *http.Client, rawURL st
 
 func (c *Client) resolveSciDBFile(ctx context.Context, base string, paper *Paper) (string, string, error) {
 	pageURL := buildSciDBURL(base, paper.DOI)
-	doc, finalURL, err := c.fetchDocument(ctx, pageURL)
+	doc, finalURL, err := c.fetchSciDBPage(ctx, pageURL)
 	if err != nil {
 		return "", "", err
 	}

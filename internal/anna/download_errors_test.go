@@ -98,7 +98,7 @@ func TestDOIDownloadFailureDiagnosticsIncludeFastAndSciDBAttempts(t *testing.T) 
 		SecretKey:     configuredSecret,
 		DownloadPath:  t.TempDir(),
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			if req.URL.Host == "annas.test" && req.URL.Path == "/scidb/"+doi {
+			if req.URL.Host == "annas.test" && req.URL.Path == "/scidb/"+strings.ToLower(doi)+"/" {
 				return testDownloadResponse(req, http.StatusOK, "text/html", scidbPage), nil
 			}
 			if req.URL.Host == "annas.test" && req.URL.Path == "/dyn/api/fast_download.json" {

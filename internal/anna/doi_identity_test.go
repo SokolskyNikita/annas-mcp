@@ -132,7 +132,7 @@ func TestBuildSciDBURLPreservesBalancedDOISuffix(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if page.Path != "/scidb/10.1000/example(suffix)" || page.RawQuery != "" || page.Fragment != "" {
+	if page.Path != "/scidb/10.1000/example(suffix)/" || page.RawQuery != "" || page.Fragment != "" {
 		t.Fatalf("SciDB URL corrupted DOI suffix: %s", page.String())
 	}
 }

@@ -59,15 +59,15 @@ func TestSciDBDOIURLPreservesSuffix(t *testing.T) {
 	t.Parallel()
 	const doi = "10.1000/example(02)?section#part"
 	page, err := url.Parse(buildSciDBURL("https://annas.test", doi))
-	if err != nil || page.Path != "/scidb/"+doi || page.RawQuery != "" || page.Fragment != "" {
+	if err != nil || page.Path != "/scidb/"+strings.ToLower(doi)+"/" || page.RawQuery != "" || page.Fragment != "" {
 		t.Fatalf("DOI suffix was interpreted as URL metadata: %v, %v", page, err)
 	}
 	if !isSciDBDOIPage(page, "https://annas.test", doi) {
 		t.Fatal("canonical DOI URL did not match")
 	}
-	page.Path += "/"
+	page.Path = strings.TrimSuffix(page.Path, "/")
 	if !isSciDBDOIPage(page, "https://annas.test", doi) {
-		t.Fatal("trailing slash redirect did not match")
+		t.Fatal("the page without its trailing slash did not match")
 	}
 	page.Host = "evil.example"
 	if isSciDBDOIPage(page, "https://annas.test", doi) || isSciDBDOIPage(nil, "https://annas.test", doi) {
@@ -88,7 +88,7 @@ func TestSciDBFallbackResolvesViewerForSearchResult(t *testing.T) {
 			client := NewClient(Config{BaseURL: "annas.test", AccountCookie: "aa_account_id2=test", SecretKey: "test-key", DownloadPath: t.TempDir(), HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 				requests++
 				if req.URL.Host == "annas.test" {
-					if req.URL.Path != "/scidb/10.1000/example" || req.Header.Get("Cookie") != "aa_account_id2=test" {
+					if req.URL.Path != "/scidb/10.1000/example/" || req.Header.Get("Cookie") != "aa_account_id2=test" {
 						t.Fatal("SciDB request used wrong path or lacked its account cookie")
 					}
 					return fixtureResponse(t, req, http.StatusOK, "scidb_result.html", "text/html", map[string]string{"{{HASH}}": hash}), nil
