@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
@@ -241,5 +243,33 @@ func TestUnreachableSignInIsNotRemembered(t *testing.T) {
 	down.Store(false)
 	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Minute); err != nil {
 		t.Fatalf("back online: %v", err)
+	}
+}
+
+func TestMirrorHealthIsSharedWithTheNextRun(t *testing.T) {
+	t.Parallel()
+	sessionFile := filepath.Join(t.TempDir(), "session.json")
+	var checks atomic.Int32
+	transport := roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		if req.URL.Path == "/dyn/up/" {
+			checks.Add(1)
+			return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.pk" })
+		}
+		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
+	})
+	run := func() {
+		client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", SessionFile: sessionFile, HTTPClient: &http.Client{Transport: transport}})
+		if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Minute); err != nil {
+			t.Fatal(err)
+		}
+	}
+	run()
+	first := checks.Load()
+	if _, err := os.Stat(filepath.Join(filepath.Dir(sessionFile), "mirrors.json")); err != nil {
+		t.Fatalf("mirror health was not saved: %v", err)
+	}
+	run()
+	if checks.Load() != first {
+		t.Fatalf("the next run checked again: %d checks", checks.Load()-first)
 	}
 }

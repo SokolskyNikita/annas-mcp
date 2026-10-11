@@ -3,6 +3,7 @@ package anna
 import (
 	"context"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -13,7 +14,8 @@ import (
 
 // Config contains all state needed by a Client. AccountCookie may be either
 // the complete Cookie header value or the raw aa_account_id2 value.
-// SessionFile keeps the signed-in session between runs; empty disables it.
+// SessionFile keeps the signed-in session between runs, and mirror health
+// beside it; empty disables both.
 // With AutoBaseURL, BaseURL is the preferred mirror and the official mirrors
 // stand in for it; without it, BaseURL is the only mirror.
 type Config struct {
@@ -63,6 +65,10 @@ type Client struct {
 
 const defaultClientBaseURL = "https://annas-archive.gl"
 
+// mirrorStateFile sits next to the session file and shares mirror health
+// with other runs.
+const mirrorStateFile = "mirrors.json"
+
 func NewClient(config Config) *Client {
 	transport := config.HTTPClient
 	if transport == nil {
@@ -87,6 +93,9 @@ func NewClient(config Config) *Client {
 	c.restoreSession()
 	if c.config.AutoBaseURL && c.configErr == nil {
 		c.health = mirror.NewHealth()
+		if config.SessionFile != "" {
+			mirror.NewStore(filepath.Join(filepath.Dir(config.SessionFile), mirrorStateFile), c.health)
+		}
 		prober := mirror.NewProber(c.requestClient(0), c.sessionCookie)
 		c.mirrors = mirror.NewSelector(mirror.Candidates(strings.TrimPrefix(c.baseURL, "https://")), c.health, prober.Check)
 	}

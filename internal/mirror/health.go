@@ -1,6 +1,7 @@
 package mirror
 
 import (
+	"maps"
 	"math/rand/v2"
 	"sync"
 	"time"
@@ -43,6 +44,10 @@ type Health struct {
 	hosts  map[string]HostState
 	now    func() time.Time
 	jitter func(time.Duration) time.Duration
+	// store, when set, shares the states with other processes. It is read
+	// the first time Health is used and told about every change.
+	store *Store
+	load  sync.Once
 }
 
 func NewHealth() *Health {
@@ -95,6 +100,7 @@ func holdFor(failures int) time.Duration {
 
 // Eligible reports whether the mirror may be selected: it is not on hold.
 func (h *Health) Eligible(host string) bool {
+	h.loaded()
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	return !h.now().Before(h.hosts[host].HeldUntil)
@@ -102,15 +108,52 @@ func (h *Health) Eligible(host string) bool {
 
 // State returns what is known about the mirror.
 func (h *Health) State(host string) HostState {
+	h.loaded()
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	return h.hosts[host]
 }
 
 func (h *Health) update(host string, change func(*HostState, time.Time)) {
+	h.loaded()
 	h.mu.Lock()
-	defer h.mu.Unlock()
 	state := h.hosts[host]
 	change(&state, h.now())
 	h.hosts[host] = state
+	h.mu.Unlock()
+	if h.store != nil {
+		h.store.changed(host, state)
+	}
+}
+
+// loaded reads the shared states the first time Health is used.
+func (h *Health) loaded() {
+	if h.store != nil {
+		h.load.Do(h.store.load)
+	}
+}
+
+// merge takes each state that is newer than the one Health has.
+func (h *Health) merge(states map[string]HostState) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	for host, state := range states {
+		if latest(state).After(latest(h.hosts[host])) {
+			h.hosts[host] = state
+		}
+	}
+}
+
+func (h *Health) snapshot() map[string]HostState {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	return maps.Clone(h.hosts)
+}
+
+// latest is when anything was last learned about a mirror.
+func latest(state HostState) time.Time {
+	if state.LastOK.After(state.LastFail) {
+		return state.LastOK
+	}
+	return state.LastFail
 }
