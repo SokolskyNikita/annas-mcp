@@ -56,21 +56,24 @@ func TestResolveSearchDropsLegacyFilters(t *testing.T) {
 func TestParseBooksReadsSearchCard(t *testing.T) {
 	t.Parallel()
 
-	books := parseBooks(fixtureDocument(t, "search_card.html"), "https://annas-archive.gl/search?q=example")
-	if len(books) != 1 {
-		t.Fatalf("expected 1 book, got %d", len(books))
+	// The title search lists 9 results and 34 partial matches.
+	books := parseBooks(fixtureDocument(t, searchAttentionPage), "https://annas-archive.gl/search?q=attention")
+	if len(books) != 43 {
+		t.Fatalf("expected 43 books, got %d", len(books))
 	}
 	book := books[0]
-	if book.Hash != "abc123def456" || book.Title != "Example Title" || book.Format != "EPUB" {
+	if book.Hash != attentionHash || book.Title != attentionTitle || book.Format != "PDF" || book.Size != "2.2MB" || book.Year != "2017" {
 		t.Fatalf("unexpected book: %+v", book)
 	}
-	if book.Authors != "Ada Lovelace" || book.Publisher != "Example Press" || book.Language != "English" {
+	if book.Authors != attentionAuthors || book.Publisher != "" || book.Edition != "2017 jun 12" || !book.FastDownload {
 		t.Fatalf("unexpected metadata: %+v", book)
 	}
-	if book.URL != "https://annas-archive.gl/md5/abc123def456" {
+	if book.URL != "https://annas-archive.gl/md5/"+attentionHash {
 		t.Fatalf("unexpected URL %q", book.URL)
 	}
-	if book.Description != "A short description. DOI 10.1000/example.123." || book.DOI != "" {
+	// The description quotes arXiv:1706.03762, but a card's DOI is never
+	// read from its description.
+	if !strings.Contains(book.Description, "arXiv:1706.03762") || book.DOI != "" {
 		t.Fatalf("unexpected description: %+v", book)
 	}
 }
@@ -222,12 +225,12 @@ func TestClientSearchUsesInjectedBaseAndTransport(t *testing.T) {
 			if req.URL.Path != "/search" || req.URL.Query().Get("q") != "example" {
 				return nil, errors.New("unexpected request URL: " + req.URL.String())
 			}
-			return fixtureResponse(t, req, http.StatusOK, "search_card.html", "text/html", nil), nil
+			return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 		})},
 	})
 	page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
 	books := page.Results
-	if err != nil || len(books) != 1 || books[0].Hash != "abc123def456" {
+	if err != nil || len(books) != 9 || books[0].Hash != attentionHash {
 		t.Fatalf("injected client search failed: books=%+v err=%v", books, err)
 	}
 }

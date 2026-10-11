@@ -91,9 +91,9 @@ func TestSciDBFallbackResolvesViewerForSearchResult(t *testing.T) {
 					if req.URL.Path != "/scidb/10.1000/example/" || req.Header.Get("Cookie") != "aa_account_id2=test" {
 						t.Fatal("SciDB request used wrong path or lacked its account cookie")
 					}
-					return fixtureResponse(t, req, http.StatusOK, "scidb_result.html", "text/html", map[string]string{"{{HASH}}": hash}), nil
+					return fixtureResponse(t, req, http.StatusOK, sciDBPage, "text/html", map[string]string{sciDBHash: hash}), nil
 				}
-				if req.URL.Host != "downloads.example" || req.Header.Get("Cookie") != "" || req.URL.Query().Has("key") {
+				if req.URL.String() != sciDBFileURL || req.Header.Get("Cookie") != "" || req.URL.Query().Has("key") {
 					t.Fatal("SciDB file request escaped credential policy")
 				}
 				return fixtureResponse(t, req, http.StatusOK, "paper.pdf", "application/octet-stream", nil), nil
@@ -122,7 +122,7 @@ func TestSciDBFallbackResolvesViewerForSearchResult(t *testing.T) {
 func TestSciDBRejectsHTMLInsteadOfPDF(t *testing.T) {
 	t.Parallel()
 	client := NewClient(Config{BaseURL: "annas.test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "application/octet-stream", nil), nil
+		return fixtureResponse(t, req, http.StatusOK, noResultsPage, "application/octet-stream", nil), nil
 	})}})
 	if _, err := client.getSciDBPDF(context.Background(), client.requestClient(0), "https://downloads.example/paper.pdf", nil); err == nil {
 		t.Fatal("HTML from the PDF CDN was accepted")

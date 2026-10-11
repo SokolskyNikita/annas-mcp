@@ -69,7 +69,7 @@ func TestTitleFromDOIReadsCitationJSON(t *testing.T) {
 			if req.URL.Host != "doi.org" || req.Header.Get("Accept") == "" {
 				return nil, errors.New("unexpected DOI metadata request: " + req.URL.String())
 			}
-			return fixtureResponse(t, req, http.StatusOK, "doi_metadata.json", "application/json", nil), nil
+			return fixtureResponse(t, req, http.StatusOK, attentionCSL, "application/json", nil), nil
 		})},
 	})
 

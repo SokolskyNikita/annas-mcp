@@ -22,11 +22,20 @@ import (
 
 // TestCapturePages refreshes testdata/pages from the live archive. It signs
 // in with ANNAS_SECRET_KEY and reads search, record and SciDB pages as that
-// account, but downloads no files, so it uses no fast downloads. Afterwards,
-// run the golden tests with -update and review what changed.
+// account, but downloads no files, so it uses no fast downloads.
+// ANNAS_MCP_CAPTURE=1 captures every page in the manifest; a comma-separated
+// list of names captures only those. Afterwards, run the golden tests with
+// -update and review what changed.
 func TestCapturePages(t *testing.T) {
-	if os.Getenv("ANNAS_MCP_CAPTURE") != "1" {
-		t.Skip("set ANNAS_MCP_CAPTURE=1 to refresh testdata/pages from Anna's Archive")
+	selection := os.Getenv("ANNAS_MCP_CAPTURE")
+	if selection == "" {
+		t.Skip("set ANNAS_MCP_CAPTURE=1, or to page names, to refresh testdata/pages from Anna's Archive")
+	}
+	wanted := map[string]bool{}
+	if selection != "1" {
+		for _, name := range strings.Split(selection, ",") {
+			wanted[strings.TrimSpace(name)] = true
+		}
 	}
 	key := liveSetting("ANNAS_SECRET_KEY")
 	if key == "" {
@@ -45,7 +54,12 @@ func TestCapturePages(t *testing.T) {
 	_, cookie, _ := strings.Cut(client.sessionCookie(), "=")
 	secrets := []string{key, cookie, accountID}
 
+	selected := len(wanted) > 0
 	for _, page := range readManifest(t) {
+		if selected && !wanted[page.Name] {
+			continue
+		}
+		delete(wanted, page.Name)
 		var body []byte
 		var err error
 		if page.Kind == "csl" {
@@ -66,6 +80,9 @@ func TestCapturePages(t *testing.T) {
 			t.Fatal(err)
 		}
 		t.Logf("%-24s %8d bytes", page.Name, len(body))
+	}
+	for name := range wanted {
+		t.Errorf("no page %q in the manifest", name)
 	}
 }
 

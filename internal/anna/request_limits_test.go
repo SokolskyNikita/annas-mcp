@@ -65,7 +65,7 @@ func TestQuietMirrorIsReplacedWithinTheCall(t *testing.T) {
 			glQuiet.Store(true)
 			return hang(req)
 		}
-		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
+		return fixtureResponse(t, req, http.StatusOK, noResultsPage, "text/html", nil), nil
 	})}})
 	client.headerTimeout = 50 * time.Millisecond
 
@@ -153,19 +153,21 @@ func TestHangingDOIOrgDoesNotEndTheLookup(t *testing.T) {
 		switch {
 		case req.URL.Host == "doi.org":
 			return hang(req)
-		case req.URL.Path == "/scidb/"+strings.ToLower(outageDOI)+"/":
+		case req.URL.Path == "/scidb/"+liangDOI+"/":
 			return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 		case req.URL.Path == "/search":
-			return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
-		case req.URL.Path == "/md5/0123456789abcdef0123456789abcdef":
-			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{"<head>": `<head><meta name="citation_doi" content="` + outageDOI + `">`}), nil
+			return htmlResponse(req, http.StatusOK, searchPageWith(t, capturedCard(t, searchJournalsPage, liangHash))), nil
+		case req.URL.Path == "/md5/"+liangHash:
+			return fixtureResponse(t, req, http.StatusOK, recordLiangPage, "text/html", nil), nil
 		}
 		return nil, errors.New("unexpected request: " + req.URL.String())
 	})}})
 	client.doiTimeout = 50 * time.Millisecond
 
-	paper, err := client.LookupDOI(context.Background(), outageDOI, time.Minute)
-	if err != nil || paper.Hash != "0123456789abcdef0123456789abcdef" {
+	// The record's identifiers panel carries the DOI, so it is verified
+	// without DOI.org.
+	paper, err := client.LookupDOI(context.Background(), liangDOI, time.Minute)
+	if err != nil || paper.Hash != liangHash {
 		t.Fatalf("lookup without DOI.org: %+v %v", paper, err)
 	}
 }

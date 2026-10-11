@@ -66,7 +66,7 @@ func (a *fakeArchive) roundTrip(req *http.Request) (*http.Response, error) {
 		if !a.valid[cookie] {
 			return forbidden(req), nil
 		}
-		return fixtureResponse(a.t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+		return fixtureResponse(a.t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 	}
 	return nil, errors.New("unexpected request: " + req.URL.String())
 }

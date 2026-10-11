@@ -56,7 +56,7 @@ func TestSignsInWithSecretKeyWhenNoCookieIsConfigured(t *testing.T) {
 				if req.Header.Get("Cookie") != "aa_account_id2=minted" {
 					return forbidden(req), nil
 				}
-				return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+				return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 			}
 			return nil, errors.New("unexpected request: " + req.URL.String())
 		})},
@@ -67,7 +67,7 @@ func TestSignsInWithSecretKeyWhenNoCookieIsConfigured(t *testing.T) {
 	for range 4 {
 		wg.Go(func() {
 			page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Second)
-			if err == nil && len(page.Results) != 1 {
+			if err == nil && len(page.Results) != 9 {
 				err = errors.New("expected one book")
 			}
 			errs <- err
@@ -102,7 +102,7 @@ func TestExpiredCookieIsRenewedAndTheRequestRetried(t *testing.T) {
 				if req.Header.Get("Cookie") != "aa_account_id2=fresh" {
 					return forbidden(req), nil
 				}
-				return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+				return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 			}
 			return nil, errors.New("unexpected request: " + req.URL.String())
 		})},
@@ -206,7 +206,7 @@ func TestSignInFallsBackToAnotherOfficialMirror(t *testing.T) {
 				if req.URL.Host != "annas-archive.pk" || req.Header.Get("Cookie") != "aa_account_id2=minted" {
 					return forbidden(req), nil
 				}
-				return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+				return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 			}
 			return nil, errors.New("unexpected request: " + req.URL.String())
 		})},

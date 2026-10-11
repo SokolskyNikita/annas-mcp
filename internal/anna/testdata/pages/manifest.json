@@ -1,5 +1,5 @@
 {
-  "comment": "Pages captured from the live archive by TestCapturePages (ANNAS_MCP_CAPTURE=1). Pages are stored gzipped as <name>.html.gz and DOI.org's answers as <name>.json, each with its parsed output in <name>.golden.json. Paths are fetched from whichever mirror answers; csl entries come from doi.org.",
+  "comment": "Pages captured from the live archive by TestCapturePages (ANNAS_MCP_CAPTURE=1, or a comma-separated list of names). Pages are stored gzipped as <name>.html.gz and DOI.org's answers as <name>.json, each with its parsed output in <name>.golden.json. Paths are fetched from whichever mirror answers; csl entries come from doi.org.",
   "pages": [
     {"name": "search_books", "kind": "books", "path": "/search?q=structure+and+interpretation+of+computer+programs", "note": "plain search; several cards Anna flags as possibly broken"},
     {"name": "search_filtered_partial", "kind": "books", "path": "/search?q=against+intellectual+monopoly&ext=epub&lang=en", "note": "format and language filters; a short first page, so Anna adds partial matches"},
@@ -8,6 +8,7 @@
     {"name": "search_fields", "kind": "books", "path": "/search?q=&termtype_1=author&termval_1=Boldrin&termtype_2=year&termval_2=2008", "note": "field search without a query"},
     {"name": "search_languages", "kind": "books", "path": "/search?q=%D0%B2%D0%BE%D0%B9%D0%BD%D0%B0+%D0%B8+%D0%BC%D0%B8%D1%80+%D1%82%D0%BE%D0%BB%D1%81%D1%82%D0%BE%D0%B9", "note": "War and Peace in Russian; records that list several languages"},
     {"name": "search_rare_formats", "kind": "books", "path": "/search?q=history&ext=zip&ext=rar&ext=chm&ext=djvu&ext=cbr", "note": "formats other than EPUB and PDF"},
+    {"name": "search_attention", "kind": "articles", "path": "/search?q=Attention+Is+All+You+Need", "note": "the title search DOI lookup runs for 10.48550/arXiv.1706.03762; finds record_attention and record_liang_2016"},
     {"name": "search_journals", "kind": "articles", "path": "/search?index=journals&q=attention+is+all+you+need", "note": "journal index; look-alike titles of Attention Is All You Need"},
     {"name": "search_meta", "kind": "metadata", "path": "/search?index=meta&q=against+intellectual+monopoly", "note": "catalog records without files"},
     {"name": "record_attention", "kind": "record", "path": "/md5/18e1b007a1dab45b30cc861ba2dfda25", "note": "the record DOI lookup accepts for 10.48550/arXiv.1706.03762"},

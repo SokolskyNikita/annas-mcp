@@ -221,10 +221,10 @@ func TestDOIDownloadFallsBackToSciDBWhenFastDownloadsRunOut(t *testing.T) {
 				apiCalls++
 				return testDownloadResponse(req, http.StatusTooManyRequests, "text/json", `{"download_url":null,"error":"No downloads left"}`), nil
 			case "/scidb/10.1000/example/":
-				return fixtureResponse(t, req, http.StatusOK, "scidb_result.html", "text/html", map[string]string{"{{HASH}}": hash}), nil
+				return fixtureResponse(t, req, http.StatusOK, sciDBPage, "text/html", map[string]string{sciDBHash: hash}), nil
 			case "/md5/" + hash:
-				return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", nil), nil
-			case "/scidb-paper.pdf":
+				return fixtureResponse(t, req, http.StatusOK, sciDBRecordPage, "text/html", nil), nil
+			case "/scidb/paper.pdf":
 				return testDownloadResponse(req, http.StatusOK, "application/pdf", string(paper)), nil
 			}
 			return nil, fmt.Errorf("unexpected request %s", req.URL)

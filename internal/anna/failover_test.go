@@ -56,10 +56,10 @@ func TestFailedRequestIsRetriedOnAnotherMirrorInTheSameCall(t *testing.T) {
 			glFailed.Store(true)
 			return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
 		}
-		return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+		return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 	})}})
 	page, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Minute)
-	if err != nil || len(page.Results) != 1 {
+	if err != nil || len(page.Results) != 9 {
 		t.Fatalf("search: %+v %v", page, err)
 	}
 	if got := log.list(); !slices.Equal(got, []string{"annas-archive.gl/search", "annas-archive.pk/search"}) {
@@ -108,7 +108,7 @@ func TestOneMirrorRefusingIsHeldButTwoMeanTheAccount(t *testing.T) {
 					glFailed.Store(true)
 					return forbidden(req), nil
 				}
-				return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+				return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 			})}})
 			_, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Minute)
 			if len(log.list()) != 2 {
@@ -199,7 +199,7 @@ func TestSignInMovesOnFromAQuietMirror(t *testing.T) {
 		case req.Header.Get("Cookie") != "aa_account_id2=minted":
 			return forbidden(req), nil
 		}
-		return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+		return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 	})}})
 	client.signInTimeout = 50 * time.Millisecond
 
@@ -232,7 +232,7 @@ func TestUnreachableSignInIsNotRemembered(t *testing.T) {
 		case req.URL.Path == "/account/":
 			return fakeSignIn(t, req, "test-secret", "aa_account_id2=minted"), nil
 		}
-		return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+		return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
 	})}})
 
 	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, time.Minute); apperr.CodeOf(err) != apperr.Upstream {
@@ -259,7 +259,7 @@ func TestMirrorHealthIsSharedWithTheNextRun(t *testing.T) {
 			}
 			return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.pk" })
 		}
-		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
+		return fixtureResponse(t, req, http.StatusOK, noResultsPage, "text/html", nil), nil
 	})
 	run := func() {
 		client := NewClient(Config{AutoBaseURL: true, AccountCookie: "aa_account_id2=test", SessionFile: sessionFile, HTTPClient: &http.Client{Transport: transport}})

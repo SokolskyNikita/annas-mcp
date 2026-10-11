@@ -3,7 +3,6 @@ package anna
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"path"
 	"strings"
@@ -16,10 +15,16 @@ import (
 )
 
 const (
-	outageDOI   = "10.48550/arXiv.1706.03762"
-	outageTitle = "Attention Is All You Need"
+	outageDOI   = attentionDOI
+	outageTitle = attentionTitle
 	otherHash   = "abcdef0123456789abcdef0123456789"
 )
+
+// attentionSearch is a search page listing only the Attention card, under
+// hash.
+func attentionSearch(t *testing.T, hash string) string {
+	return searchPageWith(t, strings.ReplaceAll(capturedCard(t, searchAttentionPage, attentionHash), attentionHash, hash))
+}
 
 // timeoutError is a transport timeout, as net/http reports one.
 type timeoutError struct{}
@@ -37,7 +42,7 @@ func doiArchiveClient(t *testing.T, doiStatus int, archive func(*http.Request) (
 			if doiStatus != http.StatusOK {
 				return fixtureResponse(t, req, doiStatus, "blocked.txt", "text/plain", nil), nil
 			}
-			return fixtureResponse(t, req, http.StatusOK, "doi_metadata.json", "application/json", nil), nil
+			return fixtureResponse(t, req, http.StatusOK, attentionCSL, "application/json", nil), nil
 		}
 		return archive(req)
 	})}})
@@ -49,11 +54,11 @@ func doiArchiveClient(t *testing.T, doiStatus int, archive func(*http.Request) (
 func failingEditions(t *testing.T) func(*http.Request) (*http.Response, error) {
 	return func(req *http.Request) (*http.Response, error) {
 		if req.URL.Path == "/search" {
-			replacements := map[string]string{"0123456789abcdef0123456789abcdef": otherHash}
+			hash := otherHash
 			if req.URL.Query().Get("q") == outageTitle {
-				replacements = nil
+				hash = attentionHash
 			}
-			return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", replacements), nil
+			return htmlResponse(req, http.StatusOK, attentionSearch(t, hash)), nil
 		}
 		return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
 	}
@@ -80,7 +85,7 @@ func TestLookupDOIReportsArchiveOutage(t *testing.T) {
 		}, apperr.RequestTimeout},
 		{"SciDB answers 502 and searches find nothing", http.StatusOK, func(req *http.Request) (*http.Response, error) {
 			if req.URL.Path == "/search" {
-				return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
+				return fixtureResponse(t, req, http.StatusOK, noResultsPage, "text/html", nil), nil
 			}
 			return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
 		}, apperr.Upstream},
@@ -92,9 +97,9 @@ func TestLookupDOIReportsArchiveOutage(t *testing.T) {
 			case req.URL.Path == "/search" && req.URL.Query().Get("index") == "journals":
 				return fixtureResponse(t, req, http.StatusBadGateway, "blocked.txt", "text/plain", nil), nil
 			case req.URL.Path == "/search":
-				return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+				return htmlResponse(req, http.StatusOK, attentionSearch(t, attentionHash)), nil
 			}
-			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{"Ashish Vaswani": "Unrelated Author"}), nil
+			return fixtureResponse(t, req, http.StatusOK, recordAttentionPage, "text/html", map[string]string{"Ashish Vaswani": "Unrelated Author"}), nil
 		}, apperr.Upstream},
 	} {
 		t.Run(test.name, func(t *testing.T) {
@@ -133,9 +138,9 @@ func TestLookupDOIKeepsNotFoundForGenuineMiss(t *testing.T) {
 				case req.URL.Path == "/scidb/"+strings.ToLower(outageDOI)+"/":
 					return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 				case req.URL.Path == "/search" && test.detail != 0 && req.URL.Query().Get("q") == outageTitle:
-					return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+					return htmlResponse(req, http.StatusOK, attentionSearch(t, attentionHash)), nil
 				case req.URL.Path == "/search":
-					return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
+					return fixtureResponse(t, req, http.StatusOK, noResultsPage, "text/html", nil), nil
 				case strings.HasPrefix(req.URL.Path, "/md5/") && test.detail != 0:
 					return fixtureResponse(t, req, test.detail, "blocked.txt", "text/plain", nil), nil
 				}
@@ -157,7 +162,7 @@ func TestDownloadArticleByDOIReportsArchiveOutage(t *testing.T) {
 		BaseURL: "annas.test", AccountCookie: "aa_account_id2=test", SecretKey: "test-secret", DownloadPath: t.TempDir(),
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			if req.URL.Host == "doi.org" {
-				return fixtureResponse(t, req, http.StatusOK, "doi_metadata.json", "application/json", nil), nil
+				return fixtureResponse(t, req, http.StatusOK, attentionCSL, "application/json", nil), nil
 			}
 			if req.URL.Path == "/dyn/api/fast_download.json" {
 				t.Error("tried a fast download without a verified record")
@@ -174,12 +179,12 @@ func TestDownloadArticleByDOIReportsArchiveOutage(t *testing.T) {
 // editions is a search page with n editions of the outage paper, each
 // with its own hash.
 func editions(t *testing.T, n int) string {
-	card := fixtureText(t, "search_result.html")
-	var page strings.Builder
-	for i := range n {
-		page.WriteString(strings.ReplaceAll(card, "0123456789abcdef0123456789abcdef", fmt.Sprintf("%032x", i+1)))
+	card := capturedCard(t, searchAttentionPage, attentionHash)
+	cards := make([]string, n)
+	for i := range cards {
+		cards[i] = strings.ReplaceAll(card, attentionHash, fmt.Sprintf("%032x", i+1))
 	}
-	return page.String()
+	return searchPageWith(t, cards...)
 }
 
 func TestLookupDOIStopsAtTheFirstQueryThatFindsThePaper(t *testing.T) {
@@ -194,9 +199,9 @@ func TestLookupDOIStopsAtTheFirstQueryThatFindsThePaper(t *testing.T) {
 			if q := req.URL.Query().Get("q"); q != outageTitle {
 				t.Errorf("searched %q after the title search found the paper", q)
 			}
-			return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+			return htmlResponse(req, http.StatusOK, attentionSearch(t, attentionHash)), nil
 		}
-		return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{"<head>": `<head><meta name="citation_doi" content="` + outageDOI + `">`}), nil
+		return fixtureResponse(t, req, http.StatusOK, recordAttentionPage, "text/html", nil), nil
 	})
 	if paper, err := client.LookupDOI(context.Background(), outageDOI, time.Minute); err != nil || paper == nil {
 		t.Fatalf("lookup: %+v %v", paper, err)
@@ -218,10 +223,7 @@ func TestLookupDOIReadsRecordPagesTogetherAndKeepsTheirOrder(t *testing.T) {
 		case strings.HasPrefix(req.URL.Path, "/scidb/"):
 			return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 		case req.URL.Path == "/search":
-			response := fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil)
-			page := editions(t, 2*doiRecordChecks)
-			response.Body, response.ContentLength = io.NopCloser(strings.NewReader(page)), int64(len(page))
-			return response, nil
+			return htmlResponse(req, http.StatusOK, editions(t, 2*doiRecordChecks)), nil
 		}
 		// Each of the first pages answers only once all of them were
 		// requested, which reading one page at a time would never reach.
@@ -239,7 +241,7 @@ func TestLookupDOIReadsRecordPagesTogetherAndKeepsTheirOrder(t *testing.T) {
 		if hash := path.Base(req.URL.Path); hash == fmt.Sprintf("%032x", 2) || hash == fmt.Sprintf("%032x", 3) {
 			detail = nil
 		}
-		return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", detail), nil
+		return fixtureResponse(t, req, http.StatusOK, recordAttentionPage, "text/html", detail), nil
 	})
 	paper, err := client.LookupDOI(context.Background(), outageDOI, 10*time.Second)
 	if err != nil || paper == nil || paper.Hash != fmt.Sprintf("%032x", 2) {
@@ -264,9 +266,9 @@ func TestLookupDOIDoesNotFollowSciDBToASearch(t *testing.T) {
 		case req.URL.Path == "/search" && strings.HasPrefix(req.URL.Query().Get("q"), `"doi:`):
 			t.Error("followed SciDB's redirect to a search")
 		case req.URL.Path == "/search":
-			return fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil), nil
+			return htmlResponse(req, http.StatusOK, attentionSearch(t, attentionHash)), nil
 		}
-		return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{"<head>": `<head><meta name="citation_doi" content="` + outageDOI + `">`}), nil
+		return fixtureResponse(t, req, http.StatusOK, recordAttentionPage, "text/html", nil), nil
 	})
 	if paper, err := client.LookupDOI(context.Background(), outageDOI, time.Minute); err != nil || paper == nil {
 		t.Fatalf("lookup: %+v %v", paper, err)
@@ -280,16 +282,13 @@ func TestLookupDOIDoesNotWaitForLaterRecordPages(t *testing.T) {
 		case strings.HasPrefix(req.URL.Path, "/scidb/"):
 			return fixtureResponse(t, req, http.StatusNotFound, "blocked.txt", "text/plain", nil), nil
 		case req.URL.Path == "/search":
-			response := fixtureResponse(t, req, http.StatusOK, "search_result.html", "text/html", nil)
-			page := editions(t, doiRecordChecks)
-			response.Body, response.ContentLength = io.NopCloser(strings.NewReader(page)), int64(len(page))
-			return response, nil
+			return htmlResponse(req, http.StatusOK, editions(t, doiRecordChecks)), nil
 		}
 		switch path.Base(req.URL.Path) {
 		case fmt.Sprintf("%032x", 1):
-			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", map[string]string{"Ashish Vaswani": "Unrelated Author"}), nil
+			return fixtureResponse(t, req, http.StatusOK, recordAttentionPage, "text/html", map[string]string{"Ashish Vaswani": "Unrelated Author"}), nil
 		case fmt.Sprintf("%032x", 2):
-			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", nil), nil
+			return fixtureResponse(t, req, http.StatusOK, recordAttentionPage, "text/html", nil), nil
 		}
 		// The later editions' pages never answer.
 		return hang(req)

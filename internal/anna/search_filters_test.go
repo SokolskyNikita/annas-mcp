@@ -2,7 +2,6 @@ package anna
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -10,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
 )
 
@@ -133,7 +133,7 @@ func TestFindBookSeparatesPartialMatchesAndReadsCards(t *testing.T) {
 	t.Parallel()
 
 	var query url.Values
-	client := searchFixtureClient(t, "search_filtered.html", &query)
+	client := searchFixtureClient(t, "pages/search_filtered_partial.html.gz", &query)
 	page, err := client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Source: []string{"lgli"}}, time.Second)
 	if err != nil {
 		t.Fatal(err)
@@ -141,43 +141,64 @@ func TestFindBookSeparatesPartialMatchesAndReadsCards(t *testing.T) {
 	if got := query["src"]; !reflect.DeepEqual(got, []string{"lgli"}) {
 		t.Fatalf("src = %v", got)
 	}
-	if len(page.Results) != 2 || len(page.Partial) != 1 {
-		t.Fatalf("results=%d partial=%d; the nav link and partial match must not count as results", len(page.Results), len(page.Partial))
+	// Nine EPUBs match the filters; Anna adds 41 looser matches to the short page.
+	if len(page.Results) != 9 || len(page.Partial) != 41 {
+		t.Fatalf("results=%d partial=%d", len(page.Results), len(page.Partial))
 	}
-	if page.Total != 2 || page.TotalIsLowerBound || page.MorePages {
+	if page.Total != 9 || page.TotalIsLowerBound || page.MorePages {
 		t.Fatalf("totals = %d %v %v", page.Total, page.TotalIsLowerBound, page.MorePages)
 	}
 	first := page.Results[0]
 	want := &Book{
-		Title: "Against Intellectual Monopoly", Authors: "Michele Boldrin, David K. Levine",
-		Publisher: "Cambridge University Press (Virtual Publishing), 1. publ, Cambridge, 2008",
-		Language:  "English", Format: "EPUB", Size: "3.9MB", Year: "2008", Content: "book_nonfiction",
-		Sources: []string{"lgli", "lgrs", "nexusstc", "zlib"}, FastDownload: true,
-		Hash:        "224c5b1195fd2fb4650c3b75c2908d65",
-		URL:         "https://annas.test/md5/224c5b1195fd2fb4650c3b75c2908d65",
-		Description: "'Intellectual property' - patents and copyrights - have become controversial.",
+		Title: "Against Intellectual Monopoly", Authors: "Michele Boldrin; David K. Levine",
+		Publisher: "chenjin5.com 万千书友聚集地", Edition: "2008",
+		Language: "English", Format: "EPUB", Size: "3.8MB", Year: "2008", Content: "book_nonfiction",
+		Sources: []string{"lgli", "zlib"}, FastDownload: true,
+		Hash: "80ea470d302a6c9aadaf0e769e71c14f",
+		URL:  "https://annas.test/md5/80ea470d302a6c9aadaf0e769e71c14f",
 	}
 	if !reflect.DeepEqual(first, want) {
 		t.Fatalf("first result\n got %+v\nwant %+v", first, want)
 	}
-	flagged := page.Results[1]
-	if !flagged.PossibleIssues || flagged.FastDownload || flagged.Format != "PDF" || flagged.Year != "" {
-		t.Fatalf("flagged result = %+v", flagged)
+	for _, book := range page.Results {
+		if book.Format != "EPUB" {
+			t.Fatalf("a result ignores the format filter: %+v", book)
+		}
 	}
 	if partial := page.Partial[0]; partial.Hash != "45af58ccb96c6b5c83979b36bdfe5870" || partial.Format != "MOBI" {
 		t.Fatalf("partial match = %+v", partial)
 	}
 }
 
+func TestFindBookFlagsFilesWithPossibleIssues(t *testing.T) {
+	t.Parallel()
+
+	page, err := searchFixtureClient(t, "pages/search_books.html.gz", nil).FindBook(context.Background(), "sicp", SearchOptions{}, time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var flagged []string
+	for _, book := range page.Results {
+		if book.PossibleIssues {
+			flagged = append(flagged, book.Hash)
+		}
+	}
+	// Anna greys out seven of the 50 cards.
+	if len(flagged) != 7 || flagged[0] != "d6ff202b668d37545b9c187ce35f5420" {
+		t.Fatalf("flagged = %v", flagged)
+	}
+}
+
 func TestFindArticleCarriesCardDetails(t *testing.T) {
 	t.Parallel()
 
-	page, err := searchFixtureClient(t, "search_filtered.html", nil).FindArticle(context.Background(), "monopoly", SearchOptions{}, time.Second)
+	page, err := searchFixtureClient(t, searchJournalsPage, nil).FindArticle(context.Background(), "attention is all you need", SearchOptions{}, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
 	paper := page.Results[0]
-	if paper.Year != "2008" || !paper.FastDownload || paper.Journal == "" || len(paper.Sources) != 4 || len(page.Partial) != 1 {
+	if paper.Title != "Equity-premium prediction: attention is all you need." || paper.Year != "2022" || !paper.FastDownload ||
+		paper.Journal != "Wiley, Journal of Applied Econometrics, 38, 2022" || len(paper.Sources) == 0 || len(page.Partial) != 39 {
 		t.Fatalf("paper = %+v", paper)
 	}
 }
@@ -185,19 +206,31 @@ func TestFindArticleCarriesCardDetails(t *testing.T) {
 func TestSearchRejectsFilterValuesThePageDoesNotOffer(t *testing.T) {
 	t.Parallel()
 
-	client := searchFixtureClient(t, "search_filtered.html", nil)
+	client := searchFixtureClient(t, "pages/search_filtered_partial.html.gz", nil)
 	// Anna answers an unknown source with partial matches only, which would
 	// look like the book being absent.
 	_, err := client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Source: []string{"lgli", "-libgen"}}, time.Second)
-	if apperr.CodeOf(err) != apperr.InvalidArgument || !strings.Contains(err.Error(), `"libgen"`) || !strings.Contains(err.Error(), "lgli, lgrs, zlib") {
+	if apperr.CodeOf(err) != apperr.InvalidArgument || !strings.Contains(err.Error(), `"libgen"`) || !strings.Contains(err.Error(), "lgli, lgrs, magzdb") {
 		t.Fatalf("err = %v", err)
 	}
-	_, err = client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Content: []string{"magazine"}}, time.Second)
+	_, err = client.FindBook(context.Background(), "against intellectual monopoly", SearchOptions{Content: []string{"podcast"}}, time.Second)
 	if apperr.CodeOf(err) != apperr.InvalidArgument || !strings.Contains(err.Error(), "content") {
 		t.Fatalf("err = %v", err)
 	}
 	// Pages without a facet are not checked.
-	if _, err := searchFixtureClient(t, "search_card.html", nil).FindBook(context.Background(), "example", SearchOptions{Source: []string{"anything"}}, time.Second); err != nil {
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(searchPageWith(t, capturedCard(t, searchAttentionPage, attentionHash))))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc.Find("input[name='src']").Remove()
+	withoutFacet, err := doc.Html()
+	if err != nil {
+		t.Fatal(err)
+	}
+	unchecked := NewClient(Config{BaseURL: "https://annas.test", AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return htmlResponse(req, http.StatusOK, withoutFacet), nil
+	})}})
+	if _, err := unchecked.FindBook(context.Background(), "example", SearchOptions{Source: []string{"anything"}}, time.Second); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -206,29 +239,27 @@ func TestFindMetadataReturnsCatalogRecords(t *testing.T) {
 	t.Parallel()
 
 	var query url.Values
-	page, err := searchFixtureClient(t, "search_metadata.html", &query).FindMetadata(context.Background(), "9780521879286", SearchOptions{Page: 1}, time.Second)
+	page, err := searchFixtureClient(t, "pages/search_meta.html.gz", &query).FindMetadata(context.Background(), "against intellectual monopoly", SearchOptions{Page: 1}, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if query.Get("index") != "meta" {
 		t.Fatalf("index = %q", query.Get("index"))
 	}
-	if page.Total != 500 || !page.TotalIsLowerBound || !page.MorePages {
-		t.Fatalf("totals = %d %v %v", page.Total, page.TotalIsLowerBound, page.MorePages)
+	if len(page.Results) != 50 || page.Total != 158 || page.TotalIsLowerBound || !page.MorePages {
+		t.Fatalf("results = %d, totals = %d %v %v", len(page.Results), page.Total, page.TotalIsLowerBound, page.MorePages)
 	}
-	want := []*MetadataRecord{
-		{
-			ID: "isbndb:9780521879286", Title: "Against Intellectual Monopoly", Authors: "Boldrin, Michele, Levine, David K.",
-			Publisher: "Cambridge University Press", Edition: "1, 2008", Language: "English", Year: "2008",
-			Description: "Patents and copyrights have become controversial.", URL: "https://annas.test/isbndb/9780521879286",
-		},
-		{
-			ID: "ol:OL18017946M", Title: "Against intellectual monopoly", Authors: "Michele Boldrin, David K. Levine",
-			Language: "English", URL: "https://annas.test/ol/OL18017946M",
-		},
+	want := &MetadataRecord{
+		ID: "isbndb:9780511415449", Title: "Against Intellectual Monopoly", Authors: "Boldrin, Michele, Levine, David",
+		Publisher: "Cambridge University Press", Language: "English", URL: "https://annas.test/isbndb/9780511415449",
 	}
-	if !reflect.DeepEqual(page.Results, want) {
-		t.Fatalf("records\n got %+v %+v\nwant %+v %+v", page.Results[0], page.Results[1], want[0], want[1])
+	if !reflect.DeepEqual(page.Results[1], want) {
+		t.Fatalf("record\n got %+v\nwant %+v", page.Results[1], want)
+	}
+	for _, record := range page.Results {
+		if strings.HasPrefix(record.ID, "md5:") {
+			t.Fatalf("a file appeared among catalog records: %+v", record)
+		}
 	}
 }
 
@@ -236,12 +267,12 @@ func TestPageTotalsWithoutResultsLine(t *testing.T) {
 	t.Parallel()
 
 	page := SearchPage[int]{Results: make([]int, resultsPerPage)}
-	pageTotals(&page, fixtureDocument(t, "search_card.html"), 2)
+	pageTotals(&page, fixtureDocument(t, "pages/search_past_end.html.gz"), 2)
 	if page.Total != 2*resultsPerPage || !page.TotalIsLowerBound || !page.MorePages {
 		t.Fatalf("a full page without a count should suggest more: %+v", page)
 	}
 	last := SearchPage[int]{Results: make([]int, resultsPerPage)}
-	pageTotals(&last, fixtureDocument(t, "search_card.html"), maxResultPages)
+	pageTotals(&last, fixtureDocument(t, "pages/search_past_end.html.gz"), maxResultPages)
 	if last.MorePages {
 		t.Fatal("Anna serves at most 100 pages")
 	}
@@ -251,7 +282,7 @@ func TestSearchNeedsAQueryOrAField(t *testing.T) {
 	t.Parallel()
 
 	var query url.Values
-	client := searchFixtureClient(t, "search_filtered.html", &query)
+	client := searchFixtureClient(t, "pages/search_fields.html.gz", &query)
 	if _, err := client.FindBook(context.Background(), " ", SearchOptions{}, time.Second); apperr.CodeOf(err) != apperr.InvalidArgument {
 		t.Fatalf("err = %v", err)
 	}
@@ -267,22 +298,20 @@ func TestSearchPageWithResultsItCannotReadIsAnError(t *testing.T) {
 	t.Parallel()
 	// Anna renamed the card classes: the count and the file links remain,
 	// but no card parses.
-	drifted := strings.ReplaceAll(fixtureText(t, "search_filtered.html"), "custom-a block", "result-link")
+	drifted := strings.ReplaceAll(fixtureText(t, "pages/search_filtered_partial.html.gz"), "custom-a block", "result-link")
 	for name, test := range map[string]struct {
 		page    string
 		pageNum int
 		wantErr bool
 	}{
 		"results that do not parse":          {drifted, 1, true},
-		"no results":                         {fixtureText(t, "archive_page.html"), 1, false},
-		"a page past the end of the results": {strings.ReplaceAll(drifted, "/md5/", "/nothing/"), 99, false},
+		"no results":                         {fixtureText(t, noResultsPage), 1, false},
+		"a page past the end of the results": {fixtureText(t, "pages/search_past_end.html.gz"), 3, false},
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			client := NewClient(Config{BaseURL: "annas.test", AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-				response := fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil)
-				response.Body, response.ContentLength = io.NopCloser(strings.NewReader(test.page)), int64(len(test.page))
-				return response, nil
+				return htmlResponse(req, http.StatusOK, test.page), nil
 			})}})
 			page, err := client.FindBook(context.Background(), "example", SearchOptions{Page: test.pageNum}, time.Minute)
 			if test.wantErr {

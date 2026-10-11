@@ -45,7 +45,7 @@ func TestMirrorSelectionIsLazyAndKeepsAWorkingMirror(t *testing.T) {
 			return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.gl" })
 		}
 		searches.Add(1)
-		return fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil), nil
+		return fixtureResponse(t, req, http.StatusOK, noResultsPage, "text/html", nil), nil
 	})}})
 	if checks.Load()+searches.Load() != 0 {
 		t.Fatal("constructor contacted upstream")
@@ -128,10 +128,10 @@ func TestDOIDownloadHonorsFilenameAndValidatesSciDBChecksum(t *testing.T) {
 		case "/dyn/api/fast_download.json":
 			return fixtureResponse(t, req, http.StatusBadRequest, "fast_download_error.json", "application/json", nil), nil
 		case "/scidb/10.1000/example/":
-			return fixtureResponse(t, req, http.StatusOK, "scidb_result.html", "text/html", map[string]string{"{{HASH}}": hash}), nil
+			return fixtureResponse(t, req, http.StatusOK, sciDBPage, "text/html", map[string]string{sciDBHash: hash}), nil
 		case "/md5/" + hash:
-			return fixtureResponse(t, req, http.StatusOK, "article_detail.html", "text/html", nil), nil
-		case "/scidb-paper.pdf":
+			return fixtureResponse(t, req, http.StatusOK, sciDBRecordPage, "text/html", nil), nil
+		case "/scidb/paper.pdf":
 			if req.Header.Get("Cookie") != "" {
 				t.Error("sent archive cookie to SciDB PDF CDN")
 			}
