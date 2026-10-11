@@ -62,32 +62,38 @@ func capturedCSL(t testing.TB, name string) capturedCSLPage {
 	return capturedCSLPage{}
 }
 
+// capturedCases are testdata/cases/captured_records.json.
+type capturedCases struct {
+	Comment string `json:"comment"`
+	Cases   []struct {
+		CSL    string `json:"csl"`
+		Record string `json:"record"`
+		Same   bool   `json:"same"`
+		Why    string `json:"why"`
+	} `json:"cases"`
+	AnotherDOI struct {
+		Record   string `json:"record"`
+		OwnDOI   string `json:"own_doi"`
+		OtherDOI string `json:"other_doi"`
+	} `json:"another_doi"`
+}
+
 // TestDOIIdentityCases checks DOI verification on real records against
 // DOI.org's citation data: the paper's own records match, and look-alikes
 // and other versions under another DOI do not.
 func TestDOIIdentityCases(t *testing.T) {
-	cases := []struct {
-		csl, record string
-		want        bool
-	}{
-		{"csl_attention", "record_attention", true},
-		{"csl_adam", "record_adam", true},
-		// The archive holds ResNet's CVPR version, under the conference's DOI.
-		{"csl_resnet", "record_resnet_cvpr", false},
-		{"csl_attention", "record_equity_premium", false},
-		{"csl_attention", "record_liang_2016", false},
-		{"csl_attention", "record_book", false},
-	}
-	for _, tc := range cases {
-		t.Run(tc.csl+"/"+tc.record, func(t *testing.T) {
-			csl := capturedCSL(t, tc.csl)
+	var cases capturedCases
+	loadCases(t, "captured_records", &cases)
+	for _, tc := range cases.Cases {
+		t.Run(tc.CSL+"/"+tc.Record, func(t *testing.T) {
+			csl := capturedCSL(t, tc.CSL)
 			metadata, err := parse.ParseCitation(bytes.NewReader(readPage(t, csl.Name+".json")))
 			if err != nil {
 				t.Fatal(err)
 			}
-			record := parse.RecordIdentity(pageDocument(t, tc.record+".html.gz"))
-			if got := SameWork(parse.NormalizeDOI(csl.DOI), metadata, record); got != tc.want {
-				t.Fatalf("verifyDOIIdentity = %v, want %v\nCSL: %+v\nrecord: %+v", got, tc.want, metadata, record)
+			record := parse.RecordIdentity(pageDocument(t, tc.Record+".html.gz"))
+			if got := SameWork(parse.NormalizeDOI(csl.DOI), metadata, record); got != tc.Same {
+				t.Fatalf("SameWork = %v, want %v (%s)\nCSL: %+v\nrecord: %+v", got, tc.Same, tc.Why, metadata, record)
 			}
 		})
 	}
@@ -96,15 +102,18 @@ func TestDOIIdentityCases(t *testing.T) {
 // TestDOIIdentityRejectsAnotherDOI checks that a record carrying another real
 // DOI is rejected even when its title and authors agree with DOI.org's.
 func TestDOIIdentityRejectsAnotherDOI(t *testing.T) {
-	record := parse.RecordIdentity(pageDocument(t, "record_liang_2016.html.gz"))
-	if record.DOI != "10.1002/chin.201627137" {
-		t.Fatalf("record DOI = %q, want the one in its identifiers panel", record.DOI)
+	var cases capturedCases
+	loadCases(t, "captured_records", &cases)
+	another := cases.AnotherDOI
+	record := parse.RecordIdentity(pageDocument(t, another.Record+".html.gz"))
+	if record.DOI != another.OwnDOI {
+		t.Fatalf("record DOI = %q, want %q from its identifiers panel", record.DOI, another.OwnDOI)
 	}
 	metadata := parse.Citation{Title: record.Title, Authors: record.Authors, Year: record.Year}
-	if SameWork("10.1000/another", metadata, record) {
+	if SameWork(another.OtherDOI, metadata, record) {
 		t.Fatal("a record with another DOI matched on title and authors alone")
 	}
-	if !SameWork("10.1002/chin.201627137", metadata, record) {
+	if !SameWork(another.OwnDOI, metadata, record) {
 		t.Fatal("the record did not match its own DOI")
 	}
 }

@@ -1,0 +1,701 @@
+{
+  "comment": "SameWork(doi, citation, record) for DOI.org citations and archive records; want is whether the record is the work.",
+  "cases": [
+    {
+      "name": "title, every author and year, without an identifier",
+      "doi": "10.1000/example",
+      "citation": {
+        "doi": "10.1000/example",
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani",
+          "Noam Shazeer",
+          "Niki Parmar",
+          "Jakob Uszkoreit",
+          "Llion Jones",
+          "Aidan N. Gomez",
+          "Łukasz Kaiser",
+          "Illia Polosukhin"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani",
+          "Noam Shazeer",
+          "Niki Parmar",
+          "Jakob Uszkoreit",
+          "Llion Jones",
+          "Aidan N. Gomez",
+          "Lukasz Kaiser",
+          "Illia Polosukhin"
+        ],
+        "year": "2017"
+      },
+      "want": true
+    },
+    {
+      "name": "one author differs",
+      "doi": "10.1000/example",
+      "citation": {
+        "doi": "10.1000/example",
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani",
+          "Noam Shazeer",
+          "Niki Parmar",
+          "Jakob Uszkoreit",
+          "Llion Jones",
+          "Aidan N. Gomez",
+          "Łukasz Kaiser",
+          "Illia Polosukhin"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani",
+          "Noam Shazeer",
+          "Niki Parmar",
+          "Jakob Uszkoreit",
+          "Llion Jones",
+          "Aidan N. Gomez",
+          "Lukasz Kaiser",
+          "A Different Author"
+        ],
+        "year": "2017"
+      },
+      "want": false
+    },
+    {
+      "name": "a title alone is never enough",
+      "doi": "10.1000/example",
+      "citation": {
+        "doi": "10.1000/example",
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani",
+          "Noam Shazeer",
+          "Niki Parmar",
+          "Jakob Uszkoreit",
+          "Llion Jones",
+          "Aidan N. Gomez",
+          "Łukasz Kaiser",
+          "Illia Polosukhin"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "title": "Attention Is All You Need",
+        "year": "2017"
+      },
+      "want": false
+    },
+    {
+      "name": "another year",
+      "doi": "10.1000/example",
+      "citation": {
+        "doi": "10.1000/example",
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani",
+          "Noam Shazeer",
+          "Niki Parmar",
+          "Jakob Uszkoreit",
+          "Llion Jones",
+          "Aidan N. Gomez",
+          "Łukasz Kaiser",
+          "Illia Polosukhin"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani",
+          "Noam Shazeer",
+          "Niki Parmar",
+          "Jakob Uszkoreit",
+          "Llion Jones",
+          "Aidan N. Gomez",
+          "Lukasz Kaiser",
+          "Illia Polosukhin"
+        ],
+        "year": "2018"
+      },
+      "want": false
+    },
+    {
+      "name": "another DOI, though title and authors agree",
+      "doi": "10.1000/example",
+      "citation": {
+        "doi": "10.1000/example",
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani",
+          "Noam Shazeer",
+          "Niki Parmar",
+          "Jakob Uszkoreit",
+          "Llion Jones",
+          "Aidan N. Gomez",
+          "Łukasz Kaiser",
+          "Illia Polosukhin"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani",
+          "Noam Shazeer",
+          "Niki Parmar",
+          "Jakob Uszkoreit",
+          "Llion Jones",
+          "Aidan N. Gomez",
+          "Lukasz Kaiser",
+          "Illia Polosukhin"
+        ],
+        "year": "2017",
+        "doi": "10.1000/other"
+      },
+      "want": false
+    },
+    {
+      "name": "the record's own DOI needs no authors",
+      "doi": "10.1000/example",
+      "citation": {
+        "doi": "10.1000/example",
+        "title": "A Paper",
+        "authors": [
+          "An Author"
+        ]
+      },
+      "record": {
+        "doi": "10.1000/example",
+        "title": "A Paper"
+      },
+      "want": true
+    },
+    {
+      "name": "a record listing two DOIs",
+      "doi": "10.1000/example",
+      "citation": {
+        "doi": "10.1000/example",
+        "title": "A Paper",
+        "authors": [
+          "An Author"
+        ]
+      },
+      "record": {
+        "doi": "10.1000/example",
+        "doi_conflict": true,
+        "title": "A Paper"
+      },
+      "want": false
+    },
+    {
+      "name": "the ICLR version of an arXiv preprint, dated the year after",
+      "doi": "10.48550/arXiv.1412.6980",
+      "citation": {
+        "doi": "10.48550/arXiv.1412.6980",
+        "title": "Adam: A Method for Stochastic Optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Ba"
+        ],
+        "year": "2014"
+      },
+      "record": {
+        "title": "Adam: A method for stochastic optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Lei Ba"
+        ],
+        "year": "2015"
+      },
+      "want": true
+    },
+    {
+      "name": "a year before the preprint",
+      "doi": "10.48550/arXiv.1412.6980",
+      "citation": {
+        "doi": "10.48550/arXiv.1412.6980",
+        "title": "Adam: A Method for Stochastic Optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Ba"
+        ],
+        "year": "2014"
+      },
+      "record": {
+        "title": "Adam: A method for stochastic optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Lei Ba"
+        ],
+        "year": "2013"
+      },
+      "want": false
+    },
+    {
+      "name": "two years after the preprint",
+      "doi": "10.48550/arXiv.1412.6980",
+      "citation": {
+        "doi": "10.48550/arXiv.1412.6980",
+        "title": "Adam: A Method for Stochastic Optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Ba"
+        ],
+        "year": "2014"
+      },
+      "record": {
+        "title": "Adam: A method for stochastic optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Lei Ba"
+        ],
+        "year": "2016"
+      },
+      "want": false
+    },
+    {
+      "name": "another family name",
+      "doi": "10.48550/arXiv.1412.6980",
+      "citation": {
+        "doi": "10.48550/arXiv.1412.6980",
+        "title": "Adam: A Method for Stochastic Optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Ba"
+        ],
+        "year": "2014"
+      },
+      "record": {
+        "title": "Adam: A method for stochastic optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Lei Bo"
+        ],
+        "year": "2015"
+      },
+      "want": false
+    },
+    {
+      "name": "another first initial",
+      "doi": "10.48550/arXiv.1412.6980",
+      "citation": {
+        "doi": "10.48550/arXiv.1412.6980",
+        "title": "Adam: A Method for Stochastic Optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Ba"
+        ],
+        "year": "2014"
+      },
+      "record": {
+        "title": "Adam: A method for stochastic optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Lei Ba"
+        ],
+        "year": "2015"
+      },
+      "want": false
+    },
+    {
+      "name": "the published version under its own DOI",
+      "doi": "10.48550/arXiv.1412.6980",
+      "citation": {
+        "doi": "10.48550/arXiv.1412.6980",
+        "title": "Adam: A Method for Stochastic Optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Ba"
+        ],
+        "year": "2014"
+      },
+      "record": {
+        "title": "Adam: A method for stochastic optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Lei Ba"
+        ],
+        "year": "2015",
+        "doi": "10.1109/example.2015.1"
+      },
+      "want": false
+    },
+    {
+      "name": "the year after only counts for arXiv DOIs",
+      "doi": "10.1000/journal",
+      "citation": {
+        "title": "Adam: A Method for Stochastic Optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Ba"
+        ],
+        "year": "2014"
+      },
+      "record": {
+        "title": "Adam: A method for stochastic optimization",
+        "authors": [
+          "Diederik P. Kingma",
+          "Jimmy Lei Ba"
+        ],
+        "year": "2015"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in (02) is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example(02)"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in (02). is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example(02)."
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in ). is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example)."
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in . is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example."
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in , is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example,"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in ; is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example;"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in : is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example:"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in ] is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example]"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in } is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example}"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in > is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example>"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in ' is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example'"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in \" is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example\""
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in ? is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example?"
+      },
+      "want": false
+    },
+    {
+      "name": "a DOI ending in # is another DOI",
+      "doi": "10.1000/example",
+      "citation": {},
+      "record": {
+        "doi": "10.1000/example#"
+      },
+      "want": false
+    },
+    {
+      "name": "the record's own arXiv id",
+      "doi": "10.48550/arXiv.1706.03762",
+      "citation": {
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "arxiv_id": "1706.03762",
+        "title": "Attention is all you need",
+        "authors": [
+          "A. Vaswani"
+        ],
+        "year": "2017"
+      },
+      "want": true
+    },
+    {
+      "name": "another arXiv id",
+      "doi": "10.48550/arXiv.1706.03762",
+      "citation": {
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "arxiv_id": "1706.99999",
+        "title": "Attention is all you need",
+        "authors": [
+          "A. Vaswani"
+        ],
+        "year": "2017"
+      },
+      "want": false
+    },
+    {
+      "name": "an arXiv id with another title",
+      "doi": "10.48550/arXiv.1706.03762",
+      "citation": {
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "arxiv_id": "1706.03762",
+        "title": "Attention Is Not All You Need",
+        "authors": [
+          "A. Vaswani"
+        ],
+        "year": "2017"
+      },
+      "want": false
+    },
+    {
+      "name": "an arXiv id with other authors",
+      "doi": "10.48550/arXiv.1706.03762",
+      "citation": {
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "arxiv_id": "1706.03762",
+        "title": "Attention is all you need",
+        "authors": [
+          "Someone Else"
+        ],
+        "year": "2017"
+      },
+      "want": false
+    },
+    {
+      "name": "an arXiv id with another year",
+      "doi": "10.48550/arXiv.1706.03762",
+      "citation": {
+        "title": "Attention Is All You Need",
+        "authors": [
+          "Ashish Vaswani"
+        ],
+        "year": "2017"
+      },
+      "record": {
+        "arxiv_id": "1706.03762",
+        "title": "Attention is all you need",
+        "authors": [
+          "A. Vaswani"
+        ],
+        "year": "2020"
+      },
+      "want": false
+    },
+    {
+      "name": "without DOI.org, the arXiv id alone",
+      "doi": "10.48550/arXiv.1706.03762",
+      "citation": {},
+      "record": {
+        "arxiv_id": "1706.03762"
+      },
+      "want": true
+    },
+    {
+      "name": "without an identifier, a title alone",
+      "doi": "10.48550/arXiv.1706.03762",
+      "citation": {
+        "title": "Attention Is All You Need"
+      },
+      "record": {
+        "title": "Attention Is All You Need"
+      },
+      "want": false
+    },
+    {
+      "name": "Ægir Smith and Agir Smith are different people",
+      "doi": "10.1000/example",
+      "citation": {
+        "title": "Shared title",
+        "authors": [
+          "Ægir Smith"
+        ]
+      },
+      "record": {
+        "title": "Shared title",
+        "authors": [
+          "Agir Smith"
+        ]
+      },
+      "want": false
+    },
+    {
+      "name": "Ægir Smith in lower case is the same person",
+      "doi": "10.1000/example",
+      "citation": {
+        "title": "Shared title",
+        "authors": [
+          "Ægir Smith"
+        ]
+      },
+      "record": {
+        "title": "Shared title",
+        "authors": [
+          "ægir smith"
+        ]
+      },
+      "want": true
+    },
+    {
+      "name": "Œdipe Smith and Odipe Smith are different people",
+      "doi": "10.1000/example",
+      "citation": {
+        "title": "Shared title",
+        "authors": [
+          "Œdipe Smith"
+        ]
+      },
+      "record": {
+        "title": "Shared title",
+        "authors": [
+          "Odipe Smith"
+        ]
+      },
+      "want": false
+    },
+    {
+      "name": "Œdipe Smith in lower case is the same person",
+      "doi": "10.1000/example",
+      "citation": {
+        "title": "Shared title",
+        "authors": [
+          "Œdipe Smith"
+        ]
+      },
+      "record": {
+        "title": "Shared title",
+        "authors": [
+          "œdipe smith"
+        ]
+      },
+      "want": true
+    },
+    {
+      "name": "Þor Smith and Tor Smith are different people",
+      "doi": "10.1000/example",
+      "citation": {
+        "title": "Shared title",
+        "authors": [
+          "Þor Smith"
+        ]
+      },
+      "record": {
+        "title": "Shared title",
+        "authors": [
+          "Tor Smith"
+        ]
+      },
+      "want": false
+    },
+    {
+      "name": "Þor Smith in lower case is the same person",
+      "doi": "10.1000/example",
+      "citation": {
+        "title": "Shared title",
+        "authors": [
+          "Þor Smith"
+        ]
+      },
+      "record": {
+        "title": "Shared title",
+        "authors": [
+          "þor smith"
+        ]
+      },
+      "want": true
+    }
+  ]
+}

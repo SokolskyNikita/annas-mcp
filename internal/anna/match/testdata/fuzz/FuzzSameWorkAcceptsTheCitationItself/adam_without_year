@@ -1,0 +1,5 @@
+go test fuzz v1
+string("10.48550/arXiv.1412.6980")
+string("Adam")
+string("Diederik P. Kingma")
+string("")

@@ -1,0 +1,5 @@
+go test fuzz v1
+string("10.1000/x")
+string("Attention Is All You Need")
+string("Ashish Vaswani;Noam Shazeer")
+string("2017")

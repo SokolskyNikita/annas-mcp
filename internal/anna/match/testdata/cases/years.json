@@ -1,0 +1,35 @@
+{
+  "comment": "sameYear(doi, DOI.org's year, the record's year): an arXiv DOI also matches the year after.",
+  "cases": [
+    {
+      "doi": "10.1000/x",
+      "want": "2017",
+      "got": "2017",
+      "same": true
+    },
+    {
+      "doi": "10.1000/x",
+      "want": "2017",
+      "got": "2018",
+      "same": false
+    },
+    {
+      "doi": "10.48550/arXiv.1706.03762",
+      "want": "2017",
+      "got": "2018",
+      "same": true
+    },
+    {
+      "doi": "10.48550/arXiv.1706.03762",
+      "want": "2017",
+      "got": "2019",
+      "same": false
+    },
+    {
+      "doi": "10.48550/arXiv.1706.03762",
+      "want": "c. 2017",
+      "got": "2018",
+      "same": false
+    }
+  ]
+}

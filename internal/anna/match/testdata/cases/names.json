@@ -1,0 +1,153 @@
+{
+  "comment": "Author name rules: person_keys gives the family name and first initial a name is compared by; normalized gives the name with Latin accents folded; author_sets compares two author lists.",
+  "person_keys": [
+    {
+      "name": "Diederik P. Kingma",
+      "key": "kingma d"
+    },
+    {
+      "name": "Martin Luther King Jr.",
+      "key": "king m"
+    },
+    {
+      "name": "John Smith III",
+      "key": "smith j"
+    },
+    {
+      "name": "Plato",
+      "key": "plato"
+    },
+    {
+      "name": "Jr",
+      "key": "jr"
+    },
+    {
+      "name": "  ",
+      "key": ""
+    },
+    {
+      "name": "Łukasz Kaiser",
+      "key": "kaiser l"
+    }
+  ],
+  "normalized": [
+    {
+      "name": "Łø Đð Àé Íò Ùý Ćś Ńź Řď Ť",
+      "normalized": "lo dd ae io uy cs nz rd t"
+    },
+    {
+      "name": "Gülşen Özdemir-Ağaoğlu",
+      "normalized": "gulsen ozdemir agaoglu"
+    },
+    {
+      "name": "Ştefan Ţurcanu",
+      "normalized": "stefan turcanu"
+    },
+    {
+      "name": "İsmail Kılıç",
+      "normalized": "ismail kilic"
+    },
+    {
+      "name": "Ægir Œdipe Þor",
+      "normalized": "ægir œdipe þor"
+    },
+    {
+      "name": "Йошкар Иванов",
+      "normalized": "йошкар иванов"
+    },
+    {
+      "name": "ガウス 李 Ли",
+      "normalized": "ガウス 李 ли"
+    },
+    {
+      "name": "Ángel",
+      "normalized": "angel"
+    }
+  ],
+  "author_sets": [
+    {
+      "expected": [
+        "Ada Lovelace",
+        "Charles Babbage"
+      ],
+      "actual": [
+        "Charles Babbage",
+        "Ada Lovelace"
+      ],
+      "same": true
+    },
+    {
+      "expected": [
+        "Ada Lovelace",
+        "Ada Lovelace"
+      ],
+      "actual": [
+        "Ada Lovelace",
+        "Alan Lovelace"
+      ],
+      "same": true
+    },
+    {
+      "expected": [
+        "Ada Lovelace",
+        "Ada Lovelace"
+      ],
+      "actual": [
+        "Ada Lovelace",
+        "Bob Lovelace"
+      ],
+      "same": false
+    },
+    {
+      "expected": [
+        "Ada Lovelace"
+      ],
+      "actual": [
+        "Ada Lovelace",
+        "Charles Babbage"
+      ],
+      "same": false
+    },
+    {
+      "expected": [],
+      "actual": [],
+      "same": false
+    },
+    {
+      "expected": [
+        "..."
+      ],
+      "actual": [
+        "Ada Lovelace"
+      ],
+      "same": false
+    },
+    {
+      "expected": [
+        "Ada Lovelace"
+      ],
+      "actual": [
+        "..."
+      ],
+      "same": false
+    },
+    {
+      "expected": [
+        "李 王"
+      ],
+      "actual": [
+        "山 田"
+      ],
+      "same": false
+    },
+    {
+      "expected": [
+        "Иван Петров"
+      ],
+      "actual": [
+        "Анна Сергеева"
+      ],
+      "same": false
+    }
+  ]
+}

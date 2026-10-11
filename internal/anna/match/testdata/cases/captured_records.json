@@ -1,0 +1,41 @@
+{
+  "comment": "SameWork on captured records against DOI.org's captured citation data, both in ../parse/testdata/pages: the papers' own records match, look-alikes and other versions under another DOI do not.",
+  "cases": [
+    {
+      "csl": "csl_attention",
+      "record": "record_attention",
+      "same": true
+    },
+    {
+      "csl": "csl_adam",
+      "record": "record_adam",
+      "same": true
+    },
+    {
+      "csl": "csl_resnet",
+      "record": "record_resnet_cvpr",
+      "same": false,
+      "why": "the archive holds ResNet's CVPR version, under the conference's DOI"
+    },
+    {
+      "csl": "csl_attention",
+      "record": "record_equity_premium",
+      "same": false
+    },
+    {
+      "csl": "csl_attention",
+      "record": "record_liang_2016",
+      "same": false
+    },
+    {
+      "csl": "csl_attention",
+      "record": "record_book",
+      "same": false
+    }
+  ],
+  "another_doi": {
+    "record": "record_liang_2016",
+    "own_doi": "10.1002/chin.201627137",
+    "other_doi": "10.1000/another"
+  }
+}

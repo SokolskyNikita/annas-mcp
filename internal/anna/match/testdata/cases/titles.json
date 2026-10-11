@@ -1,0 +1,9 @@
+{
+  "comment": "NormalizeTitle reduces a title to lower-case letters and digits for comparison.",
+  "cases": [
+    {
+      "title": "  Adam:  A Method—for Stochastic Optimization! ",
+      "normalized": "adam a method for stochastic optimization"
+    }
+  ]
+}
