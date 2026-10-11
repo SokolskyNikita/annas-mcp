@@ -2,6 +2,7 @@ package anna
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -259,5 +260,40 @@ func TestSearchNeedsAQueryOrAField(t *testing.T) {
 	}
 	if query.Get("termval_1") != "Boldrin" || query.Get("q") != "" {
 		t.Fatalf("query = %v", query)
+	}
+}
+
+func TestSearchPageWithResultsItCannotReadIsAnError(t *testing.T) {
+	t.Parallel()
+	// Anna renamed the card classes: the count and the file links remain,
+	// but no card parses.
+	drifted := strings.ReplaceAll(fixtureText(t, "search_filtered.html"), "custom-a block", "result-link")
+	for name, test := range map[string]struct {
+		page    string
+		pageNum int
+		wantErr bool
+	}{
+		"results that do not parse":          {drifted, 1, true},
+		"no results":                         {fixtureText(t, "archive_page.html"), 1, false},
+		"a page past the end of the results": {strings.ReplaceAll(drifted, "/md5/", "/nothing/"), 99, false},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			client := NewClient(Config{BaseURL: "annas.test", AccountCookie: "aa_account_id2=test", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+				response := fixtureResponse(t, req, http.StatusOK, "archive_page.html", "text/html", nil)
+				response.Body, response.ContentLength = io.NopCloser(strings.NewReader(test.page)), int64(len(test.page))
+				return response, nil
+			})}})
+			page, err := client.FindBook(context.Background(), "example", SearchOptions{Page: test.pageNum}, time.Minute)
+			if test.wantErr {
+				if apperr.CodeOf(err) != apperr.Upstream || !strings.Contains(err.Error(), "cannot read") {
+					t.Fatalf("unreadable results: %+v %v", page, err)
+				}
+				return
+			}
+			if err != nil || len(page.Results) != 0 {
+				t.Fatalf("empty page: %+v %v", page, err)
+			}
+		})
 	}
 }

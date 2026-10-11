@@ -46,6 +46,9 @@ func (c *Client) searchOn(ctx context.Context, base, query string, options Searc
 		c.mirrorFailed(pageURL, mirror.Failure{Reason: "answered a search with a page that is not Anna's Archive", Blocked: true})
 		return searchResults{pageURL: pageURL}, apperr.New(apperr.UpstreamBlocked, "archive returned an unexpected page; check the mirror and account access")
 	}
+	if len(cards) == 0 && showsResults(doc, options.Page) {
+		return searchResults{pageURL: pageURL}, apperr.New(apperr.Upstream, "Anna's Archive returned search results this version cannot read; its page layout may have changed. Check for a newer release, or report it at https://github.com/SokolskyNikita/annas-mcp/issues")
+	}
 	if err := checkFacetFilter(doc, "src", "source", options.Source); err != nil {
 		return searchResults{pageURL: pageURL}, err
 	}

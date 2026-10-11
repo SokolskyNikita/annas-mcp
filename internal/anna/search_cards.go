@@ -242,6 +242,19 @@ func parseResultsTotal(doc *goquery.Document) (total int, lowerBound, found bool
 	return total, lowerBound, found
 }
 
+// showsResults reports whether a page with no parsed cards still shows
+// results, by its count or by links to files. Then Anna changed its markup,
+// and returning no results would read as the work being absent.
+func showsResults(doc *goquery.Document, pageNumber int) bool {
+	if doc == nil {
+		return false
+	}
+	if total, _, found := parseResultsTotal(doc); found && total > (max(pageNumber, 1)-1)*resultsPerPage {
+		return true
+	}
+	return doc.Find("a[href^='/md5/']").Length() > 0
+}
+
 // pageTotals fills in totals for a parsed page. Without Anna's count, a
 // full page is taken to mean that more results may follow.
 func pageTotals[T any](page *SearchPage[T], doc *goquery.Document, pageNumber int) {
