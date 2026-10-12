@@ -390,11 +390,14 @@ async function main() {
   const work = await mkdtemp(path.join(os.tmpdir(), "annas-mcp-npx-"));
   const cache = path.join(work, "cache");
   const concurrentCache = path.join(work, "concurrent-cache");
-  const binaryPath = path.join(work, target.binaryName);
+  // Windows searches the working directory before PATH. Keep the native
+  // binary elsewhere so npx exercises the installed npm shim, not this build.
+  const binaryPath = path.join(work, "build", target.binaryName);
   const assetName = `annas-mcp_${releaseVersion}_${target.os}_${target.arch}.${target.extension}`;
   const archivePath = path.join(work, assetName);
   let release;
   try {
+    await mkdir(path.dirname(binaryPath));
     buildBinary(binaryPath);
     await createArchive(
       binaryPath,
