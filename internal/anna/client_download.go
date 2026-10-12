@@ -119,9 +119,9 @@ func (c *Client) downloadBook(ctx context.Context, book *Book, progress Progress
 	if book == nil {
 		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "book is required")
 	}
-	hash, err := normalizeHash(book.Hash)
-	if err != nil {
-		return DownloadResult{}, err
+	prefix, hash, err := ParseRecordID(book.Hash)
+	if err != nil || prefix != "md5" {
+		return DownloadResult{}, apperr.New(apperr.InvalidArgument, "hash must be a 32-character MD5 or an Anna's Archive /md5/ page URL")
 	}
 	if err := c.validateDownloadTarget(ctx, book.Format); err != nil {
 		return DownloadResult{}, err

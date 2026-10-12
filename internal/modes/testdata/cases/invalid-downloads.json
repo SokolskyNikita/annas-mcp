@@ -2,6 +2,10 @@
   "comment": "book_download arguments rejected before any request; a case without a hash gets the test document's, so only its other arguments are wrong",
   "cases": [
     {"title": "test", "format": "pdf/../../outside"},
-    {"hash": "not-a-hash", "title": "test"}
+    {"hash": "not-a-hash", "title": "test"},
+    {"hash": "https://annas-archive.gl/md5/not-a-hash", "title": "test"},
+    {"hash": "https://annas-archive.gl/isbn/9780141439518", "title": "test"},
+    {"hash": "https://annas-archive.gl/md5/0123456789abcdef0123456789abcdef/extra", "title": "test"},
+    {"hash": "https://files.example/book.pdf", "title": "test"}
   ]
 }

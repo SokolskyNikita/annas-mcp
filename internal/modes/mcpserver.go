@@ -117,7 +117,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 			}
 			return nil, result, nil
 		})
-	mcp.AddTool(server, tool("book_download", "Download book", "Download the selected book using its hash from search. Returns an existing file in ANNAS_DOWNLOAD_PATH if its full MD5 matches, otherwise downloads a verified copy under a unique name. Returns path and bytes; downloads_left is omitted on local reuse. Format sets the extension; it does not convert the file.", false),
+	mcp.AddTool(server, tool("book_download", "Download book", "Download the selected book using its MD5 hash or Anna's Archive /md5/ page URL in hash. Returns an existing file in ANNAS_DOWNLOAD_PATH if its full MD5 matches, otherwise downloads a verified copy under a unique name. Returns path and bytes; downloads_left is omitted on local reuse. Format sets the extension; it does not convert the file.", false),
 		func(ctx context.Context, req *mcp.CallToolRequest, params BookDownloadParams) (*mcp.CallToolResult, anna.DownloadResult, error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, downloadTimeout)
 			if err != nil {
@@ -129,7 +129,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 			}
 			return nil, result, nil
 		})
-	mcp.AddTool(server, tool("article_download", "Download article", "Download a selected paper by exactly one of doi or hash. Resolves a DOI to its hash, then returns an existing file in ANNAS_DOWNLOAD_PATH if its full MD5 matches, otherwise downloads under a unique name. Returns path and bytes; downloads_left is omitted on local reuse. Optional title and format control a new file's name.", false),
+	mcp.AddTool(server, tool("article_download", "Download article", "Download a selected paper by exactly one of doi or hash. The hash field accepts a bare MD5 or an Anna's Archive /md5/ page URL. Resolves a DOI to its hash, then returns an existing file in ANNAS_DOWNLOAD_PATH if its full MD5 matches, otherwise downloads under a unique name. Returns path and bytes; downloads_left is omitted on local reuse. Optional title and format control a new file's name.", false),
 		func(ctx context.Context, req *mcp.CallToolRequest, params ArticleDownloadParams) (*mcp.CallToolResult, anna.DownloadResult, error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, downloadTimeout)
 			if err != nil {

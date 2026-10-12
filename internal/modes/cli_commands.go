@@ -95,7 +95,7 @@ func newAccountStatusCommand(options *cliOptions) *cobra.Command {
 }
 
 func newBookDownloadCommand(options *cliOptions) *cobra.Command {
-	return &cobra.Command{Use: "book-download [hash] [filename]", Short: "Download a book by its MD5 hash", Args: argumentCount(2, 2), RunE: func(cmd *cobra.Command, args []string) error {
+	return &cobra.Command{Use: "book-download [hash-or-url] [filename]", Short: "Download a book by MD5 hash or Anna's Archive page URL", Args: argumentCount(2, 2), RunE: func(cmd *cobra.Command, args []string) error {
 		ext := filepath.Ext(args[1])
 		if ext == "" {
 			return apperr.New(apperr.InvalidArgument, "filename must include an extension, for example .pdf or .epub")
@@ -121,7 +121,7 @@ func newArticleDownloadCommand(options *cliOptions) *cobra.Command {
 		}
 		return printDownloadResult(cmd.OutOrStdout(), result, "Article", options.json)
 	}}
-	cmd.Flags().StringVar(&params.Hash, "hash", "", "32-character hash from search; use instead of a DOI")
+	cmd.Flags().StringVar(&params.Hash, "hash", "", "32-character MD5 or Anna's Archive /md5/ page URL; use instead of a DOI")
 	cmd.Flags().StringVar(&params.Title, "title", "", "Optional filename title")
 	cmd.Flags().StringVar(&params.Format, "format", "", "Optional filename extension; does not convert files")
 	return cmd

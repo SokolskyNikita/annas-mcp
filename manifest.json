@@ -3,7 +3,7 @@
   "manifest_version": "0.3",
   "name": "annas-mcp",
   "display_name": "Anna's Archive",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "Search Anna's Archive for books and papers and download the file you pick.",
   "long_description": "Search Anna's Archive for books, textbooks, manuals, standards and journal articles by title, author, topic or DOI, then download the copy you pick into a local folder. Filter by format, language, source or year, look up editions and ISBNs in library catalogs, check a file's identifiers and reported problems, and see how many fast downloads are left. Requires an Anna's Archive membership: the server signs in with your account's secret key and renews the session by itself. On first run the bundle downloads the matching annas-mcp release binary from GitHub, verifies its SHA-256 checksum and caches it; the signed-in session is saved in the same cache folder.",
   "author": {

@@ -51,7 +51,7 @@ type AccountStatusParams struct {
 
 // BookDownloadParams are the book_download tool arguments.
 type BookDownloadParams struct {
-	Hash           string `json:"hash" jsonschema:"32-character MD5 hash from search"`
+	Hash           string `json:"hash" jsonschema:"32-character MD5 hash or Anna's Archive /md5/ page URL"`
 	Title          string `json:"title" jsonschema:"Book title used for the filename"`
 	Format         string `json:"format,omitempty" jsonschema:"Optional filename extension such as pdf or epub. Inferred when omitted; does not convert the file"`
 	TimeoutSeconds int    `json:"timeout_seconds,omitempty" jsonschema:"Total operation timeout in seconds, including retries. Defaults to 1800; maximum 86400"`
@@ -61,7 +61,7 @@ type BookDownloadParams struct {
 // of DOI or Hash is required.
 type ArticleDownloadParams struct {
 	DOI            string `json:"doi,omitempty" jsonschema:"DOI, doi: identifier or https://doi.org/ URL. Supply exactly one of doi or hash"`
-	Hash           string `json:"hash,omitempty" jsonschema:"32-character MD5 hash from search. Supply exactly one of doi or hash"`
+	Hash           string `json:"hash,omitempty" jsonschema:"32-character MD5 hash or Anna's Archive /md5/ page URL. Supply exactly one of doi or hash"`
 	Title          string `json:"title,omitempty" jsonschema:"Optional title override for the saved filename"`
 	Format         string `json:"format,omitempty" jsonschema:"Optional filename extension such as pdf. Inferred when omitted; does not convert the file"`
 	TimeoutSeconds int    `json:"timeout_seconds,omitempty" jsonschema:"Total operation timeout in seconds, including retries. Defaults to 1800; maximum 86400"`

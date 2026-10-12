@@ -2,6 +2,11 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.6.5](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.5) - 2026-10-12
+
+- Accept Anna's Archive `/md5/...` page URLs in the `hash` field of both download tools and in the CLI. Extract and validate the MD5 automatically, including links with query strings or fragments, while retaining local file reuse.
+- Clarify the paid membership requirement near the top of the README, with a tier comparison and a recommendation for Lucky Librarian or higher to enable both search and downloads.
+
 ## [v0.6.4](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.4) - 2026-10-12
 
 - Add `annas-cli` to the existing npm package. `npm install -g annas-mcp` installs both commands automatically: `annas-cli` shows help with no arguments, while `annas-mcp` keeps starting MCP. Both share the same binary, settings and operations. The README and website now include CLI installation alongside MCP setup.

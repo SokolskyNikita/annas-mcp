@@ -7,6 +7,16 @@
 
 An MCP server and command-line tool for searching [Anna's Archive](https://annas-archive.gl) for books and papers and downloading the file you pick. Use `annas-cli` in your terminal or connect `annas-mcp` to Claude, Cursor, Codex and other AI clients.
 
+**A paid Anna's Archive [membership](https://annas-archive.gl/donate) is required.**
+
+| Anna's Archive membership | Search through the MCP | Download by file hash or book-page URL |
+| --- | --- | --- |
+| No paid membership | ❌ | ❌ |
+| **Brilliant Bookworm** (cheapest tier) | ❌ | ✅ |
+| **Lucky Librarian or higher** (recommended) | ✅ | ✅ |
+
+**We recommend Lucky Librarian or higher so the AI can both search and download for you.** With the basic tier you'll need to manually paste each book download URL.
+
 **[MCP setup](#mcp-setup)** · **[CLI setup](#cli-setup)**
 
 It signs in with your membership's secret key and renews the session by itself, so you never copy cookies from a browser. If you're coming from iosifache/annas-mcp, [switching](#switching-from-iosifacheannas-mcp) is a one-line change.
@@ -18,14 +28,14 @@ It signs in with your membership's secret key and renews the session by itself, 
 | `metadata_search` | Searches library catalogs such as Open Library, WorldCat and ISBNdb for editions and ISBNs |
 | `book_details` | Shows a result's ISBNs and other identifiers, edition, description and reported file problems |
 | `account_status` | Shows your membership and how many fast downloads are left |
-| `book_download` | Downloads a book using the hash from a search result |
+| `book_download` | Downloads a book using a file hash or Anna's Archive book-page URL |
 | `article_download` | Downloads an article by DOI or hash |
 
 Use it only for material you are entitled to obtain, under the laws and terms that apply to you.
 
 ## Setup
 
-You need Node.js 18 or newer and an Anna's Archive [membership](https://annas-archive.gl/donate). Any tier can download; searching needs **Lucky Librarian** or higher.
+You need Node.js 18 or newer and an active paid Anna's Archive [membership](https://annas-archive.gl/donate). **Lucky Librarian or higher is recommended** so both search and downloads work.
 
 ### Get your secret key
 

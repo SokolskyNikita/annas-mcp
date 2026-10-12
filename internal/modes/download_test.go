@@ -64,8 +64,13 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 	}
 	var previous string
 	callsAfterFirst := 0
-	for i := 0; i < 2; i++ {
-		result, err := session.CallTool(ctx, &mcp.CallToolParams{Name: "book_download", Arguments: map[string]any{"hash": hash, "title": "Test", "format": "pdf"}})
+	pageURL := "https://annas-archive.gl/md5/" + strings.ToUpper(hash) + "/?from=search#downloads"
+	for i, input := range []string{pageURL, hash, pageURL} {
+		toolName := "book_download"
+		if i == 2 {
+			toolName = "article_download"
+		}
+		result, err := session.CallTool(ctx, &mcp.CallToolParams{Name: toolName, Arguments: map[string]any{"hash": input, "title": "Test", "format": "pdf"}})
 		if err != nil {
 			t.Fatal(err)
 		}
