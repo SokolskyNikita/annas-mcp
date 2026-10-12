@@ -17,6 +17,8 @@ An MCP server and command-line tool for searching [Anna's Archive](https://annas
 
 **We recommend Lucky Librarian or higher so the AI can both search and download for you.** With the basic tier you'll need to manually paste each book download URL.
 
+Disclaimer: I'm not affiliated with Anna's Archive. They were forced to introduce strict anti-scraping limits in 2026 due to massive DDoS attacks, with only paying members exempt.
+
 **[MCP setup](#mcp-setup)** · **[CLI setup](#cli-setup)**
 
 It signs in with your membership's secret key and renews the session by itself, so you never copy cookies from a browser. If you're coming from iosifache/annas-mcp, [switching](#switching-from-iosifacheannas-mcp) is a one-line change.
