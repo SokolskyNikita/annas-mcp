@@ -390,7 +390,7 @@ async function main() {
   const work = await mkdtemp(path.join(os.tmpdir(), "annas-mcp-npx-"));
   const cache = path.join(work, "cache");
   const concurrentCache = path.join(work, "concurrent-cache");
-  const binaryPath = path.join(work, "annas-mcp");
+  const binaryPath = path.join(work, target.binaryName);
   const assetName = `annas-mcp_${releaseVersion}_${target.os}_${target.arch}.${target.extension}`;
   const archivePath = path.join(work, assetName);
   let release;
