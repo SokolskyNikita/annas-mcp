@@ -544,18 +544,27 @@ async function main() {
     assert.equal(oneOffHelp.status, 0, oneOffHelp.stderr);
     assert.match(oneOffHelp.stdout, /annas-cli book-search \[query\]/);
 
-    // With multiple bin entries, npx must still pick the package-named MCP entry point.
-    const inferred = npmInvocation(["--yes", "--offline", pathToFileURL(tarball).href]);
+    // Exercise the documented package-name invocation with a local dependency
+    // so it cannot fetch an older published version from the registry.
+    const localInstall = npmInvocation([
+      "install", "--prefix", work, "--offline", "--ignore-scripts", "--no-audit", "--no-fund", tarball,
+    ], "npm");
+    const localInstalled = await runCommand(localInstall.command, localInstall.args, { cwd: work, env: packageEnv });
+    assert.equal(localInstalled.status, 0, localInstalled.stderr);
+    const inferred = npmInvocation(["--yes", "--offline", "annas-mcp"]);
     const inferredServer = spawn(inferred.command, inferred.args, {
       cwd: work,
       env: packageEnv,
       stdio: ["pipe", "pipe", "pipe"],
     });
+    let inferredOutput = "";
+    inferredServer.stdout.on("data", (chunk) => { inferredOutput = (inferredOutput + chunk).slice(0, 4096); });
+    inferredServer.stderr.on("data", (chunk) => { inferredOutput = (inferredOutput + chunk).slice(0, 4096); });
     const inferredSession = new MCPProcessClient(inferredServer);
     try {
       await assertHandshake(inferredSession, 60_000);
     } catch (error) {
-      throw new Error(`npx with inferred package command: ${error.message}`);
+      throw new Error(`npx with inferred package command: ${error.message}\n${inferredOutput}`);
     } finally {
       await inferredSession.close();
     }
