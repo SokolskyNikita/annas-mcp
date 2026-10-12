@@ -2,6 +2,10 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.6.4](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.4) - 2026-10-12
+
+- Add `annas-cli` to the existing npm package. `npm install -g annas-mcp` installs both commands automatically: `annas-cli` shows help with no arguments, while `annas-mcp` keeps starting MCP. Both share the same binary, settings and operations. The README and website now include CLI installation alongside MCP setup.
+
 ## [v0.6.3](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.3) - 2026-10-11
 
 - Install as a Gemini CLI extension with `gemini extensions install https://github.com/SokolskyNikita/annas-mcp`. Gemini CLI asks for the secret key, which it keeps in the system keychain, and for the optional download folder and account cookie. The extension runs the server through `npx`, like the other clients.

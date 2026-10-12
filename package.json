@@ -1,6 +1,6 @@
 {
   "name": "annas-mcp",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "license": "MIT",
   "description": "MCP server and CLI for Anna's Archive: search books, ebooks and journal articles by title, author or DOI, and download them",
   "mcpName": "io.github.SokolskyNikita/annas-mcp",
@@ -37,6 +37,7 @@
     "check:upstream": "node scripts/check-upstream.mjs"
   },
   "bin": {
+    "annas-cli": "bin/annas-cli.js",
     "annas-mcp": "bin/annas-mcp.js"
   },
   "files": [

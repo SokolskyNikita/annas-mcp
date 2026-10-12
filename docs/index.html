@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>annas-mcp: Anna's Archive MCP server for Claude, Cursor and Codex</title>
+<title>annas-mcp: Anna's Archive MCP server and CLI</title>
 <meta name="description" content="Search Anna's Archive for books, ebooks and journal articles by title, author or DOI from Claude, Cursor, Codex or the command line, and download the EPUB or PDF you pick. Free and open source.">
 <link rel="canonical" href="https://sokolskynikita.github.io/annas-mcp/">
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.png">
 <meta property="og:type" content="website">
-<meta property="og:title" content="annas-mcp: Anna's Archive MCP server">
+<meta property="og:title" content="annas-mcp: Anna's Archive MCP server and CLI">
 <meta property="og:description" content="Search and download books and papers from Anna's Archive in Claude, Cursor, Codex and the CLI.">
 <meta property="og:url" content="https://sokolskynikita.github.io/annas-mcp/">
 <meta property="og:image" content="https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/social-preview.png">
@@ -120,13 +120,14 @@
 <main>
   <header>
     <img src="https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.png" alt="" width="72" height="72">
-    <h1>annas-mcp <span>Anna's Archive MCP server for Claude, Cursor and Codex</span></h1>
+    <h1>annas-mcp <span>Anna's Archive MCP server and command-line tool</span></h1>
   </header>
 
-  <p class="lede">Ask your AI client for a book or paper. It searches <a href="https://annas-archive.gl">Anna's Archive</a> by title, author or DOI, compares the copies and downloads the one you pick to a folder on your computer. It also works as a command-line tool.</p>
+  <p class="lede">Search <a href="https://annas-archive.gl">Anna's Archive</a> for books and papers by title, author or DOI and download the copy you pick. Run <code>annas-cli</code> in your terminal or connect <code>annas-mcp</code> to Claude, Cursor, Codex and other AI clients.</p>
 
   <ul class="links">
-    <li><a class="primary" href="https://github.com/SokolskyNikita/annas-mcp#setup">Set it up</a></li>
+    <li><a class="primary" href="#cli-setup">CLI setup</a></li>
+    <li><a href="#mcp-setup">MCP setup</a></li>
     <li><a href="https://github.com/SokolskyNikita/annas-mcp">GitHub</a></li>
     <li><a href="https://www.npmjs.com/package/annas-mcp">npm</a></li>
     <li><a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.SokolskyNikita/annas-mcp">MCP Registry</a></li>
@@ -151,15 +152,27 @@
   <h2>Setup</h2>
   <p>You need Node.js 18 or newer and an Anna's Archive <a href="https://annas-archive.gl/donate">membership</a>: Lucky Librarian or higher to search, any tier to download. Copy your secret key from your <a href="https://annas-archive.gl/account/">account page</a>.</p>
 
-  <h3>Claude Code</h3>
+  <h3 id="cli-setup">CLI setup</h3>
+  <div class="code"><pre><code>npm install -g annas-mcp
+export ANNAS_SECRET_KEY="your-secret-key"
+
+annas-cli --help
+annas-cli book-search "pride and prejudice" --format epub</code></pre></div>
+  <p>In PowerShell, set the key with <code>$env:ANNAS_SECRET_KEY="your-secret-key"</code>. Installation adds both commands automatically: <code>annas-cli</code> shows help with no arguments, while <code>annas-mcp</code> starts MCP. Both support the same operations and settings. No MCP client is needed for the CLI.</p>
+  <p>For one-off commands, use <code>npx -y --package=annas-mcp annas-cli</code> followed by the command and its options. See the README for <a href="https://github.com/SokolskyNikita/annas-mcp#configuration">configuration</a> and <a href="https://github.com/SokolskyNikita/annas-mcp#command-line">all CLI commands</a>.</p>
+
+  <h3 id="mcp-setup">MCP setup</h3>
+  <p>To use the tools from an AI client, add the server using the instructions for your client below.</p>
+
+  <h4>Claude Code</h4>
   <div class="code"><pre><code>claude mcp add annas-mcp \
   --env ANNAS_SECRET_KEY=your-secret-key \
   -- npx -y annas-mcp</code></pre></div>
 
-  <h3>Claude Desktop</h3>
+  <h4>Claude Desktop</h4>
   <p>Download <a href="https://github.com/SokolskyNikita/annas-mcp/releases/latest/download/annas-mcp.mcpb">annas-mcp.mcpb</a> and open it. Claude Desktop asks for your secret key.</p>
 
-  <h3>Cursor, or Claude Desktop by hand</h3>
+  <h4>Cursor, or Claude Desktop by hand</h4>
   <div class="code"><pre><code>{
   "mcpServers": {
     "annas-mcp": {
@@ -172,7 +185,7 @@
   }
 }</code></pre></div>
 
-  <h3>Codex</h3>
+  <h4>Codex</h4>
   <div class="code"><pre><code>[mcp_servers.annas-mcp]
 command = "npx"
 args = ["-y", "annas-mcp"]

@@ -24,7 +24,7 @@ To try your build in an MCP client, point the client at the binary with the `mcp
 }
 ```
 
-The `npx` launcher always runs the latest published release, never your checkout. `go install github.com/SokolskyNikita/annas-mcp/cmd/annas-mcp@latest` installs the latest tag without Node.
+The npm launchers always run the latest published release, never your checkout. `npm install -g annas-mcp` installs both `annas-cli` (help by default) and `annas-mcp` (MCP by default); both use the same cached native binary. The CLI launcher sets the child process's `argv[0]` to `annas-cli` so help uses the installed command's name. `go install github.com/SokolskyNikita/annas-mcp/cmd/annas-mcp@latest` installs the latest tag without Node, under the name `annas-mcp`; the native binary shows help by default.
 
 ## Project layout
 
@@ -38,7 +38,7 @@ The `npx` launcher always runs the latest published release, never your checkout
 | `internal/mirror` | Mirror selection: health checks, holds on failing mirrors and the official mirror list |
 | `internal/env`, `internal/apperr`, `internal/version` | Configuration, stable error codes, embedded version |
 | `internal/testpolicy` | Checks on the repository's own tests (see [Test data](#test-data)) |
-| `bin`, `lib` | The `npx` launcher: release lookup, checksum verification, archive extraction and caching |
+| `bin`, `lib` | The `annas-cli` and `annas-mcp` npm entry points and shared launcher: release lookup, checksum verification, archive extraction and caching |
 | `server.json`, `manifest.json`, `gemini-extension.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery), the Gemini CLI extension gallery and Glama |
 | `Dockerfile` | Container image for `docker run -i` and Docker's MCP Catalog |
 | `HOW-IT-WORKS.md` | Tool options and results, downloads, mirror selection, the cache folder and the saved session; shipped in release archives and the MCP Bundle |

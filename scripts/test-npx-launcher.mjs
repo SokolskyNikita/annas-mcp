@@ -194,12 +194,12 @@ function powershellLiteral(value) {
   return `'${value.replaceAll("'", "''")}'`;
 }
 
-function npxInvocation(args) {
+function npmInvocation(args, command = "npx") {
   if (process.platform !== "win32") {
-    return { command: "npx", args };
+    return { command, args };
   }
-  const npxCli = path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", "npx-cli.js");
-  return { command: process.execPath, args: [npxCli, ...args] };
+  const cli = path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", `${command}-cli.js`);
+  return { command: process.execPath, args: [cli, ...args] };
 }
 
 async function createArchive(binaryPath, archivePath, directoryName, extension, binaryName) {
@@ -308,12 +308,13 @@ function launcherEnv(api, cache) {
   };
 }
 
-function runLauncher(args, env, stdio = ["ignore", "pipe", "pipe"]) {
+function runCommand(command, args, { cwd = root, env = process.env } = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, ["bin/annas-mcp.js", ...args], {
-      cwd: root,
+    const child = spawn(command, args, {
+      cwd,
       env,
-      stdio,
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 60_000,
     });
     let stdout = "";
     let stderr = "";
@@ -326,6 +327,10 @@ function runLauncher(args, env, stdio = ["ignore", "pipe", "pipe"]) {
     child.on("error", reject);
     child.on("exit", (status, signal) => resolve({ child, status, signal, stdout, stderr }));
   });
+}
+
+function runLauncher(args, env, entry = "annas-mcp") {
+  return runCommand(process.execPath, [`bin/${entry}.js`, ...args], { env });
 }
 
 async function assertHandshake(client, timeoutMs = 10_000) {
@@ -407,6 +412,24 @@ async function main() {
     assert(version.stdout.includes(expectedVersion), `version stdout was ${JSON.stringify(version.stdout)}`);
     assert(release.downloads() === 1, "version command should download the archive once");
 
+    const nativeHelp = await runCommand(binaryPath, []);
+    assert.equal(nativeHelp.status, 0, nativeHelp.stderr);
+    assert.match(nativeHelp.stdout, /annas-mcp \[command\]/);
+    for (const args of [[], ["--help"], ["book-search", "--help"], ["help", "article-download"]]) {
+      const help = await runLauncher(args, env, "annas-cli");
+      assert.equal(help.status, 0, help.stderr);
+      assert.match(help.stdout, /Usage:\s+annas-cli /);
+      assert.doesNotMatch(help.stdout, /annas-mcp/);
+      assert.equal(help.stderr, "");
+    }
+    const cliVersion = await runLauncher(["--version"], env, "annas-cli");
+    assert.equal(cliVersion.status, 0, cliVersion.stderr);
+    assert.equal(cliVersion.stdout, version.stdout);
+    const invalidCLI = await runLauncher(["book-search", "example", "--timeout", "0s"], env, "annas-cli");
+    assert.equal(invalidCLI.status, 1, "CLI must preserve the binary's failure exit code");
+    assert.equal(invalidCLI.stdout, "");
+    assert.match(invalidCLI.stderr, /^\[INVALID_ARGUMENT\].*timeout/);
+
     const server = spawn(process.execPath, ["bin/annas-mcp.js"], {
       cwd: root,
       env,
@@ -415,10 +438,27 @@ async function main() {
     const session = new MCPProcessClient(server);
     try {
       await assertHandshake(session);
+    } catch (error) {
+      throw new Error(`default MCP launcher: ${error.message}`);
     } finally {
       await session.close();
     }
     assert(release.downloads() === 1, "cached launch should not download the archive again");
+
+    const cliServer = spawn(process.execPath, ["bin/annas-cli.js", "mcp"], {
+      cwd: root,
+      env,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    const cliSession = new MCPProcessClient(cliServer);
+    try {
+      await assertHandshake(cliSession);
+    } catch (error) {
+      throw new Error(`explicit MCP command through annas-cli: ${error.message}`);
+    } finally {
+      await cliSession.close();
+    }
+    assert.equal(release.downloads(), 1, "both launchers must share the binary cache");
 
     await writeFile(path.join(cache, "current.json"), "{");
     const recovered = await runLauncher(["--version"], env);
@@ -448,7 +488,7 @@ async function main() {
 
     const npxCache = path.join(work, "npx-cache");
     await mkdir(npxCache);
-    const npx = npxInvocation([
+    const npx = npmInvocation([
       "--yes",
       "--loglevel=error",
       "--package",
@@ -464,8 +504,54 @@ async function main() {
     const npxSession = new MCPProcessClient(viaNpx);
     try {
       await assertHandshake(npxSession, 60_000);
+    } catch (error) {
+      throw new Error(`npx with explicit annas-mcp command: ${error.message}`);
     } finally {
       await npxSession.close();
+    }
+
+    // Install the shipped tarball into an isolated global prefix, exercising
+    // npm's Unix symlinks and Windows command shims without changing the user's install.
+    const packageEnv = { ...env, npm_config_cache: path.join(work, "npm-cache") };
+    const pack = npmInvocation(["pack", "--json", "--ignore-scripts", "--pack-destination", work], "npm");
+    const packed = await runCommand(pack.command, pack.args, { env: packageEnv });
+    assert.equal(packed.status, 0, packed.stderr);
+    const tarball = path.join(work, JSON.parse(packed.stdout)[0].filename);
+    const prefix = path.join(work, "global install");
+    const install = npmInvocation([
+      "install", "--global", "--prefix", prefix, "--offline", "--ignore-scripts", "--no-audit", "--no-fund", tarball,
+    ], "npm");
+    const installed = await runCommand(install.command, install.args, { cwd: work, env: packageEnv });
+    assert.equal(installed.status, 0, installed.stderr);
+    for (const name of ["annas-cli", "annas-mcp"]) {
+      const executable = process.platform === "win32" ? path.join(prefix, `${name}.cmd`) : path.join(prefix, "bin", name);
+      const command = process.platform === "win32" ? "powershell.exe" : executable;
+      const args = process.platform === "win32"
+        ? ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", `& ${powershellLiteral(executable)} --help; exit $LASTEXITCODE`]
+        : ["--help"];
+      const help = await runCommand(command, args, { cwd: work, env: packageEnv });
+      assert.equal(help.status, 0, help.stderr);
+      assert(help.stdout.includes(`${name} [command]`), `installed ${name} did not show its help`);
+    }
+    const oneOff = npmInvocation(["--yes", "--offline", `--package=${tarball}`, "annas-cli", "book-search", "--help"]);
+    const oneOffHelp = await runCommand(oneOff.command, oneOff.args, { cwd: work, env: packageEnv });
+    assert.equal(oneOffHelp.status, 0, oneOffHelp.stderr);
+    assert.match(oneOffHelp.stdout, /annas-cli book-search \[query\]/);
+
+    // With multiple bin entries, npx must still pick the package-named MCP entry point.
+    const inferred = npmInvocation(["--yes", "--offline", pathToFileURL(tarball).href]);
+    const inferredServer = spawn(inferred.command, inferred.args, {
+      cwd: work,
+      env: packageEnv,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    const inferredSession = new MCPProcessClient(inferredServer);
+    try {
+      await assertHandshake(inferredSession, 60_000);
+    } catch (error) {
+      throw new Error(`npx with inferred package command: ${error.message}`);
+    } finally {
+      await inferredSession.close();
     }
     await closeServer(release.server);
 

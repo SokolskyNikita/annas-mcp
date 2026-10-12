@@ -5,7 +5,9 @@
 [![npm](https://img.shields.io/npm/v/annas-mcp)](https://www.npmjs.com/package/annas-mcp)
 [![annas-mcp MCP server](https://glama.ai/mcp/servers/SokolskyNikita/annas-mcp/badges/score.svg)](https://glama.ai/mcp/servers/SokolskyNikita/annas-mcp)
 
-An MCP server that lets Claude, Cursor, Codex and other AI clients search [Anna's Archive](https://annas-archive.gl) for books and papers and download the file you pick. It also works as a command-line tool.
+An MCP server and command-line tool for searching [Anna's Archive](https://annas-archive.gl) for books and papers and downloading the file you pick. Use `annas-cli` in your terminal or connect `annas-mcp` to Claude, Cursor, Codex and other AI clients.
+
+**[MCP setup](#mcp-setup)** · **[CLI setup](#cli-setup)**
 
 It signs in with your membership's secret key and renews the session by itself, so you never copy cookies from a browser. If you're coming from iosifache/annas-mcp, [switching](#switching-from-iosifacheannas-mcp) is a one-line change.
 
@@ -25,11 +27,13 @@ Use it only for material you are entitled to obtain, under the laws and terms th
 
 You need Node.js 18 or newer and an Anna's Archive [membership](https://annas-archive.gl/donate). Any tier can download; searching needs **Lucky Librarian** or higher.
 
-### 1. Get your secret key
+### Get your secret key
 
 Copy the secret key you log in with from your Anna's Archive [account page](https://annas-archive.gl/account/). It is also your API key ([API FAQ](https://annas-archive.gl/faq#api)).
 
-### 2. Add the server to your client
+### MCP setup
+
+After getting your secret key, add the server to your client:
 
 #### Claude Code
 
@@ -108,9 +112,29 @@ Then have your client run it, mounting your download folder at `/downloads`:
 
 On Linux, add `"--user", "1000:1000"` with your own user and group IDs before `"annas-mcp"`, so the container can write to the folder.
 
-### 3. Try it
+#### Try it
 
 Restart your client and ask something like *"Find the EPUB of Pride and Prejudice and download it."* The AI searches, picks a copy and tells you where it saved the file: `annas-archive` in your home folder unless you [chose another](#choosing-the-download-folder).
+
+### CLI setup
+
+Install both commands with one package:
+
+```bash
+npm install -g annas-mcp
+export ANNAS_SECRET_KEY="your-secret-key"
+
+annas-cli --help
+annas-cli book-search "pride and prejudice" --format epub
+```
+
+Both commands support the same operations. With no arguments, `annas-cli` shows help and `annas-mcp` starts MCP. See [Configuration](#configuration) for settings and [Command line](#command-line) for all commands.
+
+Or run without installing globally:
+
+```bash
+npx -y --package=annas-mcp annas-cli book-search "pride and prejudice" --format epub
+```
 
 ## Switching from iosifache/annas-mcp
 
@@ -187,17 +211,17 @@ If the server doesn't start at all, run `npx -y annas-mcp --version` in a termin
 
 ## Command line
 
-Every tool is also a command. Set the same variables (or put them in a `.env` file), then:
+Every tool is also a command. Follow [CLI setup](#cli-setup), set the same variables (or put them in a `.env` file), then:
 
 ```bash
-npx -y annas-mcp book-search "pride and prejudice" --language en --format epub --include-stats
-npx -y annas-mcp book-search --author "Jane Austen" --year 1813 --sort oldest
-npx -y annas-mcp article-search 10.1038/nature14539
-npx -y annas-mcp metadata-search 9780141439518
-npx -y annas-mcp book-details <hash>
-npx -y annas-mcp account-status
-npx -y annas-mcp book-download <hash> "Pride and Prejudice.epub"
-npx -y annas-mcp article-download 10.1038/nature14539
+annas-cli book-search "pride and prejudice" --language en --format epub --include-stats
+annas-cli book-search --author "Jane Austen" --year 1813 --sort oldest
+annas-cli article-search 10.1038/nature14539
+annas-cli metadata-search 9780141439518
+annas-cli book-details <hash>
+annas-cli account-status
+annas-cli book-download <hash> "Pride and Prejudice.epub"
+annas-cli article-download 10.1038/nature14539
 ```
 
 Add `--include-stats` to a book or article search to include per-file download, list, quality-vote, report and comment counts when available. Add `--json` for machine-readable output, `--timeout 10m` to change the timeout and `--help` to any command for all of its options.

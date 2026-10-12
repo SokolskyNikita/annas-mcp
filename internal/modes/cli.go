@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -37,6 +38,10 @@ func loadCLIService() (*service, error) {
 
 func executeCLI(ctx context.Context, args []string, stdout, stderr io.Writer, factory serviceFactory) int {
 	root := newRootCommand(factory)
+	// The npm CLI launcher sets argv[0] while sharing the same native binary.
+	if name := filepath.Base(os.Args[0]); name == "annas-cli" || name == "annas-cli.exe" {
+		root.Use = "annas-cli"
+	}
 	root.SetArgs(append([]string{}, args...))
 	root.SetOut(stdout)
 	root.SetErr(stderr)
