@@ -501,11 +501,14 @@ async function main() {
       env: launcherEnv(release.api, npxCache),
       stdio: ["pipe", "pipe", "pipe"],
     });
+    let npxOutput = "";
+    viaNpx.stdout.on("data", (chunk) => { npxOutput = (npxOutput + chunk).slice(0, 4096); });
+    viaNpx.stderr.on("data", (chunk) => { npxOutput = (npxOutput + chunk).slice(0, 4096); });
     const npxSession = new MCPProcessClient(viaNpx);
     try {
       await assertHandshake(npxSession, 60_000);
     } catch (error) {
-      throw new Error(`npx with explicit annas-mcp command: ${error.message}`);
+      throw new Error(`npx with explicit annas-mcp command: ${error.message}\n${npxOutput}`);
     } finally {
       await npxSession.close();
     }
