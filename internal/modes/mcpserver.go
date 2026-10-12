@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/SokolskyNikita/annas-mcp/internal/version"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )

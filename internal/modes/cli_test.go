@@ -10,8 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
-	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 )
 
 func TestCLIValidationAndDownloadOptions(t *testing.T) {
@@ -29,7 +28,7 @@ func TestCLIValidationAndDownloadOptions(t *testing.T) {
 	for _, args := range file.Invalid {
 		cmd := newRootCommand(func() (*service, error) { return &service{archive: archive}, nil })
 		cmd.SetArgs(args)
-		if err := cmd.ExecuteContext(context.Background()); apperr.CodeOf(err) != apperr.InvalidArgument {
+		if err := cmd.ExecuteContext(context.Background()); anna.CodeOf(err) != anna.InvalidArgument {
 			t.Fatalf("args %v: %v", args, err)
 		}
 	}
@@ -81,7 +80,7 @@ func TestCLICommandsPrintResultsAndPreserveErrors(t *testing.T) {
 			for _, upstreamFailure := range []bool{false, true} {
 				archive := &fakeArchive{books: data.Books, papers: data.Papers}
 				if upstreamFailure {
-					archive.failure = apperr.New(apperr.UpstreamBlocked, "access denied")
+					archive.failure = anna.NewError(anna.UpstreamBlocked, "access denied")
 				}
 				var out, diagnostic bytes.Buffer
 				status := executeCLI(t.Context(), tc.Args, &out, &diagnostic, func() (*service, error) {
@@ -154,7 +153,7 @@ func TestCLIEmptySearchResultsAndConfigurationFailure(t *testing.T) {
 	}
 	var diagnostic bytes.Buffer
 	status := executeCLI(t.Context(), []string{"book-search", "example"}, io.Discard, &diagnostic, func() (*service, error) {
-		return nil, apperr.New(apperr.Config, "missing configuration")
+		return nil, anna.NewError(anna.CodeConfig, "missing configuration")
 	})
 	if status != 1 || !strings.HasPrefix(diagnostic.String(), "[CONFIG]") {
 		t.Fatalf("configuration: %s", diagnostic.String())
@@ -172,13 +171,13 @@ func TestLoadCLIServiceHandlesEnvironmentFiles(t *testing.T) {
 		t.Fatalf("missing optional .env: %v", err)
 	}
 	t.Setenv("ANNAS_BASE_URL", "http://unsafe.example")
-	if _, err := loadCLIService(); apperr.CodeOf(err) != apperr.Config {
+	if _, err := loadCLIService(); anna.CodeOf(err) != anna.CodeConfig {
 		t.Fatalf("invalid config: %v", err)
 	}
 	if err := os.WriteFile(".env", invalid, 0600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := loadCLIService(); apperr.CodeOf(err) != apperr.Config {
+	if _, err := loadCLIService(); anna.CodeOf(err) != anna.CodeConfig {
 		t.Fatalf("malformed .env: %v", err)
 	}
 }

@@ -195,6 +195,11 @@ ANNAS_SECRET_KEY = "your-secret-key"</code></pre></div>
 
   <p>Then ask something like <em>"Find the EPUB of Pride and Prejudice and download it."</em> Files are saved to an <code>annas-archive</code> folder in your home folder; set <code>ANNAS_DOWNLOAD_PATH</code> to use another one. Docker, the command line and every option are in the <a href="https://github.com/SokolskyNikita/annas-mcp#readme">README</a>.</p>
 
+  <h2>Use it from Go</h2>
+  <p>The public Go SDK provides the same search, metadata, account and verified-download operations as the MCP server and CLI. It requires Go 1.26 or newer and shares the project's release versions.</p>
+  <div class="code"><pre><code>go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.0</code></pre></div>
+  <p>See the <a href="https://github.com/SokolskyNikita/annas-mcp/blob/main/anna/README.md">SDK guide and examples</a> for explicit configuration, timeouts, error handling and concurrent use.</p>
+
   <h2>Coming from iosifache/annas-mcp?</h2>
   <p>It keeps the same four tools, adds three more, and reads the same <code>ANNAS_SECRET_KEY</code>, <code>ANNAS_DOWNLOAD_PATH</code> and <code>ANNAS_BASE_URL</code> variables. Replace the path to the old binary with <code>npx -y annas-mcp</code>. Searches then run as your signed-in member account, so they aren't turned away with <code>403</code>. <a href="https://github.com/SokolskyNikita/annas-mcp#switching-from-iosifacheannas-mcp">What changes</a>.</p>
 

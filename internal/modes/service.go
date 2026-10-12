@@ -4,43 +4,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"regexp"
+	"log/slog"
+	"os"
 	"strings"
 	"time"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
-	"github.com/SokolskyNikita/annas-mcp/internal/anna/parse"
-	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/SokolskyNikita/annas-mcp/internal/env"
 )
 
 const defaultSearchLimit = 10
+const defaultSearchTimeout = 60 * time.Second
+const defaultDownloadTimeout = 30 * time.Minute
 const maxOperationTimeout = 24 * time.Hour
 
 // maxFilterValues bounds each comma-separated filter.
 const maxFilterValues = 20
-
-var (
-	languageCodePattern = regexp.MustCompile(`^[a-z]{2,3}(-[a-z0-9]{2,8})?$`)
-	formatPattern       = regexp.MustCompile(`^[a-z0-9]{1,10}$`)
-	sourcePattern       = regexp.MustCompile(`^[a-z0-9_]{1,40}$`)
-	yearPattern         = regexp.MustCompile(`^\d{1,4}$`)
-)
-
-var contentTypes = map[string]bool{
-	"book_fiction": true, "book_nonfiction": true, "book_unknown": true, "book_comic": true,
-	"magazine": true, "standards_document": true, "musical_score": true, "audiobook": true,
-	"other": true, "journal_article": true,
-	// Legacy values that ResolveSearch maps or drops.
-	"book_any": true, "journal": true,
-}
-
-// Anna's sort values; relevance is its default, sent as no sort at all.
-var sortValues = map[string]string{
-	"": "", "relevance": "", "newest": "newest", "oldest": "oldest",
-	"largest": "largest", "smallest": "smallest",
-	"newest_added": "newest_added", "oldest_added": "oldest_added", "random": "random",
-}
 
 // archiveClient makes transport adapters testable without a network or credentials.
 type archiveClient interface {
@@ -79,11 +58,16 @@ func loadService() (*service, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &service{archive: anna.NewClient(anna.Config{
+	client, err := anna.NewClient(anna.Config{
 		BaseURL: cfg.AnnasBaseURL, AutoBaseURL: cfg.AutoBaseURL,
 		SecretKey: cfg.SecretKey, DownloadPath: cfg.DownloadPath,
 		AccountCookie: cfg.AccountCookie, SessionFile: cfg.SessionFile,
-	})}, nil
+		Logger: slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &service{archive: client}, nil
 }
 
 func timeoutFromSeconds(seconds int, fallback time.Duration) (time.Duration, error) {
@@ -91,7 +75,7 @@ func timeoutFromSeconds(seconds int, fallback time.Duration) (time.Duration, err
 		return fallback, nil
 	}
 	if seconds < 0 || seconds > int(maxOperationTimeout/time.Second) {
-		return 0, apperr.New(apperr.InvalidArgument, "timeout_seconds must be between 1 and 86400")
+		return 0, anna.NewError(anna.InvalidArgument, "timeout_seconds must be between 1 and 86400")
 	}
 	return time.Duration(seconds) * time.Second, nil
 }
@@ -101,10 +85,10 @@ func normalizeSearch(params SearchParams, article bool) (anna.SearchOptions, err
 	if err != nil {
 		return anna.SearchOptions{}, err
 	}
-	if options.Content, err = filterValues(params.Content, "content", func(value string) bool { return contentTypes[value] }); err != nil {
+	if options.Content, err = filterValues(params.Content, "content"); err != nil {
 		return anna.SearchOptions{}, err
 	}
-	if options.Format, err = filterValues(strings.ReplaceAll(params.Format, ".", ""), "format", formatPattern.MatchString); err != nil {
+	if options.Format, err = filterValues(strings.ReplaceAll(params.Format, ".", ""), "format"); err != nil {
 		return anna.SearchOptions{}, err
 	}
 	options.Descriptions = params.SearchDescriptions
@@ -112,7 +96,10 @@ func normalizeSearch(params SearchParams, article bool) (anna.SearchOptions, err
 	if article {
 		defaultContent = "journals"
 	}
-	options = anna.ResolveSearch(options, defaultContent)
+	options, err = anna.NormalizeSearch(params.Query, options, defaultContent)
+	if err != nil {
+		return anna.SearchOptions{}, err
+	}
 	if params.DownloadableOnly {
 		options.Access = []string{"aa_download"}
 		if options.Index == "journals" {
@@ -121,107 +108,41 @@ func normalizeSearch(params SearchParams, article bool) (anna.SearchOptions, err
 	}
 	return options, nil
 }
-
 func normalizeMetadataSearch(params MetadataSearchParams) (anna.SearchOptions, error) {
 	options, err := commonSearchOptions(params.Query, params.Title, params.Author, params.Publisher, params.Year, params.Language, params.Source, params.Sort, params.Page, params.Limit)
 	if err != nil {
 		return anna.SearchOptions{}, err
 	}
-	if options.Sort == "largest" || options.Sort == "smallest" {
-		return anna.SearchOptions{}, apperr.New(apperr.InvalidArgument, "catalog records have no file size; sort by relevance, newest, oldest, newest_added, oldest_added or random")
-	}
 	options.Index = "meta"
-	return options, nil
+	return anna.NormalizeSearch(params.Query, options, "")
 }
-
-// commonSearchOptions validates what every search accepts, before any request.
 func commonSearchOptions(query, title, author, publisher, year, language, source, sort string, page, limit int) (anna.SearchOptions, error) {
-	var options anna.SearchOptions
-	for _, field := range []anna.SearchField{{Name: "title", Value: title}, {Name: "author", Value: author}, {Name: "publisher", Value: publisher}, {Name: "year", Value: year}} {
-		field.Value = strings.Join(strings.Fields(field.Value), " ")
-		if field.Value == "" {
-			continue
-		}
-		if len(field.Value) > 300 {
-			return options, apperr.New(apperr.InvalidArgument, field.Name+" must be at most 300 characters")
-		}
-		if field.Name == "year" && !yearPattern.MatchString(field.Value) {
-			return options, apperr.New(apperr.InvalidArgument, "year must be a publication year such as 2008")
-		}
-		options.Fields = append(options.Fields, field)
-	}
-	if strings.TrimSpace(query) == "" && len(options.Fields) == 0 {
-		return options, apperr.New(apperr.InvalidArgument, "search query is empty; pass a query or at least one of title, author, publisher or year")
-	}
-	if page < 0 {
-		return options, apperr.New(apperr.InvalidArgument, "page must be 1 or greater")
-	}
+	options := anna.SearchOptions{Page: page, Sort: sort, Fields: []anna.SearchField{{Name: "title", Value: title}, {Name: "author", Value: author}, {Name: "publisher", Value: publisher}, {Name: "year", Value: year}}}
 	if limit < 0 {
-		return options, apperr.New(apperr.InvalidArgument, "limit must be zero or greater")
+		return options, anna.NewError(anna.InvalidArgument, "limit must be zero or greater")
 	}
-	options.Page = max(page, 1)
 	var err error
-	if options.Language, err = filterValues(language, "language", languageCodePattern.MatchString); err != nil {
-		return options, apperr.New(apperr.InvalidArgument, "language must be a language code such as en, or a comma-separated list such as en,de")
-	}
-	for i, value := range options.Language {
-		options.Language[i] = canonicalLanguage(value)
-	}
-	if options.Source, err = filterValues(source, "source", sourcePattern.MatchString); err != nil {
+	if options.Language, err = filterValues(language, "language"); err != nil {
 		return options, err
 	}
-	sortValue, ok := sortValues[strings.ToLower(strings.TrimSpace(sort))]
-	if !ok {
-		return options, apperr.New(apperr.InvalidArgument, fmt.Sprintf("unsupported sort %q; use relevance, newest, oldest, largest, smallest, newest_added, oldest_added or random", sort))
+	if options.Source, err = filterValues(source, "source"); err != nil {
+		return options, err
 	}
-	options.Sort = sortValue
-	return options, nil
+	return anna.NormalizeSearch(query, options, "")
 }
 
-// filterValues splits a comma-separated filter. Values are lowercased and
-// keep a leading "-", which marks an exclusion.
-func filterValues(raw, name string, valid func(string) bool) ([]string, error) {
+// filterValues only decodes the interface's comma-separated input and bounds its size.
+func filterValues(raw, name string) ([]string, error) {
 	var values []string
 	for _, part := range strings.Split(raw, ",") {
-		part = strings.ToLower(strings.TrimSpace(part))
-		excluded := strings.HasPrefix(part, "-")
-		value := strings.TrimSpace(strings.TrimPrefix(part, "-"))
-		if value == "" {
-			if excluded {
-				return nil, apperr.New(apperr.InvalidArgument, fmt.Sprintf("%s has a - without a value", name))
-			}
-			continue
+		if part = strings.TrimSpace(part); part != "" {
+			values = append(values, part)
 		}
-		if !valid(value) {
-			return nil, apperr.New(apperr.InvalidArgument, fmt.Sprintf("unsupported %s %q", name, value))
-		}
-		if excluded {
-			value = "-" + value
-		}
-		values = append(values, value)
 	}
 	if len(values) > maxFilterValues {
-		return nil, apperr.New(apperr.InvalidArgument, fmt.Sprintf("%s accepts at most %d values", name, maxFilterValues))
+		return nil, anna.NewError(anna.InvalidArgument, fmt.Sprintf("%s accepts at most %d values", name, maxFilterValues))
 	}
 	return values, nil
-}
-
-// canonicalLanguage restores tag casing that Anna's codes use, such as zh-Hant.
-func canonicalLanguage(code string) string {
-	prefix := ""
-	if strings.HasPrefix(code, "-") {
-		prefix, code = "-", code[1:]
-	}
-	parts := strings.Split(code, "-")
-	for i := 1; i < len(parts); i++ {
-		switch len(parts[i]) {
-		case 4:
-			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
-		case 2:
-			parts[i] = strings.ToUpper(parts[i])
-		}
-	}
-	return prefix + strings.Join(parts, "-")
 }
 
 // pageResult trims a page to limit. Partial matches only fill the room the
@@ -381,7 +302,7 @@ func (s *service) articleSearch(ctx context.Context, params SearchParams, timeou
 		opCtx, cancel = searchOperationContext(ctx, timeout)
 	}
 	defer cancel()
-	if parse.IsDOIQuery(query) {
+	if anna.IsDOIQuery(query) {
 		paper, err := s.archive.LookupDOI(opCtx, query, timeout)
 		if err != nil {
 			return nil, err
@@ -445,7 +366,7 @@ func (s *service) bookDownload(ctx context.Context, params BookDownloadParams, t
 
 func (s *service) articleDownload(ctx context.Context, params ArticleDownloadParams, timeout time.Duration, progress anna.ProgressFunc) (anna.DownloadResult, error) {
 	if (strings.TrimSpace(params.DOI) == "") == (strings.TrimSpace(params.Hash) == "") {
-		return anna.DownloadResult{}, apperr.New(apperr.InvalidArgument, "pass exactly one of doi or hash")
+		return anna.DownloadResult{}, anna.NewError(anna.InvalidArgument, "pass exactly one of doi or hash")
 	}
 	return s.archive.DownloadArticle(ctx, anna.ArticleDownloadOptions{DOI: params.DOI, Hash: params.Hash, Title: params.Title, Format: params.Format}, timeout, progress)
 }
@@ -454,5 +375,5 @@ func codedError(err error) string {
 	if err == nil {
 		return "[UPSTREAM] unknown error"
 	}
-	return fmt.Sprintf("[%s] %s", apperr.CodeOf(err), err)
+	return fmt.Sprintf("[%s] %s", anna.CodeOf(err), applicationError(err))
 }

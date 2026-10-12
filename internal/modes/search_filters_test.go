@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

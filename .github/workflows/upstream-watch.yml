@@ -1,7 +1,7 @@
 name: upstream watch
 
 # Once a week, checks whether Anna's Archive changed code that the parsers in
-# internal/anna/parse depend on, and opens or updates an issue when it did.
+# anna/internal/parse depend on, and opens or updates an issue when it did.
 # It reads Anna's public source repository only, never the archive itself.
 on:
   schedule:
@@ -42,4 +42,4 @@ jobs:
       - name: Check for changes and update the issue
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/check-upstream.mjs --update-issue
+        run: node anna/scripts/check-upstream.mjs --update-issue

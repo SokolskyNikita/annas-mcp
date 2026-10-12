@@ -2,6 +2,10 @@
 
 For setup and everyday use, see the [README](README.md).
 
+## Shared Go client
+
+The public `anna` package owns archive requests, validation, authentication, mirror selection, parsers, citation matching, statistics and verified downloads. The MCP and CLI adapters use that same API; environment defaults, tool envelopes and text rendering remain application responsibilities. See the [SDK contract](https://github.com/SokolskyNikita/annas-mcp/blob/main/anna/README.md). Parsers, matching and mirrors are private packages under `anna/internal/`, and their captured fixtures and maintenance tooling live with the SDK.
+
 ## Tools
 
 Every tool accepts `timeout_seconds`, which covers the whole operation including retries. Downloads default to 30 minutes and the other tools to 60 seconds.

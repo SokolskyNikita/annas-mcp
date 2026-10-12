@@ -9,8 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
-	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -147,7 +146,7 @@ func TestSearchPaginationAndStructuredResults(t *testing.T) {
 
 func TestTypedErrorsDoNotClassifyDOIDigitsAsHTTPStatus(t *testing.T) {
 	t.Parallel()
-	archive := &fakeArchive{failure: apperr.New(apperr.NotFound, "no paper found for DOI: 10.1403/example")}
+	archive := &fakeArchive{failure: anna.NewError(anna.NotFound, "no paper found for DOI: 10.1403/example")}
 	session := connectTestServer(t, archive)
 	result, err := session.CallTool(context.Background(), &mcp.CallToolParams{Name: "article_search", Arguments: map[string]any{"query": "10.1403/example"}})
 	if err != nil {

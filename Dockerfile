@@ -7,6 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY cmd ./cmd
 COPY internal ./internal
+COPY anna ./anna
 # The server reports the embedded internal/version/version.txt.
 RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o /out/annas-mcp ./cmd/annas-mcp \
     && mkdir /out/downloads

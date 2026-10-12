@@ -1,0 +1,295 @@
+package anna
+
+import (
+	"context"
+	"errors"
+	"io"
+	"net/http"
+	"slices"
+	"strings"
+	"sync"
+	"testing"
+)
+
+// fakeSignIn answers Anna's account form: the right key gets a redirect that
+// sets cookie, anything else gets the form back with the error message.
+func fakeSignIn(t *testing.T, req *http.Request, key, cookie string) *http.Response {
+	t.Helper()
+	if req.Method != http.MethodPost || req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
+		t.Errorf("sign-in used %s with content type %q", req.Method, req.Header.Get("Content-Type"))
+	}
+	if req.Header.Get("Cookie") != "" {
+		t.Errorf("sign-in sent a cookie: %q", req.Header.Get("Cookie"))
+	}
+	if err := req.ParseForm(); err != nil {
+		t.Error(err)
+	}
+	if req.PostForm.Get("key") != key {
+		return fixtureResponse(t, req, http.StatusOK, "sign_in_invalid_key.html", "text/html", nil)
+	}
+	header := http.Header{"Location": {"/account/"}, "Set-Cookie": {cookie + "; Domain=" + req.URL.Host + "; HttpOnly; Path=/"}}
+	return &http.Response{StatusCode: http.StatusFound, Header: header, Body: io.NopCloser(strings.NewReader("")), Request: req}
+}
+
+func forbidden(req *http.Request) *http.Response {
+	return &http.Response{StatusCode: http.StatusForbidden, Header: make(http.Header), Body: io.NopCloser(strings.NewReader("DDoS-Guard")), Request: req}
+}
+
+func TestSignsInWithSecretKeyWhenNoCookieIsConfigured(t *testing.T) {
+	t.Parallel()
+
+	var mu sync.Mutex
+	signIns := 0
+	client := mustClient(Config{
+		BaseURL:   "annas.test",
+		SecretKey: "test-secret",
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch req.URL.Path {
+			case "/account/":
+				mu.Lock()
+				signIns++
+				mu.Unlock()
+				return fakeSignIn(t, req, "test-secret", "aa_account_id2=minted"), nil
+			case "/search":
+				if req.Header.Get("Cookie") != "aa_account_id2=minted" {
+					return forbidden(req), nil
+				}
+				return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
+			}
+			return nil, errors.New("unexpected request: " + req.URL.String())
+		})},
+	})
+
+	var wg sync.WaitGroup
+	errs := make(chan error, 4)
+	for range 4 {
+		wg.Go(func() {
+			page, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
+			if err == nil && len(page.Results) != 9 {
+				err = errors.New("expected one book")
+			}
+			errs <- err
+		})
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if signIns != 1 {
+		t.Fatalf("expected concurrent searches to share one sign-in, got %d", signIns)
+	}
+}
+
+func TestExpiredCookieIsRenewedAndTheRequestRetried(t *testing.T) {
+	t.Parallel()
+
+	var cookies []string
+	client := mustClient(Config{
+		BaseURL:       "annas.test",
+		AccountCookie: "aa_account_id2=expired",
+		SecretKey:     "test-secret",
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch req.URL.Path {
+			case "/account/":
+				return fakeSignIn(t, req, "test-secret", "aa_account_id2=fresh"), nil
+			case "/search":
+				cookies = append(cookies, req.Header.Get("Cookie"))
+				if req.Header.Get("Cookie") != "aa_account_id2=fresh" {
+					return forbidden(req), nil
+				}
+				return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
+			}
+			return nil, errors.New("unexpected request: " + req.URL.String())
+		})},
+	})
+
+	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(cookies, ",") != "aa_account_id2=expired,aa_account_id2=fresh" {
+		t.Fatalf("expected one retry with the renewed cookie, got %v", cookies)
+	}
+}
+
+func TestRejectedSecretKeyIsAConfigErrorAndNotRetriedAtOnce(t *testing.T) {
+	t.Parallel()
+
+	signIns, searches := 0, 0
+	client := mustClient(Config{
+		BaseURL:   "annas.test",
+		SecretKey: "wrong-secret",
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch req.URL.Path {
+			case "/account/":
+				signIns++
+				return fakeSignIn(t, req, "test-secret", "aa_account_id2=minted"), nil
+			case "/search":
+				searches++
+				return forbidden(req), nil
+			}
+			return nil, errors.New("unexpected request: " + req.URL.String())
+		})},
+	})
+
+	for range 2 {
+		_, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
+		if CodeOf(err) != CodeConfig || !strings.Contains(err.Error(), "rejected SecretKey") {
+			t.Fatalf("expected a rejected-key config error, got %v", err)
+		}
+		if strings.Contains(err.Error(), "wrong-secret") {
+			t.Fatalf("error leaked the secret key: %v", err)
+		}
+	}
+	if signIns != 1 || searches != 0 {
+		t.Fatalf("expected one sign-in and no searches, got %d sign-ins and %d searches", signIns, searches)
+	}
+}
+
+func TestForbiddenFreshSessionPointsAtMembership(t *testing.T) {
+	t.Parallel()
+
+	signIns := 0
+	client := mustClient(Config{
+		BaseURL:   "annas.test",
+		SecretKey: "test-secret",
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch req.URL.Path {
+			case "/account/":
+				signIns++
+				return fakeSignIn(t, req, "test-secret", "aa_account_id2=minted"), nil
+			case "/search":
+				return forbidden(req), nil
+			}
+			return nil, errors.New("unexpected request: " + req.URL.String())
+		})},
+	})
+
+	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
+	if CodeOf(err) != UpstreamBlocked || !strings.Contains(err.Error(), "Lucky Librarian") {
+		t.Fatalf("expected a membership hint, got %v", err)
+	}
+	if !strings.Contains(err.Error(), "copy the aa_account_id2 value into AccountCookie") {
+		t.Fatalf("expected the steps for setting the cookie by hand, got %v", err)
+	}
+	if signIns != 1 {
+		t.Fatalf("a session minted moments ago was renewed again: %d sign-ins", signIns)
+	}
+}
+
+func TestSignInFallsBackToAnotherOfficialMirror(t *testing.T) {
+	t.Parallel()
+
+	var hosts []string
+	client := mustClient(Config{
+		BaseURL:     "annas-archive.gl",
+		AutoBaseURL: true,
+		SecretKey:   "test-secret",
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch req.URL.Path {
+			case "/dyn/up/":
+				if req.URL.Host == "annas-archive.gl" {
+					return nil, errors.New("connection refused")
+				}
+				return mirrorUp(t, req, func(host string) bool { return host == "annas-archive.pk" })
+			case "/account/":
+				hosts = append(hosts, req.URL.Host)
+				if req.URL.Host == "annas-archive.gl" {
+					return nil, errors.New("connection refused")
+				}
+				return fakeSignIn(t, req, "test-secret", "aa_account_id2=minted"), nil
+			case "/search":
+				if req.URL.Host != "annas-archive.pk" || req.Header.Get("Cookie") != "aa_account_id2=minted" {
+					return forbidden(req), nil
+				}
+				return fixtureResponse(t, req, http.StatusOK, searchAttentionPage, "text/html", nil), nil
+			}
+			return nil, errors.New("unexpected request: " + req.URL.String())
+		})},
+	})
+
+	if _, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(hosts, ",") != "annas-archive.gl,annas-archive.pk" {
+		t.Fatalf("unexpected sign-in hosts: %v", hosts)
+	}
+}
+
+func TestFailedSignInExplainsHowToSetTheCookieByHand(t *testing.T) {
+	t.Parallel()
+
+	var cases struct {
+		Comment string
+		Always  []string
+		Cases   []struct {
+			Name        string
+			BaseURL     string `json:"base_url"`
+			AutoBaseURL bool   `json:"auto_base_url"`
+			Answers     map[string]struct {
+				Status int
+				Page   string
+			}
+			Code    string
+			Reasons []string
+		}
+	}
+	loadCases(t, "sign_in_failures", &cases)
+	for _, tt := range cases.Cases {
+		t.Run(tt.Name, func(t *testing.T) {
+			t.Parallel()
+			config := Config{BaseURL: tt.BaseURL, AutoBaseURL: tt.AutoBaseURL, SecretKey: "test-secret"}
+			config.HTTPClient = &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path != "/account/" {
+					t.Errorf("searched after sign-in failed: %s", req.URL)
+				}
+				if answer, ok := tt.Answers[req.URL.Host]; ok {
+					return fixtureResponse(t, req, answer.Status, answer.Page, "text/html", nil), nil
+				}
+				return nil, errors.New("connection refused")
+			})}
+			client := mustClient(config)
+
+			_, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
+			if CodeOf(err) != tt.Code {
+				t.Fatalf("expected %s, got %s: %v", tt.Code, CodeOf(err), err)
+			}
+			message := err.Error()
+			for _, want := range slices.Concat(tt.Reasons, cases.Always) {
+				if !strings.Contains(message, strings.NewReplacer("ANNAS_SECRET_KEY", "SecretKey", "ANNAS_ACCOUNT_COOKIE", "AccountCookie").Replace(want)) {
+					t.Errorf("error lacks %q: %s", want, message)
+				}
+			}
+			if strings.Contains(message, "test-secret") {
+				t.Fatalf("error leaked the secret key: %s", message)
+			}
+		})
+	}
+}
+
+func TestExpiredCookieWithoutSecretKeyExplainsBothFixes(t *testing.T) {
+	t.Parallel()
+
+	client := mustClient(Config{
+		BaseURL:       "annas.test",
+		AccountCookie: "aa_account_id2=expired",
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if req.URL.Path != "/search" {
+				t.Errorf("unexpected request without a secret key: %s", req.URL)
+			}
+			return forbidden(req), nil
+		})},
+	})
+
+	_, err := client.FindBook(context.Background(), "example", SearchOptions{}, callTimeout)
+	if CodeOf(err) != UpstreamBlocked {
+		t.Fatalf("expected an upstream-blocked error, got %v", err)
+	}
+	for _, want := range []string{"Set SecretKey", "copy the aa_account_id2 value into AccountCookie"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error lacks %q: %v", want, err)
+		}
+	}
+}

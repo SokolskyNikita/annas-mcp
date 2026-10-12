@@ -11,8 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
-	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/SokolskyNikita/annas-mcp/internal/logger"
 	"github.com/SokolskyNikita/annas-mcp/internal/version"
 	"github.com/joho/godotenv"
@@ -31,7 +30,7 @@ func RunCLI() int {
 
 func loadCLIService() (*service, error) {
 	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return nil, apperr.Wrap(apperr.Config, "could not load .env", err)
+		return nil, anna.WrapError(anna.CodeConfig, "could not load .env", err)
 	}
 	return loadService()
 }
@@ -80,7 +79,7 @@ func newRootCommand(factory serviceFactory) *cobra.Command {
 			return nil
 		}
 		if cmd.Flags().Changed("timeout") && (options.timeout <= 0 || options.timeout > maxOperationTimeout) {
-			return apperr.New(apperr.InvalidArgument, "timeout must be greater than zero and no more than 24h")
+			return anna.NewError(anna.InvalidArgument, "timeout must be greater than zero and no more than 24h")
 		}
 		var err error
 		options.service, err = factory()
@@ -88,7 +87,7 @@ func newRootCommand(factory serviceFactory) *cobra.Command {
 	}
 	root.SetVersionTemplate("{{.Version}}\n")
 	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error {
-		return apperr.Wrap(apperr.InvalidArgument, "invalid command option", err)
+		return anna.WrapError(anna.InvalidArgument, "invalid command option", err)
 	})
 	root.PersistentFlags().DurationVar(&options.timeout, "timeout", 0, "Total operation timeout, including retries (default search: 60s; download: 30m; maximum: 24h)")
 	root.PersistentFlags().BoolVar(&options.json, "json", false, "Print structured JSON results")
@@ -97,7 +96,7 @@ func newRootCommand(factory serviceFactory) *cobra.Command {
 		newBookDetailsCommand(options), newAccountStatusCommand(options),
 		newBookDownloadCommand(options), newArticleDownloadCommand(options),
 		&cobra.Command{Use: "mcp", Short: "Start the MCP server over stdin/stdout", Args: argumentCount(0, 0), RunE: func(cmd *cobra.Command, _ []string) error {
-			return runMCP(cmd.Context(), options.service, options.operationTimeout(anna.DefaultSearchTimeout), options.operationTimeout(anna.DefaultDownloadTimeout))
+			return runMCP(cmd.Context(), options.service, options.operationTimeout(defaultSearchTimeout), options.operationTimeout(defaultDownloadTimeout))
 		}},
 	)
 	return root
@@ -106,7 +105,7 @@ func newRootCommand(factory serviceFactory) *cobra.Command {
 func argumentCount(min, max int) cobra.PositionalArgs {
 	return func(cmd *cobra.Command, args []string) error {
 		if err := cobra.RangeArgs(min, max)(cmd, args); err != nil {
-			return apperr.Wrap(apperr.InvalidArgument, "invalid arguments", err)
+			return anna.WrapError(anna.InvalidArgument, "invalid arguments", err)
 		}
 		return nil
 	}

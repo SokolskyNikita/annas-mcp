@@ -1,6 +1,6 @@
 {
   "name": "annas-mcp",
-  "version": "0.6.5",
+  "version": "0.7.0",
   "description": "Search Anna's Archive for books and papers and download the file you pick.",
   "mcpServers": {
     "annas-mcp": {

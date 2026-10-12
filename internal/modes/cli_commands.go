@@ -7,8 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
-	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/spf13/cobra"
 )
 
@@ -29,7 +28,7 @@ func newSearchCommand(options *cliOptions, article bool) *cobra.Command {
 		if len(args) > 0 {
 			params.Query = args[0]
 		}
-		timeout := options.operationTimeout(anna.DefaultSearchTimeout)
+		timeout := options.operationTimeout(defaultSearchTimeout)
 		var result any
 		var err error
 		if article {
@@ -53,7 +52,7 @@ func newMetadataSearchCommand(options *cliOptions) *cobra.Command {
 		if len(args) > 0 {
 			params.Query = args[0]
 		}
-		result, err := options.service.metadataSearch(cmd.Context(), params, options.operationTimeout(anna.DefaultSearchTimeout), 0)
+		result, err := options.service.metadataSearch(cmd.Context(), params, options.operationTimeout(defaultSearchTimeout), 0)
 		if err != nil {
 			return err
 		}
@@ -76,7 +75,7 @@ func addSearchFlags(cmd *cobra.Command, title, author, publisher, year, language
 
 func newBookDetailsCommand(options *cliOptions) *cobra.Command {
 	return &cobra.Command{Use: "book-details [hash or id]", Short: "Show identifiers, edition and file problems for a search result", Args: argumentCount(1, 1), RunE: func(cmd *cobra.Command, args []string) error {
-		result, err := options.service.details(cmd.Context(), DetailsParams{ID: args[0]}, options.operationTimeout(anna.DefaultSearchTimeout))
+		result, err := options.service.details(cmd.Context(), DetailsParams{ID: args[0]}, options.operationTimeout(defaultSearchTimeout))
 		if err != nil {
 			return err
 		}
@@ -86,7 +85,7 @@ func newBookDetailsCommand(options *cliOptions) *cobra.Command {
 
 func newAccountStatusCommand(options *cliOptions) *cobra.Command {
 	return &cobra.Command{Use: "account-status", Short: "Show the membership and fast downloads left", Args: argumentCount(0, 0), RunE: func(cmd *cobra.Command, _ []string) error {
-		result, err := options.service.accountStatus(cmd.Context(), options.operationTimeout(anna.DefaultSearchTimeout))
+		result, err := options.service.accountStatus(cmd.Context(), options.operationTimeout(defaultSearchTimeout))
 		if err != nil {
 			return err
 		}
@@ -98,10 +97,10 @@ func newBookDownloadCommand(options *cliOptions) *cobra.Command {
 	return &cobra.Command{Use: "book-download [hash-or-url] [filename]", Short: "Download a book by MD5 hash or Anna's Archive page URL", Args: argumentCount(2, 2), RunE: func(cmd *cobra.Command, args []string) error {
 		ext := filepath.Ext(args[1])
 		if ext == "" {
-			return apperr.New(apperr.InvalidArgument, "filename must include an extension, for example .pdf or .epub")
+			return anna.NewError(anna.InvalidArgument, "filename must include an extension, for example .pdf or .epub")
 		}
 		params := BookDownloadParams{Hash: args[0], Title: strings.TrimSuffix(filepath.Base(args[1]), ext), Format: strings.TrimPrefix(ext, ".")}
-		result, err := options.service.bookDownload(cmd.Context(), params, options.operationTimeout(anna.DefaultDownloadTimeout), nil)
+		result, err := options.service.bookDownload(cmd.Context(), params, options.operationTimeout(defaultDownloadTimeout), nil)
 		if err != nil {
 			return err
 		}
@@ -115,7 +114,7 @@ func newArticleDownloadCommand(options *cliOptions) *cobra.Command {
 		if len(args) > 0 {
 			params.DOI = args[0]
 		}
-		result, err := options.service.articleDownload(cmd.Context(), params, options.operationTimeout(anna.DefaultDownloadTimeout), nil)
+		result, err := options.service.articleDownload(cmd.Context(), params, options.operationTimeout(defaultDownloadTimeout), nil)
 		if err != nil {
 			return err
 		}
@@ -133,13 +132,13 @@ func printResult(w io.Writer, result any, asJSON bool) error {
 	}
 	switch result := result.(type) {
 	case *anna.Paper:
-		_, err := fmt.Fprintln(w, result)
+		_, err := fmt.Fprintln(w, renderRecord(result))
 		return err
 	case *anna.Details:
-		_, err := fmt.Fprintln(w, result)
+		_, err := fmt.Fprintln(w, renderRecord(result))
 		return err
 	case *anna.AccountStatus:
-		_, err := fmt.Fprintln(w, result)
+		_, err := fmt.Fprintln(w, renderRecord(result))
 		return err
 	case searchResult[*anna.Paper]:
 		return printSearchPage(w, result, "Article", "No articles found.")
@@ -152,14 +151,14 @@ func printResult(w io.Writer, result any, asJSON bool) error {
 	}
 }
 
-func printSearchPage[T fmt.Stringer](w io.Writer, page searchResult[T], label, empty string) error {
+func printSearchPage[T any](w io.Writer, page searchResult[T], label, empty string) error {
 	if len(page.Results) == 0 {
 		if _, err := fmt.Fprintln(w, empty); err != nil {
 			return err
 		}
 	}
 	for i, item := range page.Results {
-		if _, err := fmt.Fprintf(w, "%s %d:\n%s\n\n", label, i+1, item); err != nil {
+		if _, err := fmt.Fprintf(w, "%s %d:\n%s\n\n", label, i+1, renderRecord(item)); err != nil {
 			return err
 		}
 	}
@@ -168,7 +167,7 @@ func printSearchPage[T fmt.Stringer](w io.Writer, page searchResult[T], label, e
 			return err
 		}
 		for i, item := range page.PartialMatches {
-			if _, err := fmt.Fprintf(w, "Partial %d:\n%s\n\n", i+1, item); err != nil {
+			if _, err := fmt.Fprintf(w, "Partial %d:\n%s\n\n", i+1, renderRecord(item)); err != nil {
 				return err
 			}
 		}

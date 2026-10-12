@@ -1,8 +1,9 @@
-# The image builds from go.mod, go.sum, cmd/ and internal/ only.
+# The image builds from go.mod, go.sum, anna/, cmd/ and internal/ only.
 *
 !go.mod
 !go.sum
 !cmd/
 !internal/
+!anna/
 **/*_test.go
 **/testdata/

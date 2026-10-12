@@ -79,7 +79,7 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          unformatted=$(gofmt -l cmd internal)
+          unformatted=$(gofmt -l anna cmd internal)
           if [[ -n "$unformatted" ]]; then
             printf 'Run gofmt on:\n%s\n' "$unformatted"
             exit 1

@@ -2,6 +2,13 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.7.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.7.0) - 2026-10-12
+
+- Publish the Go client as `github.com/SokolskyNikita/annas-mcp/anna`. External Go applications can search books, articles and catalogs, resolve DOIs, inspect records and accounts, fetch file statistics, and download checksum-verified files through the same API used by MCP and CLI.
+- Make configuration explicit and validate malformed values during construction without network requests. The SDK supports injected HTTP clients and `slog` loggers, preserves wrapped error causes and machine-readable codes, and keeps environment defaults and CLI rendering in the application adapters.
+- Consolidate archive parsing, citation matching, mirrors, fixtures and upstream maintenance tooling under `anna/`. Add SDK documentation, runnable examples, public API tests, dependency checks and a separate-module consumer test while preserving one Go module and release stream.
+- Add an opt-in six-book MCP/CLI verification script. Live validation checked 12 fresh downloads against their MD5 hashes and eight local-reuse cases, including renamed files, with no errors or warnings. Existing MCP tools, CLI commands, output schemas and persisted session formats remain compatible.
+
 ## [v0.6.5](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.6.5) - 2026-10-12
 
 - Accept Anna's Archive `/md5/...` page URLs in the `hash` field of both download tools and in the CLI. Extract and validate the MD5 automatically, including links with query strings or fragments, while retaining local file reuse.
@@ -36,7 +43,7 @@ Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were p
 - A page past the last result reports no more pages and a total of at least 0, instead of a total guessed from the page number.
 - `ANNAS_BASE_URL` refuses a language version of an official mirror, such as `es.annas-archive.gl`, with a `[CONFIG]` error naming the mirror to use. The server reads Anna's pages in English.
 - Read Anna's pages through the hooks its own scripts use instead of styling classes, so a restyling no longer breaks search results or record pages. When part of a page can't be read, the server logs one short warning, without search terms or account details, and returns what it read.
-- For contributors: the parsers moved to `internal/anna/parse` and DOI matching to `internal/anna/match`. Their tests run on pages captured from the live archive (including searches in ten languages besides English), on about 11,600 strings from real search cards and as fuzz tests. `npm run check:upstream` and a weekly workflow flag changes to Anna's Archive's source that the parsers depend on. Test data moved out of Go source into files.
+- For contributors: the parsers moved to `anna/internal/parse` and DOI matching to `anna/internal/match`. Their tests run on pages captured from the live archive (including searches in ten languages besides English), on about 11,600 strings from real search cards and as fuzz tests. `npm run check:upstream` and a weekly workflow flag changes to Anna's Archive's source that the parsers depend on. Test data moved out of Go source into files.
 
 ## [v0.5.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.5.0) - 2026-10-11
 

@@ -1,0 +1,10 @@
+{
+  "books": [
+    {"title": "Pride and Prejudice", "author": "Jane Austen"},
+    {"title": "Frankenstein", "author": "Mary Shelley"},
+    {"title": "Alice's Adventures in Wonderland", "author": "Lewis Carroll"},
+    {"title": "The Time Machine", "author": "H. G. Wells"},
+    {"title": "The Adventures of Sherlock Holmes", "author": "Arthur Conan Doyle"},
+    {"title": "Dracula", "author": "Bram Stoker"}
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "annas-mcp",
-  "version": "0.6.5",
+  "version": "0.7.0",
   "license": "MIT",
   "description": "MCP server and CLI for Anna's Archive: search books, ebooks and journal articles by title, author or DOI, and download them",
   "mcpName": "io.github.SokolskyNikita/annas-mcp",
@@ -27,14 +27,16 @@
   },
   "type": "module",
   "scripts": {
-    "test": "node --test scripts/check-version.test.mjs scripts/bump-version.test.mjs scripts/release-metadata.test.mjs scripts/check-upstream.test.mjs && node scripts/test-npx-launcher.mjs",
+    "test": "node --test scripts/check-version.test.mjs scripts/bump-version.test.mjs scripts/release-metadata.test.mjs anna/scripts/check-upstream.test.mjs && node scripts/test-npx-launcher.mjs && node scripts/check-sdk.mjs",
     "check:version": "node scripts/check-version.mjs",
     "bump": "node scripts/bump-version.mjs",
     "coverage": "go test -race -coverprofile coverage.out ./... && node scripts/check-coverage.mjs coverage.out",
     "smoke": "node scripts/smoke-mcp.mjs",
     "pack:mcpb": "node scripts/pack-mcpb.mjs",
     "publish:smithery": "node scripts/publish-smithery.mjs",
-    "check:upstream": "node scripts/check-upstream.mjs"
+    "check:upstream": "node anna/scripts/check-upstream.mjs",
+    "check:sdk": "node scripts/check-sdk.mjs",
+    "test:live:books": "node scripts/test-book-interfaces-live.mjs"
   },
   "bin": {
     "annas-cli": "bin/annas-cli.js",

@@ -7,8 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
-	"github.com/SokolskyNikita/annas-mcp/internal/apperr"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -61,7 +60,7 @@ func TestEveryMCPRouteReportsUpstreamErrors(t *testing.T) {
 	for _, tc := range fixtureJSON[[]toolCase](t, "tool-cases.json") {
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
-			session := connectTestServer(t, &fakeArchive{failure: apperr.New(apperr.UpstreamBlocked, "account access denied")})
+			session := connectTestServer(t, &fakeArchive{failure: anna.NewError(anna.UpstreamBlocked, "account access denied")})
 			result, err := session.CallTool(t.Context(), &mcp.CallToolParams{Name: tc.Tool, Arguments: tc.Arguments})
 			if err != nil {
 				t.Fatal(err)

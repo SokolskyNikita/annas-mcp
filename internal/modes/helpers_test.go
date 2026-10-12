@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -154,7 +154,7 @@ func connectTestServerOptions(t *testing.T, archive archiveClient, options *mcp.
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	t.Cleanup(cancel)
 	clientTransport, serverTransport := mcp.NewInMemoryTransports()
-	server := newMCPServer(&service{archive: archive}, anna.DefaultSearchTimeout, anna.DefaultDownloadTimeout)
+	server := newMCPServer(&service{archive: archive}, defaultSearchTimeout, defaultDownloadTimeout)
 	serverSession, err := server.Connect(ctx, serverTransport, nil)
 	if err != nil {
 		t.Fatal(err)

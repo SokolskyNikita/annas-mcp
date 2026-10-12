@@ -5,8 +5,8 @@ const minimum = 80;
 // Packages held to a higher bar, measured by their own tests: the parsers
 // and the DOI identity check decide what the tools report.
 const packageMinimums = {
-  "internal/anna/parse": 95,
-  "internal/anna/match": 95,
+  "anna/internal/parse": 95,
+  "anna/internal/match": 95,
 };
 const modulePath = "github.com/SokolskyNikita/annas-mcp/";
 

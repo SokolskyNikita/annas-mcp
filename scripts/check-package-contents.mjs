@@ -1,6 +1,6 @@
 // Checks that test data stays out of everything the project ships: the Go
 // binary, the npm package, the container image, the release archives and the
-// MCP Bundle. internal/anna/parse/testdata holds about a megabyte of captured
+// MCP Bundle. anna/internal/parse/testdata holds about a megabyte of captured
 // pages that only the tests read.
 //
 // Usage: node scripts/check-package-contents.mjs
@@ -27,7 +27,7 @@ for (const line of embeds.trim().split("\n")) {
 
 const [pack] = JSON.parse(run("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"]));
 for (const file of pack.files) {
-  if (file.path.includes("testdata") || file.path.startsWith("internal/")) failures.push(`the npm package includes ${file.path}`);
+  if (file.path.includes("testdata") || file.path.startsWith("internal/") || file.path.startsWith("anna/")) failures.push(`the npm package includes ${file.path}`);
 }
 
 const dockerignore = (await readFile(new URL(".dockerignore", root), "utf8")).split(/\r?\n/).map((line) => line.trim());
@@ -35,13 +35,13 @@ if (!dockerignore.includes("**/testdata/")) failures.push(".dockerignore no long
 
 const goreleaser = await readFile(new URL(".goreleaser", root), "utf8");
 for (const line of goreleaser.split(/\r?\n/).filter((line) => /^\s*files:/.test(line))) {
-  if (/testdata|internal|\*\*/.test(line)) failures.push(`.goreleaser archives include more than the docs: ${line.trim()}`);
+  if (/testdata|internal|anna|\*\*/.test(line)) failures.push(`.goreleaser archives include more than the docs: ${line.trim()}`);
 }
 
 const bundle = await readFile(new URL("scripts/pack-mcpb.mjs", root), "utf8");
 const entries = bundle.match(/for \(const entry of (\[[^\]]*\])\)/);
 if (!entries) failures.push("could not find the MCP Bundle's file list in scripts/pack-mcpb.mjs");
-else if (/testdata|internal/.test(entries[1])) failures.push(`the MCP Bundle includes ${entries[1]}`);
+else if (/testdata|internal|anna/.test(entries[1])) failures.push(`the MCP Bundle includes ${entries[1]}`);
 
 if (failures.length > 0) {
   console.error(failures.map((failure) => `- ${failure}`).join("\n"));

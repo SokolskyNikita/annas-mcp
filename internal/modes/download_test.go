@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/SokolskyNikita/annas-mcp/internal/anna"
+	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -27,7 +27,7 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 	hash := hex.EncodeToString(digest[:])
 	dir := t.TempDir()
 	calls := 0
-	client := anna.NewClient(anna.Config{BaseURL: "https://annas.example", DownloadPath: dir, AccountCookie: "test-cookie", SecretKey: "test-secret", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+	client := mustArchiveClient(anna.Config{BaseURL: "https://annas.example", DownloadPath: dir, AccountCookie: "test-cookie", SecretKey: "test-secret", HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		calls++
 		responseBody := body
 		contentType := "application/pdf"
@@ -108,7 +108,7 @@ func TestDownloadToolValidatesBeforeNetworkAndWritesVerifiedFiles(t *testing.T) 
 func TestDownloadToolReportsAttemptsWithoutHTML(t *testing.T) {
 	t.Parallel()
 	upstreamPage := fixture(t, "upstream-error.html")
-	client := anna.NewClient(anna.Config{
+	client := mustArchiveClient(anna.Config{
 		BaseURL: "https://annas.example", DownloadPath: t.TempDir(),
 		AccountCookie: "test-cookie", SecretKey: "test-secret",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
@@ -144,4 +144,12 @@ func TestDownloadToolReportsAttemptsWithoutHTML(t *testing.T) {
 	if strings.Contains(message, "<html>") || strings.Contains(message, "upstream error body") {
 		t.Fatalf("tool result included upstream HTML: %s", message)
 	}
+}
+
+func mustArchiveClient(config anna.Config) *anna.Client {
+	c, err := anna.NewClient(config)
+	if err != nil {
+		panic(err)
+	}
+	return c
 }
