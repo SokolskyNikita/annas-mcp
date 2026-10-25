@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/anna"
-	"github.com/SokolskyNikita/annas-mcp/internal/logger"
 	"github.com/SokolskyNikita/annas-mcp/internal/version"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
@@ -22,7 +21,6 @@ type serviceFactory func() (*service, error)
 
 // RunCLI owns process setup and returns an exit code after deferred cleanup.
 func RunCLI() int {
-	defer logger.GetLogger().Sync()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	return executeCLI(ctx, os.Args[1:], os.Stdout, os.Stderr, loadCLIService)
