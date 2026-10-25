@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"testing/synctest"
 	"time"
 )
 
@@ -114,25 +115,33 @@ func TestDroppedDownloadContinuesWhereItStopped(t *testing.T) {
 
 func TestStalledDownloadContinuesWhereItStopped(t *testing.T) {
 	t.Parallel()
-	file := newResumableFile(t)
-	dir := t.TempDir()
-	client := mustClient(Config{BaseURL: "annas.test", AccountCookie: "aa_account_id2=test", SecretKey: "test-secret", DownloadPath: dir, HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		if req.URL.Host == "annas.test" {
-			return fixtureResponse(t, req, http.StatusOK, "fast_download.json", "application/json", nil), nil
+	// Advance the idle timer only while the fake response is stalled. Wall
+	// clock delays on busy race-enabled runners must not interrupt the resume.
+	synctest.Test(t, func(t *testing.T) {
+		file := newResumableFile(t)
+		dir := t.TempDir()
+		client := mustClient(Config{BaseURL: "annas.test", AccountCookie: "aa_account_id2=test", SecretKey: "test-secret", DownloadPath: dir, HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if req.URL.Host == "annas.test" {
+				return fixtureResponse(t, req, http.StatusOK, "fast_download.json", "application/json", nil), nil
+			}
+			response, err := file.serve(req)
+			if req.Header.Get("Range") == "" {
+				response.Body = io.NopCloser(&stallingBody{ctx: req.Context(), prefix: strings.NewReader(string(file.body[:4096]))})
+			}
+			return response, err
+		})}})
+		client.idleTimeout = 50 * time.Millisecond
+		result, err := client.DownloadBook(context.Background(), &Book{Hash: file.hash(), Format: "pdf"}, time.Minute, nil)
+		if err != nil {
+			t.Fatal(err)
 		}
-		response, err := file.serve(req)
-		if req.Header.Get("Range") == "" {
-			response.Body = io.NopCloser(&stallingBody{ctx: req.Context(), prefix: strings.NewReader(string(file.body[:4096]))})
+		if got := file.ranges(); len(got) != 2 || got[1] != "bytes=4096-" {
+			t.Fatalf("requests: %q", got)
 		}
-		return response, err
-	})}})
-	client.idleTimeout = 50 * time.Millisecond
-	if _, err := client.DownloadBook(context.Background(), &Book{Hash: file.hash(), Format: "pdf"}, time.Minute, nil); err != nil {
-		t.Fatal(err)
-	}
-	if got := file.ranges(); len(got) != 2 || got[1] != "bytes=4096-" {
-		t.Fatalf("requests: %q", got)
-	}
+		if saved, err := os.ReadFile(result.Path); err != nil || !bytes.Equal(saved, file.body) {
+			t.Fatalf("resumed file differs: %d bytes, %v", len(saved), err)
+		}
+	})
 }
 
 func TestDownloadIsNotContinuedFromTheWrongPlace(t *testing.T) {
