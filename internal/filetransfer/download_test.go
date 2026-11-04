@@ -268,7 +268,7 @@ func TestCacheSymlinkAndLeaseOwnership(t *testing.T) {
 		t.Fatal(err)
 	}
 	lock := c.entryPath("lease") + ".lock"
-	if err := os.Remove(lock); err != nil {
+	if err := os.RemoveAll(lock); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.Mkdir(lock, 0o700); err != nil {
@@ -347,7 +347,11 @@ func TestLeaseWaitCancellationAndCrashRecovery(t *testing.T) {
 		t.Fatal(err)
 	}
 	old := time.Now().Add(-5 * time.Minute)
-	if err := os.Chtimes(lock, old, old); err != nil {
+	owner := filepath.Join(lock, "owner-abandoned")
+	if err := os.WriteFile(owner, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chtimes(owner, old, old); err != nil {
 		t.Fatal(err)
 	}
 	unlock, owned, err := c.lock(context.Background(), "key")

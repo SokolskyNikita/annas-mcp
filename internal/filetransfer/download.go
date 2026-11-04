@@ -4,6 +4,7 @@ package filetransfer
 import (
 	"bufio"
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -378,56 +379,95 @@ func (c *Client) save(key string, result Result) {
 	_ = os.Rename(file.Name(), c.entryPath(key))
 }
 
+// A unique marker identifies the owner even when the filesystem immediately
+// recycles the previous directory's inode. Publish the directory and marker
+// together so another process never sees a partially acquired lease.
 func (c *Client) lock(ctx context.Context, key string) (func(), func() bool, error) {
 	lock := c.entryPath(key) + ".lock"
+	pending, err := os.MkdirTemp(filepath.Dir(lock), ".pending-lease-")
+	if err != nil {
+		return nil, nil, localError(err)
+	}
+	defer os.Remove(pending)
+	marker := "owner-" + rand.Text()
+	prepared := filepath.Join(pending, marker)
+	if err := os.WriteFile(prepared, nil, 0o600); err != nil {
+		return nil, nil, localError(err)
+	}
+	defer os.Remove(prepared)
+
 	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
 	for {
 		if err := ctx.Err(); err != nil {
 			return nil, nil, err
 		}
-		if err := os.Mkdir(lock, 0o700); err == nil {
-			owner, err := os.Stat(lock)
-			if err != nil {
-				_ = os.Remove(lock)
-				return nil, nil, localError(err)
-			}
-			owned := func() bool { current, err := os.Stat(lock); return err == nil && os.SameFile(owner, current) }
-			done := make(chan struct{})
-			go func() {
-				beat := time.NewTicker(15 * time.Second)
-				defer beat.Stop()
-				for {
-					select {
-					case <-done:
-						return
-					case now := <-beat.C:
-						if owned() {
-							_ = os.Chtimes(lock, now, now)
-						}
-					}
-				}
-			}()
-			return func() {
-				close(done)
-				if owned() {
-					_ = os.Remove(lock)
-				}
-			}, owned, nil
-		} else if !errors.Is(err, os.ErrExist) {
+		if err := os.Rename(pending, lock); err == nil {
+			unlock, owned := maintainLease(lock, marker)
+			return unlock, owned, nil
+		} else if info, statErr := os.Lstat(lock); statErr == nil && !info.IsDir() {
+			return nil, nil, localError(err)
+		} else if statErr != nil && !errors.Is(statErr, os.ErrNotExist) {
+			return nil, nil, localError(statErr)
+		} else if statErr != nil && !errors.Is(err, os.ErrExist) && !errors.Is(err, os.ErrPermission) {
 			return nil, nil, localError(err)
 		}
-		if info, err := os.Stat(lock); err == nil && time.Since(info.ModTime()) > 2*time.Minute {
-			stale := lock + fmt.Sprintf(".stale-%d", time.Now().UnixNano())
-			if os.Rename(lock, stale) == nil {
-				_ = os.Remove(stale)
-				continue
-			}
-		}
+		expireLease(lock)
 		select {
 		case <-ctx.Done():
 			return nil, nil, ctx.Err()
 		case <-ticker.C:
 		}
 	}
+}
+
+func maintainLease(lock, marker string) (func(), func() bool) {
+	owner := filepath.Join(lock, marker)
+	done := make(chan struct{})
+	stopped := make(chan struct{})
+	go func() {
+		defer close(stopped)
+		beat := time.NewTicker(15 * time.Second)
+		defer beat.Stop()
+		for {
+			select {
+			case <-done:
+				return
+			case now := <-beat.C:
+				if err := os.Chtimes(owner, now, now); err != nil {
+					return
+				}
+			}
+		}
+	}()
+	owned := func() bool {
+		info, err := os.Lstat(owner)
+		return err == nil && info.Mode().IsRegular()
+	}
+	return func() {
+		close(done)
+		<-stopped
+		if os.Remove(owner) == nil {
+			_ = os.Remove(lock) // Only an empty directory can be removed.
+		}
+	}, owned
+}
+
+func expireLease(lock string) {
+	entries, err := os.ReadDir(lock)
+	if err != nil {
+		return
+	}
+	if len(entries) == 1 && strings.HasPrefix(entries[0].Name(), "owner-") {
+		owner := filepath.Join(lock, entries[0].Name())
+		info, err := os.Lstat(owner)
+		if err != nil || time.Since(info.ModTime()) <= 2*time.Minute || os.Remove(owner) != nil {
+			return
+		}
+	} else if len(entries) != 0 {
+		return
+	} else if info, err := os.Lstat(lock); err != nil || time.Since(info.ModTime()) <= 2*time.Minute {
+		return
+	}
+	_ = os.Remove(lock)
 }
