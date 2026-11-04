@@ -1,4 +1,4 @@
-// Builds dist/annas-mcp.mcpb, an MCP Bundle for Claude Desktop and Smithery.
+// Builds dist/annas-mcp.mcpb, an MCP Bundle for Claude Desktop.
 // The bundle holds only the npx launcher, which downloads and verifies the
 // release binary on first run, so one bundle serves every platform.
 import { spawnSync } from "node:child_process";

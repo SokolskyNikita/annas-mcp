@@ -40,7 +40,7 @@ The npm launchers always run the latest published release, never your checkout. 
 | `anna/scripts` | Upstream watch implementation, tests and reviewed revision |
 | `internal/testpolicy` | Checks on the repository's own tests (see [Test data](#test-data)) |
 | `bin`, `lib` | The `annas-cli` and `annas-mcp` npm entry points and shared launcher: release lookup, checksum verification, archive extraction and caching |
-| `server.json`, `manifest.json`, `gemini-extension.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop, Smithery), the Gemini CLI extension gallery and Glama |
+| `server.json`, `manifest.json`, `gemini-extension.json`, `glama.json` | Listings for the MCP Registry, the MCP Bundle (Claude Desktop), the Gemini CLI extension gallery and Glama |
 | `Dockerfile` | Container image for `docker run -i` and Docker's MCP Catalog |
 | `HOW-IT-WORKS.md` | Tool options and results, downloads, mirror selection, the cache folder and the saved session; shipped in release archives and the MCP Bundle |
 | `llms-install.md` | Setup steps for AI agents that install MCP servers for a user, such as Cline |
@@ -119,8 +119,6 @@ The public Go SDK and applications share the module version and release tags. Up
 The tag triggers the release workflow. It builds the binaries, publishes them with SHA-256 checksums to GitHub Releases, attaches `annas-mcp.mcpb` (built by `npm run pack:mcpb`), then installs the release through the `npx` launcher on each platform and checks the MCP handshake and all seven tools. `node scripts/verify-release.mjs vX.Y.Z` repeats that check locally.
 
 When the repository variable `PUBLISH_REGISTRIES` is `true`, the workflow then publishes the launcher to npm through npm trusted publishing and the new version to the [MCP Registry](https://registry.modelcontextprotocol.io) through GitHub OIDC. Neither needs a stored secret. The npm package holds only the launcher (`bin`, `lib`); binaries always come from GitHub Releases.
-
-With the same variable set, the workflow also publishes the bundle to [Smithery](https://smithery.ai/servers/sokolx/annas-mcp) with `npm run publish:smithery`. Smithery has no keyless publishing, so that job needs the repository secret `SMITHERY_API_KEY`, an API key from your Smithery account. To publish by hand, run `npm run publish:smithery` after the release workflow finishes. It needs `zip` and a one-time `npx @smithery/cli auth login`; `--dry-run` builds the bundle without publishing.
 
 Never move or recreate a published tag: the launcher caches binaries by release and checksum.
 
