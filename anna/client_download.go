@@ -127,6 +127,8 @@ func (c *Client) downloadBookFromArchive(ctx context.Context, book *Book, hash s
 	client := c.requestClient(0)
 	var attempts []error
 	var account *parse.FastDownloadAccount
+	// Servers that granted a link but did not hold the file.
+	missing := 0
 collections:
 	for pathIndex := 0; pathIndex < maxDownloadPaths; pathIndex++ {
 		// Another collection only helps when this one's files failed. When the
@@ -179,11 +181,17 @@ collections:
 				result.DownloadsLeft = downloadsLeftAfter(account, hash)
 				return result, nil
 			}
+			if fileMissing(err) {
+				missing++
+			}
 			attempts = append(attempts, fmt.Errorf("%s (file): %w", server, redactErr(err, c.config.SecretKey)))
 		}
 		if !granted {
 			break
 		}
+	}
+	if missing > 0 && missing == len(attempts) && ctx.Err() == nil {
+		return DownloadResult{}, &notOnFastServersError{attempts: missing}
 	}
 	return DownloadResult{}, failedDownload(attempts, ctx.Err())
 }

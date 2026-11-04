@@ -7,7 +7,7 @@ Import `github.com/SokolskyNikita/annas-mcp/anna`. The MCP server and CLI use th
 Requires Go 1.26 or newer. Add the SDK to your own module:
 
 ```sh
-go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.1
+go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.2
 ```
 
 ```go
@@ -71,7 +71,7 @@ if errors.As(err, &detail) {
 fmt.Println(anna.CodeOf(err))
 ```
 
-Cancellation and deadline errors classify as `REQUEST_TIMEOUT`. Compound download failures retain their causes while classifying by the final failure; overall cancellation takes precedence. SDK messages name configuration fields; the MCP/CLI adapters add environment and platform guidance.
+Cancellation and deadline errors classify as `REQUEST_TIMEOUT`. Compound download failures retain their causes while classifying by the final failure; overall cancellation takes precedence. A download whose fast servers all answered 404 is `NOT_FOUND` and matches `errors.Is(err, anna.ErrNotOnFastServers)`; a paper with a DOI may still download through `DownloadArticle`, which also tries SciDB. SDK messages name configuration fields; the MCP/CLI adapters add environment and platform guidance.
 
 ## Concurrency and persistence
 

@@ -368,3 +368,28 @@ func checkDiagnostic(t *testing.T, err error, want diagnosticCase, planted ...st
 		}
 	}
 }
+
+func TestDownloadMissingFromEveryFastServerIsOneNotFound(t *testing.T) {
+	t.Parallel()
+
+	client := mustClient(Config{
+		BaseURL:       "annas.test",
+		AccountCookie: "aa_account_id2=test",
+		SecretKey:     "test-key",
+		DownloadPath:  t.TempDir(),
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			if req.URL.Host == "annas.test" && req.URL.Path == "/dyn/api/fast_download.json" {
+				return testDownloadURLResponse(req, "https://cdn.example/file.pdf"), nil
+			}
+			return testDownloadResponse(req, http.StatusNotFound, "text/html", "missing"), nil
+		})},
+	})
+
+	_, err := client.DownloadBook(context.Background(), &Book{Hash: "0123456789abcdef0123456789abcdef"}, callTimeout, nil)
+	if !errors.Is(err, ErrNotOnFastServers) || CodeOf(err) != NotFound {
+		t.Fatalf("expected NOT_FOUND ErrNotOnFastServers, got %s: %v", CodeOf(err), err)
+	}
+	if strings.Contains(err.Error(), "fast server 1") {
+		t.Fatalf("diagnostic still lists every server: %v", err)
+	}
+}

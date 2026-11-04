@@ -117,10 +117,10 @@ func TestDownloadStopsAfterTheFilesLastCollection(t *testing.T) {
 		t.Fatalf("API calls = %s", got)
 	}
 	// Running out of collections is not itself a failure worth reporting.
-	if message := err.Error(); strings.Contains(message, "collection 2") || strings.Contains(message, "no fast download") || !strings.Contains(message, "fast server 7 (file)") {
+	if message := err.Error(); strings.Contains(message, "no fast download") || !strings.Contains(message, "all 7 attempts") {
 		t.Fatalf("diagnostic = %v", err)
 	}
-	if CodeOf(err) != Upstream {
+	if CodeOf(err) != NotFound {
 		t.Fatalf("code = %s", CodeOf(err))
 	}
 }
@@ -136,7 +136,7 @@ func TestDownloadTriesAtMostThreeCollections(t *testing.T) {
 	if err == nil || len(api.calls) != maxDownloadPaths*len(domainIndexes) {
 		t.Fatalf("calls = %v, err = %v", api.calls, err)
 	}
-	if !strings.Contains(err.Error(), "collection 3, fast server 7 (file)") || !strings.Contains(err.Error(), "fast server 1 (file)") {
+	if !strings.Contains(err.Error(), "all 21 attempts") {
 		t.Fatalf("diagnostic = %v", err)
 	}
 }

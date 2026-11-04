@@ -361,14 +361,38 @@ func (s *service) accountStatus(ctx context.Context, timeout time.Duration) (*an
 }
 
 func (s *service) bookDownload(ctx context.Context, params BookDownloadParams, timeout time.Duration, progress anna.ProgressFunc) (anna.DownloadResult, error) {
-	return s.archive.DownloadBook(ctx, &anna.Book{Hash: params.Hash, Title: params.Title, Format: params.Format}, timeout, progress)
+	result, err := s.archive.DownloadBook(ctx, &anna.Book{Hash: params.Hash, Title: params.Title, Format: params.Format}, timeout, progress)
+	return result, s.notOnFastServersAdvice(ctx, err, params.Hash)
 }
 
 func (s *service) articleDownload(ctx context.Context, params ArticleDownloadParams, timeout time.Duration, progress anna.ProgressFunc) (anna.DownloadResult, error) {
 	if (strings.TrimSpace(params.DOI) == "") == (strings.TrimSpace(params.Hash) == "") {
 		return anna.DownloadResult{}, anna.NewError(anna.InvalidArgument, "pass exactly one of doi or hash")
 	}
-	return s.archive.DownloadArticle(ctx, anna.ArticleDownloadOptions{DOI: params.DOI, Hash: params.Hash, Title: params.Title, Format: params.Format}, timeout, progress)
+	result, err := s.archive.DownloadArticle(ctx, anna.ArticleDownloadOptions{DOI: params.DOI, Hash: params.Hash, Title: params.Title, Format: params.Format}, timeout, progress)
+	if strings.TrimSpace(params.DOI) != "" {
+		// A DOI download has already tried SciDB.
+		return result, err
+	}
+	return result, s.notOnFastServersAdvice(ctx, err, params.Hash)
+}
+
+// detailsLookupTimeout bounds the record lookup behind notOnFastServersAdvice,
+// which runs after the download has failed.
+const detailsLookupTimeout = 15 * time.Second
+
+// notOnFastServersAdvice says what to try when no fast server has a file
+// downloaded by hash: SciDB by DOI for a paper, otherwise another copy.
+func (s *service) notOnFastServersAdvice(ctx context.Context, err error, hash string) error {
+	if !errors.Is(err, anna.ErrNotOnFastServers) {
+		return err
+	}
+	if details, detailsErr := s.archive.Details(ctx, hash, detailsLookupTimeout); detailsErr == nil {
+		if dois := details.Identifiers["doi"]; len(dois) > 0 {
+			return fmt.Errorf("%w. Retry article_download (article-download in the CLI) with doi %s instead of the hash: it also tries SciDB", err, dois[0])
+		}
+	}
+	return fmt.Errorf("%w. If it is a paper, retry article_download (article-download in the CLI) with its DOI: it also tries SciDB. Otherwise choose another copy from search", err)
 }
 
 func codedError(err error) string {

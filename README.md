@@ -37,7 +37,7 @@ Use it only for material you are entitled to obtain, under the laws and terms th
 
 ## Go SDK
 
-Go applications can import `github.com/SokolskyNikita/annas-mcp/anna` for the same search, metadata, account and verified-download operations. See the [SDK guide and examples](https://github.com/SokolskyNikita/annas-mcp/blob/main/anna/README.md) for explicit configuration, errors, timeouts and concurrency. The SDK and applications share this module’s release tags. Requires Go 1.26 or newer; install with `go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.1`.
+Go applications can import `github.com/SokolskyNikita/annas-mcp/anna` for the same search, metadata, account and verified-download operations. See the [SDK guide and examples](https://github.com/SokolskyNikita/annas-mcp/blob/main/anna/README.md) for explicit configuration, errors, timeouts and concurrency. The SDK and applications share this module’s release tags. Requires Go 1.26 or newer; install with `go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.2`.
 
 ## Setup
 

@@ -5,12 +5,15 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -112,7 +115,7 @@ func TestDownloadToolReportsAttemptsWithoutHTML(t *testing.T) {
 		BaseURL: "https://annas.example", DownloadPath: t.TempDir(),
 		AccountCookie: "test-cookie", SecretKey: "test-secret",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			status, contentType := http.StatusNotFound, "text/html"
+			status, contentType := http.StatusServiceUnavailable, "text/html"
 			body := upstreamPage
 			if req.URL.Path == "/dyn/api/fast_download.json" {
 				status, contentType = http.StatusOK, "application/json"
@@ -135,7 +138,7 @@ func TestDownloadToolReportsAttemptsWithoutHTML(t *testing.T) {
 	if !result.IsError || !strings.HasPrefix(message, "[UPSTREAM] download failed:") {
 		t.Fatalf("expected coded tool failure, got %q", message)
 	}
-	for _, want := range []string{"fast server 1 (file)", "fast server 2 (file)", "fast server 3 (file)", "HTTP status 404 Not Found"} {
+	for _, want := range []string{"fast server 1 (file)", "fast server 2 (file)", "fast server 3 (file)", "HTTP status 503 Service Unavailable"} {
 		if !strings.Contains(message, want) {
 			t.Errorf("tool result omitted %q: %s", want, message)
 		}
@@ -152,4 +155,32 @@ func mustArchiveClient(config anna.Config) *anna.Client {
 		panic(err)
 	}
 	return c
+}
+
+func TestHashDownloadMissingFromFastServersSuggestsArticleDownload(t *testing.T) {
+	t.Parallel()
+	const hash = "b5e97d26bfab7e633aac8e0772334f0f"
+	missing := fmt.Errorf("download: %w", anna.ErrNotOnFastServers)
+	paper := &anna.Details{Identifiers: map[string][]string{"doi": {"10.1000/example"}}}
+
+	archive := &fakeArchive{downloadFailure: missing, details: paper}
+	_, err := (&service{archive: archive}).bookDownload(t.Context(), BookDownloadParams{Hash: hash}, time.Minute, nil)
+	if !errors.Is(err, anna.ErrNotOnFastServers) || !strings.Contains(err.Error(), "article_download") || !strings.Contains(err.Error(), "doi 10.1000/example") {
+		t.Fatalf("book download did not name the DOI: %v", err)
+	}
+	if archive.detailID != hash {
+		t.Fatalf("looked up %q, want %q", archive.detailID, hash)
+	}
+
+	archive = &fakeArchive{downloadFailure: missing, details: &anna.Details{}}
+	_, err = (&service{archive: archive}).articleDownload(t.Context(), ArticleDownloadParams{Hash: hash}, time.Minute, nil)
+	if !strings.Contains(err.Error(), "with its DOI") || !strings.Contains(err.Error(), "another copy") {
+		t.Fatalf("hash article download without a DOI gave no general advice: %v", err)
+	}
+
+	archive = &fakeArchive{downloadFailure: missing, details: paper}
+	_, err = (&service{archive: archive}).articleDownload(t.Context(), ArticleDownloadParams{DOI: "10.1000/example"}, time.Minute, nil)
+	if err != missing || archive.detailID != "" {
+		t.Fatalf("DOI download, which already tried SciDB, got advice: %v", err)
+	}
 }

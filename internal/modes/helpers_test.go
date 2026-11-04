@@ -63,6 +63,7 @@ type fakeArchive struct {
 	bookDeadline    time.Time
 	hasBookDeadline bool
 	failure         error
+	downloadFailure error
 	stats           map[string]anna.RecordStats
 	statsFailure    error
 	statsHashes     []string
@@ -125,6 +126,15 @@ func (f *fakeArchive) FileStats(ctx context.Context, hashes []string) (map[strin
 	}
 	return f.stats, f.statsFailure
 }
+
+// downloadError lets a download fail while Details still answers.
+func (f *fakeArchive) downloadError() error {
+	if f.downloadFailure != nil {
+		return f.downloadFailure
+	}
+	return f.failure
+}
+
 func (f *fakeArchive) DownloadBook(_ context.Context, book *anna.Book, timeout time.Duration, progress anna.ProgressFunc) (anna.DownloadResult, error) {
 	f.calls++
 	f.timeout = timeout
@@ -132,7 +142,7 @@ func (f *fakeArchive) DownloadBook(_ context.Context, book *anna.Book, timeout t
 	if progress != nil {
 		progress(123, 123)
 	}
-	return anna.DownloadResult{Path: "/tmp/example.pdf", Bytes: 123}, f.failure
+	return anna.DownloadResult{Path: "/tmp/example.pdf", Bytes: 123}, f.downloadError()
 }
 func (f *fakeArchive) DownloadArticle(_ context.Context, o anna.ArticleDownloadOptions, timeout time.Duration, progress anna.ProgressFunc) (anna.DownloadResult, error) {
 	f.calls++
@@ -141,7 +151,7 @@ func (f *fakeArchive) DownloadArticle(_ context.Context, o anna.ArticleDownloadO
 	if progress != nil {
 		progress(123, 123)
 	}
-	return anna.DownloadResult{Path: "/tmp/example.pdf", Bytes: 123}, f.failure
+	return anna.DownloadResult{Path: "/tmp/example.pdf", Bytes: 123}, f.downloadError()
 }
 
 func connectTestServer(t *testing.T, archive archiveClient) *mcp.ClientSession {
