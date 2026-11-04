@@ -22,6 +22,10 @@ func TestApplicationErrorAddsFieldGuidanceAndPreservesCause(t *testing.T) {
 			t.Fatalf("missing %s guidance: %v", field, err)
 		}
 	}
+	membership := &anna.Error{Code: anna.UpstreamBlocked, Field: "Membership", Message: "cannot search"}
+	if got := applicationError(membership).Error(); got != "cannot search" {
+		t.Fatalf("membership refusal gained advice: %q", got)
+	}
 	blocked := anna.NewError(anna.UpstreamBlocked, "blocked")
 	if !strings.Contains(applicationError(blocked).Error(), "ANNAS_ACCOUNT_COOKIE") {
 		t.Fatal("missing blocked access guidance")

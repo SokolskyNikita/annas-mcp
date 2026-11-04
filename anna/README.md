@@ -7,7 +7,7 @@ Import `github.com/SokolskyNikita/annas-mcp/anna`. The MCP server and CLI use th
 Requires Go 1.26 or newer. Add the SDK to your own module:
 
 ```sh
-go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.0
+go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.1
 ```
 
 ```go
@@ -48,7 +48,7 @@ The SDK does not read `.env`, `ANNAS_*`, expand `~`, discover a home directory, 
 
 - `FindBook`, `FindArticle`, and `FindMetadata` accept typed `SearchOptions`. `NormalizeSearch` is available to adapters; the client applies it before requests. Filters are slices, with `-` prefixes for exclusions. Language tags are normalized without changing caller-owned slices. Field names, year values, indexes, sorts, identifiers and filters are validated by the SDK. `ResolveSearch` only applies legacy content/default-index mapping; it does not replace validation.
 - `LookupDOI` verifies citation identity and uses the existing SciDB/search fallback. `IsDOIQuery`, `NormalizeDOI`, and `ValidDOI` support identifier handling without exposing parser internals. `FindArticle` is keyword search; use `LookupDOI` for DOI resolution.
-- `Details` accepts identifiers handled by `ParseRecordID`, including MD5 hashes and archive record URLs. `AccountStatus` reports membership and allowance.
+- `Details` accepts identifiers handled by `ParseRecordID`, including MD5 hashes and archive record URLs. `AccountStatus` reports membership, allowance and whether the membership can search (`SearchAllowed`). A search refused for a membership that cannot search returns an `UPSTREAM_BLOCKED` `*Error` with `Field` `"Membership"`.
 - `FileStats` returns known statistics by hash, omitting failed/unknown lookups. Optional statistics failure does not discard successful search results in the application adapters. A nil `Stats` differs from a populated struct containing zeros.
 - `DownloadBook` verifies the file hash, retries/resumes transfers and reuses matching local files. `DownloadArticle` requires exactly one of DOI or hash. `DownloadResult.DownloadsLeft` is absent when allowance is unknown or an existing file was reused.
 

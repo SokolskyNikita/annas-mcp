@@ -158,6 +158,10 @@ func TestForbiddenFreshSessionPointsAtMembership(t *testing.T) {
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			switch req.URL.Path {
 			case "/account/":
+				if req.Method == http.MethodGet {
+					// No tiers shown, so the refusal is not explained by them.
+					return fixtureResponse(t, req, http.StatusOK, "account_no_membership.html", "text/html", nil), nil
+				}
 				signIns++
 				return fakeSignIn(t, req, "test-secret", "aa_account_id2=minted"), nil
 			case "/search":
@@ -176,6 +180,38 @@ func TestForbiddenFreshSessionPointsAtMembership(t *testing.T) {
 	}
 	if signIns != 1 {
 		t.Fatalf("a session minted moments ago was renewed again: %d sign-ins", signIns)
+	}
+}
+
+func TestForbiddenSearchNamesADownloadOnlyMembership(t *testing.T) {
+	t.Parallel()
+
+	client := mustClient(Config{
+		BaseURL:   "annas.test",
+		SecretKey: "test-secret",
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch {
+			case req.URL.Path == "/account/" && req.Method == http.MethodPost:
+				return fakeSignIn(t, req, "test-secret", "aa_account_id2=minted"), nil
+			case req.URL.Path == "/account/":
+				return fixtureResponse(t, req, http.StatusOK, "account_bookworm_only.html", "text/html", nil), nil
+			case req.URL.Path == "/search":
+				return forbidden(req), nil
+			}
+			return nil, errors.New("unexpected request: " + req.URL.String())
+		})},
+	})
+
+	_, err := client.FindArticle(context.Background(), "example", SearchOptions{}, callTimeout)
+	if CodeOf(err) != UpstreamBlocked || !strings.Contains(err.Error(), "can download but not search") || !strings.Contains(err.Error(), "Brilliant Bookworm") {
+		t.Fatalf("expected the membership to be named, got %v", err)
+	}
+	var coded *Error
+	if !errors.As(err, &coded) || coded.Field != "Membership" {
+		t.Fatalf("expected the error to point at the membership, got %#v", err)
+	}
+	if strings.Contains(err.Error(), "AccountCookie") {
+		t.Fatalf("a membership that cannot search was sent to set the cookie: %v", err)
 	}
 }
 
@@ -276,8 +312,12 @@ func TestExpiredCookieWithoutSecretKeyExplainsBothFixes(t *testing.T) {
 		BaseURL:       "annas.test",
 		AccountCookie: "aa_account_id2=expired",
 		HTTPClient: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			// The refused search reads the account page to explain itself.
+			if req.URL.Path == "/account/" && req.Method == http.MethodGet {
+				return fixtureResponse(t, req, http.StatusOK, "account_signed_out.html", "text/html", nil), nil
+			}
 			if req.URL.Path != "/search" {
-				t.Errorf("unexpected request without a secret key: %s", req.URL)
+				t.Errorf("unexpected request without a secret key: %s %s", req.Method, req.URL)
 			}
 			return forbidden(req), nil
 		})},

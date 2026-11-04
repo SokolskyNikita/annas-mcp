@@ -29,7 +29,7 @@ It signs in with your membership's secret key and renews the session by itself, 
 | `article_search` | Finds journal articles by keyword, author or year, or looks one up by DOI; can include file activity counts |
 | `metadata_search` | Searches library catalogs such as Open Library, WorldCat and ISBNdb for editions and ISBNs |
 | `book_details` | Shows a result's ISBNs and other identifiers, edition, description and reported file problems |
-| `account_status` | Shows your membership and how many fast downloads are left |
+| `account_status` | Shows your membership, whether it allows searching, and how many fast downloads are left |
 | `book_download` | Downloads a book using a file hash or Anna's Archive book-page URL |
 | `article_download` | Downloads an article by DOI or hash |
 
@@ -37,7 +37,7 @@ Use it only for material you are entitled to obtain, under the laws and terms th
 
 ## Go SDK
 
-Go applications can import `github.com/SokolskyNikita/annas-mcp/anna` for the same search, metadata, account and verified-download operations. See the [SDK guide and examples](https://github.com/SokolskyNikita/annas-mcp/blob/main/anna/README.md) for explicit configuration, errors, timeouts and concurrency. The SDK and applications share this module’s release tags. Requires Go 1.26 or newer; install with `go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.0`.
+Go applications can import `github.com/SokolskyNikita/annas-mcp/anna` for the same search, metadata, account and verified-download operations. See the [SDK guide and examples](https://github.com/SokolskyNikita/annas-mcp/blob/main/anna/README.md) for explicit configuration, errors, timeouts and concurrency. The SDK and applications share this module’s release tags. Requires Go 1.26 or newer; install with `go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.1`.
 
 ## Setup
 
@@ -215,7 +215,7 @@ Errors start with a code:
 | Code | What to do |
 | --- | --- |
 | `[CONFIG]` | A variable is missing or invalid, Anna's Archive rejected the secret key or the download folder can't be written to. Check [Configuration](#configuration). |
-| `[UPSTREAM_BLOCKED]` | The archive refused access. Check that your membership allows searching. If the error says no fast downloads are left, wait for the window to roll over; `account_status` shows the allowance. If signing in itself failed, see [Signing in](#signing-in). |
+| `[UPSTREAM_BLOCKED]` | The archive refused access. Check that your membership allows searching; when it does not (Brilliant Bookworm), the error says so and `account_status` shows `search_allowed: false`. If the error says no fast downloads are left, wait for the window to roll over; `account_status` shows the allowance. If signing in itself failed, see [Signing in](#signing-in). |
 | `[NOT_FOUND]` | Nothing matched, or that copy has no fast download. Try another query, or another copy from the search results. |
 | `[INVALID_ARGUMENT]` | Fix the hash, DOI, id, filter, sort, page, limit or timeout. |
 | `[REQUEST_TIMEOUT]` | Retry, or raise [`timeout_seconds`](HOW-IT-WORKS.md#tools). |

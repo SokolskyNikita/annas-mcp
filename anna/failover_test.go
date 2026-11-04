@@ -102,6 +102,10 @@ func TestOneMirrorRefusingIsHeldButTwoMeanTheAccount(t *testing.T) {
 				if req.URL.Path == "/dyn/up/" {
 					return glFirst(t, req, &glFailed)
 				}
+				if req.URL.Path == "/account/" {
+					// A refused search reads the account page to explain itself.
+					return forbidden(req), nil
+				}
 				log.add(req)
 				if req.URL.Host == "annas-archive.gl" || pkRefuses {
 					glFailed.Store(true)

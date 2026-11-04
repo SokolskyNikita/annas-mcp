@@ -2,6 +2,11 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.7.1](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.7.1) - 2026-11-04
+
+- Explain a refused search when the account's membership cannot search. After a 403 on a search, the client reads the account page, and if every active membership is Brilliant Bookworm the error names that membership and says that searching needs Lucky Librarian or higher, instead of suggesting copying the session cookie by hand. Downloads by hash or `/md5/` URL keep working.
+- Add `search_allowed` to `account_status` (and `AccountStatus.SearchAllowed` in the Go client), read from the membership tiers on the account page. It is omitted when the page does not show them.
+
 ## [v0.7.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.7.0) - 2026-10-12
 
 - Publish the Go client as `github.com/SokolskyNikita/annas-mcp/anna`. External Go applications can search books, articles and catalogs, resolve DOIs, inspect records and accounts, fetch file statistics, and download checksum-verified files through the same API used by MCP and CLI.

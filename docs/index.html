@@ -142,7 +142,7 @@
       <tr><td><code>article_search</code></td><td>Finds journal articles by keyword, author or year, or looks one up by DOI</td></tr>
       <tr><td><code>metadata_search</code></td><td>Searches library catalogs such as Open Library, WorldCat and ISBNdb for editions and ISBNs</td></tr>
       <tr><td><code>book_details</code></td><td>Shows a result's ISBNs and other identifiers, edition, description and reported file problems</td></tr>
-      <tr><td><code>account_status</code></td><td>Shows your membership and how many fast downloads are left</td></tr>
+      <tr><td><code>account_status</code></td><td>Shows your membership, whether it allows searching, and how many fast downloads are left</td></tr>
       <tr><td><code>book_download</code></td><td>Downloads a book using the hash from a search result</td></tr>
       <tr><td><code>article_download</code></td><td>Downloads an article by DOI or hash</td></tr>
     </tbody>
@@ -197,7 +197,7 @@ ANNAS_SECRET_KEY = "your-secret-key"</code></pre></div>
 
   <h2>Use it from Go</h2>
   <p>The public Go SDK provides the same search, metadata, account and verified-download operations as the MCP server and CLI. It requires Go 1.26 or newer and shares the project's release versions.</p>
-  <div class="code"><pre><code>go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.0</code></pre></div>
+  <div class="code"><pre><code>go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.1</code></pre></div>
   <p>See the <a href="https://github.com/SokolskyNikita/annas-mcp/blob/main/anna/README.md">SDK guide and examples</a> for explicit configuration, timeouts, error handling and concurrent use.</p>
 
   <h2>Coming from iosifache/annas-mcp?</h2>

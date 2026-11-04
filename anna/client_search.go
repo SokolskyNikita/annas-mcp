@@ -35,7 +35,7 @@ func (c *Client) search(ctx context.Context, query string, options SearchOptions
 		results, err = c.searchOn(ctx, base, query, options)
 		return err
 	})
-	return results, err
+	return results, c.explainSearchRefusal(ctx, err)
 }
 
 func (c *Client) searchOn(ctx context.Context, base, query string, options SearchOptions) (searchResults, error) {

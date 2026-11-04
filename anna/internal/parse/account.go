@@ -15,12 +15,13 @@ var (
 
 // AccountPage is what the account page shows: whether the session is signed
 // in, the fast downloads used of the allowance over a window of WindowHours,
-// and the active memberships.
+// and the active memberships with the tier number of each (0 when unknown).
 type AccountPage struct {
 	SignedIn    bool
 	Used, Limit int
 	WindowHours int
 	Memberships []string
+	Tiers       []int
 }
 
 // ParseAccountPage reads the account page, which shows active memberships
@@ -56,6 +57,8 @@ func ParseAccountPage(doc *goquery.Document) AccountPage {
 			text = text[i:]
 		}
 		page.Memberships = append(page.Memberships, text)
+		number, _ := strconv.Atoi(strings.TrimPrefix(link.AttrOr("href", ""), "/donate?tier="))
+		page.Tiers = append(page.Tiers, number)
 	})
 	return page
 }

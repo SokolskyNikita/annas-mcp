@@ -92,6 +92,9 @@ func renderAccountStatus(s *anna.AccountStatus) string {
 	for _, membership := range s.Memberships {
 		pairs = append(pairs, "Membership", membership)
 	}
+	if s.SearchAllowed != nil {
+		pairs = append(pairs, "Search allowed", yesNo(*s.SearchAllowed))
+	}
 	return labeled(pairs...)
 }
 

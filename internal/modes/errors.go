@@ -22,6 +22,9 @@ func applicationError(err error) error {
 			return fmt.Errorf("%w. %s", err, advice)
 		case "SessionFile":
 			return fmt.Errorf("%w. Check ANNAS_MCP_CACHE_DIR", err)
+		case "Membership":
+			// The message already says what the membership allows.
+			return err
 		case "BaseURL":
 			return fmt.Errorf("%w. Check ANNAS_BASE_URL", err)
 		case "SecretKey", "AccountCookie":

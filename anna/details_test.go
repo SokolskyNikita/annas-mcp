@@ -254,9 +254,11 @@ func TestAccountStatusReadsAllowanceAndActiveMemberships(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	allowed := true
 	want := &AccountStatus{
 		Member: true, DownloadsLeft: 71, DownloadsLimit: 75, WindowHours: 18,
-		Memberships: []string{"Lucky Librarian (50) until October 26, 2026", "Brilliant Bookworm (25) until October 4, 2027"},
+		Memberships:   []string{"Lucky Librarian (50) until October 26, 2026", "Brilliant Bookworm (25) until October 4, 2027"},
+		SearchAllowed: &allowed,
 	}
 	if !reflect.DeepEqual(status, want) || *summaries != 0 {
 		t.Fatalf("status = %+v (summaries %d)", status, *summaries)

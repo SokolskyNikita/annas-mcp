@@ -29,9 +29,13 @@ func TestParseAccountPage(t *testing.T) {
 		SignedIn: true, Used: 4, Limit: 75, WindowHours: 18,
 		// The struck-through membership has expired.
 		Memberships: []string{"Lucky Librarian (50) until October 26, 2026", "Brilliant Bookworm (25) until October 4, 2027"},
+		Tiers:       []int{3, 2},
 	}
 	if !reflect.DeepEqual(page, want) {
 		t.Fatalf("account page\n got %+v\nwant %+v", page, want)
+	}
+	if page := ParseAccountPage(accountDocument(t, "account_bookworm_only.html")); !reflect.DeepEqual(page.Tiers, []int{2}) {
+		t.Fatalf("download-only membership: %+v", page)
 	}
 	if page := ParseAccountPage(accountDocument(t, "account_no_membership.html")); !page.SignedIn || page.Limit != 0 || page.Memberships != nil {
 		t.Fatalf("account without membership: %+v", page)

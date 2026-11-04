@@ -39,11 +39,12 @@ func TestModelStringMethodsIncludeCoreFields(t *testing.T) {
 
 func TestDetailsAndAccountRendering(t *testing.T) {
 	details := &anna.Details{Identifiers: map[string][]string{"isbn13": {"9780521879286", "9780521127264"}}, Problems: []anna.Problem{{Description: "Marked broken in Libgen.li"}}}
-	status := &anna.AccountStatus{DownloadsLimit: 75, WindowHours: 18}
+	searchAllowed := false
+	status := &anna.AccountStatus{DownloadsLimit: 75, WindowHours: 18, SearchAllowed: &searchAllowed}
 	if text := renderDetails(details); !strings.Contains(text, "ISBN-13: 9780521879286, 9780521127264") || !strings.Contains(text, "Problem: Marked broken in Libgen.li") {
 		t.Fatalf("text view:\n%s", text)
 	}
-	if text := renderAccountStatus(status); !strings.Contains(text, "Fast download limit: 75 per 18 hours") {
+	if text := renderAccountStatus(status); !strings.Contains(text, "Fast download limit: 75 per 18 hours") || !strings.Contains(text, "Search allowed: no") {
 		t.Fatal(text)
 	}
 }

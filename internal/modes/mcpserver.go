@@ -105,7 +105,7 @@ func newMCPServer(svc *service, searchTimeout, downloadTimeout time.Duration) *m
 			}
 			return nil, result, nil
 		})
-	mcp.AddTool(server, tool("account_status", "Account status", "Show the account's membership and how many fast downloads it has left in its rolling window. Check it before downloading many files.", true),
+	mcp.AddTool(server, tool("account_status", "Account status", "Show the account's membership, whether it allows searching (search_allowed), and how many fast downloads it has left in its rolling window. Check it before downloading many files, or when searches are refused.", true),
 		func(ctx context.Context, req *mcp.CallToolRequest, params AccountStatusParams) (*mcp.CallToolResult, *anna.AccountStatus, error) {
 			timeout, err := timeoutFromSeconds(params.TimeoutSeconds, searchTimeout)
 			if err != nil {
