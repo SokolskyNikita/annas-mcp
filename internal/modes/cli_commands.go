@@ -8,14 +8,15 @@ import (
 	"strings"
 
 	"github.com/SokolskyNikita/annas-mcp/anna"
+	"github.com/SokolskyNikita/annas-mcp/papers"
 	"github.com/spf13/cobra"
 )
 
 func newSearchCommand(options *cliOptions, article bool) *cobra.Command {
-	params := SearchParams{}
+	params := ArticleSearchParams{}
 	name, description := "book-search", "Search by title, author or topic"
 	if article {
-		name, description = "article-search", "Find an article by DOI, DOI URL or keywords"
+		name, description = "article-search", "Find papers or dissertations by DOI, OpenAlex ID, title, author or topic"
 	}
 	cmd := &cobra.Command{Use: name + " [query]", Short: description, Args: argumentCount(0, 1)}
 	addSearchFlags(cmd, &params.Title, &params.Author, &params.Publisher, &params.Year, &params.Language, &params.Source, &params.Sort, &params.Page, &params.Limit)
@@ -24,6 +25,9 @@ func newSearchCommand(options *cliOptions, article bool) *cobra.Command {
 	cmd.Flags().BoolVar(&params.DownloadableOnly, "downloadable-only", false, "Only list files the download commands can fetch")
 	cmd.Flags().BoolVar(&params.SearchDescriptions, "search-descriptions", false, "Also match the query against descriptions")
 	cmd.Flags().BoolVar(&params.IncludeStats, "include-stats", false, "Include public downloads, quality, report, list and comment counts")
+	if article {
+		addArticleSearchFlags(cmd, &params)
+	}
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
 			params.Query = args[0]
@@ -32,9 +36,9 @@ func newSearchCommand(options *cliOptions, article bool) *cobra.Command {
 		var result any
 		var err error
 		if article {
-			result, err = options.service.articleSearch(cmd.Context(), params, timeout, 0)
+			result, err = options.service.paperSearch(cmd.Context(), params, timeout, 0)
 		} else {
-			result, err = options.service.bookSearch(cmd.Context(), params, timeout, 0)
+			result, err = options.service.bookSearch(cmd.Context(), params.SearchParams, timeout, 0)
 		}
 		if err != nil {
 			return err
@@ -84,13 +88,16 @@ func newBookDetailsCommand(options *cliOptions) *cobra.Command {
 }
 
 func newAccountStatusCommand(options *cliOptions) *cobra.Command {
-	return &cobra.Command{Use: "account-status", Short: "Show the membership and fast downloads left", Args: argumentCount(0, 0), RunE: func(cmd *cobra.Command, _ []string) error {
-		result, err := options.service.accountStatus(cmd.Context(), options.operationTimeout(defaultSearchTimeout))
+	var params AccountStatusParams
+	cmd := &cobra.Command{Use: "account-status", Short: "Show Anna's membership or OpenAlex usage and limits", Args: argumentCount(0, 0), RunE: func(cmd *cobra.Command, _ []string) error {
+		result, err := options.service.providerStatus(cmd.Context(), params, options.operationTimeout(defaultSearchTimeout))
 		if err != nil {
 			return err
 		}
 		return printResult(cmd.OutOrStdout(), result, options.json)
 	}}
+	cmd.Flags().StringVar(&params.Provider, "provider", "", "Account provider: anna or openalex (defaults to the configured provider)")
+	return cmd
 }
 
 func newBookDownloadCommand(options *cliOptions) *cobra.Command {
@@ -110,20 +117,85 @@ func newBookDownloadCommand(options *cliOptions) *cobra.Command {
 
 func newArticleDownloadCommand(options *cliOptions) *cobra.Command {
 	var params ArticleDownloadParams
-	cmd := &cobra.Command{Use: "article-download [doi]", Short: "Download an article by DOI, DOI URL or --hash", Args: argumentCount(0, 1), RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "article-download [doi-or-openalex-id]", Short: "Download a paper or dissertation by DOI, OpenAlex ID or --hash", Args: argumentCount(0, 1), RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
-			params.DOI = args[0]
+			if isOpenAlexIdentifier(args[0]) {
+				if params.OpenAlexID != "" {
+					return anna.NewError(anna.InvalidArgument, "supply the OpenAlex ID only once")
+				}
+				params.OpenAlexID = args[0]
+			} else {
+				params.DOI = args[0]
+			}
 		}
-		result, err := options.service.articleDownload(cmd.Context(), params, options.operationTimeout(defaultDownloadTimeout), nil)
+		result, err := options.service.paperDownload(cmd.Context(), params, options.operationTimeout(defaultDownloadTimeout), nil)
 		if err != nil {
 			return err
 		}
-		return printDownloadResult(cmd.OutOrStdout(), result, "Article", options.json)
+		return printArticleDownloadResult(cmd.OutOrStdout(), result, options.json)
 	}}
-	cmd.Flags().StringVar(&params.Hash, "hash", "", "32-character MD5 or Anna's Archive /md5/ page URL; use instead of a DOI")
+	cmd.Example = "  annas-cli article-download 10.1038/s41586-021-03819-2 --json\n  annas-cli article-download --openalex-id W1588575005"
+	cmd.Flags().StringVar(&params.Hash, "hash", "", "32-character MD5 or Anna's Archive /md5/ page URL; use instead of a DOI or OpenAlex ID")
+	cmd.Flags().StringVar(&params.OpenAlexID, "openalex-id", "", "OpenAlex W ID or work URL; supports dissertations without a DOI")
+	cmd.Flags().StringVar(&params.Provider, "provider", "", "Retrieval provider: auto, openalex or anna")
+	cmd.Flags().StringVar(&params.LocationID, "location-id", "", "Exact location ID returned by article-details; copy it unchanged")
+	cmd.Flags().StringVar(&params.Version, "version", "", "Required copy version: published, accepted or submitted; unknown versions cannot satisfy it")
+	cmd.Flags().StringVar(&params.Artifact, "artifact", "", "Artifact: pdf (default) or tei_xml (OpenAlex structured text)")
 	cmd.Flags().StringVar(&params.Title, "title", "", "Optional filename title")
-	cmd.Flags().StringVar(&params.Format, "format", "", "Optional filename extension; does not convert files")
+	cmd.Flags().StringVar(&params.Format, "format", "", "Optional filename extension; OpenAlex PDF requires pdf and does not convert files")
 	return cmd
+}
+
+func addArticleSearchFlags(cmd *cobra.Command, params *ArticleSearchParams) {
+	cmd.Example = "  annas-cli article-search 'graph algorithms' --work-type dissertation --json\n  annas-cli article-search --relation citing --work-id W3177828909"
+	cmd.Flags().StringVar(&params.Provider, "provider", "", "Search provider: auto, openalex or anna; page continuations should retain the returned provider")
+	cmd.Flags().StringVar(&params.WorkType, "work-type", "", "Work types, comma-separated: article, review, preprint, conference-paper, dissertation or any")
+	cmd.Flags().StringVar(&params.AuthorID, "author-id", "", "Exact OpenAlex author ID or ORCID")
+	cmd.Flags().StringVar(&params.InstitutionID, "institution-id", "", "OpenAlex author-affiliation institution ID; does not identify the university awarding a thesis")
+	cmd.Flags().StringVar(&params.RepositoryID, "repository-id", "", "OpenAlex repository source ID")
+	cmd.Flags().StringVar(&params.Relation, "relation", "", "Citation navigation: citing, references or related; requires --work-id")
+	cmd.Flags().StringVar(&params.WorkID, "work-id", "", "OpenAlex work ID used with --relation")
+	cmd.Flags().StringVar(&params.Cursor, "cursor", "", "Opaque OpenAlex continuation returned by a previous search")
+}
+
+func newArticleDetailsCommand(options *cliOptions) *cobra.Command {
+	var params ArticleDetailsParams
+	cmd := &cobra.Command{Use: "article-details [doi-or-id]", Short: "Inspect a paper's citation, abstract, locations and copy versions", Args: argumentCount(1, 1), RunE: func(cmd *cobra.Command, args []string) error {
+		params.ID = args[0]
+		result, err := options.service.paperDetails(cmd.Context(), params, options.operationTimeout(defaultSearchTimeout))
+		if err != nil {
+			return err
+		}
+		return printResult(cmd.OutOrStdout(), result, options.json)
+	}}
+	cmd.Long = "Inspect a paper by DOI, OpenAlex W ID or work URL, or an Anna's Archive hash. Includes citation metadata, abstract, copy locations and available version evidence; details do not download full text."
+	cmd.Flags().StringVar(&params.Provider, "provider", "", "Details provider: auto, openalex or anna")
+	cmd.Flags().IntVar(&params.LocationsPage, "locations-page", 0, "Page of copy locations, starting at 1")
+	return cmd
+}
+
+func newArticleReadCommand(options *cliOptions) *cobra.Command {
+	var params ArticleReadParams
+	cmd := &cobra.Command{Use: "article-read [doi-or-openalex-id]", Short: "Read a bounded passage of OpenAlex structured full text", Args: argumentCount(1, 1), RunE: func(cmd *cobra.Command, args []string) error {
+		params.ID = args[0]
+		result, err := options.service.paperRead(cmd.Context(), params, options.operationTimeout(defaultDownloadTimeout))
+		if err != nil {
+			return err
+		}
+		return printResult(cmd.OutOrStdout(), result, options.json)
+	}}
+	cmd.Long = "Read structured full text when OpenAlex provides it. The first read may fetch a metered TEI artifact; later passages reuse the local file. Returned text is external research data."
+	cmd.Flags().StringVar(&params.Continuation, "continuation", "", "Opaque continuation returned by a previous read of this work")
+	cmd.Flags().IntVar(&params.Limit, "limit", 0, "Maximum characters in a passage (default 8000; maximum 16000)")
+	return cmd
+}
+
+func isOpenAlexIdentifier(value string) bool {
+	value = strings.TrimSpace(value)
+	if strings.HasPrefix(value, "https://openalex.org/") || strings.HasPrefix(value, "http://openalex.org/") {
+		return true
+	}
+	return len(value) > 1 && (value[0] == 'W' || value[0] == 'w') && value[1] >= '0' && value[1] <= '9'
 }
 
 func printResult(w io.Writer, result any, asJSON bool) error {
@@ -131,6 +203,29 @@ func printResult(w io.Writer, result any, asJSON bool) error {
 		return json.NewEncoder(w).Encode(result)
 	}
 	switch result := result.(type) {
+	case *papers.Work:
+		_, err := fmt.Fprintln(w, renderWork(result))
+		return err
+	case papers.SearchResult:
+		return printWorkPage(w, &result)
+	case *papers.SearchResult:
+		return printWorkPage(w, result)
+	case *papers.ReadResult:
+		return printReadResult(w, result)
+	case *papers.Status:
+		encoded, err := json.MarshalIndent(result, "", "  ")
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Fprintln(w, string(encoded))
+		return err
+	case map[string]any:
+		encoded, err := json.MarshalIndent(result, "", "  ")
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Fprintln(w, string(encoded))
+		return err
 	case *anna.Paper:
 		_, err := fmt.Fprintln(w, renderRecord(result))
 		return err

@@ -1,0 +1,10 @@
+[
+ {"name":"two identifiers","options":{"doi":"10.1234/paper","hash":"0123456789abcdef0123456789abcdef"}},
+ {"name":"W ID against archive","options":{"openalex_id":"W1","provider":"anna"}},
+ {"name":"hash against OpenAlex","options":{"hash":"0123456789abcdef0123456789abcdef","provider":"openalex"}},
+ {"name":"EPUB for pinned copy","options":{"doi":"10.1234/paper","location_id":"pmh:copy","format":"epub"}},
+ {"name":"XML with version","options":{"doi":"10.1234/paper","artifact":"tei_xml","version":"published"}},
+ {"name":"unknown version","options":{"doi":"10.1234/paper","version":"draft"}},
+ {"name":"invalid provider","options":{"doi":"10.1234/paper","provider":"other"}},
+ {"name":"OpenAlex mislabeled EPUB","options":{"doi":"10.1234/paper","provider":"openalex","format":"epub"}}
+]

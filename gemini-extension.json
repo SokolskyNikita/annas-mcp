@@ -1,18 +1,27 @@
 {
   "name": "annas-mcp",
-  "version": "0.7.2",
-  "description": "Search Anna's Archive for books and papers and download the file you pick.",
+  "version": "0.8.0",
+  "description": "Search books with Anna's Archive and papers and dissertations with OpenAlex, then download or read the selected work.",
   "mcpServers": {
     "annas-mcp": {
       "command": "npx",
-      "args": ["-y", "annas-mcp"]
+      "args": [
+        "-y",
+        "annas-mcp"
+      ]
     }
   },
   "settings": [
     {
-      "name": "Secret key",
-      "description": "The secret key you log in to Anna's Archive with, from your account page. The server signs in with it and uses it for downloads.",
+      "name": "Anna's Archive secret key (optional)",
+      "description": "Anna's Archive key for archive operations. Leave empty when using only OpenAlex.",
       "envVar": "ANNAS_SECRET_KEY",
+      "sensitive": true
+    },
+    {
+      "name": "OpenAlex API key (optional)",
+      "description": "OpenAlex key for paper and dissertation search, open PDFs and structured text. Hosted files consume the account allowance.",
+      "envVar": "OPENALEX_API_KEY",
       "sensitive": true
     },
     {

@@ -23,7 +23,7 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const entrypoint = path.join(root, "bin", "annas-mcp.js");
 const MAX_OUTPUT_BYTES = 64 << 10;
 const toolNames = [
-  "account_status", "article_download", "article_search", "book_details", "book_download", "book_search", "metadata_search",
+  "account_status", "article_details", "article_download", "article_read", "article_search", "book_details", "book_download", "book_search", "metadata_search",
 ];
 const releaseTargets = [
   ["linux", "amd64"],
@@ -78,6 +78,7 @@ function childEnvironment(cache, apiURL) {
   for (const name of [
     "ANNAS_ACCOUNT_COOKIE",
     "ANNAS_SECRET_KEY",
+    "OPENALEX_API_KEY",
     "ANNAS_DOWNLOAD_PATH",
     "GH_TOKEN",
     "GITHUB_TOKEN",

@@ -88,7 +88,7 @@ func findExistingDownload(ctx context.Context, folder, hash string) (DownloadRes
 		}
 		path := filepath.Join(folder, entry.Name())
 		if matchesLocalHash(ctx, path, info, hash) {
-			return DownloadResult{Path: path, Bytes: info.Size()}, nil
+			return DownloadResult{Path: path, Bytes: info.Size(), MD5: hash, Reused: true}, nil
 		}
 	}
 	return DownloadResult{}, ctx.Err()

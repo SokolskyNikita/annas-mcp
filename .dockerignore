@@ -1,9 +1,10 @@
-# The image builds from go.mod, go.sum, anna/, cmd/ and internal/ only.
+# Include only the Go module and the packages required by the server.
 *
 !go.mod
 !go.sum
 !cmd/
 !internal/
 !anna/
+!papers/
 **/*_test.go
 **/testdata/

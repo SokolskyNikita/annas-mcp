@@ -1,0 +1,3 @@
+<html><body><tei><teiheader><p>Header should be excluded.</p></teiheader><text>
+<div><head>Background</head><p>Legacy wrapped text&nbsp;is readable.</p><list><item>A list item.</item></list></div>
+</text></tei></body></html>

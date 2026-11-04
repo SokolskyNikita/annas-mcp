@@ -1,0 +1,56 @@
+[
+  {
+    "status": 404,
+    "body": "{}",
+    "reason": "work_not_found",
+    "retryable": false
+  },
+  {
+    "status": 401,
+    "body": "{}",
+    "reason": "invalid_key",
+    "retryable": false
+  },
+  {
+    "status": 403,
+    "body": "{}",
+    "reason": "invalid_key",
+    "retryable": false
+  },
+  {
+    "status": 429,
+    "body": "rate exceeded",
+    "reason": "rate_limited",
+    "retryable": true
+  },
+  {
+    "status": 429,
+    "body": "daily credits exhausted",
+    "reason": "budget_exhausted",
+    "retryable": false
+  },
+  {
+    "status": 429,
+    "body": "plan upgrade required",
+    "reason": "plan_required",
+    "retryable": false
+  },
+  {
+    "status": 503,
+    "body": "upstream unavailable",
+    "reason": "provider_error",
+    "retryable": true
+  },
+  {
+    "status": 400,
+    "body": "invalid filters",
+    "reason": "invalid_request",
+    "retryable": false
+  },
+  {
+    "status": 429,
+    "body": "daily credits for your plan exhausted",
+    "reason": "budget_exhausted",
+    "retryable": false
+  }
+]

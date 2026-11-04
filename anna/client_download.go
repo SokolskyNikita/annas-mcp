@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/SokolskyNikita/annas-mcp/anna/internal/match"
 	"github.com/SokolskyNikita/annas-mcp/anna/internal/parse"
 )
 
@@ -225,6 +226,9 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 		return DownloadResult{}, NewError(InvalidArgument, "pass exactly one of doi or hash")
 	}
 	if hash != "" {
+		if options.ExpectedTitle != "" {
+			return DownloadResult{}, NewError(InvalidArgument, "ExpectedTitle requires a DOI")
+		}
 		return c.downloadBook(ctx, &Book{Hash: hash, Title: options.Title, Format: options.Format}, progress)
 	}
 	if _, ok := parse.ParseDOI(doi); !ok {
@@ -236,6 +240,12 @@ func (c *Client) downloadArticle(ctx context.Context, options ArticleDownloadOpt
 	paper, err := c.lookupDOI(ctx, doi)
 	if err != nil {
 		return DownloadResult{}, err
+	}
+	if options.ExpectedTitle != "" {
+		expected := match.NormalizeTitle(options.ExpectedTitle)
+		if expected == "" || expected != match.NormalizeTitle(paper.Title) {
+			return DownloadResult{}, NewError(NotFound, "archive DOI record does not match the selected paper title")
+		}
 	}
 	if options.Title != "" {
 		paper.Title = options.Title

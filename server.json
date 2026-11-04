@@ -1,24 +1,28 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.SokolskyNikita/annas-mcp",
-  "title": "Anna's Archive",
-  "description": "Search Anna's Archive for ebooks and papers by title, author or DOI and download the file you pick.",
+  "title": "Anna's Archive and OpenAlex",
+  "description": "Find books, papers and dissertations with Anna's Archive and OpenAlex, then download or read them.",
   "websiteUrl": "https://github.com/SokolskyNikita/annas-mcp",
   "repository": {
     "url": "https://github.com/SokolskyNikita/annas-mcp",
     "source": "github"
   },
-  "version": "0.7.2",
+  "version": "0.8.0",
   "icons": [
     {
       "src": "https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.png",
       "mimeType": "image/png",
-      "sizes": ["512x512"]
+      "sizes": [
+        "512x512"
+      ]
     },
     {
       "src": "https://raw.githubusercontent.com/SokolskyNikita/annas-mcp/main/assets/icon.svg",
       "mimeType": "image/svg+xml",
-      "sizes": ["any"]
+      "sizes": [
+        "any"
+      ]
     }
   ],
   "packages": [
@@ -26,15 +30,21 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "annas-mcp",
-      "version": "0.7.2",
+      "version": "0.8.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
           "name": "ANNAS_SECRET_KEY",
-          "description": "The secret key you log in to Anna's Archive with. The server signs in with it and uses it for downloads.",
-          "isRequired": true,
+          "description": "Optional Anna's Archive secret key for books, archive searches and archive downloads.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "OPENALEX_API_KEY",
+          "description": "Optional OpenAlex API key for papers, dissertations, open PDFs and structured full text.",
+          "isRequired": false,
           "isSecret": true
         },
         {

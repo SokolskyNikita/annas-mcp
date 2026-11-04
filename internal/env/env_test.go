@@ -31,6 +31,7 @@ func setEnv(t *testing.T, secret, downloads, baseURL, auto, cookie string) strin
 	t.Helper()
 	cacheDir := t.TempDir()
 	t.Setenv("ANNAS_SECRET_KEY", secret)
+	t.Setenv("OPENALEX_API_KEY", "")
 	t.Setenv("ANNAS_DOWNLOAD_PATH", downloads)
 	t.Setenv("ANNAS_BASE_URL", baseURL)
 	t.Setenv("ANNAS_AUTO_BASE_URL", auto)

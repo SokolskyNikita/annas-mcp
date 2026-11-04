@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.1.0/plugin.schema.json",
   "name": "annas-mcp",
-  "description": "Search Anna's Archive for books and papers by title, author or DOI, and download the file you pick.",
+  "description": "Search books with Anna's Archive and papers and dissertations with OpenAlex, then download or read the selected work.",
   "author": {
     "name": "Nikita Sokolsky",
     "url": "https://github.com/SokolskyNikita"
@@ -9,5 +9,16 @@
   "homepage": "https://github.com/SokolskyNikita/annas-mcp#readme",
   "repository": "https://github.com/SokolskyNikita/annas-mcp",
   "license": "MIT",
-  "keywords": ["mcp", "annas-archive", "books", "ebooks", "epub", "pdf", "papers", "doi"]
+  "keywords": [
+    "mcp",
+    "annas-archive",
+    "books",
+    "ebooks",
+    "epub",
+    "pdf",
+    "papers",
+    "doi",
+    "openalex",
+    "dissertations"
+  ]
 }

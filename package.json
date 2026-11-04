@@ -1,8 +1,8 @@
 {
   "name": "annas-mcp",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "license": "MIT",
-  "description": "MCP server and CLI for Anna's Archive: search books, ebooks and journal articles by title, author or DOI, and download them",
+  "description": "Search books with Anna's Archive and papers and dissertations with OpenAlex, then download or read the selected work.",
   "mcpName": "io.github.SokolskyNikita/annas-mcp",
   "author": "Nikita Sokolsky",
   "keywords": [
@@ -19,7 +19,9 @@
     "doi",
     "claude",
     "cursor",
-    "codex"
+    "codex",
+    "openalex",
+    "dissertations"
   ],
   "homepage": "https://github.com/SokolskyNikita/annas-mcp#readme",
   "bugs": {
@@ -35,7 +37,8 @@
     "pack:mcpb": "node scripts/pack-mcpb.mjs",
     "check:upstream": "node anna/scripts/check-upstream.mjs",
     "check:sdk": "node scripts/check-sdk.mjs",
-    "test:live:books": "node scripts/test-book-interfaces-live.mjs"
+    "test:live:books": "node scripts/test-book-interfaces-live.mjs",
+    "test:live:papers": "node scripts/test-paper-interfaces-live.mjs"
   },
   "bin": {
     "annas-cli": "bin/annas-cli.js",

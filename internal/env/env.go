@@ -26,34 +26,51 @@ const DefaultDownloadFolder = "annas-archive"
 // Env is the normalized configuration. Credentials are excluded from JSON so
 // the struct can be logged safely.
 type Env struct {
-	AnnasBaseURL  string `json:"annas_base_url"`
-	AutoBaseURL   bool   `json:"auto_base_url"`
-	SecretKey     string `json:"-"`
-	AccountCookie string `json:"-"`
-	DownloadPath  string `json:"-"`
-	SessionFile   string `json:"-"`
+	AnnasBaseURL   string `json:"annas_base_url"`
+	AutoBaseURL    bool   `json:"auto_base_url"`
+	SecretKey      string `json:"-"`
+	AccountCookie  string `json:"-"`
+	DownloadPath   string `json:"-"`
+	SessionFile    string `json:"-"`
+	OpenAlexAPIKey string `json:"-"`
+	// ArchiveError is deferred until an archive operation is selected.
+	ArchiveError error `json:"-"`
 }
 
 // Load reads and normalizes configuration without doing network work. Search
 // and download settings are returned together; callers validate the settings
 // required by the operation they are about to perform.
 func Load() (*Env, error) {
+	config := LoadProviders()
+	if config.ArchiveError != nil {
+		return nil, config.ArchiveError
+	}
+	return config, nil
+}
+
+// LoadProviders reads shared settings and retains invalid archive settings as
+// a provider-specific error. An OpenAlex operation does not need Anna's URL,
+// cookie or mirror-selection settings to be valid.
+func LoadProviders() *Env {
 	config := &Env{
-		SecretKey:    os.Getenv("ANNAS_SECRET_KEY"),
-		DownloadPath: downloadPathSetting(),
-		SessionFile:  sessionFile(),
+		SecretKey:      os.Getenv("ANNAS_SECRET_KEY"),
+		DownloadPath:   downloadPathSetting(),
+		SessionFile:    sessionFile(),
+		OpenAlexAPIKey: strings.TrimSpace(os.Getenv("OPENALEX_API_KEY")),
 	}
 	var err error
 	if config.AnnasBaseURL, err = baseURLSetting(); err != nil {
-		return nil, err
+		config.ArchiveError = err
+		return config
 	}
 	if config.AutoBaseURL, err = autoBaseURLSetting(); err != nil {
-		return nil, err
+		config.ArchiveError = err
+		return config
 	}
 	if config.AccountCookie, err = loadAccountCookieHeader(); err != nil {
-		return nil, err
+		config.ArchiveError = err
 	}
-	return config, nil
+	return config
 }
 
 func baseURLSetting() (string, error) {

@@ -1,0 +1,2 @@
+<!DOCTYPE TEI [<!ENTITY external SYSTEM "file:///etc/passwd">]>
+<TEI><text><body><p>&external;</p></body></text></TEI>

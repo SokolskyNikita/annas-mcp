@@ -31,12 +31,15 @@ type Config struct {
 }
 
 // ArticleDownloadOptions describes an article download request. DOI and Hash
-// are mutually exclusive.
+// are mutually exclusive. ExpectedTitle optionally checks a DOI result against
+// an independently identified citation before spending a download grant.
+// Title only controls the filename.
 type ArticleDownloadOptions struct {
-	DOI    string
-	Hash   string
-	Title  string
-	Format string
+	DOI           string
+	Hash          string
+	Title         string
+	Format        string
+	ExpectedTitle string
 }
 
 // Client performs Anna Archive searches and downloads with injected

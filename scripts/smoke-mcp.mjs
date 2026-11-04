@@ -19,7 +19,7 @@ const output = await realpath(await mkdtemp(path.join(os.tmpdir(), "annas-mcp-li
 const cache = await realpath(await mkdtemp(path.join(os.tmpdir(), "annas-mcp-live-cache-")));
 const client = new MCPProcessClient(spawn(binary, ["mcp"], {
   cwd: root,
-  env: { ...process.env, ANNAS_DOWNLOAD_PATH: output, ANNAS_ACCOUNT_COOKIE: "", ANNAS_MCP_CACHE_DIR: cache },
+  env: { ...process.env, OPENALEX_API_KEY: "", ANNAS_DOWNLOAD_PATH: output, ANNAS_ACCOUNT_COOKIE: "", ANNAS_MCP_CACHE_DIR: cache },
   stdio: ["pipe", "pipe", "pipe"],
 }));
 const report = { binary, output, calls: [], downloads: [] };
@@ -68,7 +68,7 @@ try {
   report.server = initialized.serverInfo;
   const listed = await client.request("tools/list");
   assert.deepEqual(listed.tools.map(({ name }) => name).sort(), [
-    "account_status", "article_download", "article_search", "book_details", "book_download", "book_search", "metadata_search",
+    "account_status", "article_details", "article_download", "article_read", "article_search", "book_details", "book_download", "book_search", "metadata_search",
   ]);
 
   const books = await call("book_search", cases.book);
@@ -98,9 +98,9 @@ try {
   assert(status.member, "account_status says the account has no membership");
   report.downloads_left_before = status.downloads_left;
 
-  const papers = await call("article_search", { query: cases.article_query, limit: 5, timeout_seconds: 90 }, "article_search (keywords)");
+  const papers = await call("article_search", { provider: "anna", query: cases.article_query, limit: 5, timeout_seconds: 90 }, "article_search (keywords)");
   assert(papers.results.length > 0, "Article keyword search returned no records");
-  const article = await call("article_search", { query: `https://doi.org/${cases.article_doi}`, timeout_seconds: 90 }, "article_search (DOI URL)");
+  const article = await call("article_search", { provider: "anna", query: `https://doi.org/${cases.article_doi}`, timeout_seconds: 90 }, "article_search (DOI URL)");
   assert.equal(article.doi.toLowerCase(), cases.article_doi.toLowerCase());
   assert.equal(article.title.toLowerCase(), cases.article_title.toLowerCase());
   report.article = { title: article.title, doi: article.doi, hash: article.hash };
@@ -110,7 +110,7 @@ try {
   assert(Number.isInteger(bookFile.downloads_left) && bookFile.downloads_left <= status.downloads_left, "book_download did not report downloads_left");
   const hashFile = await call("article_download", { hash: article.hash, title: `${article.title} - hash`, format: "pdf", timeout_seconds: 180 }, "article_download (hash)");
   await verifyDownload(hashFile, article, "article_download (hash)");
-  const doiFile = await call("article_download", { doi: cases.article_doi, title: `${article.title} - doi`, format: "pdf", timeout_seconds: 180 }, "article_download (DOI)");
+  const doiFile = await call("article_download", { provider: "anna", doi: cases.article_doi, title: `${article.title} - doi`, format: "pdf", timeout_seconds: 180 }, "article_download (DOI)");
   await verifyDownload(doiFile, article, "article_download (DOI)");
   report.passed = true;
 } catch (error) {

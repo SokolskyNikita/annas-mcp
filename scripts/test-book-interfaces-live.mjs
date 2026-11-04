@@ -43,7 +43,7 @@ const logBuffers = new Map();
 async function checkpoint() { await writeFile(path.join(output, "report.json"), JSON.stringify(report, null, 2) + "\n"); }
 function environment(mode, offline = false) {
   return { ...process.env, ANNAS_DOWNLOAD_PATH: path.join(output, mode), ANNAS_ACCOUNT_COOKIE: "", ANNAS_MCP_CACHE_DIR: cache,
-    ...(offline ? { ANNAS_SECRET_KEY: "", ANNAS_ACCOUNT_COOKIE: "", ANNAS_BASE_URL: "https://127.0.0.1:1", ANNAS_AUTO_BASE_URL: "false", ANNAS_MCP_CACHE_DIR: path.join(output, "offline-cache") } : {}) };
+    ...(offline ? { OPENALEX_API_KEY: "", ANNAS_SECRET_KEY: "", ANNAS_ACCOUNT_COOKIE: "", ANNAS_BASE_URL: "https://127.0.0.1:1", ANNAS_AUTO_BASE_URL: "false", ANNAS_MCP_CACHE_DIR: path.join(output, "offline-cache") } : {}) };
 }
 function capture(child, label) {
   let stderr = "";

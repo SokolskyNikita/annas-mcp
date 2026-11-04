@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader><fileDesc><titleStmt><title>Metadata title</title></titleStmt></fileDesc></teiHeader>
+  <text>
+    <front><p>Front matter should be excluded.</p></front>
+    <body>
+      <div><head>Introduction</head><p>First <hi>paragraph</hi> with a <ref>citation</ref>.</p>
+      <p>Second paragraph contains Unicode: αβγ and 中文.</p></div>
+      <div><head>Results</head><p>The result has a line<lb/>break.</p></div>
+    </body>
+    <back><p>Bibliography should be excluded.</p></back>
+  </text>
+</TEI>

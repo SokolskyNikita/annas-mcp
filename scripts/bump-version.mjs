@@ -56,16 +56,17 @@ export function bumpVersion(directory, spec, today = new Date().toISOString().sl
 
   const changelog = read("CHANGELOG.md");
   if (!changelog.includes(`## [v${next}]`)) {
-    const firstRelease = changelog.search(/^## /m);
+    const firstRelease = changelog.search(/^## \[v\d+\.\d+\.\d+\]/m);
     if (firstRelease < 0) {
       throw new Error("CHANGELOG.md has no release headings");
     }
     const eol = changelog.includes("\r\n") ? "\r\n" : "\n";
     const heading = `## [v${next}](https://github.com/${GITHUB_REPO}/releases/tag/v${next}) - ${today}`;
-    updated.set(
-      "CHANGELOG.md",
-      `${changelog.slice(0, firstRelease)}${heading}${eol}${eol}${changelog.slice(firstRelease)}`,
-    );
+    const intro = changelog.slice(0, firstRelease);
+    const unreleased = /^## Unreleased(?=\r?$)/m;
+    updated.set("CHANGELOG.md", unreleased.test(intro)
+      ? intro.replace(unreleased, heading) + changelog.slice(firstRelease)
+      : `${intro}${heading}${eol}${eol}${changelog.slice(firstRelease)}`);
   }
 
   // Check the result before writing anything.

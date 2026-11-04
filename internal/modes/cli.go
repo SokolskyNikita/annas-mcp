@@ -2,6 +2,7 @@ package modes
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -43,16 +44,21 @@ func executeCLI(ctx context.Context, args []string, stdout, stderr io.Writer, fa
 	root.SetOut(stdout)
 	root.SetErr(stderr)
 	if err := root.ExecuteContext(ctx); err != nil {
-		fmt.Fprintln(stderr, codedError(err))
+		if jsonErrorsRequested(args) {
+			_ = json.NewEncoder(stderr).Encode(errorDetails(err))
+		} else {
+			fmt.Fprintln(stderr, codedError(err))
+		}
 		return 1
 	}
 	return 0
 }
 
 type cliOptions struct {
-	timeout time.Duration
-	json    bool
-	service *service
+	timeout    time.Duration
+	json       bool
+	jsonErrors bool
+	service    *service
 }
 
 func (o *cliOptions) operationTimeout(fallback time.Duration) time.Duration {
@@ -65,7 +71,7 @@ func (o *cliOptions) operationTimeout(fallback time.Duration) time.Duration {
 func newRootCommand(factory serviceFactory) *cobra.Command {
 	options := &cliOptions{}
 	root := &cobra.Command{
-		Use: "annas-mcp", Short: "Search and download books and articles from Anna's Archive",
+		Use: "annas-mcp", Short: "Search and download books, papers and dissertations with Anna's Archive and OpenAlex",
 		Version: version.GetVersion(), SilenceErrors: true, SilenceUsage: true,
 		Args:              argumentCount(0, 0),
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
@@ -89,9 +95,10 @@ func newRootCommand(factory serviceFactory) *cobra.Command {
 	})
 	root.PersistentFlags().DurationVar(&options.timeout, "timeout", 0, "Total operation timeout, including retries (default search: 60s; download: 30m; maximum: 24h)")
 	root.PersistentFlags().BoolVar(&options.json, "json", false, "Print structured JSON results")
+	root.PersistentFlags().BoolVar(&options.jsonErrors, "json-errors", false, "Print structured JSON failures on stderr for automation")
 	root.AddCommand(
 		newSearchCommand(options, false), newSearchCommand(options, true), newMetadataSearchCommand(options),
-		newBookDetailsCommand(options), newAccountStatusCommand(options),
+		newBookDetailsCommand(options), newArticleDetailsCommand(options), newArticleReadCommand(options), newAccountStatusCommand(options),
 		newBookDownloadCommand(options), newArticleDownloadCommand(options),
 		&cobra.Command{Use: "mcp", Short: "Start the MCP server over stdin/stdout", Args: argumentCount(0, 0), RunE: func(cmd *cobra.Command, _ []string) error {
 			return runMCP(cmd.Context(), options.service, options.operationTimeout(defaultSearchTimeout), options.operationTimeout(defaultDownloadTimeout))
@@ -107,4 +114,22 @@ func argumentCount(min, max int) cobra.PositionalArgs {
 		}
 		return nil
 	}
+}
+
+// Command lookup can fail before Cobra parses persistent flags. Preserve the
+// requested error format for unknown commands and malformed arguments too.
+func jsonErrorsRequested(args []string) bool {
+	enabled := false
+	for _, arg := range args {
+		if arg == "--" {
+			break
+		}
+		switch arg {
+		case "--json-errors", "--json-errors=true":
+			enabled = true
+		case "--json-errors=false":
+			enabled = false
+		}
+	}
+	return enabled
 }

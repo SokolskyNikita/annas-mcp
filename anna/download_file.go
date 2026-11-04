@@ -16,14 +16,12 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/SokolskyNikita/annas-mcp/anna/internal/parse"
+	"github.com/SokolskyNikita/annas-mcp/internal/filetransfer"
 )
 
 var formatPattern = regexp.MustCompile(`^[A-Za-z0-9]{1,16}$`)
-
-var unsafeFilenameChars = regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
 
 const maxDownloadBytes int64 = 8 << 30
 
@@ -119,7 +117,7 @@ func downloadFileWithGetter(ctx context.Context, client *http.Client, rawURL, fo
 			return DownloadResult{}, err
 		}
 		if err := os.Link(temp.Name(), path); err == nil {
-			return DownloadResult{Path: path, Bytes: transfer.written}, nil
+			return DownloadResult{Path: path, Bytes: transfer.written, MD5: hex.EncodeToString(transfer.hasher.Sum(nil))}, nil
 		} else if !errors.Is(err, os.ErrExist) {
 			return DownloadResult{}, fmt.Errorf("failed to finalize downloaded file: %w", err)
 		}
@@ -166,39 +164,25 @@ func newTransfer(destination io.Writer, size int64, expectedMD5 string, progress
 // copy appends source. A read that fails, or a body that ends before size,
 // returns an *interruptedError.
 func (t *transfer) copy(ctx context.Context, source io.Reader) error {
-	buffer := make([]byte, 32*1024)
-	for {
-		if err := ctx.Err(); err != nil {
-			return err
+	_, err := filetransfer.Copy(ctx, io.MultiWriter(t.hasher, t.destination), source, maxDownloadBytes-t.written, func(count int) {
+		t.written += int64(count)
+		if t.progress != nil && t.written-t.reported >= 512*1024 {
+			t.progress(t.written, max(t.size, 0))
+			t.reported = t.written
 		}
-		read, readErr := source.Read(buffer)
-		if read > 0 {
-			if t.written+int64(read) > maxDownloadBytes {
-				return fmt.Errorf("download exceeded %d bytes", maxDownloadBytes)
-			}
-			if _, err := t.hasher.Write(buffer[:read]); err != nil {
-				return err
-			}
-			writtenNow, err := t.destination.Write(buffer[:read])
-			if err != nil {
-				return fmt.Errorf("failed to write file (wrote %d bytes): %w", t.written, err)
-			}
-			if writtenNow != read {
-				return fmt.Errorf("failed to write file (wrote %d bytes): %w", t.written, io.ErrShortWrite)
-			}
-			t.written += int64(read)
-			if t.progress != nil && t.written-t.reported >= 512*1024 {
-				t.progress(t.written, max(t.size, 0))
-				t.reported = t.written
-			}
+	})
+	if err != nil {
+		var writeError *filetransfer.WriteError
+		if errors.As(err, &writeError) {
+			return fmt.Errorf("failed to write file (wrote %d bytes): %w", t.written, writeError.Err)
 		}
-		if readErr == io.EOF {
-			break
+		var sourceError *filetransfer.ReadError
+		if errors.As(err, &sourceError) {
+			return &interruptedError{written: t.written, err: sourceError.Err}
 		}
-		if readErr != nil {
-			return &interruptedError{written: t.written, err: readErr}
-		}
+		return err
 	}
+
 	if t.size >= 0 && t.written < t.size {
 		return &interruptedError{written: t.written, err: io.ErrUnexpectedEOF}
 	}
@@ -303,39 +287,7 @@ func (b *bufferedReadCloser) Close() error {
 }
 
 func sanitizeFilename(filename string) string {
-	safe := unsafeFilenameChars.ReplaceAllString(filename, "_")
-	safe = strings.ReplaceAll(safe, "..", "_")
-	safe = filepath.Base(safe)
-	safe = strings.TrimRight(safe, " .")
-	if safe == "" {
-		return ""
-	}
-
-	upper := strings.ToUpper(safe)
-	stem := upper
-	if dot := strings.IndexByte(stem, '.'); dot >= 0 {
-		stem = stem[:dot]
-	}
-	stem = strings.TrimRight(stem, " .")
-	switch stem {
-	case "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9":
-		safe = "_" + safe
-	}
-
-	const maxFilenameBytes = 180
-	if len(safe) > maxFilenameBytes {
-		var b strings.Builder
-		b.Grow(maxFilenameBytes)
-		for _, r := range safe {
-			size := utf8.RuneLen(r)
-			if size < 0 || b.Len()+size > maxFilenameBytes {
-				break
-			}
-			b.WriteRune(r)
-		}
-		safe = strings.TrimRight(b.String(), " .")
-	}
-	return safe
+	return filetransfer.SanitizeFilename(filename)
 }
 
 func isHTMLResponse(resp *http.Response) (bool, error) {

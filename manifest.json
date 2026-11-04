@@ -2,10 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/mcpb/main/dist/mcpb-manifest.schema.json",
   "manifest_version": "0.3",
   "name": "annas-mcp",
-  "display_name": "Anna's Archive",
-  "version": "0.7.2",
-  "description": "Search Anna's Archive for books and papers and download the file you pick.",
-  "long_description": "Search Anna's Archive for books, textbooks, manuals, standards and journal articles by title, author, topic or DOI, then download the copy you pick into a local folder. Filter by format, language, source or year, look up editions and ISBNs in library catalogs, check a file's identifiers and reported problems, and see how many fast downloads are left. Requires an Anna's Archive membership: the server signs in with your account's secret key and renews the session by itself. On first run the bundle downloads the matching annas-mcp release binary from GitHub, verifies its SHA-256 checksum and caches it; the signed-in session is saved in the same cache folder.",
+  "display_name": "Anna's Archive and OpenAlex",
+  "version": "0.8.0",
+  "description": "Search books with Anna's Archive and papers and dissertations with OpenAlex, then download or read the selected work.",
+  "long_description": "Search books, textbooks, manuals and standards through Anna's Archive. Discover papers and dissertations through OpenAlex by title, author, topic, DOI or OpenAlex work ID, inspect available copies and versions, and download a selected file or read structured full text. Configure an OpenAlex API key for open research, an Anna's Archive membership for archive access, or both for fallback. OpenAlex hosted content consumes its account allowance. The bundle downloads and verifies the matching release binary on first use and saves credentials only in client configuration and provider sessions.",
   "author": {
     "name": "Nikita Sokolsky",
     "url": "https://github.com/SokolskyNikita"
@@ -19,28 +19,52 @@
   "support": "https://github.com/SokolskyNikita/annas-mcp/issues",
   "license": "MIT",
   "icon": "icon.png",
-  "keywords": ["books", "ebooks", "epub", "pdf", "papers", "doi", "annas-archive", "library"],
+  "keywords": [
+    "books",
+    "ebooks",
+    "epub",
+    "pdf",
+    "papers",
+    "doi",
+    "annas-archive",
+    "library",
+    "openalex",
+    "dissertations",
+    "research"
+  ],
   "server": {
     "type": "node",
     "entry_point": "bin/annas-mcp.js",
     "mcp_config": {
       "command": "node",
-      "args": ["${__dirname}/bin/annas-mcp.js", "mcp"],
+      "args": [
+        "${__dirname}/bin/annas-mcp.js",
+        "mcp"
+      ],
       "env": {
         "ANNAS_SECRET_KEY": "${user_config.secret_key}",
         "ANNAS_DOWNLOAD_PATH": "${user_config.download_path}",
-        "ANNAS_ACCOUNT_COOKIE": "${user_config.account_cookie}"
+        "ANNAS_ACCOUNT_COOKIE": "${user_config.account_cookie}",
+        "OPENALEX_API_KEY": "${user_config.openalex_api_key}"
       }
     }
   },
   "tools": [
     {
       "name": "book_search",
-      "description": "Find books, textbooks, manuals and standards by title, author or topic, with filters for format, language, source, year and sort order"
+      "description": "Find books, textbooks, manuals and standards in Anna's Archive with format, language, source and year filters"
     },
     {
       "name": "article_search",
-      "description": "Find journal articles by keyword, author or year, or look one up by DOI"
+      "description": "Find papers and dissertations by keywords, citation, DOI or OpenAlex ID; return access evidence and arguments for the selected download"
+    },
+    {
+      "name": "article_details",
+      "description": "Inspect a selected paper or dissertation, its abstract, identifiers, versions and available PDF locations"
+    },
+    {
+      "name": "article_read",
+      "description": "Read bounded sections of OpenAlex structured full text, with provenance and continuation; may consume content allowance"
     },
     {
       "name": "metadata_search",
@@ -48,28 +72,28 @@
     },
     {
       "name": "book_details",
-      "description": "Show a search result's ISBNs and other identifiers, edition, description and reported file problems"
+      "description": "Show a book or archive file's identifiers, edition, description and reported problems"
     },
     {
       "name": "account_status",
-      "description": "Show the membership, whether it allows searching, and how many fast downloads are left"
+      "description": "Inspect Anna's membership and download allowance or OpenAlex usage and rate limits"
     },
     {
       "name": "book_download",
-      "description": "Download a book using the hash from a search result"
+      "description": "Download the selected Anna's Archive file by hash or book-page URL"
     },
     {
       "name": "article_download",
-      "description": "Download an article by DOI or hash"
+      "description": "Download a selected paper or dissertation by DOI, OpenAlex work ID or Anna's hash, with eligible provider fallback"
     }
   ],
   "user_config": {
     "secret_key": {
       "type": "string",
-      "title": "Secret key",
-      "description": "The secret key you log in to Anna's Archive with, from your account page. The server signs in with it and uses it for downloads.",
+      "title": "Anna's Archive secret key (optional)",
+      "description": "Anna's Archive account secret key. Required for archive operations. OpenAlex research access uses its own optional key.",
       "sensitive": true,
-      "required": true
+      "required": false
     },
     "download_path": {
       "type": "directory",
@@ -84,10 +108,21 @@
       "description": "Leave empty. Only needed if signing in with the secret key fails: the aa_account_id2 cookie from a signed-in browser.",
       "sensitive": true,
       "required": false
+    },
+    "openalex_api_key": {
+      "type": "string",
+      "title": "OpenAlex API key (optional)",
+      "description": "OpenAlex key for paper and dissertation discovery, open PDFs and structured text. Hosted file requests use the OpenAlex account allowance.",
+      "sensitive": true,
+      "required": false
     }
   },
   "compatibility": {
-    "platforms": ["darwin", "win32", "linux"],
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
     "runtimes": {
       "node": ">=18.0.0"
     }

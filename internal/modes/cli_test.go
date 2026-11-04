@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/anna"
 )
@@ -162,8 +163,9 @@ func TestCLIEmptySearchResultsAndConfigurationFailure(t *testing.T) {
 
 func TestLoadCLIServiceHandlesEnvironmentFiles(t *testing.T) {
 	invalid := fixture(t, "invalid.env")
+	environmentKeys := fixtureJSON[[]string](t, "environment-keys.json")
 	t.Chdir(t.TempDir())
-	for _, key := range []string{"ANNAS_SECRET_KEY", "ANNAS_DOWNLOAD_PATH", "ANNAS_BASE_URL", "ANNAS_AUTO_BASE_URL", "ANNAS_ACCOUNT_COOKIE"} {
+	for _, key := range environmentKeys {
 		t.Setenv(key, "")
 	}
 	t.Setenv("ANNAS_AUTO_BASE_URL", "false")
@@ -171,8 +173,10 @@ func TestLoadCLIServiceHandlesEnvironmentFiles(t *testing.T) {
 		t.Fatalf("missing optional .env: %v", err)
 	}
 	t.Setenv("ANNAS_BASE_URL", "http://unsafe.example")
-	if _, err := loadCLIService(); anna.CodeOf(err) != anna.CodeConfig {
-		t.Fatalf("invalid config: %v", err)
+	if svc, err := loadCLIService(); err != nil {
+		t.Fatalf("loading deferred config: %v", err)
+	} else if _, err := svc.archive.AccountStatus(t.Context(), time.Second); anna.CodeOf(err) != anna.CodeConfig {
+		t.Fatalf("invalid archive config: %v", err)
 	}
 	if err := os.WriteFile(".env", invalid, 0600); err != nil {
 		t.Fatal(err)

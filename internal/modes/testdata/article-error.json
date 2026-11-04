@@ -1,0 +1,10 @@
+{
+  "code":"NOT_FOUND",
+  "message":"The work was found but no supported PDF was obtained",
+  "provider":"openalex",
+  "reason":"no_copy",
+  "retryable":false,
+  "work_id":"W1588575005",
+  "landing_page":"https://openalex.org/W1588575005",
+  "next_actions":[{"tool":"article_details","arguments":{"id":"W1588575005"}}]
+}

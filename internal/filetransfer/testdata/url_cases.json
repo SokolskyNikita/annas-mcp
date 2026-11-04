@@ -1,0 +1,9 @@
+[
+ {"url":"http://repository.example/paper.pdf","hosted":false},
+ {"url":"https://localhost/paper.pdf","hosted":false},
+ {"url":"https://127.0.0.1/paper.pdf","hosted":false},
+ {"url":"https://name:secret@repository.example/paper.pdf","hosted":false},
+ {"url":"https://other.example/works/W1.pdf","hosted":true},
+ {"url":"https://content.openalex.org:443/works/W1.pdf","hosted":true},
+ {"url":"https://content.openalex.org/elsewhere","hosted":true}
+]

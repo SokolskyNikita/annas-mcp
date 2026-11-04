@@ -2,6 +2,14 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.8.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.8.0) - 2026-11-04
+
+- Add optional OpenAlex access for paper and dissertation discovery, selected-copy details, hosted and direct open PDFs, structured full-text reading, and provider-aware usage. Anna’s Archive can supply eligible DOI fallback when configured.
+- Accept OpenAlex work IDs for dissertations without DOIs, return arguments agents can replay for details, downloads and paging, and keep completed files reusable across calls.
+- Add `article_details` and `article_read`, matching CLI commands, optional provider settings in installers, and agent-oriented setup and recovery guidance.
+- The public Go archive SDK adds an optional `ExpectedTitle` check for DOI downloads and reports the file MD5 and local reuse to Go callers. Existing archive JSON responses keep their previous shape.
+- Add opt-in paper interface checks with `npm run test:live:papers`; hosted content requests consume the configured OpenAlex allowance.
+
 ## [v0.7.2](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.7.2) - 2026-11-04
 
 - Report a file missing from every fast download server as one `NOT_FOUND` line instead of a 404 per server. For a download by hash, the error looks up the record and names its DOI, so the paper can be retried with `article_download`, which also tries SciDB; without a DOI it suggests another copy. The Go client exposes this as `anna.ErrNotOnFastServers`.

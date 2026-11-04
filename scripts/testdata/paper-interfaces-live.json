@@ -1,0 +1,34 @@
+{
+  "hosted_paper": {
+    "label": "AlphaFold",
+    "id": "W3177828909",
+    "doi": "10.1038/s41586-021-03819-2",
+    "title": "Highly accurate protein structure prediction with AlphaFold",
+    "pdf_phrases": [
+      "protein structure prediction with AlphaFold",
+      "Jumper"
+    ]
+  },
+  "no_doi_thesis": {
+    "label": "Glasgow graph algorithms thesis",
+    "id": "W1588575005",
+    "title": "Functional programming and graph algorithms",
+    "search": "Functional programming and graph algorithms",
+    "pdf_phrases": [
+      "Functional Programming",
+      "Graph Algorithms"
+    ]
+  },
+  "repository_only": {
+    "label": "Quantum triangle-finding submitted manuscript",
+    "id": "W1605072865",
+    "title": "Quantum Algorithm for Triangle Finding in Sparse Graphs",
+    "location_id": "pmh:oai:arXiv.org:1507.06878",
+    "version": "submittedVersion",
+    "pdf_phrases": [
+      "Quantum Algorithm for Triangle Finding",
+      "Le Gall",
+      "Nakajima"
+    ]
+  }
+}

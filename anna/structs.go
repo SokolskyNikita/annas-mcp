@@ -105,6 +105,10 @@ type DownloadResult struct {
 	Path          string `json:"path"`
 	Bytes         int64  `json:"bytes"`
 	DownloadsLeft *int   `json:"downloads_left,omitempty"`
+	// MD5 and Reused describe the selected bytes for SDK consumers. The
+	// archive tools retain their existing JSON response.
+	MD5    string `json:"-"`
+	Reused bool   `json:"-"`
 }
 
 // ProgressFunc reports bytes written. total is 0 when the server omits Content-Length.

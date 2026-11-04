@@ -1,0 +1,7 @@
+[
+  {"tool":"article_search","fields":["query","provider","work_type","author_id","institution_id","repository_id","relation","work_id","cursor","include_stats"]},
+  {"tool":"article_details","fields":["id","provider","locations_page","timeout_seconds"]},
+  {"tool":"article_download","fields":["doi","openalex_id","hash","provider","location_id","version","artifact","timeout_seconds"]},
+  {"tool":"article_read","fields":["id","continuation","limit","timeout_seconds"]},
+  {"tool":"account_status","fields":["provider","timeout_seconds"]}
+]

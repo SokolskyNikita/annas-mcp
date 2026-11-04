@@ -33,6 +33,8 @@ The npm launchers always run the latest published release, never your checkout. 
 | `cmd/annas-mcp` | Executable entry point |
 | `internal/modes` | MCP server and CLI, sharing one service layer for interface input and output |
 | `anna` | Public SDK and error contract: search, record details, account status, DOI lookup, downloads and sign-in, including the saved session |
+| `papers` | Public scholarly-work SDK shared by article CLI and MCP operations, including OpenAlex and AA fallback |
+| `internal/openalex`, `internal/filetransfer` | Official Works API and bounded file retrieval |
 | `anna/internal/parse` | Everything that reads Anna's Archive's and DOI.org's answers |
 | `anna/internal/match` | Checks that a record is the paper a DOI names |
 | `anna/internal/mirror` | Mirror selection: health checks, holds on failing mirrors and the official mirror list |
@@ -54,7 +56,7 @@ The npm launchers always run the latest published release, never your checkout. 
 Run these before opening a pull request. None of them need archive credentials.
 
 ```bash
-gofmt -w anna cmd internal
+gofmt -w anna cmd internal papers
 go vet ./...
 npm run check:version   # embedded and npm versions must agree
 npm test                # version, launcher, stdio and external-module SDK checks
@@ -97,7 +99,7 @@ A workflow runs the same check every Monday. It opens an issue labelled `upstrea
 
 ### Live tests
 
-These use real credentials from your environment or `.env`.
+These use real credentials from your environment or `.env`. For the OpenAlex paper and dissertation checks, see `npm run test:live:papers -- --help` for required tools, content requests and output verification.
 
 - `node scripts/smoke-mcp.mjs ./annas-mcp` exercises all seven MCP tools against the live archive, including real downloads (so it uses download quota), and verifies sizes and checksums. It ignores `ANNAS_ACCOUNT_COOKIE` and saves the session in a temporary folder, so it always tests signing in with `ANNAS_SECRET_KEY`.
 - `go build -o annas-mcp ./cmd/annas-mcp` followed by `npm run test:live:books` searches, reads details and downloads six public-domain books through both a real stdio MCP process and CLI processes. It independently verifies all MD5 hashes, then checks changed-title and renamed-file reuse for two books per interface using fresh processes without credentials and with an unusable archive origin. The temporary output directory retains downloads, a JSON report, and sanitized stderr logs; temporary sessions are deleted. This opt-in check uses the configured account and download allowance. Pass a different binary with `npm run test:live:books -- /absolute/path/to/binary`.
@@ -116,10 +118,10 @@ The public Go SDK and applications share the module version and release tags. Up
 3. Commit, push to `main` and wait for CI to pass.
 4. Run `scripts/manage-tag.sh add` to create and push the annotated tag.
 
-The tag triggers the release workflow. It builds the binaries, publishes them with SHA-256 checksums to GitHub Releases, attaches `annas-mcp.mcpb` (built by `npm run pack:mcpb`), then installs the release through the `npx` launcher on each platform and checks the MCP handshake and all seven tools. `node scripts/verify-release.mjs vX.Y.Z` repeats that check locally.
+The tag triggers the release workflow. It builds the binaries, publishes them with SHA-256 checksums to GitHub Releases, attaches `annas-mcp.mcpb` (built by `npm run pack:mcpb`), then installs the release through the `npx` launcher on each platform and checks the MCP handshake and the advertised tool list. `node scripts/verify-release.mjs vX.Y.Z` repeats that check locally.
 
 When the repository variable `PUBLISH_REGISTRIES` is `true`, the workflow then publishes the launcher to npm through npm trusted publishing and the new version to the [MCP Registry](https://registry.modelcontextprotocol.io) through GitHub OIDC. Neither needs a stored secret. The npm package holds only the launcher (`bin`, `lib`); binaries always come from GitHub Releases.
 
 Never move or recreate a published tag: the launcher caches binaries by release and checksum.
 
-SDK contract and examples are documented in [anna/README.md](anna/README.md). Application code imports only public `anna`; SDK production and test code cannot import repository application packages. `npm run check:sdk` enforces both rules and checks independent consumption.
+SDK contracts and examples are documented in the [AA SDK guide](anna/README.md) and the [papers SDK guide](papers/README.md). Application code consumes public SDK contracts. `npm run check:sdk` checks package boundaries and compiles an independent consumer using both SDKs.

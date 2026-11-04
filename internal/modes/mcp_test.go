@@ -21,7 +21,7 @@ func TestMCPInitializationAndSchemasNeedNoUpstream(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(listed.Tools) != 7 {
+	if len(listed.Tools) != 9 {
 		t.Fatalf("got %d tools", len(listed.Tools))
 	}
 	for _, tool := range listed.Tools {

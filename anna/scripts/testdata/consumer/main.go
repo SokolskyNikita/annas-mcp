@@ -7,13 +7,19 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/SokolskyNikita/annas-mcp/anna"
+	"github.com/SokolskyNikita/annas-mcp/papers"
 )
 
 type transport struct{ body []byte }
 
 func (t transport) RoundTrip(r *http.Request) (*http.Response, error) {
+	if r.URL.Host == "api.openalex.org" && r.URL.Path == "/works/W1588575005" {
+		const record = `{"id":"https://openalex.org/W1588575005","type":"dissertation","display_name":"Functional programming and graph algorithms"}`
+		return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(record)), Request: r}, nil
+	}
 	if r.URL.Host != "archive.example" {
 		return nil, fmt.Errorf("unexpected host %s", r.URL.Host)
 	}
@@ -34,6 +40,17 @@ func main() {
 	}
 	if page.Total != 9 || len(page.Results) != 9 || len(page.Partial) != 41 {
 		panic("unexpected search contract")
+	}
+	scholar, err := papers.NewClient(papers.Config{OpenAlexAPIKey: "fixture-key", HTTPClient: &http.Client{Transport: transport{}}})
+	if err != nil {
+		panic(err)
+	}
+	thesis, err := scholar.Details(context.Background(), "W1588575005", papers.DetailsOptions{})
+	if err != nil {
+		panic(err)
+	}
+	if thesis.OpenAlexID != "W1588575005" || thesis.WorkType != "dissertation" || thesis.DOI != "" {
+		panic("unexpected scholarly work identity")
 	}
 	fmt.Println("External SDK consumer passed")
 }

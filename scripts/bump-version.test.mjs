@@ -48,8 +48,13 @@ test("bump rewrites only the version values and adds a changelog heading", (t) =
     assert.equal(after, before.replaceAll(`"version": "${current}"`, `"version": "${next}"`).replace(`v${current}`, `v${next}`), file);
   }
   const changelog = readFileSync(path.join(dir, "CHANGELOG.md"), "utf8").replaceAll("\r\n", "\n");
-  const heading = `## [v${next}](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v${next}) - 2030-01-02\n\n## [v${current}]`;
-  assert.ok(changelog.includes(heading));
+  const heading = `## [v${next}](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v${next}) - 2030-01-02`;
+  const previousLog = readFileSync(path.join(root, "CHANGELOG.md"), "utf8").replaceAll("\r\n", "\n");
+  const oldHeading = `## [v${current}]`;
+  const expected = previousLog.includes("## Unreleased\n")
+    ? previousLog.replace("## Unreleased\n", heading + "\n")
+    : previousLog.replace(oldHeading, heading + "\n\n" + oldHeading);
+  assert.equal(changelog, expected);
 
   // Bumping again keeps the existing heading for the newer release.
   const later = nextVersion(next, "minor");

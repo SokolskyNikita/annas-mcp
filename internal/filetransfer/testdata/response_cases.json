@@ -1,0 +1,11 @@
+[
+ {"name":"html instead of PDF","body":"<html>Sign in</html>","status":200,"artifact":"pdf"},
+ {"name":"invalid XML","body":"<TEI><text>","status":200,"artifact":"tei_xml"},
+ {"name":"wrong XML","body":"<html><body>Sign in</body></html>","status":200,"artifact":"tei_xml"},
+ {"name":"empty","body":"","status":200,"artifact":"pdf"},
+ {"name":"key rejected","body":"error","status":401,"artifact":"pdf"},
+ {"name":"forbidden","body":"error","status":403,"artifact":"pdf"},
+ {"name":"gone","body":"error","status":404,"artifact":"pdf"},
+ {"name":"quota","body":"error","status":429,"artifact":"pdf"},
+ {"name":"outage","body":"error","status":503,"artifact":"pdf"}
+]

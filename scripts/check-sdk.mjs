@@ -15,14 +15,18 @@ function go(args, cwd = root, extraEnv = {}) {
 }
 const dependencies = go(["list", "-deps", "-f", "{{.ImportPath}}", "./anna"]).split("\n");
 for (const pkg of dependencies) {
- if ((pkg.startsWith(prefix) && !pkg.startsWith(prefix + "anna")) || /cobra|modelcontextprotocol|godotenv|go.uber.org\/zap/.test(pkg)) throw new Error(`SDK runtime depends on ${pkg}`);
+ if ((pkg.startsWith(prefix) && !pkg.startsWith(prefix + "anna") && pkg !== prefix + "internal/filetransfer") || /cobra|modelcontextprotocol|godotenv|go.uber.org\/zap/.test(pkg)) throw new Error(`SDK runtime depends on ${pkg}`);
+}
+const transferDependencies = go(["list", "-deps", "-f", "{{if not .Standard}}{{.ImportPath}}{{end}}", "./internal/filetransfer"]).split("\n").filter(Boolean);
+for (const pkg of transferDependencies) {
+ if (pkg !== prefix + "internal/filetransfer") throw new Error(`Shared transfer runtime depends on ${pkg}`);
 }
 const packages = go(["list", "-f", '{{.ImportPath}}|{{join .Imports " "}}|{{join .TestImports " "}}|{{join .XTestImports " "}}', "./..."]);
 for (const line of packages.split("\n")) {
  const [pkg, ...groups] = line.split("|");
  for (const dependency of groups.join(" ").split(" ").filter(Boolean)) {
   if (!dependency.startsWith(prefix)) continue;
-  if (pkg.startsWith(prefix + "anna") && !dependency.startsWith(prefix + "anna")) throw new Error(`${pkg} imports application package ${dependency}`);
+  if (pkg.startsWith(prefix + "anna") && !dependency.startsWith(prefix + "anna") && dependency !== prefix + "internal/filetransfer") throw new Error(`${pkg} imports application package ${dependency}`);
   if (!pkg.startsWith(prefix + "anna") && dependency.startsWith(prefix + "anna/")) throw new Error(`${pkg} imports SDK implementation ${dependency}`);
  }
 }

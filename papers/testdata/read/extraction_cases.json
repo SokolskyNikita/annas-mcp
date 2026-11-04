@@ -1,0 +1,19 @@
+[
+  {
+    "name":"standard.xml",
+    "expected":[
+      {"section":"Introduction","text":"First paragraph with a citation."},
+      {"section":"Introduction","text":"Second paragraph contains Unicode: αβγ and 中文."},
+      {"section":"Results","text":"The result has a line break."}
+    ]
+  },
+  {
+    "name":"wrapped.xml",
+    "expected":[
+      {"section":"Background","text":"Legacy wrapped text is readable."},
+      {"section":"Background","text":"A list item."}
+    ]
+  },
+  {"name":"invalid.xml","error":true},
+  {"name":"directive.xml","error":true}
+]

@@ -1,0 +1,19 @@
+{
+  "provider": "openalex",
+  "openalex_id": "W1588575005",
+  "title": "Functional programming and graph algorithms",
+  "authors": "A Researcher",
+  "work_type": "dissertation",
+  "year": "2006",
+  "page_url": "https://openalex.org/W1588575005",
+  "access": ["hosted_pdf", "repository_pdf"],
+  "download_args": {"openalex_id": "W1588575005"},
+  "locations": [{
+    "id": "pmh:theses.gla.ac.uk/123",
+    "source": "University of Glasgow",
+    "version": "acceptedVersion",
+    "license": "cc-by",
+    "landing_page_url": "https://theses.gla.ac.uk/123",
+    "download_args": {"openalex_id": "W1588575005", "location_id": "pmh:theses.gla.ac.uk/123"}
+  }]
+}

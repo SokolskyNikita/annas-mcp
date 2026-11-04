@@ -303,6 +303,7 @@ async function closeServer(server) {
 function launcherEnv(api, cache) {
   return {
     ...process.env,
+    OPENALEX_API_KEY: "",
     ANNAS_MCP_RELEASE_API: api,
     ANNAS_MCP_CACHE_DIR: cache,
   };
@@ -340,7 +341,7 @@ async function assertHandshake(client, timeoutMs = 10_000) {
   const names = (tools?.tools || []).map((tool) => tool.name).sort();
   assert.deepEqual(
     names,
-    ["account_status", "article_download", "article_search", "book_details", "book_download", "book_search", "metadata_search"],
+    ["account_status", "article_details", "article_download", "article_read", "article_search", "book_details", "book_download", "book_search", "metadata_search"],
     `unexpected tools: ${names.join(", ")}`,
   );
 }

@@ -1,0 +1,24 @@
+{
+  "id": "https://openalex.org/W1588575005",
+  "display_name": "Functional programming and graph algorithms",
+  "type": "dissertation",
+  "publication_year": 1993,
+  "authorships": [
+    {
+      "author": {
+        "id": "https://openalex.org/A123",
+        "display_name": "Fixture Author"
+      }
+    }
+  ],
+  "has_content": {
+    "pdf": true
+  },
+  "content_urls": {
+    "pdf": "https://content.openalex.org/works/W1588575005.pdf"
+  },
+  "primary_location": {
+    "landing_page_url": "https://theses.gla.ac.uk/fixture/"
+  },
+  "locations": []
+}

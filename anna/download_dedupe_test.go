@@ -412,11 +412,20 @@ func TestDownloadArticleByDOIReusesLocalFileAfterLookup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result.Path != existing || result.Bytes != int64(len(body)) || result.DownloadsLeft != nil {
+	if result.Path != existing || result.Bytes != int64(len(body)) || result.DownloadsLeft != nil || !result.Reused || result.MD5 != hash {
 		t.Fatalf("unexpected local DOI reuse: %+v", result)
 	}
 	if lookupCalls.Load() != 2 || fastAPICalls.Load() != 0 || fileCalls.Load() != 0 {
 		t.Fatalf("DOI lookup/download requests = %d/%d/%d, want 2/0/0", lookupCalls.Load(), fastAPICalls.Load(), fileCalls.Load())
+	}
+
+	// A DOI result with a conflicting title must not deliver even a verified
+	// local copy of the wrong paper. A requested filename cannot override this.
+	_, err = client.DownloadArticle(context.Background(), ArticleDownloadOptions{
+		DOI: "10.1000/example", ExpectedTitle: attentionTitle, Title: attentionTitle,
+	}, callTimeout, nil)
+	if CodeOf(err) != NotFound || fastAPICalls.Load() != 0 || fileCalls.Load() != 0 {
+		t.Fatalf("conflicting paper caused a download or the wrong error: %v", err)
 	}
 }
 

@@ -1,0 +1,21 @@
+{
+  "id": "https://openalex.org/W123",
+  "display_name": "Fixture paper",
+  "type": "article",
+  "publication_year": 1993,
+  "authorships": [
+    {
+      "author": {
+        "id": "https://openalex.org/A123",
+        "display_name": "Fixture Author"
+      }
+    }
+  ],
+  "has_content": {},
+  "content_urls": {},
+  "primary_location": {
+    "landing_page_url": "https://theses.gla.ac.uk/fixture/"
+  },
+  "locations": [],
+  "doi": "https://doi.org/10.1000/example"
+}

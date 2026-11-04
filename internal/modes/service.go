@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
-	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/SokolskyNikita/annas-mcp/anna"
 	"github.com/SokolskyNikita/annas-mcp/internal/env"
+	"github.com/SokolskyNikita/annas-mcp/papers"
 )
 
 const defaultSearchLimit = 10
@@ -34,7 +34,13 @@ type archiveClient interface {
 	DownloadArticle(context.Context, anna.ArticleDownloadOptions, time.Duration, anna.ProgressFunc) (anna.DownloadResult, error)
 }
 
-type service struct{ archive archiveClient }
+type service struct {
+	archive    archiveClient
+	config     *env.Env
+	papers     *papers.Client
+	papersOnce sync.Once
+	papersErr  error
+}
 
 // searchResult is one page of search output. matched counts the exact hits
 // parsed from this page and total all of them; partial_matches are looser
@@ -54,20 +60,8 @@ type searchResult[T any] struct {
 }
 
 func loadService() (*service, error) {
-	cfg, err := env.Load()
-	if err != nil {
-		return nil, err
-	}
-	client, err := anna.NewClient(anna.Config{
-		BaseURL: cfg.AnnasBaseURL, AutoBaseURL: cfg.AutoBaseURL,
-		SecretKey: cfg.SecretKey, DownloadPath: cfg.DownloadPath,
-		AccountCookie: cfg.AccountCookie, SessionFile: cfg.SessionFile,
-		Logger: slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &service{archive: client}, nil
+	cfg := env.LoadProviders()
+	return &service{archive: &lazyArchive{config: cfg}, config: cfg}, nil
 }
 
 func timeoutFromSeconds(seconds int, fallback time.Duration) (time.Duration, error) {

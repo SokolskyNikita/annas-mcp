@@ -7,7 +7,7 @@ Import `github.com/SokolskyNikita/annas-mcp/anna`. The MCP server and CLI use th
 Requires Go 1.26 or newer. Add the SDK to your own module:
 
 ```sh
-go get github.com/SokolskyNikita/annas-mcp/anna@v0.7.2
+go get github.com/SokolskyNikita/annas-mcp/anna@v0.8.0
 ```
 
 ```go
