@@ -2,6 +2,11 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## Unreleased
+
+- The `npx` launcher and the Claude Desktop bundle now replace their Node process with the verified binary on macOS and Linux (Node 22.15 or later), instead of keeping Node running beside it. This saves about 50 MB per client session; set `ANNAS_MCP_LAUNCHER_SPAWN=1` to keep the old behavior. Windows and older Node versions start the binary as a child as before.
+- Publish a Homebrew cask: `brew install SokolskyNikita/tap/annas-mcp` runs the server with no Node or npm process, about 20 MB per session.
+
 ## [v0.8.0](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.8.0) - 2026-11-04
 
 - Add optional OpenAlex access for paper and dissertation discovery, selected-copy details, hosted and direct open PDFs, structured full-text reading, and provider-aware usage. Anna’s Archive can supply eligible DOI fallback when configured.

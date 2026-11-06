@@ -50,6 +50,8 @@ jobs:
           args: release --clean -f .goreleaser
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: lets GoReleaser push the cask to SokolskyNikita/homebrew-tap.
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
 
   bundle:
     name: Attach MCP Bundle

@@ -21,16 +21,53 @@ builds:
       - {goos: freebsd, goarch: arm64}
 
 archives:
-  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    # The launcher downloads .tar.gz; .tar.xz stays for v0.1.1 and older launchers.
-    formats: [tar.gz, tar.xz]
+  # The launcher and the Homebrew cask download .tar.gz.
+  - id: default
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
     format_overrides:
       - {goos: windows, formats: [zip]}
+    wrap_in_directory: true
+    files: [README.md, HOW-IT-WORKS.md, CHANGELOG.md, LICENSE]
+  # .tar.xz stays for v0.1.1 and older launchers.
+  - id: legacy-xz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.xz]
+    format_overrides:
+      - {goos: windows, formats: [none]}
     wrap_in_directory: true
     files: [README.md, HOW-IT-WORKS.md, CHANGELOG.md, LICENSE]
 
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}--checksums.txt"
+
+# `brew install SokolskyNikita/tap/annas-mcp` runs the binary with no Node or
+# npm process around it. Publishing needs the SokolskyNikita/homebrew-tap
+# repository and a HOMEBREW_TAP_GITHUB_TOKEN secret that can push to it; without
+# the token the cask is only written to dist/.
+homebrew_casks:
+  - name: annas-mcp
+    ids: [default]
+    binaries: [annas-mcp]
+    # The binary acts as the CLI when started under the annas-cli name.
+    custom_block: |
+      binary "annas-mcp", target: "annas-cli"
+    homepage: "https://github.com/SokolskyNikita/annas-mcp"
+    description: "Search and download books, papers and dissertations from Anna's Archive and OpenAlex"
+    repository:
+      owner: SokolskyNikita
+      name: homebrew-tap
+      token: '{{ index .Env "HOMEBREW_TAP_GITHUB_TOKEN" }}'
+    skip_upload: '{{ if index .Env "HOMEBREW_TAP_GITHUB_TOKEN" }}auto{{ else }}true{{ end }}'
+    commit_msg_template: "annas-mcp {{ .Tag }}"
+    # The release binaries are not notarized, so Homebrew's quarantine flag
+    # would make macOS refuse to run them.
+    hooks:
+      post:
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/annas-mcp"]
+          end
 
 changelog:
   sort: asc

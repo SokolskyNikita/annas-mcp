@@ -17,7 +17,7 @@ import {
   sha256Digest,
   targetForRelease,
 } from "../lib/target.js";
-import { cacheDir, readCacheMeta, releaseAPI, writeCacheMeta } from "../lib/launcher.js";
+import { cacheDir, execBinary, readCacheMeta, releaseAPI, writeCacheMeta } from "../lib/launcher.js";
 import { tarExecutable, validateArchiveEntryName } from "../lib/archive.js";
 import { MCPProcessClient } from "./mcp-session.mjs";
 
@@ -379,8 +379,34 @@ async function testCacheMetaSharingErrors() {
   }
 }
 
+// The launcher replaces itself with the binary where Node has process.execve,
+// and must fall back to spawning everywhere else.
+function testExecBinary() {
+  const calls = [];
+  const unix = { platform: "linux", execve: (...args) => calls.push(args) };
+  assert.equal(execBinary("/cache/annas-mcp", ["mcp"], { argv0: "annas-cli", env: { A: "1" }, processRef: unix }), true);
+  assert.deepEqual(calls, [["/cache/annas-mcp", ["annas-cli", "mcp"], { A: "1" }]]);
+  assert.equal(execBinary("/cache/annas-mcp", ["--version"], { env: {}, processRef: unix }), true);
+  assert.deepEqual(calls[1][1], ["/cache/annas-mcp", "--version"], "argv0 should default to the binary path");
+
+  assert.equal(execBinary("/b", [], { env: {}, processRef: { platform: "linux" } }), false);
+  assert.equal(execBinary("C:/b.exe", [], { env: {}, processRef: { platform: "win32", execve: unix.execve } }), false);
+  assert.equal(execBinary("/b", [], { env: { ANNAS_MCP_LAUNCHER_SPAWN: "1" }, processRef: unix }), false);
+  assert.equal(calls.length, 2, "opted-out and unsupported runtimes must not call execve");
+
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    const failing = { platform: "darwin", execve: () => { throw Object.assign(new Error("ENOEXEC"), { code: "ENOEXEC" }); } };
+    assert.equal(execBinary("/b", [], { env: {}, processRef: failing }), false, "a failed execve should fall back to spawn");
+  } finally {
+    console.error = originalError;
+  }
+}
+
 async function main() {
   testAssetSelection();
+  testExecBinary();
   testInputValidation();
   await testMCPProcessClient();
   await testCacheMetaSharingErrors();
@@ -442,6 +468,12 @@ async function main() {
     const session = new MCPProcessClient(server);
     try {
       await assertHandshake(session);
+      if (typeof process.execve === "function" && process.platform !== "win32") {
+        // After execve, the launcher's PID runs the Go binary, not Node.
+        const command = spawnSync("ps", ["-o", "comm=", "-p", String(server.pid)], { encoding: "utf8" });
+        assert.equal(command.status, 0, command.stderr);
+        assert.match(command.stdout.trim(), /annas-mcp$/, `launcher PID still runs ${command.stdout.trim()}`);
+      }
     } catch (error) {
       throw new Error(`default MCP launcher: ${error.message}`);
     } finally {
@@ -463,6 +495,12 @@ async function main() {
       await cliSession.close();
     }
     assert.equal(release.downloads(), 1, "both launchers must share the binary cache");
+
+    const spawned = await runLauncher(["--version"], { ...env, ANNAS_MCP_LAUNCHER_SPAWN: "1" });
+    assert.equal(spawned.status, 0, spawned.stderr);
+    assert.equal(spawned.stdout, version.stdout, "the spawn fallback must behave like the execve handoff");
+    const spawnedFailure = await runLauncher(["book-search", "example", "--timeout", "0s"], { ...env, ANNAS_MCP_LAUNCHER_SPAWN: "1" }, "annas-cli");
+    assert.equal(spawnedFailure.status, 1, "the spawn fallback must preserve the binary's exit code");
 
     await writeFile(path.join(cache, "current.json"), "{");
     const recovered = await runLauncher(["--version"], env);

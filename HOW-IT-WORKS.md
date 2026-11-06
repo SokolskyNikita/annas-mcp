@@ -97,6 +97,8 @@ Which mirrors worked or failed recently is saved as `mirrors.json` in the [cache
 
 On first run `npx` downloads the latest release and caches it once its checksum matches. Later runs start from the cache and pick up new releases automatically.
 
+On macOS and Linux with Node 22.15 or later, the launcher then replaces its own Node process with the binary, so only the server keeps running. `npx` itself still waits beside it; the [Homebrew install](README.md#homebrew-lighter-on-memory) avoids that too. Set `ANNAS_MCP_LAUNCHER_SPAWN=1` to have the launcher start the binary as a child instead, as it does on Windows and older Node versions.
+
 The cache folder is `ANNAS_MCP_CACHE_DIR` if you set it, otherwise `~/.cache/annas-mcp` on macOS and Linux (`$XDG_CACHE_HOME/annas-mcp` if that is set) and `%LOCALAPPDATA%\annas-mcp` on Windows. The server saves its [session](#the-saved-session) and [mirror health](#choosing-a-mirror) there too.
 
 ## The saved session

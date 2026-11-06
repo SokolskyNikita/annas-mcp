@@ -122,6 +122,8 @@ The tag triggers the release workflow. It builds the binaries, publishes them wi
 
 When the repository variable `PUBLISH_REGISTRIES` is `true`, the workflow then publishes the launcher to npm through npm trusted publishing and the new version to the [MCP Registry](https://registry.modelcontextprotocol.io) through GitHub OIDC. Neither needs a stored secret. The npm package holds only the launcher (`bin`, `lib`); binaries always come from GitHub Releases.
 
+GoReleaser also pushes a Homebrew cask to [SokolskyNikita/homebrew-tap](https://github.com/SokolskyNikita/homebrew-tap) when the `HOMEBREW_TAP_GITHUB_TOKEN` secret holds a fine-grained token with contents write access to that repository. Without the secret the release still succeeds and the cask is only written to `dist/homebrew`.
+
 Never move or recreate a published tag: the launcher caches binaries by release and checksum.
 
 SDK contracts and examples are documented in the [AA SDK guide](anna/README.md) and the [papers SDK guide](papers/README.md). Application code consumes public SDK contracts. `npm run check:sdk` checks package boundaries and compiles an independent consumer using both SDKs.

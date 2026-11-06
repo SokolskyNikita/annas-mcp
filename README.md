@@ -100,6 +100,24 @@ args = ["-y", "annas-mcp"]
 OPENALEX_API_KEY = "your-openalex-key"
 ```
 
+#### Homebrew: lighter on memory
+
+`npx` keeps npm running beside the server for the whole session, about 100 MB per client window. On macOS and Linux, Homebrew installs the binary itself, so each client starts only the server, about 20 MB:
+
+```bash
+brew install SokolskyNikita/tap/annas-mcp
+```
+
+Then use `annas-mcp` as the command in any of the configurations above, with no arguments. For Claude Code:
+
+```bash
+claude mcp add annas-mcp \
+  --env ANNAS_SECRET_KEY=your-secret-key \
+  -- annas-mcp
+```
+
+The same install provides `annas-cli`. Update with `brew upgrade annas-mcp`; unlike `npx`, the server does not check for new releases itself.
+
 #### Gemini CLI
 
 ```bash
