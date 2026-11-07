@@ -184,7 +184,12 @@ func TestFileStatsBudgetIsBestEffortAndCallerCancellationIsReturned(t *testing.T
 	if _, err := client.FileStats(deadlineCtx, []string{hash}); !errors.Is(err, context.DeadlineExceeded) {
 		t.Fatalf("caller deadline error = %v", err)
 	}
-	<-started
+	// On a slow runner the 20 ms deadline can expire before the request
+	// reaches the transport, so the request may never start.
+	select {
+	case <-started:
+	default:
+	}
 }
 
 func TestStatsCacheExpiresAndEvictsLeastRecentlyUsed(t *testing.T) {
