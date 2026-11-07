@@ -3,7 +3,7 @@
   "repository": "https://software.annas-archive.gl/AnnaArchivist/annas-archive.git",
   "web": "https://software.annas-archive.gl/AnnaArchivist/annas-archive",
   "branch": "main",
-  "reviewed": "8d4c23e071f7fea99e0b7af4d0979b8d6ec7e074",
+  "reviewed": "a15b123c9c2e7e5919a0ad2440b2cc5649ebd8aa",
   "files": [
     {
       "path": "allthethings/templates/macros/aarecord_list.html",
