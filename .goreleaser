@@ -57,7 +57,7 @@ homebrew_casks:
     repository:
       owner: SokolskyNikita
       name: homebrew-tap
-      token: '{{ index .Env "HOMEBREW_TAP_GITHUB_TOKEN" }}'
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     skip_upload: '{{ if index .Env "HOMEBREW_TAP_GITHUB_TOKEN" }}auto{{ else }}true{{ end }}'
     commit_msg_template: "annas-mcp {{ .Tag }}"
     # The release binaries are not notarized, so Homebrew's quarantine flag
