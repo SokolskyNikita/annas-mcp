@@ -108,12 +108,12 @@ OPENALEX_API_KEY = "your-openalex-key"
 brew install SokolskyNikita/tap/annas-mcp
 ```
 
-Then use `annas-mcp` as the command in any of the configurations above, with no arguments. For Claude Code:
+Then use `annas-mcp` as the command in any of the configurations above, with `mcp` as its only argument (`"args": ["mcp"]` in JSON, `args = ["mcp"]` in TOML). For Claude Code:
 
 ```bash
 claude mcp add annas-mcp \
   --env ANNAS_SECRET_KEY=your-secret-key \
-  -- annas-mcp
+  -- annas-mcp mcp
 ```
 
 The same install provides `annas-cli`. Update with `brew upgrade annas-mcp`; unlike `npx`, the server does not check for new releases itself.
