@@ -469,10 +469,12 @@ async function main() {
     try {
       await assertHandshake(session);
       if (typeof process.execve === "function" && process.platform !== "win32") {
-        // After execve, the launcher's PID runs the Go binary, not Node.
-        const command = spawnSync("ps", ["-o", "comm=", "-p", String(server.pid)], { encoding: "utf8" });
+        // After execve, the launcher's PID runs the Go binary, not Node. Read
+        // the full command line: Linux truncates comm to 15 characters.
+        const command = spawnSync("ps", ["-o", "args=", "-p", String(server.pid)], { encoding: "utf8" });
         assert.equal(command.status, 0, command.stderr);
-        assert.match(command.stdout.trim(), /annas-mcp$/, `launcher PID still runs ${command.stdout.trim()}`);
+        assert.match(command.stdout.trim(), /annas-mcp mcp$/, `launcher PID still runs ${command.stdout.trim()}`);
+        assert.doesNotMatch(command.stdout, /\bbin\/annas-mcp\.js\b/, "launcher PID still runs Node");
       }
     } catch (error) {
       throw new Error(`default MCP launcher: ${error.message}`);
