@@ -3,7 +3,7 @@
   "manifest_version": "0.3",
   "name": "annas-mcp",
   "display_name": "Anna's Archive and OpenAlex",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Search books with Anna's Archive and papers and dissertations with OpenAlex, then download or read the selected work.",
   "long_description": "Search books, textbooks, manuals and standards through Anna's Archive. Discover papers and dissertations through OpenAlex by title, author, topic, DOI or OpenAlex work ID, inspect available copies and versions, and download a selected file or read structured full text. Configure an OpenAlex API key for open research, an Anna's Archive membership for archive access, or both for fallback. OpenAlex hosted content consumes its account allowance. The bundle downloads and verifies the matching release binary on first use and saves credentials only in client configuration and provider sessions.",
   "author": {

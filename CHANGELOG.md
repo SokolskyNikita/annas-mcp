@@ -2,6 +2,10 @@
 
 Release dates are GitHub publication dates in UTC. Versions up to v0.0.15 were published from an earlier repository that was forked from iosifache/annas-mcp. v0.0.16 restarted the project from a fresh history once all of that code had been rewritten, so those earlier tags are not available here.
 
+## [v0.8.2](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.8.2) - 2026-11-07
+
+- Publish v0.8.1's changes to npm, the MCP Registry and the new Homebrew tap. The v0.8.1 release workflow stopped at the Homebrew step, after attaching the binaries, so v0.8.1 never reached npm or Homebrew. The server is unchanged from v0.8.1.
+
 ## [v0.8.1](https://github.com/SokolskyNikita/annas-mcp/releases/tag/v0.8.1) - 2026-11-07
 
 - The `npx` launcher and the Claude Desktop bundle now replace their Node process with the verified binary on macOS and Linux (Node 22.15 or later), instead of keeping Node running beside it. This saves about 50 MB per client session; set `ANNAS_MCP_LAUNCHER_SPAWN=1` to keep the old behavior. Windows and older Node versions start the binary as a child as before.
