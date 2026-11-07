@@ -1,6 +1,6 @@
 {
   "name": "annas-mcp",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Search books with Anna's Archive and papers and dissertations with OpenAlex, then download or read the selected work.",
   "mcpServers": {
     "annas-mcp": {
